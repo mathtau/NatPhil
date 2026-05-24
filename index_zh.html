@@ -1,0 +1,2360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>高斯积分的自然推导</title>
+
+  <meta name="description" content="高斯积分的可视化推导 —— 从 x²/2 到隐藏的圆周，附交互式图表。">
+  <meta name="author" content="Int Math Channel">
+
+  <link rel="canonical" href="https://intmathchannel.github.io/NatPhil/index_zh.html">
+  <link rel="alternate" hreflang="en" href="https://intmathchannel.github.io/NatPhil/">
+  <link rel="alternate" hreflang="zh" href="https://intmathchannel.github.io/NatPhil/index_zh.html">
+  <link rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.zh">
+
+  <meta property="og:title" content="高斯积分的自然推导">
+  <meta property="og:description" content="从线性变化到隐藏圆周的可视化之旅。">
+  <meta property="og:url" content="https://intmathchannel.github.io/NatPhil/index_zh.html">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="https://intmathchannel.github.io/NatPhil/og-card.png">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:locale:alternate" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230c0c1e'/%3E%3Ctext x='50' y='74' font-family='Georgia' font-size='80' fill='%23f0c040' text-anchor='middle'%3Eτ%3C/text%3E%3C/svg%3E">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0c0c1e;
+      --surface:   #111128;
+      --border:    #22224a;
+      --text:      #c4c4dc;
+      --muted:     #60607a;
+      --gold:      #f0c040;
+      --cyan:      #40c8f0;
+      --green:     #50d890;
+      --orange:    #f08840;
+      --pink:      #e06080;
+    }
+
+    body {
+      font-family: 'Georgia', 'PingFang SC', 'Microsoft YaHei', serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.8;
+    }
+
+    /* ── Header ─────────────────────────────────────────────────── */
+    header {
+      text-align: center;
+      padding: 72px 24px 52px;
+      border-bottom: 1px solid var(--border);
+    }
+    header h1 {
+      font-size: 2.6rem;
+      color: var(--gold);
+      letter-spacing: 0.05em;
+      text-shadow: 0 0 50px rgba(240,192,64,.25);
+    }
+    header p {
+      margin-top: 14px;
+      color: var(--muted);
+      font-style: italic;
+      font-size: 1.05rem;
+    }
+
+    /* ── Layout ─────────────────────────────────────────────────── */
+    main {
+      max-width: 940px;
+      margin: 0 auto;
+      padding: 0 28px 100px;
+    }
+
+    .section {
+      margin-top: 80px;
+    }
+
+    .sec-head {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 28px;
+    }
+    .sec-num  { font-size: .78rem; color: var(--muted); font-family: monospace; letter-spacing: .08em; }
+    h2        { font-size: 1.5rem; font-weight: normal; color: var(--gold); }
+
+    p         { margin-bottom: 18px; max-width: 740px; }
+
+    /* inline math highlight */
+    em.m      { font-style: italic; color: var(--cyan); }
+    em.mg     { font-style: italic; color: var(--green); }
+    em.mo     { font-style: italic; color: var(--orange); }
+
+    /* centred equation display */
+    .eq {
+      display: block;
+      text-align: center;
+      font-style: italic;
+      font-size: 1.25rem;
+      color: var(--green);
+      margin: 30px auto;
+      letter-spacing: .02em;
+    }
+
+    /* callout box */
+    .callout {
+      background: rgba(240,192,64,.05);
+      border-left: 3px solid var(--gold);
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin: 28px 0;
+      max-width: 740px;
+    }
+    .callout p { margin: 0; }
+    .callout-cyan {
+      background: rgba(64,200,240,.05);
+      border-left: 3px solid var(--cyan);
+    }
+
+    h3.subhead {
+      font-size: 1.05rem;
+      font-weight: normal;
+      font-style: italic;
+      color: var(--cyan);
+      margin: 44px 0 16px;
+      letter-spacing: .01em;
+    }
+
+    /* Vertical fraction: x² over 2 */
+    .frac {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      vertical-align: middle;
+      font-size: .9em;
+      line-height: 1.1;
+      margin: 0 2px;
+    }
+    .frac .num {
+      border-bottom: 1px solid currentColor;
+      padding: 0 3px 1px;
+    }
+    .frac .den {
+      padding: 1px 3px 0;
+    }
+
+    /* ── Graph cards ─────────────────────────────────────────────── */
+    .graphs {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin: 32px 0;
+    }
+    .graph-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 18px 12px;
+      flex: 1 1 380px;
+    }
+    /* Canvas: attribute size = 2× CSS size for crisp rendering */
+    .graph-card canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .graph-caption {
+      font-size: .8rem;
+      color: var(--muted);
+      font-style: italic;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    /* ── Slider ──────────────────────────────────────────────────── */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin: 24px 0 8px;
+      flex-wrap: wrap;
+    }
+    .controls label {
+      font-style: italic;
+      color: var(--cyan);
+    }
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 240px;
+      height: 5px;
+      background: var(--border);
+      border-radius: 3px;
+      outline: none;
+      cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px; height: 18px;
+      background: var(--gold);
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(240,192,64,.45);
+    }
+    .val { font-family: monospace; color: var(--gold); min-width: 48px; }
+
+    /* play button */
+    .btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 6px;
+      padding: 5px 16px;
+      font-family: monospace;
+      font-size: .85rem;
+      cursor: pointer;
+      transition: border-color .2s, color .2s;
+    }
+    .btn:hover { border-color: var(--gold); color: var(--gold); }
+    .btn.active { border-color: var(--pink); color: var(--pink); }
+
+    /* ── Placeholder ─────────────────────────────────────────────── */
+    .placeholder {
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 52px;
+      text-align: center;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* ── Language toggle ─────────────────────────────────────────── */
+    .lang-toggle {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 100;
+      display: flex;
+      gap: 2px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 3px;
+      font-family: 'Georgia', 'PingFang SC', 'Microsoft YaHei', serif;
+    }
+    .lang-toggle a {
+      padding: 6px 14px;
+      border-radius: 6px;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: .9rem;
+      transition: color .2s, background .2s;
+    }
+    .lang-toggle a:hover { color: var(--gold); }
+    .lang-toggle a.active {
+      background: rgba(240,192,64,.15);
+      color: var(--gold);
+    }
+
+    /* ── Footer ───────────────────────────────────────────────── */
+    footer {
+      max-width: 940px;
+      margin: 60px auto 0;
+      padding: 36px 28px 60px;
+      border-top: 1px solid var(--border);
+      font-size: .9rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    footer p { margin-bottom: 14px; max-width: 760px; }
+    footer p:last-child { margin-bottom: 0; }
+    footer a {
+      color: var(--cyan);
+      text-decoration: none;
+      border-bottom: 1px dotted rgba(64,200,240,.5);
+      transition: color .2s, border-color .2s;
+    }
+    footer a:hover { color: var(--gold); border-bottom-color: var(--gold); }
+    footer .cite { color: var(--text); font-family: 'Georgia', serif; }
+    footer .footer-meta {
+      font-family: monospace;
+      font-size: .82rem;
+      letter-spacing: .02em;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+<div class="lang-toggle">
+  <a href="index.html">English</a>
+  <a href="index_zh.html" class="active">中文</a>
+</div>
+
+<header>
+  <h1>高斯积分的自然推导</h1>
+  <p>从线性变化到隐藏圆的视觉之旅</p>
+</header>
+
+<main>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     第一节 — x²/2
+═══════════════════════════════════════════════════════════════ -->
+<div class="section" id="s1">
+  <div class="sec-head">
+    <span class="sec-num">§ 1</span>
+    <h2><span class="frac"><span class="num">x²</span><span class="den">2</span></span> 的自然出现</h2>
+  </div>
+
+  <!-- ── 第一部分：为何 v = t ──────────────────────────────── -->
+  <h3 class="subhead">第一部分 — 为什么 v = t 是自然的速度？</h3>
+
+  <p>重力是恒定加速度的典型例子——在地球表面附近，它让下落物体以约 9.8 m/s²
+  的加速度向下运动，在人类尺度上几乎完美恒定。加速度即速度的变化率：</p>
+
+  <span class="eq">a &ensp;=&ensp; <span class="frac"><span class="num">dv</span><span class="den">dt</span></span></span>
+
+  <p>重新整理：每一微小时间片 <em class="m">dt</em> 提供一份速度增量
+  <em class="m">dv = a · dt</em>。令 <em class="m">a = 1</em> 可使数值简化而不改变结构。
+  当 <em class="m">a = 1</em> 时：<em class="mg">dv = dt</em>。</p>
+
+  <p>现在看看恒定的 <em class="m">a</em> 如何在同一时间区间内累积出
+  <em class="m">v</em>：</p>
+
+  <p><strong>左图</strong>——时间轴上恒定的 <em class="m">a = 1</em>。
+  <em class="m">N</em> 个彩色方块，每个高度为 1，宽度为 <em class="m">dt</em>，因此面积为：</p>
+
+  <span class="eq">1 · dt &ensp;=&ensp; a · dt &ensp;=&ensp; dt &ensp;=&ensp; dv</span>
+
+  <p><strong>右图</strong>——时间轴上的 <em class="m">v</em>。每个时间区间内，
+  <em class="m">v</em> 按定义增长 <em class="mg">dv</em>：右图上每段刻度长度对应左图中
+  一个方块的面积，在大 <em class="m">N</em> 极限下完美贴合 <em class="m">v = t</em>。
+  拖动 <em class="m">N</em>：</p>
+
+  <div class="controls">
+    <label>N =</label>
+    <input type="range" id="sl1n" min="2" max="50" step="1" value="10">
+    <span class="val" id="vl1n">10</span>
+  </div>
+
+  <div class="graphs">
+    <div class="graph-card">
+      <canvas id="c1g" width="700" height="700"></canvas>
+      <p class="graph-caption">
+        恒定加速度 g = 1——每个彩色方块代表一份速度增量
+        <em>dv = g · dt</em>
+      </p>
+    </div>
+    <div class="graph-card">
+      <canvas id="c1v" width="700" height="700"></canvas>
+      <p class="graph-caption">
+        彩色刻度是长度 dv——把它们沿速度轴堆叠就得到 <em>v = Σ dv = t</em>
+      </p>
+    </div>
+  </div>
+
+  <p>当 <em class="m">N → ∞</em> 时，每个切片变得越来越细，阶梯就成为光滑直线
+  <em class="m">v = t</em>。这条直线不是人为选择的——它由重力的恒定性所强制：
+  相等的推动累积成线性增长。</p>
+
+  <!-- ── 第二部分：自然的距离 ────────────────────────── -->
+  <h3 class="subhead">第二部分 — 为什么 x = t²/2 是自然的距离？</h3>
+
+  <p>距离等于速度乘以时间。每个瞬时贡献一条薄薄的面积条
+  <em class="m">v · dt = t · dt</em>，总距离就是所有条形的总和——即
+  <em class="m">v = t</em> 下方的面积。</p>
+
+  <p>这个区域是一个直角三角形，底为 <em class="m">t</em>、高为
+  <em class="m">t</em>。其面积恰好是外接正方形的一半：</p>
+
+  <span class="eq">x &ensp;=&ensp; ½ · t · t &ensp;=&ensp; <span class="frac"><span class="num">t²</span><span class="den">2</span></span></span>
+
+  <p><strong>左图</strong>——时间轴上的 <em class="m">v = t</em>。每条彩色条带
+  高为 <em class="m">v</em>、宽为 <em class="m">dt</em>，因此面积为：</p>
+
+  <span class="eq">v · dt &ensp;=&ensp; t · dt &ensp;=&ensp; dx</span>
+
+  <p><strong>右图</strong>——时间轴上的距离 <em class="m">x(t)</em>。每一刻，
+  距离按左图条带的面积增长：右图上每段刻度长度对应一条条带的面积，
+  在大 <em class="m">N</em> 极限下勾勒出 <em class="m">x(t) = t²/2</em>。
+  拖动 <em class="m">t</em>——或点击播放：</p>
+
+  <div class="controls">
+    <label>N =</label>
+    <input type="range" id="sl1an" min="2" max="50" step="1" value="10">
+    <span class="val" id="vl1an">10</span>
+  </div>
+  <div class="controls" style="margin-top: 6px;">
+    <label>t =</label>
+    <input type="range" id="sl1" min="0.05" max="3.3" step="0.01" value="1.5">
+    <span class="val" id="vl1">1.50</span>
+    <button class="btn" id="play1">&#9654; 播放</button>
+  </div>
+
+  <div class="graphs">
+    <div class="graph-card">
+      <canvas id="c1a" width="700" height="700"></canvas>
+      <p class="graph-caption">
+        每条彩色条带的面积 = 距离增量 <em>dx = v · dt</em>
+      </p>
+    </div>
+    <div class="graph-card">
+      <canvas id="c1b" width="700" height="700"></canvas>
+      <p class="graph-caption">
+        相同条带堆叠为刻度长度——阶梯描绘出 x(t) = t²/2
+      </p>
+    </div>
+  </div>
+
+  <p>右图中的抛物线 <em class="m">t²/2</em> 正是左图中不断生长的三角形。
+  其上任一点的斜率即为速度：<em class="mg">d/dt (t²/2) = t</em>。
+  直线与抛物线互为镜像。</p>
+
+  <div class="callout">
+    <p><strong>关键洞察。</strong>&ensp;<em class="m">t²/2</em> 是自然的距离，
+    因为它是由线性速度构成的三角形面积——而任何三角形的面积都是其外接矩形的一半。
+    ½ 来自几何，而非约定。</p>
+  </div>
+
+  <!-- ── 第三部分：自然的出现 ──────────────────────────── -->
+  <h3 class="subhead">第三部分 — x²/2 出现在任何线性增长之处</h3>
+
+  <p>第二部分表明，恒定加速度下的距离是 <em class="m">t²/2</em>。
+  这只是一个更深层模式的特例。它出现的原因很简单：</p>
+
+  <span class="eq"><span class="frac"><span class="num">d</span><span class="den">dx</span></span><span style="font-style:italic"> (</span><span class="frac"><span class="num">x²</span><span class="den">2</span></span><span style="font-style:italic">)</span> &ensp;=&ensp; x</span>
+
+  <p><em class="m">x²/2</em> 是 <em class="m">x</em> 的积分——即按 <em class="m">x</em>
+  自身比例增长的任何量的自然累积。每当物理给你一个线性增长的量，对其积分就会得到
+  <em class="m">x²/2</em>。½ 不是人为插入的；它是直线与坐标轴之间的三角形面积。</p>
+
+  <p>再举两个物理例子——都很熟悉，都是同一个三角形：</p>
+
+  <p><strong>动能。</strong>力 <em class="m">F = ma</em> 加速质量。速度按时间线性增长：
+  <em class="m">v = at</em>。功 = 力 × 距离，而距离 = <em class="m">t²/2</em>（第二部分）。
+  因此：</p>
+
+  <span class="eq">KE &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den">2</span></span>mv²</span>
+
+  <p>这里的 ½ 与第二部分是同一个三角形——速度从 0 线性增长，所以平均值是终值的一半。</p>
+
+  <p><strong>弹簧能量。</strong>胡克定律指出，恢复力按位移成正比增长：
+  <em class="m">F = kx</em>。压缩弹簧 <em class="m">x</em> 距离所需的功是该直线下方的面积
+  ——又一个三角形：</p>
+
+  <span class="eq">PE &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den">2</span></span>kx²</span>
+
+  <div class="callout callout-cyan">
+    <p><strong>关键洞察。</strong>&ensp;<em class="m">½mv²</em> 与 <em class="m">½kx²</em>
+    携带同一个 ½，原因相同：物理量（速度、力）线性增长，所以其累积效应是三角形面积
+    ——恰好是外接矩形的一半。<em class="m">x²/2</em> 是线性增长被积分一次的通用印记。</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     第二节 — 1/x, log, exp
+═══════════════════════════════════════════════════════════════ -->
+<div class="section" id="s2">
+  <div class="sec-head">
+    <span class="sec-num">§ 2</span>
+    <h2>1/x、log(x) 与 exp(y) 的自然出现</h2>
+  </div>
+
+  <h3 class="subhead">第一部分 — 为什么 1/x 自然出现？</h3>
+
+  <p>波义耳定律是反比关系的典型例子——保持温度不变，压强与体积成反比。
+  令比例常数为 1：</p>
+
+  <span class="eq">PV &ensp;=&ensp; 1 &ensp;⟹&ensp; P &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den">V</span></span></span>
+
+  <p>体积减半，压强翻倍；压缩到三分之一，压强变三倍。
+  对体积作图，这就是曲线 <em class="m">y = 1/x</em>。</p>
+
+  <p>现在问：<em>气体从体积 1 膨胀到体积 <em class="m">V</em> 时释放多少功？</em>
+  功是压强乘以体积变化。每个微小膨胀 <em class="m">dV</em> 贡献：</p>
+
+  <span class="eq">dW &ensp;=&ensp; P &thinsp;·&thinsp; dV &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den">V</span></span> dV</span>
+
+  <p><strong>左图</strong>——体积轴上的压强 <em class="m">P = 1/V</em>。
+  <em class="m">N</em> 个彩色方块，每个高 <em class="m">1/V</em>，宽 <em class="m">dV</em>，
+  面积为：</p>
+
+  <span class="eq"><span class="frac"><span class="num">1</span><span class="den">V</span></span> · dV &ensp;=&ensp; P · dV &ensp;=&ensp; dW</span>
+
+  <p><strong>右图</strong>——体积轴上的功 <em class="m">W</em>。右图上每段刻度长度
+  对应左图一个方块的面积，在大 <em class="m">N</em> 极限下逐渐堆叠成
+  <em class="m">W = log V</em>。拖动 <em class="m">N</em> 精化；拖动 <em class="m">V</em>
+  延伸——或点击播放：</p>
+
+  <div class="controls">
+    <label>N =</label>
+    <input type="range" id="sl2n" min="2" max="50" step="1" value="10">
+    <span class="val" id="vl2n">10</span>
+  </div>
+  <div class="controls" style="margin-top: 6px;">
+    <label>V =</label>
+    <input type="range" id="sl2v" min="1.1" max="7.5" step="0.05" value="4">
+    <span class="val" id="vl2v">4.00</span>
+    <button class="btn" id="play2">&#9654; 播放</button>
+  </div>
+
+  <div class="graphs">
+    <div class="graph-card">
+      <canvas id="c2a" width="700" height="700"></canvas>
+      <p class="graph-caption">每个彩色矩形的面积 = 功的贡献
+      dW = (1/V)·ΔV</p>
+    </div>
+    <div class="graph-card">
+      <canvas id="c2ar" width="700" height="700"></canvas>
+      <p class="graph-caption">相同矩形堆叠成高度——阶梯逼近
+      W = log V</p>
+    </div>
+  </div>
+
+  <p>当 <em class="m">N → ∞</em> 时，阶梯填满那条光滑的金色曲线。这条曲线
+  ——<em class="m">1/V</em> 下方累积的面积——就是<strong>对数函数</strong>。
+  它是数学与科学中最重要的函数之一：是按比例增长或衰减（而非固定数量增减）的自然语言。</p>
+
+  <h3 class="subhead">第二部分 — 相等比值，相等面积</h3>
+
+  <p>在上面的图中将 <em class="m">V</em> 拖过 2，再拖过 4。每次翻倍都给右图增加
+  完全相同的高度——区间 1→2、2→4、4→8 都贡献相同的功，<em class="mg">log 2 ≈ 0.693</em>，
+  无论位于坐标轴的哪个位置：</p>
+
+  <div class="graphs">
+    <div class="graph-card" style="flex: 1 1 380px; max-width: 480px;">
+      <canvas id="c2b" width="700" height="700"></canvas>
+      <p class="graph-caption">体积的三次翻倍——每个阴影区域代表相同的功 log 2</p>
+    </div>
+  </div>
+
+    <p>原因如下：<em class="m">dV/V</em> 度量的是<em>相对</em>变化，而相对变化对缩放不敏感。
+  在各处把 <em class="m">V</em> 替换为 <em class="m">c · V</em>——条带变宽为
+  <em class="m">d(c·V) = c · dV</em>，高度变为 <em class="m">1/(c·V)</em>，而
+  <em class="m">c</em> 相互抵消：</p>
+
+  <span class="eq">
+    <span class="frac"><span class="num">d(c · V)</span><span class="den">c · V</span></span>
+    &ensp;=&ensp;
+    <span class="frac"><span class="num">c · dV</span><span class="den">c · V</span></span>
+    &ensp;=&ensp;
+    <span class="frac"><span class="num">dV</span><span class="den">V</span></span>
+  </span>
+
+  <div class="graphs">
+    <div class="graph-card" style="max-width: 520px;">
+      <canvas id="c2scale" width="700" height="560"></canvas>
+      <p class="graph-caption">两条条带的面积都是 dV/V——高度 1/(c·V) 与宽度 c·dV 恰好抵消</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p><strong>关键洞察。</strong>&ensp;音调的工作原理完全相同。
+    220 Hz → 440 Hz 与 440 Hz → 880 Hz 在听觉上感觉完全一致——两者都是一个八度。
+    绝对宽度分别为 220 Hz 和 440 Hz；两者的比值都是 2。
+    我们的耳朵积分的是 <em class="m">df/f</em>，而非 <em class="m">df</em>。
+    <em class="m">1/f</em> 权重让被积函数具有尺度不变性，因此只有起点与终点之间的比值才被听到。</p>
+  </div>
+
+  <h3 class="subhead">第三部分 — log：将乘法转化为加法</h3>
+
+  <p>按常数 <em class="m">c</em> 缩放区间不改变被积函数——结果只依赖于比值
+  <em class="m">V<sub>e</sub>/V<sub>s</sub></em>，无论区间位于何处。</p>
+
+  <p>现在问：当两个变量被<em>相乘</em>时，相对变化会发生什么？
+  乘积 <em class="m">x · y</em> 的相对变化是 <em class="m">d(xy)</em>，其倒数为
+  <em class="m">1/(xy)</em>。</p>
+
+  <p>我们先看 <em class="m">d(xy)</em>。下图展示了它的含义。展开新矩形得到四块：
+  原始 <em class="m">xy</em>、两条细条带 <em class="mo">y·dx</em> 与
+  <em class="m">x·dy</em>，以及一个微小角块 <em class="m">dx·dy</em>。
+  最后一项是两个小量的乘积——当 <em class="m">dx, dy → 0</em> 时，它消失，
+  留下上面的精确关系。</p>
+
+  <div class="graphs">
+    <div class="graph-card" style="max-width: 480px;">
+      <canvas id="c2prod" width="700" height="700"></canvas>
+      <p class="graph-caption">d(xy) = (x + dx)(y + dy) − xy = y·dx + x·dy，
+      阴影角块 dx·dy 随步长缩小而消失</p>
+    </div>
+  </div>
+
+
+  <p><em class="m">d(xy) = y&thinsp;dx + x&thinsp;dy</em>，两边除以
+  <em class="m">xy</em>：</p>
+
+
+  <span class="eq"><span class="frac"><span class="num">d(xy)</span><span class="den">xy</span></span> &ensp;=&ensp; <span class="frac"><span class="num">dx</span><span class="den">x</span></span> &ensp;+&ensp; <span class="frac"><span class="num">dy</span><span class="den">y</span></span></span>
+
+
+  <p>相对变化近似相加。设 <em class="m">x = 100</em>，<em class="m">dx = 3</em>，
+  <em class="m">y = 80</em>，<em class="m">dy = 1.6</em>。
+  那么 <em class="m">dx/x</em> 与 <em class="m">dy/y</em> 在常识意义上代表各自的相对变化：
+  <em class="m">dx/x = 3%</em>，<em class="m">dy/y = 2%</em>。
+  <em class="m">x</em> 增加 3% 与 <em class="m">y</em> 增加 2%，使 <em class="m">xy</em>
+  增加 <em>5.06%</em>——不是恰好 5%，因为角块
+  <em class="m">dx · dy = 0.03 × 0.02 = 0.06%</em> 虽小但非零。
+  当步长趋近于零时，角块消失，近似变为精确。</p>
+
+  <p>第一部分中我们看到 log 用于表示 <em class="m">dt/t</em> 这种无穷小相对步长的累积。
+  因此 <em class="m">log(xy)</em> 就是 <em class="m">xy</em> 从 1 增长到终值时所有
+  小变化 <em class="m">d(log(xy))</em> 的总和，每一步为
+  <em class="m">d(log(xy)) = d(xy)/(xy)</em>。</p>
+
+  <p>同理逐项成立：<em class="m">log(x)</em> 是所有
+  <em class="m">d(log x) = dx/x</em> 之和，<em class="m">log(y)</em> 是所有
+  <em class="m">d(log y) = dy/y</em> 之和。由于每组无穷小满足
+  <em class="m">d(xy)/(xy) = dx/x + dy/y</em>，它们的总和也满足——
+  得到一个聚合形式的等式：</p>
+
+  <span class="eq">log(a · b) &ensp;=&ensp; log(a) + log(b)</span>
+
+  <p>这不是定义——而是推论。对数将乘法转化为加法，因为
+  <em class="m">1/x</em> 度量相对变化，而相对变化可加。</p>
+
+  <h3 class="subhead">第四部分 — exp：将加法转化为乘法</h3>
+
+  <p><em class="mo">exp</em> 是 log 的反函数。log 把乘法变加法，
+  exp 则相反——把加法变回乘法：</p>
+
+  <span class="eq">exp(a + b) &ensp;=&ensp; exp(a) · exp(b)</span>
+
+  <p>图形上，这两个函数关于对角线 <em class="m">y = x</em> 互为镜像。
+  log 曲线上每个点 <em class="m">(x,&thinsp;log x)</em> 在 exp 曲线上都有镜像
+  <em class="mo">(log x,&thinsp;x)</em>——坐标互换。图中标出两对镜像点：</p>
+
+  <div class="graphs">
+    <div class="graph-card" style="flex: 1 1 380px; max-width: 480px;">
+      <canvas id="c2c" width="700" height="700"></canvas>
+      <p class="graph-caption">log x 与 exp x 关于 y = x 互为镜像</p>
+    </div>
+  </div>
+
+  <p><em class="mo">exp</em> 的一个著名性质几乎是这幅镜像图的免费推论：
+  <em class="mo">exp</em> 是它自己的导数。论证纯粹几何——直接回到
+  <em class="m">1/x</em>。</p>
+
+  <p><strong>首先看 log 的斜率。</strong>&ensp;由第一部分，
+  <em class="m">log x = ∫₁ˣ dt/t</em>——从 1 到 <em class="m">x</em> 的
+  <em class="m">1/t</em> 下方累积面积。当 <em class="m">x</em> 增加时，这个面积增长多快？
+  当右边界从 <em class="m">x</em> 前进到 <em class="m">x + dx</em> 时，
+  面积新增一条宽 <em class="m">dx</em>、高 <em class="m">1/x</em> 的薄条带
+  ——即该边界处被积函数的值。所以新增面积为 <em class="m">(1/x) · dx</em>，
+  增长速率恰好是高度 <em class="m">1/x</em>：</p>
+
+  <span class="eq"><span class="frac"><span class="num">d</span><span class="den">dx</span></span>&thinsp;log(x) &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den">x</span></span></span>
+
+  <p>这是微积分基本定理最具几何意味的形式：累积的导数就是被累积者的高度。</p>
+
+  <p><strong>现在沿 <em class="m">y = x</em> 反射。</strong>&ensp;任何直线沿对角线
+  <em class="m">y = x</em> 反射，其升与跑互换，所以斜率 <em class="m">m</em>
+  的直线变为斜率 <em class="m">1/m</em> 的直线。这意味着 log 与 exp 在镜像点处，
+  切线斜率互为倒数。</p>
+
+  <p>举具体例子。在 <em class="m">x = 2</em> 处，log 曲线经过点
+  <em class="m">P = (2,&thinsp;log 2)</em>，刚才已算出 log 在那里斜率为
+  <em class="m">1/2</em>。在 exp 上的镜像点是
+  <em class="m">Q = (log 2,&thinsp;2)</em>，此处切线斜率为 <em class="m">2</em>
+  ——<em class="m">1/2</em> 的倒数。再看 <em class="m">Q</em> 的坐标：
+  其 <em>y</em> 坐标也是 <em class="m">2</em>。
+  <em class="m">Q</em> 点的斜率等于 <em class="m">Q</em> 点的 <em>y</em> 值。</p>
+
+  <div class="graphs">
+    <div class="graph-card" style="flex: 1 1 380px; max-width: 480px;">
+      <canvas id="c2d" width="700" height="700"></canvas>
+      <p class="graph-caption">镜像点上的对称切线：log 在 P = (2, log 2) 处斜率 1/2，
+      反射到 exp 在 Q = (log 2, 2) 处斜率 2。反射后的斜率等于 Q 的 y 坐标
+      ——在每对镜像点都成立。</p>
+    </div>
+  </div>
+
+  <p>这在 exp 上的<em>每一点</em>都成立，因为 exp 上每一点都是 log 上某点的镜像。
+  exp 在任一点的斜率等于该点的 <em>y</em> 值。由于 <em>y</em> 值就是
+  <em class="mo">exp(x)</em> 本身：</p>
+
+  <span class="eq" style="color:var(--orange);"><span class="frac"><span class="num">d</span><span class="den">dx</span></span>&thinsp;exp(x) &ensp;=&ensp; exp(x)</span>
+
+  <p>推理链很短：log 被定义为 <em class="m">1/t</em> 的累积，所以 log 的斜率为
+  <em class="m">1/x</em>；关于 <em class="m">y = x</em> 的反射使斜率取倒数；
+  在镜像点 <em class="m">1/(1/x) = x</em>——恰是该处 exp 的值。
+  exp 的自导性是为 log 选择 <em class="m">1/t</em> 作被积函数的几何投影。</p>
+
+  <div class="callout">
+    <p><strong>关键洞察。</strong>&ensp;<em class="mo">exp</em> 即函数
+    <em class="mo">e<sup>x</sup></em>，具有许多卓越性质——自身为导数、在复合增长中的作用、
+    欧拉公式中的出现。但最根本地，它就是 log 的反函数。
+    而 log 不过是 <em class="m">∫ dt/t</em>——<em class="m">1/t</em> 的累积。
+    自导性 <em class="m">(exp)' = exp</em> 是 <em class="m">(log)' = 1/x</em> 的镜像。
+    一旦为 log 选定 <em class="m">1/x</em> 作被积函数，关于 exp 的一切都被决定了。</p>
+  </div>
+
+  <div class="callout callout-cyan">
+    <p>所有部件就位了。§1 给我们 <em class="m">x²/2</em>——线性变化的自然累积。
+    §2 给我们 <em class="mo">exp</em>——把加性事物变为乘性事物的转换器。
+    在 §3 中，我们通过 <em class="m">exp(−x²/2)</em> 来研究它们的组合。</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     第三节 — exp(−x²/2)
+═══════════════════════════════════════════════════════════════ -->
+<div class="section" id="s3">
+  <div class="sec-head">
+    <span class="sec-num">§ 3</span>
+    <h2>exp(−x²/2) 是什么？</h2>
+  </div>
+
+  <!-- ── 第一部分：一维设定——能量已知，概率未知 ── -->
+  <h3 class="subhead">第一部分 — 直线上的粒子：能量已知，概率未知</h3>
+
+  <p>想象一个气体分子沿单一方向以速度 <em class="m">x</em> 运动。
+  由 §1，它的动能为 <em class="m">x²/2</em>。分子运动越快，携带的能量越多。</p>
+
+  <p>在热平衡时，自然并不对所有速度赋予相同概率。能量较高的态需要更多热预算才能填充，
+  因此出现的概率较小。把速度 <em class="m">x</em> 处的概率密度记为
+  <em class="m">P(x)</em>。基于物理直觉，我们预期：</p>
+
+  <ul style="color: var(--text); margin-left: 1.5em;">
+    <li><em class="m">P(x)</em> 仅通过能量 <em class="m">x²/2</em> 依赖于分子
+        ——具有相同能量的两个态等可能。</li>
+    <li><em class="m">P(x)</em> 随能量 <em class="m">x²/2</em> 增大而减小
+        ——分子最有可能接近静止，极端速度则越来越罕见。</li>
+  </ul>
+
+  <p>这就是目前所知的全部。我们尚不知道 <em class="m">P(x)</em> 的具体<em>形式</em>。
+  是 <em class="m">1/(1 + x²/2)</em> 吗？是分段线性的凸起？
+  <em class="m">2<sup>−x²/2</sup></em>？许多候选都符合上面两个要点。
+  要确定形式，我们需要更强的约束——而通过观察二维情形可以得到它。</p>
+
+  <!-- ── 第二部分：二维 + 标量加法 + 乘法规则 → exp ────── -->
+  <h3 class="subhead">第二部分 — 二维：约束组合迫使 exp 出现</h3>
+
+  <p>真实粒子不在一条直线上运动。气体分子在每个空间方向上都有速度分量。
+  添加第二个垂直方向 <em class="m">y</em>。粒子现在每个轴上各有一份动能：</p>
+
+  <span class="eq">x 方向：&ensp;能量 = x²/2 &emsp;&emsp; y 方向：&ensp;能量 = y²/2</span>
+
+  <p>两个方向相互独立——沿 <em class="m">x</em> 的力对 <em class="m">y</em>
+  方向的速度无影响，分子的 <em class="m">x</em> 速度也无法告知其
+  <em class="m">y</em> 速度。两个新事实现在登场，二者共同确定了 <em class="m">P</em>
+  的形式。</p>
+
+  <p><strong>能量是标量。</strong>&ensp;速度是矢量——带方向，按平行四边形法则相加；
+  能量不是。能量是没有方向的单一数；它是<em>标量</em>。
+  两个同维度标量只能以一种方式组合：算术加法。
+  速度 <em class="m">(x, y)</em> 处的总动能就是和：</p>
+
+  <span class="eq">总能量 &ensp;=&ensp; x²/2 &thinsp;+&thinsp; y²/2</span>
+
+  <p>没有因子，没有交叉项。两份能量算术堆叠。</p>
+
+  <p><strong>概率相乘。</strong>&ensp;独立事件的概率<em>不</em>相加——它们相乘。
+  在速度 <em class="m">(x, y)</em> 处找到分子的联合概率密度，
+  是一维密度的乘积：</p>
+
+  <span class="eq">P(x, y) &ensp;=&ensp; P(x) &thinsp;·&thinsp; P(y) &emsp;&emsp; (独立性)</span>
+
+  <p>这不是约定也不是近似——这是统计独立性的数学定义。</p>
+
+  <p>现在把已收集的事实合并：</p>
+
+  <ol style="color: var(--text); margin-left: 1.5em;">
+    <li><em class="m">P(x)</em> 仅依赖于能量 <em class="m">x²/2</em>（第一部分）。
+        记 <em class="m">P(x) = f(x²/2)</em>，其中 <em class="m">f</em> 是某未知的能量函数。</li>
+    <li>二维情形下，总能量为 <em class="m">x²/2 + y²/2</em>。同理，二维密度只依赖于该和：
+        <em class="m">P(x, y) = f(x²/2 + y²/2)</em>。</li>
+    <li>由独立性，<em class="m">P(x, y) = P(x) · P(y)
+        = f(x²/2) · f(y²/2)</em>。</li>
+  </ol>
+
+  <p>结合 (1)–(3)：</p>
+
+  <span class="eq">f(x²/2 + y²/2) &ensp;=&ensp; f(x²/2) &thinsp;·&thinsp; f(y²/2)</span>
+
+  <p>设 <em class="m">a = x²/2</em>，<em class="m">b = y²/2</em>。
+  从能量到相对概率的未知函数 <em class="m">f</em> 必须满足：</p>
+
+  <span class="eq">f(a &thinsp;+&thinsp; b) &ensp;=&ensp; f(a) &thinsp;·&thinsp; f(b)</span>
+
+  <p>这是一个严格的函数方程。唯一满足它的函数族是指数函数——
+  <em class="m">cᴱ</em>（某基底 <em class="m">c</em>）。
+  任何这样的底数都能让加法（在能量上）与乘法（在概率上）相协调。
+  <strong>指数形式是物理强制的；它从来不是风格选择。</strong></p>
+
+  <!-- ── 第三部分：底数 e + 符号 → 钟形浮现 ─────────────── -->
+  <h3 class="subhead">第三部分 — 选定底数与符号：钟形浮现</h3>
+
+  <p>在所有指数中，我们选 <em class="m">e</em> 为底，只为一个实用原因：
+  如 §2 第四部分所示，它是唯一一个导数等于自身的底数——
+  <em class="m">d/dx exp(x) = exp(x)</em>。
+  其他每个底数在每一次求导、每一次积分、每一步链式法则中都会带上一个额外的
+  <em class="m">ln(c)</em> 因子。选 <em class="m">e</em> 让微积分变得干净。
+  于是 <em class="m">f(E) = exp(±E)</em>，并且</p>
+
+  <span class="eq">P(x) &ensp;∝&ensp; exp(±x²/2)</span>
+
+  <p>剩下唯一的选择是符号。回顾第一部分的要求：
+  <em class="m">P(x)</em> 必须随能量增长而<em>减小</em>。两个候选行为迥异：</p>
+
+  <p><strong>左图</strong>——两个候选指数：<em class="m">x²/2</em>（金色）对称上升，
+  <em class="m">−x²/2</em>（粉色）对称下降。
+  <strong>右图</strong>——exp 对它们各自的作用。
+  <em class="mo">exp(+x²/2)</em> 飙升至无穷——无界，总权重无穷，不可能作为概率密度。
+  <em class="mo">exp(−x²/2)</em> 衰减至零——有界，峰值为 1，关于原点对称。
+  <strong>钟形曲线。</strong></p>
+
+  <div class="graphs">
+    <div class="graph-card">
+      <canvas id="c3a" width="700" height="980"></canvas>
+      <p class="graph-caption">输入：x²/2 上升（金色），−x²/2 下降（粉色）</p>
+    </div>
+    <div class="graph-card">
+      <canvas id="c3b" width="700" height="980"></canvas>
+      <p class="graph-caption">输出：exp(+x²/2) 爆炸（金色），exp(−x²/2) 衰减为钟形
+      （粉色）——同一坐标系</p>
+    </div>
+  </div>
+
+  <p>负号是被强制的——既由概率随能量减小的要求强制，也由总概率必须有限的要求强制。
+  我们到达了：</p>
+
+  <span class="eq" style="font-size:1.3rem; color:var(--pink);">P(x) &ensp;∝&ensp; exp(−x²/2)</span>
+
+  <p>这种结构出现在任何具有偏好静止位置的系统中。一根被拉伸距离 <em class="m">x</em>
+  的弹簧储存势能 <em class="m">kx²/2</em>；接近平衡的钟摆储存同种形式。
+  弹簧、钟摆、分子速度——都是同一个钟形，因为它们共享同样的底层结构：
+  二次代价、概率独立性的乘法规则，以及 exp 作为二者之间的唯一桥梁。</p>
+
+  <p>形状已完成。剩下的是它的总重量——曲线下从 <em class="m">−∞</em> 到
+  <em class="m">+∞</em> 的面积有多大？
+  这是 §4 要回答的问题——而答案，令人惊讶，是一个圆。</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     第四节 — 隐藏的圆
+═══════════════════════════════════════════════════════════════ -->
+<div class="section" id="s4">
+  <div class="sec-head">
+    <span class="sec-num">§ 4</span>
+    <h2>为什么积分中藏着一个圆？</h2>
+  </div>
+
+  <p>§3 留下一个问题：<em class="mo">exp(−x²/2)</em> 下方的总面积是多少？
+  把这个积分记为 <em class="m">I</em>：</p>
+
+  <span class="eq">I &ensp;=&ensp; ∫<sub>−∞</sub><sup>+∞</sup> exp(−x²/2) dx &ensp;=&ensp; ?</span>
+
+  <p>这个积分没有初等原函数。你无法通过寻找一个导数为 <em class="mo">exp(−x²/2)</em>
+  的函数来求值；这样的闭式函数不存在。直接进攻失败了。我们需要一个技巧。</p>
+
+  <!-- ── 第一部分：二维平方技巧 ─────────────────────── -->
+  <h3 class="subhead">第一部分 — 二维技巧：积分自乘</h3>
+
+  <p>计算 <em class="m">I²</em> 而不是 <em class="m">I</em>。
+  既然 <em class="m">I</em> 只是一个数：</p>
+
+  <span class="eq">I² &ensp;=&ensp; <span style="white-space:nowrap;">(∫ exp(−x²/2) dx)</span> &thinsp;·&thinsp; <span style="white-space:nowrap;">(∫ exp(−y²/2) dy)</span></span>
+
+  <p>两个独立的一维积分相乘。每个积分对自己的变量。
+  因为两部分完全独立（<em class="m">x</em> 积分看不见 <em class="m">y</em>，
+  反之亦然），乘积可以写成整个平面上的单一二重积分：</p>
+
+  <span class="eq">I² &ensp;=&ensp; ∫∫ exp(−x²/2) &thinsp;·&thinsp; exp(−y²/2) &thinsp;dx&thinsp;dy</span>
+
+  <p>现在使用 §3 中确立的 exp 的乘积性质：</p>
+
+  <span class="eq">exp(−x²/2) &thinsp;·&thinsp; exp(−y²/2) &ensp;=&ensp; exp(−(x²/2 + y²/2))</span>
+
+  <p>并辨识内部的勾股结构：<em class="m">x²/2 + y²/2 = r²/2</em>，其中
+  <em class="m">r² = x² + y²</em>。二维被积函数只依赖于到原点的径向距离：</p>
+
+  <span class="eq">I² &ensp;=&ensp; ∫∫ exp(−r²/2) &thinsp;dx&thinsp;dy</span>
+
+  <p>平方技巧把不可能的一维积分变成了具有<strong>完美圆对称性</strong>的二维积分。
+  我们从未引入旋转，也未引入角度——勾股定理与 exp 的乘积性质独立地产生了对称性。</p>
+
+  <div class="graphs">
+    <div class="graph-card" style="max-width:520px;">
+      <canvas id="c4a" width="700" height="700"></canvas>
+      <p class="graph-caption">exp(−(x²+y²)/2) 的亮度热图：在原点最亮，远处变暗。
+      r = 1, 2, 3 的等高线是完美的圆——并非人为强加，
+      而是 exp 的乘积性质作用于两个独立直线累积所强制。</p>
+    </div>
+  </div>
+
+  <!-- ── 第二部分：极坐标积分，τ 出现，结果 √τ ───── -->
+  <h3 class="subhead">第二部分 — 让对称性来完成积分</h3>
+
+  <p>首先，从几何上读解这个积分。平面被分成面积为 <em class="m">dx · dy</em>
+  的小正方形。在每个小方形上，被积函数 <em class="mo">exp(−r²/2)</em> 给出一个高度
+  （0 到 1 之间的数，由该方形离原点的距离决定）。将高度乘以方形面积，
+  我们得到体积为 <em class="m">exp(−r²/2) · dx · dy</em> 的薄柱。
+  二重积分 <em class="m">I²</em> 就是整个平面上<strong>所有这些薄柱的体积之和</strong>
+  ——二维钟面下方的总体积。</p>
+
+  <span class="eq">I² &ensp;=&ensp; <span style="color:var(--gold)">∑</span><sub>方格</sub> &ensp;<span style="color:var(--gold)">exp(−r²/2)</span> &thinsp;·&thinsp; <span style="color:var(--green)">dx&thinsp;·&thinsp;dy</span></span>
+
+  <p>现在，我们可以以任意方式做这个和，把平面切成任意形状。
+  正方形分割是一种选项，但这里不是最佳。
+  因为被积函数只依赖于 <em class="m">r</em>——同一半径上每个点贡献相同的高度
+  ——还有一种更自然的切分方式：<strong>薄薄的同心圆环</strong>，每个半径一环。
+  在单个圆环内，高度从不改变，整个圆环就成为求和的一个构件，
+  替换掉许多带有相同值的独立方形。</p>
+
+  <div class="graphs">
+    <div class="graph-card">
+      <canvas id="c4grid" width="700" height="700"></canvas>
+      <p class="graph-caption">正方形分割：每片面积 dx · dy，高度 exp(−r²/2)
+      在片与片之间变化。</p>
+    </div>
+    <div class="graph-card">
+      <canvas id="c4rings" width="700" height="700"></canvas>
+      <p class="graph-caption">圆环分割：每个圆环上各处高度 exp(−r²/2) 相同。
+      总体积不变，按半径计数。</p>
+    </div>
+  </div>
+
+  <p><strong>步骤 1 — 一个圆环的面积。</strong>&ensp;半径为 <em class="m">r</em>、
+  厚度为 <em class="m">dr</em> 的圆环面积等于其周长乘以厚度：</p>
+
+  <span class="eq">圆环面积 &ensp;=&ensp; <span style="color:var(--gold)">τ · r</span> &ensp;·&ensp; <span style="color:var(--green)">dr</span></span>
+
+  <p>这就是 <em class="m">τ</em> 进入的地方——不是作为抽象常数，
+  而是作为每个圆环都继承的单位圆周长。</p>
+
+  <p><strong>步骤 2 — 对所有圆环求和。</strong>&ensp;把每个圆环的面积乘以其
+  （恒定的）高度 <em class="mo">exp(−r²/2)</em> 并相加。
+  因为每个圆环都共享同一个 <em class="m">τ</em>，它可以从求和中提出：</p>
+
+  <span class="eq">I² &ensp;=&ensp; <span style="color:var(--gold)">∑</span><sub>圆环</sub> &ensp;<span style="color:var(--gold)">exp(−r²/2)</span> &thinsp;·&thinsp; <span style="color:var(--green)">τ · r · dr</span> &ensp;=&ensp; τ &ensp;·&ensp; ∫<sub>0</sub><sup>∞</sup> r · exp(−r²/2) dr</span>
+
+  <p><strong>步骤 3 — 内部剩下什么。</strong>&ensp;积分号内是
+  <em class="m">r · exp(−r²/2)</em>——半径 <em class="m">r</em> 处的高度乘以
+  线性周长因子 <em class="m">r</em>。
+  这个乘积具有独特的形状：靠近原点高度充裕但周长很短，因此贡献很小；
+  远离原点周长充足但高度已衰减为零。两个效应平衡，曲线在 <em class="m">r = 1</em>
+  处达到峰值。</p>
+
+  <div class="graphs">
+    <div class="graph-card" style="max-width:520px;">
+      <canvas id="c4c" width="700" height="700"></canvas>
+      <p class="graph-caption">径向被积函数 r·exp(−r²/2)：靠近零升起（小圆环），
+      在 r = 1 处达峰，尾部衰减。其下方面积恰为 1。</p>
+    </div>
+  </div>
+
+  <p><strong>步骤 4 — 径向积分塌缩为 1。</strong>&ensp;为何那个总面积恰为 1？
+  代入 <em class="m">u = r²/2</em>，故 <em class="m">du = r · dr</em>。
+  径向积分变成普通的指数衰减：</p>
+
+  <span class="eq">∫<sub>0</sub><sup>∞</sup> r · exp(−r²/2) dr &ensp;=&ensp; ∫<sub>0</sub><sup>∞</sup> exp(−u) du &ensp;=&ensp; −exp(−u)&thinsp;|<sub>0</sub><sup>∞</sup> &ensp;=&ensp; 0 − (−1) &ensp;=&ensp; 1</span>
+
+  <p>把步骤 2 与步骤 4 合在一起：<em class="m">I² = τ · 1 = τ</em>。
+  取平方根，原始一维积分浮现：</p>
+
+  <span class="eq" style="font-size:1.45rem; color:var(--gold);">∫ exp(−x²/2) dx &ensp;=&ensp; √τ &ensp;≈&ensp; 2.507</span>
+
+  <div class="graphs">
+    <div class="graph-card" style="max-width:520px;">
+      <canvas id="c4d" width="700" height="700"></canvas>
+      <p class="graph-caption">exp(−x²/2) 下方的总面积为 √τ ≈ 2.507。
+      标准正态概率密度是 exp(−x²/2) / √τ——不是 1/√(2π)——
+      因为 τ 而非 π 才是这里的自然常数。</p>
+    </div>
+  </div>
+
+  <!-- ── 第三部分：所得 ──────────────────────────────────── -->
+  <h3 class="subhead">第三部分 — 我们学到了什么</h3>
+
+  <p>回顾这条路径。我们从最普通的一维事物开始——<em class="m">x²/2</em>，
+  线性量的自然累积（§1）。我们找到了将加性代价桥接到乘性概率的唯一函数
+  ——<em class="mo">exp</em>，它是 <em class="m">1/x</em> 积分的反函数（§2）。
+  我们把它们组合成钟形 <em class="mo">exp(−x²/2)</em>（§3）。
+  而就在我们尝试积分这个钟形的那一刻，一个带着周长 <em class="m">τ</em>
+  的圆从天而降。</p>
+
+  <p><strong><em class="m">τ</em> 从未从外部引入。</strong>
+  它一直藏在"<em class="m">x</em> 的积分"与"<em class="m">1/x</em>
+  积分的反函数"里，在一维时蛰伏不动。
+  当添加第二个垂直方向——能量与概率必须在其间和解时——
+  exp 的乘积性质揭示了隐藏的径向对称性；圆把它的周长 <em class="m">τ</em>
+  带入积分；<em class="m">τ</em> 浮现为自然钟形下方的精确面积。
+  没有 2 的因子，没有簿记调整。</p>
+
+  <p>高斯函数不是被丢进物理的特殊函数。它是被三件事一起强加于世界的形状：
+  二次代价、独立概率的乘法规则，以及作为二者间唯一桥梁的 exp。
+  常数 <em class="m">τ</em> 不是装饰
+  ——它是当能量相加、概率相乘时，垂直坐标轴如何组合的几何记录。</p>
+
+  <p>用物理尺度 <em class="m">K</em> 做同样计算——把 <em class="m">x</em>
+  替换为 <em class="m">x/√K</em>——给出一般结果
+  <em class="mg">∫ exp(−x²/(2K)) dx = √(τK)</em>。
+  当 <em class="m">K = k<sub>B</sub>T</em> 时，这是麦克斯韦—玻尔兹曼归一化；
+  当 <em class="m">K = 1</em> 时，这是统计学的标准正态。
+  一个公式、一个常数、一种形状——它们都是累积、独立性，
+  以及两个垂直方向几何的推论。</p>
+</div>
+
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     页脚 —— 许可、引用、源码
+═══════════════════════════════════════════════════════════════ -->
+<footer>
+  <p>© 2026 Int Math Channel。本作品采用
+    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="license">知识共享署名 4.0 国际许可协议（CC BY 4.0）</a>授权。
+    本页面的正文、插图与源代码均为作品的一部分，遵循同一许可。</p>
+
+  <p><strong>欢迎转载与翻译。</strong>请保留本署名信息，并链接回原始网址 ——
+    <a href="https://intmathchannel.github.io/NatPhil/">intmathchannel.github.io/NatPhil</a> —— 以便读者获取最新版本。
+    CC BY 4.0 允许商业再利用（书籍、付费课程、课堂资料等），仅需注明作者；如能提前告知作者将不胜感激，但并非强制要求。</p>
+
+  <p class="cite"><strong>引用方式：</strong>Int Math Channel (2026)。
+    《高斯积分的自然推导》。https://intmathchannel.github.io/NatPhil/index_zh.html</p>
+
+  <p class="footer-meta">
+    <a href="https://github.com/intmathchannel/NatPhil">在 GitHub 查看源码</a> &nbsp;·&nbsp;
+    <a href="https://github.com/intmathchannel/NatPhil/issues">报告错误或提问</a> &nbsp;·&nbsp;
+    最后更新于 2026-05-24
+  </p>
+</footer>
+
+<!-- ════════════════════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+// ── Palette ──────────────────────────────────────────────────────
+const C = {
+  bg:       '#0a0a1c',
+  grid:     '#18183a',
+  axis:     '#38385a',
+  border:   '#22224a',
+  text:     '#8888a8',
+  gold:     '#f0c040',
+  cyan:     '#40c8f0',
+  green:    '#50d890',
+  orange:   '#f08840',
+  pink:     '#e06080',
+  red:      '#e05050',
+  muted:    '#60607a',
+  amber:    'rgba(240,160,50,',   // open paren — close with opacity + ')'
+  goldFill: 'rgba(240,192,64,',
+};
+
+// ── Plot class ────────────────────────────────────────────────────
+class Plot {
+  constructor(id, xMin, xMax, yMin, yMax) {
+    this.canvas = document.getElementById(id);
+    this.lw = this.canvas.width  / 2;
+    this.lh = this.canvas.height / 2;
+    this.ctx = this.canvas.getContext('2d');
+    this.ctx.setTransform(2, 0, 0, 2, 0, 0);
+    this.xMin = xMin; this.xMax = xMax;
+    this.yMin = yMin; this.yMax = yMax;
+    this.pad = { t: 28, r: 28, b: 48, l: 56 };
+    this.pw = this.lw - this.pad.l - this.pad.r;
+    this.ph = this.lh - this.pad.t - this.pad.b;
+  }
+
+  px(x, y) {
+    return [
+      this.pad.l + (x - this.xMin) / (this.xMax - this.xMin) * this.pw,
+      this.pad.t + (1 - (y - this.yMin) / (this.yMax - this.yMin)) * this.ph,
+    ];
+  }
+
+  clear() {
+    const { ctx, lw, lh, pad, pw, ph } = this;
+    ctx.clearRect(0, 0, lw, lh);
+    ctx.fillStyle = C.bg;
+    ctx.fillRect(pad.l, pad.t, pw, ph);
+    this._grid();
+  }
+
+  _nicestep(lo, hi, n = 5) {
+    const r = hi - lo, rough = r / n;
+    const mag = Math.pow(10, Math.floor(Math.log10(rough)));
+    const k = rough / mag;
+    const nice = k <= 1 ? 1 : k <= 2 ? 2 : k <= 5 ? 5 : 10;
+    return nice * mag;
+  }
+
+  _grid() {
+    const { ctx, pad, pw, ph, xMin, xMax, yMin, yMax } = this;
+    const xs = this._nicestep(xMin, xMax);
+    const ys = this._nicestep(yMin, yMax);
+    const EPS = 1e-9;
+
+    ctx.strokeStyle = C.grid;
+    ctx.lineWidth = 1;
+
+    for (let x = Math.ceil(xMin / xs - EPS) * xs; x <= xMax + EPS; x += xs) {
+      const [px] = this.px(x, 0);
+      ctx.beginPath(); ctx.moveTo(px, pad.t); ctx.lineTo(px, pad.t + ph); ctx.stroke();
+    }
+    for (let y = Math.ceil(yMin / ys - EPS) * ys; y <= yMax + EPS; y += ys) {
+      const [, py] = this.px(0, y);
+      ctx.beginPath(); ctx.moveTo(pad.l, py); ctx.lineTo(pad.l + pw, py); ctx.stroke();
+    }
+
+    ctx.strokeStyle = C.axis; ctx.lineWidth = 1.5;
+    if (yMin <= 0 && 0 <= yMax) {
+      const [, py] = this.px(0, 0);
+      ctx.beginPath(); ctx.moveTo(pad.l, py); ctx.lineTo(pad.l + pw, py); ctx.stroke();
+    }
+    if (xMin <= 0 && 0 <= xMax) {
+      const [px] = this.px(0, 0);
+      ctx.beginPath(); ctx.moveTo(px, pad.t); ctx.lineTo(px, pad.t + ph); ctx.stroke();
+    }
+
+    ctx.strokeStyle = C.border; ctx.lineWidth = 1;
+    ctx.strokeRect(pad.l, pad.t, pw, ph);
+
+    ctx.fillStyle = C.text; ctx.font = '12px monospace';
+    ctx.textAlign = 'center';
+    for (let x = Math.ceil(xMin / xs - EPS) * xs; x <= xMax + EPS; x += xs) {
+      if (Math.abs(x) < xs * 0.1) continue;
+      const [px, py] = this.px(x, yMin);
+      const lab = Math.abs(x - Math.round(x)) < EPS ? Math.round(x).toString() : x.toFixed(1);
+      ctx.fillText(lab, px, py + 17);
+    }
+    ctx.textAlign = 'right';
+    for (let y = Math.ceil(yMin / ys - EPS) * ys; y <= yMax + EPS; y += ys) {
+      if (Math.abs(y) < ys * 0.1) continue;
+      const [px, py] = this.px(xMin, y);
+      const lab = Math.abs(y - Math.round(y)) < EPS ? Math.round(y).toString() : y.toFixed(1);
+      ctx.fillText(lab, px - 7, py + 4);
+    }
+  }
+
+  curve(fn, color, lw = 2.5, x0 = this.xMin, x1 = this.xMax, steps = 500) {
+    const { ctx, pad, pw, ph } = this;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(pad.l, pad.t, pw, ph);
+    ctx.clip();
+    ctx.beginPath();
+    let first = true;
+    for (let i = 0; i <= steps; i++) {
+      const x = x0 + (x1 - x0) * i / steps;
+      const y = fn(x);
+      if (!isFinite(y)) { first = true; continue; }
+      const [px, py] = this.px(x, Math.max(this.yMin - 1, Math.min(this.yMax + 1, y)));
+      first ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      first = false;
+    }
+    ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.stroke();
+    ctx.restore();
+  }
+
+  poly(pts, color) {
+    const ctx = this.ctx;
+    ctx.beginPath();
+    pts.forEach(([x, y], i) => {
+      const [px, py] = this.px(x, y);
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    });
+    ctx.closePath();
+    ctx.fillStyle = color; ctx.fill();
+  }
+
+  dot(x, y, color, r = 6, ring = null) {
+    const [px, py] = this.px(x, y);
+    const ctx = this.ctx;
+    ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI * 2);
+    ctx.fillStyle = color; ctx.fill();
+    if (ring) {
+      ctx.beginPath(); ctx.arc(px, py, r + 3.5, 0, Math.PI * 2);
+      ctx.strokeStyle = ring; ctx.lineWidth = 1.5; ctx.stroke();
+    }
+  }
+
+  dash(x0, y0, x1, y1, color, opacity = 0.4) {
+    const [px0, py0] = this.px(x0, y0);
+    const [px1, py1] = this.px(x1, y1);
+    const ctx = this.ctx;
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath(); ctx.moveTo(px0, py0); ctx.lineTo(px1, py1);
+    ctx.strokeStyle = color; ctx.lineWidth = 1; ctx.globalAlpha = opacity;
+    ctx.stroke();
+    ctx.setLineDash([]); ctx.globalAlpha = 1;
+  }
+
+  label(x, y, text, color, font = 'italic 13px Georgia', align = 'left', dy = 0) {
+    const [px, py] = this.px(x, y);
+    const ctx = this.ctx;
+    ctx.fillStyle = color; ctx.font = font; ctx.textAlign = align;
+    ctx.fillText(text, px, py + dy);
+  }
+}
+
+Plot.prototype.xlabel = function(text, color = C.text) {
+  const { ctx, pad, pw, ph } = this;
+  ctx.fillStyle = color; ctx.font = '12px Georgia'; ctx.textAlign = 'center';
+  ctx.fillText(text, pad.l + pw / 2, pad.t + ph + 38);
+};
+Plot.prototype.ylabel = function(text, color = C.text) {
+  const { ctx, pad, ph } = this;
+  ctx.save();
+  ctx.fillStyle = color; ctx.font = '12px Georgia'; ctx.textAlign = 'center';
+  ctx.translate(pad.l - 44, pad.t + ph / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText(text, 0, 0);
+  ctx.restore();
+};
+
+// ── Section 1 ─────────────────────────────────────────────────────
+
+const T_MAX = 3.3;
+
+const p1g = new Plot('c1g', 0, T_MAX, 0, T_MAX);
+const p1v = new Plot('c1v', 0, T_MAX, 0, T_MAX);
+
+const p1a = new Plot('c1a', 0, T_MAX, 0, T_MAX);
+const p1b = new Plot('c1b', 0, T_MAX, 0, 6.0);
+
+function draw1(t, N) {
+  const dt  = t / N;
+  const t2h = t * t / 2;
+
+  p1a.clear();
+
+  for (let k = 0; k < N; k++) {
+    const xk = k * dt;
+    const vk = xk;
+    p1a.poly([[xk,0],[xk,vk],[xk+dt,vk],[xk+dt,0]], posColor(xk, 0.82));
+    if (vk > 0) {
+      const [x0]     = p1a.px(xk, 0);
+      const [x1, y0] = p1a.px(xk + dt, 0);
+      const [, yVk]  = p1a.px(0, vk);
+      p1a.ctx.strokeStyle = 'rgba(10,10,30,0.4)';
+      p1a.ctx.lineWidth = 0.8;
+      p1a.ctx.strokeRect(x0, yVk, x1 - x0, y0 - yVk);
+    }
+  }
+
+  p1a.curve(x => x, C.cyan, 2.5);
+
+  p1a.dot(t, t, C.gold, 5);
+
+  if (dt > 0.14 && N > 2) {
+    const k0 = Math.floor(N * 0.55);
+    const [ax, ay] = p1a.px(k0 * dt + dt * 0.5, k0 * dt * 0.45);
+    p1a.ctx.fillStyle = 'rgba(0,0,0,0.75)';
+    p1a.ctx.font = `${Math.min(12, Math.max(8, Math.floor(dt * 55)))}px Georgia`;
+    p1a.ctx.textAlign = 'center';
+    p1a.ctx.fillText('dx = v · dt', ax, ay + 4);
+  }
+
+  p1a.label(3.1, 3.3, 'v = x', C.cyan, 'italic 14px Georgia', 'left');
+  { const [px, py] = p1a.px(t, 0); p1a.ctx.fillStyle = C.gold; p1a.ctx.font = 'italic 13px Georgia'; p1a.ctx.textAlign = 'center'; p1a.ctx.fillText('t', px, py + 20); }
+  p1a.xlabel('时间  t', C.text);
+  p1a.ylabel('速度  v', C.text);
+
+  p1b.clear();
+  const ctx1b = p1b.ctx;
+
+  let aAcc = 0;
+  for (let k = 0; k < N; k++) {
+    const dA = (k * dt) * dt;
+    p1b.poly([[k*dt,0],[k*dt,aAcc+dA],[(k+1)*dt,aAcc+dA],[(k+1)*dt,0]], 'rgba(18,22,55,0.5)');
+    aAcc += dA;
+  }
+
+  {
+    aAcc = 0;
+    const [spx, spy] = p1b.px(0, 0);
+    ctx1b.strokeStyle = 'rgba(55,62,105,0.5)';
+    ctx1b.lineWidth = 1;
+    ctx1b.beginPath(); ctx1b.moveTo(spx, spy);
+    for (let k = 0; k < N; k++) {
+      const dA = (k * dt) * dt;
+      const [px0, pyT] = p1b.px(k * dt, aAcc + dA);
+      const [px1]      = p1b.px((k + 1) * dt, aAcc + dA);
+      ctx1b.lineTo(px0, pyT); ctx1b.lineTo(px1, pyT);
+      aAcc += dA;
+    }
+    ctx1b.stroke();
+  }
+
+  ctx1b.lineCap = 'round';
+  aAcc = 0;
+  for (let k = 0; k < N; k++) {
+    const dA = (k * dt) * dt;
+    if (dA > 0) {
+      const [px0, py0] = p1b.px(k * dt, aAcc);
+      const [,    py1] = p1b.px(k * dt, aAcc + dA);
+      ctx1b.strokeStyle = posColor(k * dt, 0.92);
+      ctx1b.lineWidth = 4;
+      ctx1b.beginPath(); ctx1b.moveTo(px0, py0); ctx1b.lineTo(px0, py1); ctx1b.stroke();
+    }
+    aAcc += dA;
+  }
+  ctx1b.lineCap = 'butt';
+
+  if (dt > 0.14 && N > 2) {
+    const k0 = Math.floor(N * 0.6);
+    let a0 = 0;
+    for (let i = 0; i < k0; i++) a0 += (i * dt) * dt;
+    const dA0 = (k0 * dt) * dt;
+    const [ax, ay] = p1b.px(k0 * dt + 0.08, a0 + dA0 * 0.5);
+    ctx1b.fillStyle = 'rgba(255,255,255,0.65)';
+    ctx1b.font = `${Math.min(12, Math.max(8, Math.floor(dt * 50)))}px Georgia`;
+    ctx1b.textAlign = 'left';
+    ctx1b.fillText('dx', ax, ay + 4);
+  }
+
+  p1b.curve(x => x * x / 2, C.gold, 2.5);
+
+  p1b.dot(t, t2h, C.gold, 6, C.goldFill + '.4)');
+
+  p1b.label(2.3, 5.6, 'x(t) = t²/2', C.gold, 'italic 14px Georgia');
+  { const [px, py] = p1b.px(t, 0); p1b.ctx.fillStyle = C.gold; p1b.ctx.font = 'italic 13px Georgia'; p1b.ctx.textAlign = 'center'; p1b.ctx.fillText('t', px, py + 20); }
+  p1b.xlabel('时间  t', C.text);
+  p1b.ylabel('位移  x', C.text);
+}
+
+function blockColor(k, N, a) {
+  const hue = Math.round((k / Math.max(N - 1, 1)) * 270);
+  return `hsla(${hue},85%,65%,${a})`;
+}
+function posColor(x, a) {
+  const hue = Math.round((x / T_MAX) * 270);
+  return `hsla(${hue},85%,65%,${a})`;
+}
+
+function draw1riemann(N) {
+  const dt = T_MAX / N;
+
+  p1g.clear();
+
+  for (let k = 0; k < N; k++) {
+    const x0 = k * dt, x1 = (k + 1) * dt;
+    p1g.poly([[x0,0],[x0,1],[x1,1],[x1,0]], blockColor(k, N, 0.82));
+    const [px1] = p1g.px(x1, 0);
+    const [, pyT] = p1g.px(0, 1);
+    const [, py0] = p1g.px(0, 0);
+    p1g.ctx.strokeStyle = 'rgba(10,10,30,0.4)';
+    p1g.ctx.lineWidth = 0.8;
+    p1g.ctx.beginPath(); p1g.ctx.moveTo(px1, py0); p1g.ctx.lineTo(px1, pyT); p1g.ctx.stroke();
+  }
+
+  p1g.curve(_ => 1, 'rgba(255,255,255,0.45)', 1.5);
+  p1g.label(0.12, 1.18, 'g = 1', 'rgba(255,255,255,0.55)', 'italic 13px Georgia');
+
+  if (dt > 0.14) {
+    const k0 = Math.floor(N / 2);
+    const cx = (k0 + 0.5) * dt;
+    const [ax, ay] = p1g.px(cx, 0.5);
+    const fs = Math.min(12, Math.max(8, Math.floor(dt * 55)));
+    p1g.ctx.fillStyle = 'rgba(0,0,0,0.75)';
+    p1g.ctx.font = `${fs}px Georgia`;
+    p1g.ctx.textAlign = 'center';
+    p1g.ctx.fillText('dv =', ax, ay - 1);
+    p1g.ctx.fillText('g·dt', ax, ay + fs + 1);
+  }
+
+  p1g.xlabel('时间  t', C.text);
+  p1g.ylabel('加速度  g', C.text);
+
+  p1v.clear();
+  const ctx1v = p1v.ctx;
+
+  for (let k = 0; k < N; k++) {
+    const x0 = k * dt, x1 = (k + 1) * dt;
+    const v1 = (k + 1) * dt;
+    p1v.poly([[x0,0],[x0,v1],[x1,v1],[x1,0]], 'rgba(18,22,55,0.5)');
+  }
+
+  {
+    const [spx, spy] = p1v.px(0, 0);
+    ctx1v.strokeStyle = 'rgba(55,62,105,0.5)';
+    ctx1v.lineWidth = 1;
+    ctx1v.beginPath();
+    ctx1v.moveTo(spx, spy);
+    for (let k = 0; k < N; k++) {
+      const x0 = k * dt, x1 = (k + 1) * dt;
+      const v1 = (k + 1) * dt;
+      const [px0, py1] = p1v.px(x0, v1);
+      const [px1]      = p1v.px(x1, v1);
+      ctx1v.lineTo(px0, py1);
+      ctx1v.lineTo(px1, py1);
+    }
+    ctx1v.stroke();
+  }
+
+  ctx1v.lineCap = 'round';
+  for (let k = 0; k < N; k++) {
+    const x0 = k * dt;
+    const v0 = k * dt, v1 = (k + 1) * dt;
+    const [px0, py_v0] = p1v.px(x0, v0);
+    const [,    py_v1] = p1v.px(x0, v1);
+    ctx1v.strokeStyle = blockColor(k, N, 0.92);
+    ctx1v.lineWidth = 4;
+    ctx1v.beginPath();
+    ctx1v.moveTo(px0, py_v0);
+    ctx1v.lineTo(px0, py_v1);
+    ctx1v.stroke();
+  }
+  ctx1v.lineCap = 'butt';
+
+  if (dt > 0.14) {
+    const k0 = Math.floor(N / 2);
+    const x0 = k0 * dt;
+    const v0 = k0 * dt, v1 = (k0 + 1) * dt;
+    const [ax, ay] = p1v.px(x0 + 0.08, (v0 + v1) / 2);
+    ctx1v.fillStyle = 'rgba(255,255,255,0.65)';
+    ctx1v.font = `${Math.min(12, Math.max(8, Math.floor(dt * 50)))}px Georgia`;
+    ctx1v.textAlign = 'left';
+    ctx1v.fillText('dv = g·dt', ax, ay + 4);
+  }
+
+  p1v.curve(x => x, C.gold, 2);
+  p1v.label(2.45, 2.72, 'v = t', C.gold, 'italic 13px Georgia');
+
+  p1v.xlabel('时间  t', C.text);
+  p1v.ylabel('速度  v', C.text);
+}
+
+const sl1n = document.getElementById('sl1n');
+const vl1n = document.getElementById('vl1n');
+sl1n.addEventListener('input', () => {
+  vl1n.textContent = sl1n.value;
+  draw1riemann(+sl1n.value);
+});
+
+const sl1   = document.getElementById('sl1');
+const vl1   = document.getElementById('vl1');
+const sl1an = document.getElementById('sl1an');
+const vl1an = document.getElementById('vl1an');
+const play1 = document.getElementById('play1');
+
+sl1.addEventListener('input', () => {
+  const t = +sl1.value;
+  vl1.textContent = t.toFixed(2);
+  draw1(t, +sl1an.value);
+});
+
+sl1an.addEventListener('input', () => {
+  vl1an.textContent = sl1an.value;
+  draw1(+sl1.value, +sl1an.value);
+});
+
+let raf1 = null;
+play1.addEventListener('click', () => {
+  if (raf1) {
+    cancelAnimationFrame(raf1);
+    raf1 = null;
+    play1.textContent = '▶ 播放';
+    play1.classList.remove('active');
+    return;
+  }
+  play1.textContent = '◼ 停止';
+  play1.classList.add('active');
+  const dtFixed = (+sl1.value) / (+sl1an.value);
+  let animT = Math.max(0.05, dtFixed);
+  const step = () => {
+    animT += 0.012;
+    if (animT > 3.3) {
+      animT = 3.3;
+      play1.textContent = '▶ 播放';
+      play1.classList.remove('active');
+      raf1 = null;
+    }
+    const animN = Math.max(2, Math.min(50, Math.round(animT / dtFixed)));
+    sl1.value   = animT;
+    sl1an.value = animN;
+    vl1.textContent   = animT.toFixed(2);
+    vl1an.textContent = animN;
+    draw1(animT, animN);
+    if (raf1 !== null) raf1 = requestAnimationFrame(step);
+    else if (animT < 3.3) raf1 = null;
+  };
+  raf1 = requestAnimationFrame(step);
+});
+
+draw1riemann(+sl1n.value);
+draw1(+sl1.value, +sl1an.value);
+
+// ── Section 2 ─────────────────────────────────────────────────────
+
+const V_END_MAX = 7.5;
+const p2a  = new Plot('c2a',  1, V_END_MAX, 0, 2.3);
+const p2ar = new Plot('c2ar', 1, V_END_MAX, 0, 2.3);
+const p2b  = new Plot('c2b', 0.5, 10, 0, 2);
+const p2c  = new Plot('c2c', -2, 3, -2, 3);
+const p2d  = new Plot('c2d', -0.5, 4, -0.5, 4);
+
+function bCol2(k, N, a) {
+  const hue = Math.round((k / Math.max(N - 1, 1)) * 270);
+  return `hsla(${hue},85%,65%,${a})`;
+}
+function posColor2(vk, a) {
+  const hue = Math.round(((vk - 1) / (V_END_MAX - 1)) * 270);
+  return `hsla(${hue},85%,65%,${a})`;
+}
+
+function draw2riemann(N, vEnd) {
+  const dV = (vEnd - 1) / N;
+
+  p2a.clear();
+
+  {
+    const pts = [[1, 0]];
+    for (let i = 0; i <= 200; i++) {
+      const v = 1 + (vEnd - 1) * i / 200;
+      pts.push([v, 1 / v]);
+    }
+    pts.push([vEnd, 0]);
+    p2a.poly(pts, 'rgba(64,200,240,0.10)');
+  }
+
+  for (let k = 0; k < N; k++) {
+    const vk = 1 + k * dV;
+    const pk = 1 / vk;
+    p2a.poly([[vk, 0], [vk, pk], [vk + dV, pk], [vk + dV, 0]], posColor2(vk, 0.82));
+    const [x0]     = p2a.px(vk, 0);
+    const [x1, y0] = p2a.px(vk + dV, 0);
+    const [, yPk]  = p2a.px(0, pk);
+    p2a.ctx.strokeStyle = 'rgba(10,10,30,0.4)';
+    p2a.ctx.lineWidth = 0.8;
+    p2a.ctx.strokeRect(x0, yPk, x1 - x0, y0 - yPk);
+  }
+
+  p2a.curve(v => 1 / v, C.cyan, 2.5, 1.0, V_END_MAX);
+
+  if (dV > 0.35) {
+    const k0 = Math.floor(N / 3);
+    const vk = 1 + k0 * dV;
+    const [ax, ay] = p2a.px(vk + dV * 0.5, (1 / vk) * 0.45);
+    p2a.ctx.fillStyle = 'rgba(0,0,0,0.8)';
+    p2a.ctx.font = '11px Georgia';
+    p2a.ctx.textAlign = 'center';
+    p2a.ctx.fillText('dW', ax, ay + 4);
+  }
+
+  p2a.dash(vEnd, 0, vEnd, 1 / vEnd, C.gold, 0.6);
+  p2a.dot(vEnd, 1 / vEnd, C.gold, 4);
+  { const [px, py] = p2a.px(1, 0); p2a.ctx.fillStyle = C.text; p2a.ctx.font = '12px monospace'; p2a.ctx.textAlign = 'center'; p2a.ctx.fillText('1', px, py + 17); }
+  p2a.label(V_END_MAX - 0.3, 0.42, 'P = 1/V', C.cyan, 'italic 13px Georgia', 'right');
+  p2a.xlabel('V  (体积)', C.text);
+  p2a.ylabel('P  (压强)', C.text);
+
+  p2ar.clear();
+  const ctx2ar = p2ar.ctx;
+
+  let wAcc = 0;
+  for (let k = 0; k < N; k++) {
+    const vk = 1 + k * dV;
+    const dW = dV / vk;
+    p2ar.poly([[vk,0],[vk,wAcc+dW],[vk+dV,wAcc+dW],[vk+dV,0]], 'rgba(18,22,55,0.5)');
+    wAcc += dW;
+  }
+
+  wAcc = 0;
+  {
+    const [spx, spy] = p2ar.px(1, 0);
+    ctx2ar.strokeStyle = 'rgba(55,62,105,0.5)';
+    ctx2ar.lineWidth = 1;
+    ctx2ar.beginPath();
+    ctx2ar.moveTo(spx, spy);
+    for (let k = 0; k < N; k++) {
+      const vk = 1 + k * dV;
+      const dW = dV / vk;
+      const [px0, py1] = p2ar.px(vk, wAcc + dW);
+      const [px1]      = p2ar.px(vk + dV, wAcc + dW);
+      ctx2ar.lineTo(px0, py1);
+      ctx2ar.lineTo(px1, py1);
+      wAcc += dW;
+    }
+    ctx2ar.stroke();
+  }
+
+  wAcc = 0;
+  ctx2ar.lineCap = 'round';
+  for (let k = 0; k < N; k++) {
+    const vk = 1 + k * dV;
+    const dW = dV / vk;
+    const [px0, py_w0] = p2ar.px(vk, wAcc);
+    const [,    py_w1] = p2ar.px(vk, wAcc + dW);
+    ctx2ar.strokeStyle = posColor2(vk, 0.92);
+    ctx2ar.lineWidth = 4;
+    ctx2ar.beginPath();
+    ctx2ar.moveTo(px0, py_w0);
+    ctx2ar.lineTo(px0, py_w1);
+    ctx2ar.stroke();
+    wAcc += dW;
+  }
+  ctx2ar.lineCap = 'butt';
+
+  if (dV > 0.35) {
+    let w0 = 0;
+    const k0 = Math.floor(N / 3);
+    for (let k = 0; k < k0; k++) w0 += dV / (1 + k * dV);
+    const vk0 = 1 + k0 * dV;
+    const [ax, ay] = p2ar.px(vk0 + 0.08, w0 + (dV / vk0) / 2);
+    ctx2ar.fillStyle = 'rgba(255,255,255,0.65)';
+    ctx2ar.font = '11px Georgia';
+    ctx2ar.textAlign = 'left';
+    ctx2ar.fillText('dW', ax, ay + 4);
+  }
+
+  p2ar.curve(v => Math.log(v), C.gold, 2.5, 1.01, V_END_MAX);
+
+  [2, 4].filter(v => v <= vEnd + 0.05).forEach(v => {
+    const lv = Math.log(v);
+    p2ar.dash(1, lv, V_END_MAX, lv, C.gold, 0.25);
+    const [plx, ply] = p2ar.px(1, lv);
+    p2ar.ctx.fillStyle = C.goldFill + '0.7)';
+    p2ar.ctx.font = '11px monospace';
+    p2ar.ctx.textAlign = 'left';
+    p2ar.ctx.fillText('log ' + v, plx + 7, ply - 4);
+  });
+
+  p2ar.dash(1, Math.log(vEnd), vEnd, Math.log(vEnd), C.gold, 0.4);
+  p2ar.dash(vEnd, 0, vEnd, Math.log(vEnd), C.gold, 0.55);
+  p2ar.dot(vEnd, Math.log(vEnd), C.gold, 6, C.goldFill + '0.4)');
+  {
+    const [px, py] = p2ar.px(1, Math.log(vEnd));
+    p2ar.ctx.fillStyle = C.goldFill + '0.75)';
+    p2ar.ctx.font = '11px monospace';
+    p2ar.ctx.textAlign = 'right';
+    p2ar.ctx.fillText(Math.log(vEnd).toFixed(3), px - 8, py + 4);
+  }
+  { const [px, py] = p2ar.px(1, 0); p2ar.ctx.fillStyle = C.text; p2ar.ctx.font = '12px monospace'; p2ar.ctx.textAlign = 'center'; p2ar.ctx.fillText('1', px, py + 17); }
+  p2ar.label(V_END_MAX - 0.3, 2.1, 'W = log V', C.gold, 'italic 13px Georgia', 'right');
+  p2ar.xlabel('V  (体积)', C.text);
+  p2ar.ylabel('W  (功)', C.text);
+}
+
+function draw2b() {
+  p2b.clear();
+
+  const bands = [
+    { a: 1, b: 2, fill: 'rgba(224,96,128,0.22)',  edge: C.pink   },
+    { a: 2, b: 4, fill: 'rgba(240,136,64,0.22)',   edge: C.orange },
+    { a: 4, b: 8, fill: 'rgba(80,216,144,0.22)',   edge: C.green  },
+  ];
+
+  bands.forEach(({ a, b, fill }) => {
+    const pts = [[a, 0]];
+    for (let i = 0; i <= 200; i++) {
+      const t = a + (b - a) * i / 200;
+      pts.push([t, 1 / t]);
+    }
+    pts.push([b, 0]);
+    p2b.poly(pts, fill);
+  });
+
+  p2b.curve(t => 1 / t, C.cyan, 2.5, 0.5, 10);
+
+  [1, 2, 4, 8].forEach(v => p2b.dash(v, 0, v, 1 / v, C.text, 0.3));
+
+  const logTwo = Math.log(2).toFixed(3);
+  bands.forEach(({ a, b, edge }) => {
+    const midX = Math.sqrt(a * b);
+    const midH = 1 / midX;
+    p2b.label(midX, midH * 0.5, `= log 2 ≈ ${logTwo}`, edge, '10px monospace', 'center');
+  });
+
+  {
+    const [px, py] = p2b.px(1, 0);
+    p2b.ctx.fillStyle = C.text;
+    p2b.ctx.font = '12px monospace';
+    p2b.ctx.textAlign = 'center';
+    p2b.ctx.fillText('1', px, py + 17);
+  }
+
+  p2b.label(9.2, 1.75, 'P = 1/V', C.cyan, 'italic 13px Georgia', 'right');
+  p2b.xlabel('V  (体积)', C.text);
+}
+
+function draw2c() {
+  p2c.clear();
+
+  p2c.curve(x => x, 'rgba(150,150,180,0.3)', 1.5);
+
+  p2c.curve(x => Math.log(x), C.cyan, 2.5, 0.04, 3);
+
+  p2c.curve(x => Math.exp(x), C.orange, 2.5, -2, Math.log(3));
+
+  p2c.dot(1, 0, C.cyan,   4);
+  p2c.dot(0, 1, C.orange, 4);
+  p2c.dash(1, 0, 0, 1, 'rgba(200,200,220,0.35)', 0.6);
+
+  const mx = 2, my = Math.log(2);
+  p2c.dot(mx, my, C.cyan,   4, 'rgba(64,200,240,0.3)');
+  p2c.dot(my, mx, C.orange, 4, 'rgba(240,136,64,0.3)');
+  p2c.dash(mx, my, my, mx, 'rgba(200,200,220,0.4)', 0.65);
+
+  p2c.label(2.7,  1.05, 'log x', C.cyan,                    'italic 13px Georgia', 'left');
+  p2c.label(0.9,  2.85, 'exp x', C.orange,                  'italic 13px Georgia', 'center');
+  p2c.label(2.4,  2.62, 'y = x', 'rgba(150,150,180,0.45)',  'italic 12px Georgia', 'left');
+
+  p2c.xlabel('x', C.text);
+  p2c.ylabel('y', C.text);
+}
+
+function draw2d() {
+  p2d.clear();
+
+  p2d.curve(x => x, 'rgba(150,150,180,0.3)', 1.5);
+
+  p2d.curve(x => Math.log(x), C.cyan, 2.5, 0.04, 4);
+  p2d.curve(x => Math.exp(x), C.orange, 2.5, -0.5, Math.log(4));
+
+  const a = 2;
+  const la = Math.log(a);
+
+  const slopeLog = 1 / a;
+  const tlog = x => la + slopeLog * (x - a);
+  p2d.curve(tlog, 'rgba(64,200,240,0.55)', 1.5, 0, 4);
+
+  const slopeExp = a;
+  const texp = x => a + slopeExp * (x - la);
+  p2d.curve(texp, 'rgba(240,136,64,0.55)', 1.5, -0.3, 1.5);
+
+  p2d.dash(a, la, la, a, 'rgba(200,200,220,0.45)', 0.7);
+
+  p2d.dot(a,  la, C.cyan,   5, 'rgba(64,200,240,0.30)');
+  p2d.dot(la, a,  C.orange, 5, 'rgba(240,136,64,0.30)');
+
+  { const ctx = p2d.ctx;
+    ctx.font = 'italic 13px Georgia';
+    ctx.fillStyle = C.cyan;
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    const [px1, py1] = p2d.px(a, la);
+    ctx.fillText('P', px1 + 8, py1 + 4);
+
+    ctx.fillStyle = C.orange;
+    ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+    const [px2, py2] = p2d.px(la, a);
+    ctx.fillText('Q', px2 - 8, py2 - 4);
+
+    ctx.font = 'italic 11px Georgia';
+    ctx.fillStyle = 'rgba(64,200,240,0.95)';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const [sx1, sy1] = p2d.px(3.5, 0.25);
+    ctx.fillText('斜率 = 1/2', sx1, sy1);
+
+    ctx.fillStyle = 'rgba(240,136,64,0.95)';
+    ctx.textAlign = 'left';
+    const [sx2, sy2] = p2d.px(-0.3, 2.8);
+    ctx.fillText('斜率 = 2', sx2, sy2);
+  }
+
+  p2d.label(3.7,  0.95, 'log x', C.cyan,                    'italic 13px Georgia', 'left');
+  p2d.label(0.35, 3.55, 'exp x', C.orange,                  'italic 13px Georgia', 'left');
+  p2d.label(3.45, 3.65, 'y = x', 'rgba(150,150,180,0.5)',   'italic 12px Georgia', 'left');
+
+  p2d.xlabel('x', C.text);
+  p2d.ylabel('y', C.text);
+}
+
+const sl2n = document.getElementById('sl2n');
+const vl2n = document.getElementById('vl2n');
+const sl2v = document.getElementById('sl2v');
+const vl2v = document.getElementById('vl2v');
+
+function update2() {
+  const N    = +sl2n.value;
+  const vEnd = +sl2v.value;
+  vl2n.textContent = N;
+  vl2v.textContent = vEnd.toFixed(2);
+  draw2riemann(N, vEnd);
+}
+
+sl2n.addEventListener('input', update2);
+sl2v.addEventListener('input', update2);
+
+update2();
+draw2b();
+draw2c();
+draw2d();
+
+let raf2 = null;
+const play2 = document.getElementById('play2');
+play2.addEventListener('click', () => {
+  if (raf2) {
+    cancelAnimationFrame(raf2);
+    raf2 = null;
+    play2.textContent = '▶ 播放';
+    play2.classList.remove('active');
+    return;
+  }
+  play2.textContent = '◼ 停止';
+  play2.classList.add('active');
+  const dvFixed = (+sl2v.value - 1) / +sl2n.value;
+  let animV = Math.max(1.05, 1 + dvFixed);
+  const step = () => {
+    animV += 0.025;
+    if (animV >= V_END_MAX) {
+      animV = V_END_MAX;
+      play2.textContent = '▶ 播放';
+      play2.classList.remove('active');
+      raf2 = null;
+    }
+    const animN = Math.max(2, Math.min(50, Math.round((animV - 1) / dvFixed)));
+    sl2v.value = animV;
+    sl2n.value = animN;
+    vl2v.textContent = animV.toFixed(2);
+    vl2n.textContent = animN;
+    draw2riemann(animN, animV);
+    if (raf2 !== null) raf2 = requestAnimationFrame(step);
+  };
+  raf2 = requestAnimationFrame(step);
+});
+
+function drawProductRule() {
+  const canvas = document.getElementById('c2prod');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(2, 0, 0, 2, 0, 0);
+  const W = 350, H = 350;
+
+  ctx.fillStyle = '#0a0a1c';
+  ctx.fillRect(0, 0, W, H);
+
+  const Cg = '#f0c040', Co = '#f08840', Cc = '#40c8f0', Cm = '#8888a8', Ct = '#c4c4dc';
+
+  const ox = 82, oy = 278;
+  const RW = 162, RH = 130;
+  const DW = 44,  DH = 36;
+
+  ctx.fillStyle = 'rgba(64,200,240,0.10)';
+  ctx.fillRect(ox, oy - RH, RW, RH);
+
+  ctx.fillStyle = 'rgba(240,136,64,0.30)';
+  ctx.fillRect(ox + RW, oy - RH, DW, RH);
+
+  ctx.fillStyle = 'rgba(240,192,64,0.30)';
+  ctx.fillRect(ox, oy - RH - DH, RW, DH);
+
+  ctx.fillStyle = 'rgba(136,136,168,0.13)';
+  ctx.fillRect(ox + RW, oy - RH - DH, DW, DH);
+
+  ctx.lineWidth = 1.5; ctx.setLineDash([]);
+  ctx.strokeStyle = Cc; ctx.strokeRect(ox, oy - RH, RW, RH);
+  ctx.strokeStyle = Co; ctx.strokeRect(ox + RW, oy - RH, DW, RH);
+  ctx.strokeStyle = Cg; ctx.strokeRect(ox, oy - RH - DH, RW, DH);
+  ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+  ctx.strokeStyle = Cm; ctx.strokeRect(ox + RW, oy - RH - DH, DW, DH);
+  ctx.setLineDash([]);
+
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+
+  ctx.fillStyle = Cc; ctx.font = 'italic 22px Georgia';
+  ctx.fillText('xy', ox + RW / 2, oy - RH / 2);
+
+  ctx.fillStyle = Co; ctx.font = 'italic 13px Georgia';
+  ctx.save();
+  ctx.translate(ox + RW + DW / 2, oy - RH / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('y · dx', 0, 0);
+  ctx.restore();
+
+  ctx.fillStyle = Cg; ctx.font = 'italic 13px Georgia';
+  ctx.fillText('x · dy', ox + RW / 2, oy - RH - DH / 2);
+
+  ctx.fillStyle = Cm; ctx.font = '10px monospace';
+  ctx.fillText('≈ 0', ox + RW + DW / 2, oy - RH - DH / 2);
+
+  ctx.font = 'italic 14px Georgia';
+  ctx.textBaseline = 'top';
+
+  ctx.fillStyle = Cc; ctx.textAlign = 'center';
+  ctx.fillText('x', ox + RW / 2, oy + 9);
+
+  ctx.fillStyle = Co;
+  ctx.fillText('dx', ox + RW + DW / 2, oy + 9);
+
+  ctx.save();
+  ctx.translate(ox - 16, oy - RH / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textBaseline = 'middle'; ctx.fillStyle = Cc;
+  ctx.fillText('y', 0, 0);
+  ctx.restore();
+
+  ctx.save();
+  ctx.translate(ox - 16, oy - RH - DH / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textBaseline = 'middle'; ctx.fillStyle = Cg;
+  ctx.fillText('dy', 0, 0);
+  ctx.restore();
+
+  ctx.strokeStyle = '#50d890'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  ctx.moveTo(ox,              oy - RH);
+  ctx.lineTo(ox,              oy - RH - DH);
+  ctx.lineTo(ox + RW + DW,   oy - RH - DH);
+  ctx.lineTo(ox + RW + DW,   oy);
+  ctx.lineTo(ox + RW,        oy);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.fillStyle = '#50d890'; ctx.font = 'italic 13px Georgia';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillText('d(xy)', ox + RW + DW + 10, oy - (RH + DH) / 2);
+
+  ctx.fillStyle = Ct; ctx.font = '12px Georgia';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText('(x + dx)(y + dy)  =  xy  +  y·dx  +  x·dy  +  dx·dy', W / 2, 14);
+}
+
+drawProductRule();
+
+function drawScaleInvariance() {
+  const V1 = 1.5, dV1 = 0.5, c = 2;
+  const V2 = c * V1, dV2 = c * dV1;
+  const h1 = 1 / V1, h2 = 1 / V2;
+
+  const p = new Plot('c2scale', 0.7, 5.2, 0, 0.88);
+  p.clear();
+  p.ylabel('1/V', C.muted);
+
+  p.poly([[V1,0],[V1,h1],[V1+dV1,h1],[V1+dV1,0]], 'rgba(240,136,64,0.32)');
+  p.poly([[V2,0],[V2,h2],[V2+dV2,h2],[V2+dV2,0]], 'rgba(240,192,64,0.28)');
+
+  p.curve(x => 1/x, C.cyan, 2);
+
+  const ctx = p.ctx;
+
+  const [x1l, y1b] = p.px(V1,       0);
+  const [x1r, y1t] = p.px(V1+dV1,   h1);
+  const [x2l, y2b] = p.px(V2,       0);
+  const [x2r, y2t] = p.px(V2+dV2,   h2);
+
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = C.orange;
+  ctx.strokeRect(x1l, y1t, x1r-x1l, y1b-y1t);
+  ctx.strokeStyle = C.gold;
+  ctx.strokeRect(x2l, y2t, x2r-x2l, y2b-y2t);
+
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.font = 'italic 12px Georgia';
+  ctx.fillStyle = C.orange;
+  ctx.fillText('dV/V', (x1l+x1r)/2, (y1t+y1b)/2 - 4);
+  ctx.fillStyle = C.gold;
+  ctx.fillText('dV/V', (x2l+x2r)/2, (y2t+y2b)/2 - 4);
+
+  const xBridge = (x1r + x2l) / 2;
+  const yBridge = (y1t + y1b) / 2 - 4;
+  ctx.fillStyle = C.green; ctx.font = 'bold 13px Georgia';
+  ctx.fillText('=', xBridge, yBridge);
+
+  ctx.font = 'italic 11px Georgia'; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+  ctx.fillStyle = C.orange;
+  ctx.fillText('1/V', x1r + 3, y1t + 2);
+  ctx.fillStyle = C.gold;
+  ctx.fillText('1/(c·V)', x2r + 3, y2t + 2);
+
+  const yLab = y1b + 24;
+  ctx.textBaseline = 'top'; ctx.font = 'italic 11px Georgia';
+
+  ctx.fillStyle = C.orange; ctx.textAlign = 'center';
+  ctx.fillText('← dV →', (x1l+x1r)/2, yLab);
+  ctx.fillText('V', (x1l+x1r)/2, yLab + 14);
+
+  ctx.fillStyle = C.gold;
+  ctx.fillText('← d(c·V) →', (x2l+x2r)/2, yLab);
+  ctx.fillText('c·V', (x2l+x2r)/2, yLab + 14);
+}
+
+drawScaleInvariance();
+
+// ── Section 3 ─────────────────────────────────────────────────────
+
+const p3a = new Plot('c3a', -3,   3,  -5,   5);
+const p3b = new Plot('c3b', -3,   3,  -5,   5);
+
+function draw3() {
+  const yInf = Math.exp(-0.5);
+
+  p3a.clear();
+  p3a.curve(x =>  x * x / 2, C.gold, 2.5);
+  p3a.curve(x => -x * x / 2, C.pink, 2.5);
+  p3a.dot(0, 0, C.text, 4);
+  p3a.label( 2.15,  4.3, 'x²/2',  C.gold, 'italic 14px Georgia', 'left');
+  p3a.label( 2.15, -4.3, '−x²/2', C.pink, 'italic 14px Georgia', 'left');
+  { const ctx = p3a.ctx;
+    const [ax, ay] = p3a.px(1.55,  1.1);
+    const [bx, by] = p3a.px(1.55, -1.1);
+    ctx.strokeStyle = C.muted; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(ax, ay + 4); ctx.lineTo(bx, by - 4); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = C.muted; ctx.font = 'bold 12px Georgia';
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText('×(−1)', ax + 4, (ay + by) / 2);
+  }
+  p3a.xlabel('x', C.text);
+  p3a.ylabel('y', C.text);
+
+  p3b.clear();
+  { const pts = [];
+    for (let x = -3; x <= 3; x += 0.04) pts.push([x, Math.exp(-x * x / 2)]);
+    pts.push([3, 0], [-3, 0]);
+    p3b.poly(pts, 'rgba(224,96,128,0.10)');
+  }
+  const yMax3 = 5;
+  p3b.curve(x => { const v = Math.exp(x * x / 2); return v <= yMax3 ? v : NaN; }, C.gold, 2.5);
+  p3b.curve(x => Math.exp(-x * x / 2), C.pink, 2.5);
+  p3b.dot(0, 1, C.pink, 6, 'rgba(224,96,128,0.30)');
+  p3b.dash(-3, 1, 3, 1, C.pink, 0.20);
+  { const [px, py] = p3b.px(0.1, 1);
+    p3b.ctx.fillStyle = C.pink; p3b.ctx.font = '11px monospace';
+    p3b.ctx.textAlign = 'left'; p3b.ctx.fillText('1', px + 6, py + 4); }
+  [-1, 1].forEach(xi => {
+    p3b.dash(xi, 0, xi, yInf, C.pink, 0.25);
+    p3b.dot(xi, yInf, C.pink, 4);
+  });
+  const xExit = Math.sqrt(2 * Math.log(yMax3));
+  [-xExit, xExit].forEach(xe => {
+    const ctx = p3b.ctx;
+    const [px, py] = p3b.px(xe, yMax3);
+    ctx.strokeStyle = C.gold; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(px, py + 2); ctx.lineTo(px, py - 14); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(px - 4, py - 10); ctx.lineTo(px, py - 16); ctx.lineTo(px + 4, py - 10); ctx.stroke();
+    ctx.fillStyle = C.gold; ctx.font = 'italic 10px Georgia';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    ctx.fillText('∞', px, py - 17);
+  });
+  p3b.label(-2.9, 4.6, 'exp(+x²/2)', C.gold, 'italic 13px Georgia', 'left');
+  p3b.label(-2.9, 1.35, 'exp(−x²/2)', C.pink, 'italic 13px Georgia', 'left');
+  p3b.xlabel('x', C.text);
+  p3b.ylabel('y', C.text);
+
+}
+
+draw3();
+
+// ── Section 4 ─────────────────────────────────────────────────────
+
+const p4c = new Plot('c4c', 0, 4,  0, 0.75);
+const p4d = new Plot('c4d', -4, 4, 0, 1.15);
+const TAU     = 2 * Math.PI;
+const sqrtTau = Math.sqrt(TAU);
+
+function drawHeatmap4a() {
+  const canvas = document.getElementById('c4a');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const pL=112, pR=56, pT=56, pB=96;
+  const pw=W-pL-pR, ph=H-pT-pB;
+  const xMin=-3.5, xMax=3.5, yMin=-3.5, yMax=3.5;
+
+  ctx.fillStyle = C.bg;
+  ctx.fillRect(0, 0, W, H);
+
+  const toX = xd => pL + (xd-xMin)/(xMax-xMin)*pw;
+  const toY = yd => pT + (yMax-yd)/(yMax-yMin)*ph;
+  const cx=toX(0), cy=toY(0), rPx=pw/(xMax-xMin);
+
+  const imgData = ctx.createImageData(pw, ph);
+  for (let j=0; j<ph; j++) {
+    for (let i=0; i<pw; i++) {
+      const xd = xMin + (i/pw)*(xMax-xMin);
+      const yd = yMax  - (j/ph)*(yMax-yMin);
+      const z  = Math.exp(-(xd*xd + yd*yd)/2);
+      const r  = Math.round(10 + z*230);
+      const g  = Math.round(10 + z*182);
+      const b  = Math.round(28 + z*36);
+      const ix = (j*pw+i)*4;
+      imgData.data[ix]=r; imgData.data[ix+1]=g; imgData.data[ix+2]=b; imgData.data[ix+3]=255;
+    }
+  }
+  ctx.putImageData(imgData, pL, pT);
+
+  [[1, C.cyan, 2, false],
+   [2, 'rgba(64,200,240,0.50)', 1.5, true],
+   [3, 'rgba(64,200,240,0.32)', 1.2, true]].forEach(([r, col, lw, dash]) => {
+    ctx.beginPath(); ctx.arc(cx, cy, r*rPx, 0, Math.PI*2);
+    ctx.strokeStyle=col; ctx.lineWidth=lw;
+    ctx.setLineDash(dash ? [6,4] : []); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle=C.cyan; ctx.font='13px Georgia';
+    ctx.textAlign='left'; ctx.textBaseline='bottom';
+    ctx.fillText('r = '+r, cx + r*rPx/Math.SQRT2 + 5, cy - r*rPx/Math.SQRT2 - 2);
+  });
+
+  ctx.strokeStyle=C.axis; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(pL,cy); ctx.lineTo(pL+pw,cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx,pT); ctx.lineTo(cx,pT+ph); ctx.stroke();
+
+  ctx.fillStyle=C.text; ctx.font='12px monospace';
+  ctx.textAlign='center'; ctx.textBaseline='top';
+  for (const v of [-3,-2,-1,1,2,3]) ctx.fillText(v, toX(v), cy+5);
+  ctx.textAlign='right'; ctx.textBaseline='middle';
+  for (const v of [-3,-2,-1,1,2,3]) ctx.fillText(v, cx-5, toY(v));
+
+  ctx.fillStyle=C.text; ctx.font='italic 15px Georgia';
+  ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('x', pL+pw+8, cy);
+  ctx.textAlign='center'; ctx.textBaseline='bottom'; ctx.fillText('y', cx, pT-5);
+}
+
+function draw4b() {
+  const canvas = document.getElementById('c4b');
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(2,0,0,2,0,0);
+  const w=canvas.width/2, h=canvas.height/2;
+
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,w,h);
+
+  const pL=56, pR=28, pT=28, pB=48;
+  const pw=w-pL-pR, ph=h-pT-pB;
+  const xMin=-3.5, xMax=3.5, yMin=-3.5, yMax=3.5;
+  const toX = xd => pL+(xd-xMin)/(xMax-xMin)*pw;
+  const toY = yd => pT+(yMax-yd)/(yMax-yMin)*ph;
+  const cx=toX(0), cy=toY(0), rPx=pw/(xMax-xMin);
+
+  const grd = ctx.createRadialGradient(cx,cy,0, cx,cy,3*rPx);
+  grd.addColorStop(0,    'rgba(240,192,64,0.42)');
+  grd.addColorStop(0.28, 'rgba(240,192,64,0.12)');
+  grd.addColorStop(0.7,  'rgba(240,192,64,0.03)');
+  grd.addColorStop(1,    'rgba(10,10,28,0)');
+  ctx.fillStyle=grd; ctx.fillRect(pL,pT,pw,ph);
+
+  ctx.strokeStyle=C.grid; ctx.lineWidth=0.4;
+  for (const v of [-3,-2,-1,0,1,2,3]) {
+    ctx.beginPath(); ctx.moveTo(toX(v),pT); ctx.lineTo(toX(v),pT+ph); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(pL,toY(v)); ctx.lineTo(pL+pw,toY(v)); ctx.stroke();
+  }
+
+  const rIn=1.5, rOut=1.9;
+  ctx.beginPath();
+  ctx.arc(cx,cy,rOut*rPx,0,Math.PI*2);
+  ctx.arc(cx,cy,rIn*rPx,0,Math.PI*2,true);
+  ctx.fillStyle='rgba(80,216,144,0.38)'; ctx.fill();
+  ctx.strokeStyle=C.green; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.arc(cx,cy,rOut*rPx,0,Math.PI*2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx,cy,rIn*rPx,0,Math.PI*2);  ctx.stroke();
+
+  const arX = cx+rIn*rPx;
+  ctx.strokeStyle=C.cyan; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(arX,cy); ctx.stroke();
+  ctx.fillStyle=C.cyan;
+  ctx.beginPath(); ctx.moveTo(arX,cy); ctx.lineTo(arX-5,cy-3); ctx.lineTo(arX-5,cy+3); ctx.fill();
+  ctx.font='italic 12px Georgia'; ctx.textAlign='center'; ctx.textBaseline='bottom';
+  ctx.fillText('r', cx+rIn*rPx/2, cy-4);
+
+  const dx1=cx+rIn*rPx, dx2=cx+rOut*rPx;
+  ctx.strokeStyle=C.green; ctx.lineWidth=1;
+  ctx.beginPath();
+  ctx.moveTo(dx1,cy+8);  ctx.lineTo(dx1,cy+14);
+  ctx.moveTo(dx2,cy+8);  ctx.lineTo(dx2,cy+14);
+  ctx.moveTo(dx1,cy+11); ctx.lineTo(dx2,cy+11);
+  ctx.stroke();
+  ctx.fillStyle=C.green; ctx.font='italic 11px Georgia';
+  ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.fillText('dr', (dx1+dx2)/2, cy+15);
+
+  const topRing = cy - rOut*rPx;
+  ctx.fillStyle=C.gold; ctx.font='italic 11px Georgia';
+  ctx.textAlign='center'; ctx.textBaseline='bottom';
+  ctx.fillText('周长 = τ · r', cx, topRing-5);
+  ctx.fillStyle=C.green; ctx.font='11px Georgia';
+  ctx.textAlign='left'; ctx.textBaseline='middle';
+  ctx.fillText('面积 = τ · r · dr', dx2+6, cy);
+
+  ctx.strokeStyle=C.axis; ctx.lineWidth=0.8;
+  ctx.beginPath(); ctx.moveTo(pL,cy); ctx.lineTo(pL+pw,cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx,pT); ctx.lineTo(cx,pT+ph); ctx.stroke();
+
+  ctx.fillStyle=C.text; ctx.font='11px monospace';
+  ctx.textAlign='center'; ctx.textBaseline='top';
+  for (const v of [-3,-2,-1,1,2,3]) ctx.fillText(v, toX(v), cy+4);
+  ctx.textAlign='right'; ctx.textBaseline='middle';
+  for (const v of [-3,-2,-1,1,2,3]) ctx.fillText(v, cx-4, toY(v));
+
+  ctx.fillStyle=C.text; ctx.font='italic 14px Georgia';
+  ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('x', pL+pw+10, cy);
+  ctx.textAlign='center'; ctx.textBaseline='bottom'; ctx.fillText('y', cx, pT-3);
+}
+
+function draw4c() {
+  p4c.clear();
+  { const pts = [[0,0]];
+    for (let r=0.01; r<=4; r+=0.02) pts.push([r, r * Math.exp(-r*r/2)]);
+    pts.push([4,0]);
+    p4c.poly(pts, 'rgba(80,216,144,0.22)');
+  }
+  p4c.curve(r => r * Math.exp(-r*r/2), C.green, 2.5);
+  const pk = Math.exp(-0.5);
+  p4c.dot(1, pk, C.green, 5, 'rgba(80,216,144,0.30)');
+  p4c.dash(1, 0, 1, pk, C.muted, 0.3);
+  p4c.label(1.12, pk + 0.035, 'r = 1 处取峰值', C.green, '11px Georgia', 'left');
+  p4c.label(2.0, 0.27, '面积 = 1', C.green, 'italic 13px Georgia', 'left');
+  { const [lx, ly] = p4c.px(1, 0);
+    p4c.ctx.fillStyle=C.text; p4c.ctx.font='12px monospace';
+    p4c.ctx.textAlign='center'; p4c.ctx.textBaseline='top';
+    p4c.ctx.fillText('1', lx, ly+5);
+  }
+  p4c.xlabel('r', C.text);
+  p4c.ylabel('r · exp(−r²/2)', C.text);
+}
+
+function draw4d() {
+  p4d.clear();
+  { const pts = [[-4,0]];
+    for (let x=-4; x<=4; x+=0.04) pts.push([x, Math.exp(-x*x/2)]);
+    pts.push([4,0]);
+    p4d.poly(pts, 'rgba(224,96,128,0.22)');
+  }
+  p4d.curve(x => Math.exp(-x*x/2), C.pink, 2.5);
+  p4d.dot(0, 1, C.pink, 5, 'rgba(224,96,128,0.30)');
+  const yInf4 = Math.exp(-0.5);
+  [-1, 1].forEach(xi => {
+    p4d.dash(xi, 0, xi, yInf4, C.muted, 0.25);
+    p4d.dot(xi, yInf4, C.pink, 4);
+  });
+  p4d.label(0, 0.18, '√τ ≈ 2.507', C.gold, 'italic 15px Georgia', 'center');
+  p4d.xlabel('x', C.text);
+  p4d.ylabel('exp(−x²/2)', C.text);
+}
+
+function drawGrid4() {
+  const canvas = document.getElementById('c4grid');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const pL=112, pR=56, pT=56, pB=96;
+  const pw=W-pL-pR, ph=H-pT-pB;
+  const xMin=-3.5, xMax=3.5, yMin=-3.5, yMax=3.5;
+
+  ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, H);
+
+  const toX = xd => pL + (xd-xMin)/(xMax-xMin)*pw;
+  const toY = yd => pT + (yMax-yd)/(yMax-yMin)*ph;
+
+  const N = 28;
+  const dx = (xMax-xMin)/N, dy = (yMax-yMin)/N;
+  for (let j=0; j<N; j++) {
+    for (let i=0; i<N; i++) {
+      const xc = xMin + (i+0.5)*dx;
+      const yc = yMin + (j+0.5)*dy;
+      const z  = Math.exp(-(xc*xc + yc*yc)/2);
+      const r  = Math.round(10 + z*230);
+      const g  = Math.round(10 + z*182);
+      const b  = Math.round(28 + z*36);
+      ctx.fillStyle = `rgb(${r},${g},${b})`;
+      const px0 = toX(xMin + i*dx), px1 = toX(xMin + (i+1)*dx);
+      const py0 = toY(yMin + (j+1)*dy), py1 = toY(yMin + j*dy);
+      ctx.fillRect(px0, py0, px1-px0, py1-py0);
+    }
+  }
+  ctx.strokeStyle = 'rgba(10,10,28,0.35)'; ctx.lineWidth = 0.5;
+  for (let i=0; i<=N; i++) {
+    const px = toX(xMin + i*dx);
+    ctx.beginPath(); ctx.moveTo(px, pT); ctx.lineTo(px, pT+ph); ctx.stroke();
+    const py = toY(yMin + i*dy);
+    ctx.beginPath(); ctx.moveTo(pL, py); ctx.lineTo(pL+pw, py); ctx.stroke();
+  }
+
+  const ic = Math.floor(N*0.66), jc = Math.floor(N*0.52);
+  const tx0 = toX(xMin + ic*dx),     ty0 = toY(yMin + (jc+1)*dy);
+  const tx1 = toX(xMin + (ic+1)*dx), ty1 = toY(yMin + jc*dy);
+  ctx.strokeStyle = C.pink; ctx.lineWidth = 2.5;
+  ctx.strokeRect(tx0, ty0, tx1-tx0, ty1-ty0);
+  const labelX = toX(2.7), labelY = (ty0+ty1)/2;
+  ctx.beginPath(); ctx.moveTo(tx1, labelY); ctx.lineTo(labelX - 4, labelY);
+  ctx.stroke();
+  ctx.fillStyle = C.pink; ctx.font = 'italic 15px Georgia';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillText('dx · dy', labelX, labelY);
+
+  const cx=toX(0), cy=toY(0);
+  ctx.strokeStyle=C.axis; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(pL,cy); ctx.lineTo(pL+pw,cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx,pT); ctx.lineTo(cx,pT+ph); ctx.stroke();
+
+  ctx.fillStyle=C.text; ctx.font='12px monospace';
+  ctx.textAlign='center'; ctx.textBaseline='top';
+  for (const v of [-3,-2,-1,1,2,3]) ctx.fillText(v, toX(v), cy+5);
+  ctx.textAlign='right'; ctx.textBaseline='middle';
+  for (const v of [-3,-2,-1,1,2,3]) ctx.fillText(v, cx-5, toY(v));
+
+  ctx.fillStyle=C.text; ctx.font='italic 15px Georgia';
+  ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('x', pL+pw+8, cy);
+  ctx.textAlign='center'; ctx.textBaseline='bottom'; ctx.fillText('y', cx, pT-5);
+}
+
+function drawRings4() {
+  const canvas = document.getElementById('c4rings');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const pL=112, pR=56, pT=56, pB=96;
+  const pw=W-pL-pR, ph=H-pT-pB;
+  const xMin=-3.5, xMax=3.5, yMin=-3.5, yMax=3.5;
+
+  ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, H);
+
+  const toX = xd => pL + (xd-xMin)/(xMax-xMin)*pw;
+  const toY = yd => pT + (yMax-yd)/(yMax-yMin)*ph;
+  const cx=toX(0), cy=toY(0), rPx=pw/(xMax-xMin);
+
+  ctx.save();
+  ctx.beginPath(); ctx.rect(pL, pT, pw, ph); ctx.clip();
+
+  const N = 14;
+  const dr = 3.5 / N;
+  for (let k=N; k>=1; k--) {
+    const rOut = k*dr, rIn = (k-1)*dr;
+    const rMid = (rOut+rIn)/2;
+    const z = Math.exp(-rMid*rMid/2);
+    const r = Math.round(10 + z*230);
+    const g = Math.round(10 + z*182);
+    const b = Math.round(28 + z*36);
+    ctx.fillStyle = `rgb(${r},${g},${b})`;
+    ctx.beginPath(); ctx.arc(cx, cy, rOut*rPx, 0, Math.PI*2); ctx.fill();
+  }
+  ctx.strokeStyle = 'rgba(10,10,28,0.55)'; ctx.lineWidth = 1;
+  for (let k=1; k<=N; k++) {
+    ctx.beginPath(); ctx.arc(cx, cy, k*dr*rPx, 0, Math.PI*2); ctx.stroke();
+  }
+  ctx.restore();
+
+  const kSel = 5;
+  const rIn = (kSel-1)*dr, rOut = kSel*dr, rMid = (rIn+rOut)/2;
+  ctx.strokeStyle = C.cyan; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.arc(cx, cy, rIn *rPx, 0, Math.PI*2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, rOut*rPx, 0, Math.PI*2); ctx.stroke();
+  const angle = -Math.PI*0.20;
+  const lx0 = cx + rOut*rPx*Math.cos(angle), ly0 = cy + rOut*rPx*Math.sin(angle);
+  const lx1 = cx + (rOut+0.6)*rPx*Math.cos(angle), ly1 = cy + (rOut+0.6)*rPx*Math.sin(angle);
+  ctx.beginPath(); ctx.moveTo(lx0, ly0); ctx.lineTo(lx1, ly1); ctx.stroke();
+  ctx.fillStyle = C.cyan; ctx.font = 'italic 15px Georgia';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillText('τ · r · dr', lx1 + 4, ly1);
+
+  ctx.strokeStyle=C.axis; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(pL,cy); ctx.lineTo(pL+pw,cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx,pT); ctx.lineTo(cx,pT+ph); ctx.stroke();
+
+  ctx.fillStyle=C.text; ctx.font='12px monospace';
+  ctx.textAlign='center'; ctx.textBaseline='top';
+  for (const v of [-3,-2,-1,1,2,3]) ctx.fillText(v, toX(v), cy+5);
+  ctx.textAlign='right'; ctx.textBaseline='middle';
+  for (const v of [-3,-2,-1,1,2,3]) ctx.fillText(v, cx-5, toY(v));
+
+  ctx.fillStyle=C.text; ctx.font='italic 15px Georgia';
+  ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('x', pL+pw+8, cy);
+  ctx.textAlign='center'; ctx.textBaseline='bottom'; ctx.fillText('y', cx, pT-5);
+}
+
+function draw4() {
+  drawHeatmap4a();
+  drawGrid4();
+  drawRings4();
+  draw4c();
+  draw4d();
+}
+
+draw4();
+</script>
+</body>
+</html>

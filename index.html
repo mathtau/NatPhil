@@ -1,0 +1,2578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Natural Derivation of Gaussian Integral</title>
+
+  <meta name="description" content="A visual derivation of the Gaussian integral — from x²/2 to the hidden circle, with interactive plots.">
+  <meta name="author" content="Int Math Channel">
+
+  <link rel="canonical" href="https://intmathchannel.github.io/NatPhil/">
+  <link rel="alternate" hreflang="en" href="https://intmathchannel.github.io/NatPhil/">
+  <link rel="alternate" hreflang="zh" href="https://intmathchannel.github.io/NatPhil/index_zh.html">
+  <link rel="license" href="https://creativecommons.org/licenses/by/4.0/">
+
+  <meta property="og:title" content="Natural Derivation of Gaussian Integral">
+  <meta property="og:description" content="A visual journey from linear change to the hidden circle.">
+  <meta property="og:url" content="https://intmathchannel.github.io/NatPhil/">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="https://intmathchannel.github.io/NatPhil/og-card.png">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="zh_CN">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230c0c1e'/%3E%3Ctext x='50' y='74' font-family='Georgia' font-size='80' fill='%23f0c040' text-anchor='middle'%3Eτ%3C/text%3E%3C/svg%3E">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0c0c1e;
+      --surface:   #111128;
+      --border:    #22224a;
+      --text:      #c4c4dc;
+      --muted:     #60607a;
+      --gold:      #f0c040;
+      --cyan:      #40c8f0;
+      --green:     #50d890;
+      --orange:    #f08840;
+      --pink:      #e06080;
+    }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.8;
+    }
+
+    /* ── Header ─────────────────────────────────────────────────── */
+    header {
+      text-align: center;
+      padding: 72px 24px 52px;
+      border-bottom: 1px solid var(--border);
+    }
+    header h1 {
+      font-size: 2.6rem;
+      color: var(--gold);
+      letter-spacing: 0.05em;
+      text-shadow: 0 0 50px rgba(240,192,64,.25);
+    }
+    header p {
+      margin-top: 14px;
+      color: var(--muted);
+      font-style: italic;
+      font-size: 1.05rem;
+    }
+
+    /* ── Layout ─────────────────────────────────────────────────── */
+    main {
+      max-width: 940px;
+      margin: 0 auto;
+      padding: 0 28px 100px;
+    }
+
+    .section {
+      margin-top: 80px;
+    }
+
+    .sec-head {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 28px;
+    }
+    .sec-num  { font-size: .78rem; color: var(--muted); font-family: monospace; letter-spacing: .08em; }
+    h2        { font-size: 1.5rem; font-weight: normal; color: var(--gold); }
+
+    p         { margin-bottom: 18px; max-width: 740px; }
+
+    /* inline math highlight */
+    em.m      { font-style: italic; color: var(--cyan); }
+    em.mg     { font-style: italic; color: var(--green); }
+    em.mo     { font-style: italic; color: var(--orange); }
+
+    /* centred equation display */
+    .eq {
+      display: block;
+      text-align: center;
+      font-style: italic;
+      font-size: 1.25rem;
+      color: var(--green);
+      margin: 30px auto;
+      letter-spacing: .02em;
+    }
+
+    /* callout box */
+    .callout {
+      background: rgba(240,192,64,.05);
+      border-left: 3px solid var(--gold);
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin: 28px 0;
+      max-width: 740px;
+    }
+    .callout p { margin: 0; }
+    .callout-cyan {
+      background: rgba(64,200,240,.05);
+      border-left: 3px solid var(--cyan);
+    }
+
+    h3.subhead {
+      font-size: 1.05rem;
+      font-weight: normal;
+      font-style: italic;
+      color: var(--cyan);
+      margin: 44px 0 16px;
+      letter-spacing: .01em;
+    }
+
+    /* Vertical fraction: x² over 2 */
+    .frac {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      vertical-align: middle;
+      font-size: .9em;
+      line-height: 1.1;
+      margin: 0 2px;
+    }
+    .frac .num {
+      border-bottom: 1px solid currentColor;
+      padding: 0 3px 1px;
+    }
+    .frac .den {
+      padding: 1px 3px 0;
+    }
+
+    /* ── Graph cards ─────────────────────────────────────────────── */
+    .graphs {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin: 32px 0;
+    }
+    .graph-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 18px 12px;
+      flex: 1 1 380px;
+    }
+    /* Canvas: attribute size = 2× CSS size for crisp rendering */
+    .graph-card canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .graph-caption {
+      font-size: .8rem;
+      color: var(--muted);
+      font-style: italic;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    /* ── Slider ──────────────────────────────────────────────────── */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin: 24px 0 8px;
+      flex-wrap: wrap;
+    }
+    .controls label {
+      font-style: italic;
+      color: var(--cyan);
+    }
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 240px;
+      height: 5px;
+      background: var(--border);
+      border-radius: 3px;
+      outline: none;
+      cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px; height: 18px;
+      background: var(--gold);
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(240,192,64,.45);
+    }
+    .val { font-family: monospace; color: var(--gold); min-width: 48px; }
+
+    /* play button */
+    .btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 6px;
+      padding: 5px 16px;
+      font-family: monospace;
+      font-size: .85rem;
+      cursor: pointer;
+      transition: border-color .2s, color .2s;
+    }
+    .btn:hover { border-color: var(--gold); color: var(--gold); }
+    .btn.active { border-color: var(--pink); color: var(--pink); }
+
+    /* ── Placeholder ─────────────────────────────────────────────── */
+    .placeholder {
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 52px;
+      text-align: center;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* ── Language toggle ─────────────────────────────────────────── */
+    .lang-toggle {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 100;
+      display: flex;
+      gap: 2px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 3px;
+      font-family: 'Georgia', serif;
+    }
+    .lang-toggle a {
+      padding: 6px 14px;
+      border-radius: 6px;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: .9rem;
+      transition: color .2s, background .2s;
+    }
+    .lang-toggle a:hover { color: var(--gold); }
+    .lang-toggle a.active {
+      background: rgba(240,192,64,.15);
+      color: var(--gold);
+    }
+
+    /* ── Footer ───────────────────────────────────────────────── */
+    footer {
+      max-width: 940px;
+      margin: 60px auto 0;
+      padding: 36px 28px 60px;
+      border-top: 1px solid var(--border);
+      font-size: .9rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    footer p { margin-bottom: 14px; max-width: 760px; }
+    footer p:last-child { margin-bottom: 0; }
+    footer a {
+      color: var(--cyan);
+      text-decoration: none;
+      border-bottom: 1px dotted rgba(64,200,240,.5);
+      transition: color .2s, border-color .2s;
+    }
+    footer a:hover { color: var(--gold); border-bottom-color: var(--gold); }
+    footer .cite { color: var(--text); font-family: 'Georgia', serif; }
+    footer .footer-meta {
+      font-family: monospace;
+      font-size: .82rem;
+      letter-spacing: .02em;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+<div class="lang-toggle">
+  <a href="index.html" class="active">English</a>
+  <a href="index_zh.html">中文</a>
+</div>
+
+<header>
+  <h1>Natural Derivation of Gaussian Integral</h1>
+  <p>A visual journey from linear change to the hidden circle</p>
+</header>
+
+<main>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SECTION 1 — x²/2
+═══════════════════════════════════════════════════════════════ -->
+<div class="section" id="s1">
+  <div class="sec-head">
+    <span class="sec-num">§ 1</span>
+    <h2>The Natural Occurrence of <span class="frac"><span class="num">x²</span><span class="den">2</span></span></h2>
+  </div>
+
+  <!-- ── Part 1: why v = t ──────────────────────────────── -->
+  <h3 class="subhead">Part 1 — Why is v = t the natural velocity?</h3>
+
+  <p>Gravity is a familiar example of constant acceleration — near Earth's surface it
+  accelerates falling objects at ≈ 9.8 m/s² downward, almost perfectly constant over
+  human scales. Acceleration is the rate at which velocity changes:</p>
+
+  <span class="eq">a &ensp;=&ensp; <span class="frac"><span class="num">dv</span><span class="den">dt</span></span></span>
+
+  <p>Rearranging: each tiny slice of time <em class="m">dt</em> delivers a velocity
+  push <em class="m">dv = a · dt</em>. Setting <em class="m">a = 1</em> normalises the
+  numbers without changing the structure. With <em class="m">a = 1</em>:
+  <em class="mg">dv = dt</em>.</p>
+
+  <p>Now see how a constant <em class="m">a</em> builds <em class="m">v</em> across
+  the same time horizon:</p>
+
+  <p><strong>Left</strong> — constant <em class="m">a = 1</em> across time.
+  <em class="m">N</em> colored blocks, each with height 1 and width
+  <em class="m">dt</em>, and therefore area:</p>
+
+  <span class="eq">1 · dt &ensp;=&ensp; a · dt &ensp;=&ensp; dt &ensp;=&ensp; dv</span>
+
+  <p><strong>Right</strong> — <em class="m">v</em> across time. Across each time
+  interval, <em class="m">v</em> grows by <em class="mg">dv</em> by definition: each
+  tick length on the right corresponds to the area of a block on the left, fitting
+  well to <em class="m">v = t</em> at large <em class="m">N</em>. Drag
+  <em class="m">N</em>:</p>
+
+  <div class="controls">
+    <label>N =</label>
+    <input type="range" id="sl1n" min="2" max="50" step="1" value="10">
+    <span class="val" id="vl1n">10</span>
+  </div>
+
+  <div class="graphs">
+    <div class="graph-card">
+      <canvas id="c1g" width="700" height="700"></canvas>
+      <p class="graph-caption">
+        Constant acceleration g = 1 — each colored block is one velocity increment
+        <em>dv = g · dt</em>
+      </p>
+    </div>
+    <div class="graph-card">
+      <canvas id="c1v" width="700" height="700"></canvas>
+      <p class="graph-caption">
+        Colored ticks are lengths dv — stacking them on the velocity axis gives <em>v = Σ dv = t</em>
+      </p>
+    </div>
+  </div>
+
+  <p>As <em class="m">N → ∞</em>, each slice gets thinner and the staircase becomes the
+  smooth line <em class="m">v = t</em>. That line is not chosen — it is forced on us by
+  the constancy of gravity: equal pushes accumulate into linear growth.</p>
+
+  <!-- ── Part 2: natural distance ────────────────────────── -->
+  <h3 class="subhead">Part 2 — Why is x = t²/2 the natural distance?</h3>
+
+  <p>Distance is velocity times time. Each instant contributes a thin strip of area
+  <em class="m">v · dt = t · dt</em>, and total distance is the sum of all strips —
+  the area under <em class="m">v = t</em>.</p>
+
+  <p>That region is a right triangle with base <em class="m">t</em> and height
+  <em class="m">t</em>. Its area is exactly half the enclosing square:</p>
+
+  <span class="eq">x &ensp;=&ensp; ½ · t · t &ensp;=&ensp; <span class="frac"><span class="num">t²</span><span class="den">2</span></span></span>
+
+  <p><strong>Left</strong> — <em class="m">v = t</em> across time. Each colored strip
+  has height <em class="m">v</em> and width <em class="m">dt</em>, and therefore area:</p>
+
+  <span class="eq">v · dt &ensp;=&ensp; t · dt &ensp;=&ensp; dx</span>
+
+  <p><strong>Right</strong> — distance <em class="m">x(t)</em> across time. At each
+  moment the distance grows by the area of the strip on the left: each tick length on
+  the right equals one strip's area, tracing out <em class="m">x(t) = t²/2</em> at large
+  <em class="m">N</em>. Drag <em class="m">t</em> — or play to animate:</p>
+
+  <div class="controls">
+    <label>N =</label>
+    <input type="range" id="sl1an" min="2" max="50" step="1" value="10">
+    <span class="val" id="vl1an">10</span>
+  </div>
+  <div class="controls" style="margin-top: 6px;">
+    <label>t =</label>
+    <input type="range" id="sl1" min="0.05" max="3.3" step="0.01" value="1.5">
+    <span class="val" id="vl1">1.50</span>
+    <button class="btn" id="play1">&#9654; play</button>
+  </div>
+
+  <div class="graphs">
+    <div class="graph-card">
+      <canvas id="c1a" width="700" height="700"></canvas>
+      <p class="graph-caption">
+        Each colored strip has area = distance increment <em>dx = v · dt</em>
+      </p>
+    </div>
+    <div class="graph-card">
+      <canvas id="c1b" width="700" height="700"></canvas>
+      <p class="graph-caption">
+        Same strips stacked as tick lengths — staircase traces x(t) = t²/2
+      </p>
+    </div>
+  </div>
+
+  <p>The parabola <em class="m">t²/2</em> on the right is the growing triangle on the left.
+  Its slope at any point recovers the velocity:
+  <em class="mg">d/dt (t²/2) = t</em>. The line and the parabola are each other's mirrors.</p>
+
+  <div class="callout">
+    <p><strong>Key insight.</strong>&ensp;<em class="m">t²/2</em> is the natural distance because
+    it is the area of the triangle formed by linear velocity — and the area of any triangle
+    is half its enclosing square. The ½ comes from geometry, not convention.</p>
+  </div>
+
+  <!-- ── Part 3: natural occurrence ──────────────────────────── -->
+  <h3 class="subhead">Part 3 — x²/2 appears wherever something grows linearly</h3>
+
+  <p>Part 2 showed that distance under constant acceleration is <em class="m">t²/2</em>.
+  That result is an instance of a deeper pattern. The reason it appeared is simple:</p>
+
+  <span class="eq"><span class="frac"><span class="num">d</span><span class="den">dx</span></span><span style="font-style:italic"> (</span><span class="frac"><span class="num">x²</span><span class="den">2</span></span><span style="font-style:italic">)</span> &ensp;=&ensp; x</span>
+
+  <p><em class="m">x²/2</em> is the integral of <em class="m">x</em> — the natural
+  accumulation of anything that grows proportionally to <em class="m">x</em> itself.
+  Whenever physics gives you a quantity that increases linearly, integrating it produces
+  <em class="m">x²/2</em>. The ½ is not inserted by hand; it is the area of the triangle
+  between the line and the axis.</p>
+
+  <p>Two more examples from physics — both familiar, both the same triangle:</p>
+
+  <p><strong>Kinetic energy.</strong> A force <em class="m">F = ma</em> accelerates a
+  mass. Velocity grows linearly in time: <em class="m">v = at</em>. Work = force ×
+  distance, and distance = <em class="m">t²/2</em> from Part 2. So:</p>
+
+  <span class="eq">KE &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den">2</span></span>mv²</span>
+
+  <p>The ½ is the same triangle from Part 2 — velocity built linearly from 0, so the
+  average is half the final value.</p>
+
+  <p><strong>Spring energy.</strong> Hooke's law says the restoring force grows
+  proportionally to displacement: <em class="m">F = kx</em>. The work to compress the
+  spring by <em class="m">x</em> is the area under that line — another triangle:</p>
+
+  <span class="eq">PE &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den">2</span></span>kx²</span>
+
+  <div class="callout callout-cyan">
+    <p><strong>Key insight.</strong>&ensp;<em class="m">½mv²</em> and
+    <em class="m">½kx²</em> both carry a ½ for the same reason: the physical quantity
+    (velocity, force) grows linearly, so its accumulated effect is the area of a triangle
+    — exactly half the enclosing rectangle. <em class="m">x²/2</em> is the universal
+    signature of linear growth integrated once.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SECTION 2 — 1/x, log, exp
+═══════════════════════════════════════════════════════════════ -->
+<div class="section" id="s2">
+  <div class="sec-head">
+    <span class="sec-num">§ 2</span>
+    <h2>The Natural Occurrence of 1/x, log(x) and exp(y)</h2>
+  </div>
+
+  <h3 class="subhead">Part 1 — Why does 1/x arise naturally?</h3>
+
+  <p>Boyle's law is a familiar example of an inverse relationship — hold temperature
+  fixed, and pressure and volume are inversely linked. Setting the proportionality
+  constant to 1:</p>
+
+  <span class="eq">PV &ensp;=&ensp; 1 &ensp;⟹&ensp; P &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den">V</span></span></span>
+
+  <p>Halve the volume: pressure doubles. Compress to a third: pressure triples.
+  Plotted against volume, this is the curve <em class="m">y = 1/x</em>.</p>
+
+  <p>Now ask: <em>how much work does expanding the gas from volume 1 to volume
+  <em class="m">V</em> release?</em> Work is pressure times volume change. Each tiny
+  expansion <em class="m">dV</em> contributes:</p>
+
+  <span class="eq">dW &ensp;=&ensp; P &thinsp;·&thinsp; dV &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den">V</span></span> dV</span>
+
+  <p><strong>Left</strong> — pressure <em class="m">P = 1/V</em> across volume.
+  <em class="m">N</em> colored blocks, each with height <em class="m">1/V</em> and
+  width <em class="m">dV</em>, and therefore area:</p>
+
+  <span class="eq"><span class="frac"><span class="num">1</span><span class="den">V</span></span> · dV &ensp;=&ensp; P · dV &ensp;=&ensp; dW</span>
+
+  <p><strong>Right</strong> — work <em class="m">W</em> across volume. Each tick length
+  on the right corresponds to the area of a block on the left, stacking toward
+  <em class="m">W = log V</em> at large <em class="m">N</em>. Drag
+  <em class="m">N</em> to refine; drag <em class="m">V</em> to extend — or
+  play:</p>
+
+  <div class="controls">
+    <label>N =</label>
+    <input type="range" id="sl2n" min="2" max="50" step="1" value="10">
+    <span class="val" id="vl2n">10</span>
+  </div>
+  <div class="controls" style="margin-top: 6px;">
+    <label>V =</label>
+    <input type="range" id="sl2v" min="1.1" max="7.5" step="0.05" value="4">
+    <span class="val" id="vl2v">4.00</span>
+    <button class="btn" id="play2">&#9654; play</button>
+  </div>
+
+  <div class="graphs">
+    <div class="graph-card">
+      <canvas id="c2a" width="700" height="700"></canvas>
+      <p class="graph-caption">Each colored rectangle has area = work contribution
+      dW = (1/V)·ΔV</p>
+    </div>
+    <div class="graph-card">
+      <canvas id="c2ar" width="700" height="700"></canvas>
+      <p class="graph-caption">Same rectangles stacked as heights — the staircase
+      approximates W = log V</p>
+    </div>
+  </div>
+
+  <p>As <em class="m">N → ∞</em> the staircase fills the smooth gold curve. That curve
+  — the accumulated area under <em class="m">1/V</em> — is the
+  <strong>logarithm</strong>. It is one of the most important functions in mathematics
+  and science: the natural language of anything that grows or shrinks by ratios rather
+  than by fixed amounts.</p>
+
+  <h3 class="subhead">Part 2 — Equal ratios, equal areas</h3>
+
+  <p>Drag <em class="m">V</em> past 2, then past 4 in the charts above. Each doubling
+  adds exactly the same height to the right chart — the intervals 1→2, 2→4, and 4→8
+  all contribute identical work, <em class="mg">log 2 ≈ 0.693</em>, regardless of
+  where on the axis they sit:</p>
+
+  <div class="graphs">
+    <div class="graph-card" style="flex: 1 1 380px; max-width: 480px;">
+      <canvas id="c2b" width="700" height="700"></canvas>
+      <p class="graph-caption">Three doublings of volume — each shaded region is the
+      same work, log 2</p>
+    </div>
+  </div>
+
+    <p>Here is why: <em class="m">dV/V</em> measures <em>relative</em> change, and relative
+  change is blind to scaling. Replace <em class="m">V</em> with <em class="m">c · V</em>
+  everywhere — the strip becomes <em class="m">d(c·V) = c · dV</em> wide, the height
+  becomes <em class="m">1/(c·V)</em>, and the <em class="m">c</em> cancels:</p>
+
+  <span class="eq">
+    <span class="frac"><span class="num">d(c · V)</span><span class="den">c · V</span></span>
+    &ensp;=&ensp;
+    <span class="frac"><span class="num">c · dV</span><span class="den">c · V</span></span>
+    &ensp;=&ensp;
+    <span class="frac"><span class="num">dV</span><span class="den">V</span></span>
+  </span>
+
+  <div class="graphs">
+    <div class="graph-card" style="max-width: 520px;">
+      <canvas id="c2scale" width="700" height="560"></canvas>
+      <p class="graph-caption">Both strips have the same area dV/V — the 1/(c·V) height
+      and the c·dV width cancel exactly</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p><strong>Key insight.</strong>&ensp;Musical pitch works exactly this way. The
+    step 220 Hz → 440 Hz and the step 440 Hz → 880 Hz feel identical — both are an
+    octave. The absolute widths are 220 Hz and 440 Hz; the ratio is 2 in both cases.
+    Our ears integrate <em class="m">df/f</em>, not <em class="m">df</em>. The
+    <em class="m">1/f</em> weighting makes the integrand scale-invariant, so only
+    the ratio between the startpoint and endpoint is heard.</p>
+  </div>
+
+  <h3 class="subhead">Part 3 — log: converting multiplication to addition</h3>
+
+  <p>Scaling the interval by a constant <em class="m">c</em> leaves the integrand unchanged — the
+  result depends only on the ratio <em class="m">V<sub>e</sub>/V<sub>s</sub></em>,
+  wherever the interval sits.</p>
+
+  <p>Now ask: what happens to relative change when two varying quantities are
+  <em>multiplied</em>? The relative change in a product <em class="m">x · y</em>
+  is <em class="m">d(xy)</em> and its inverse is <em class="m">1/(xy)</em>.</p>
+  
+  <p> Let's first look at <em class="m">d(xy)</em>. The diagram shows what it is. Expanding the new rectangle gives four pieces: the
+  original <em class="m">xy</em>, two thin strips <em class="mo">y·dx</em> and
+  <em class="m">x·dy</em>, and a tiny corner <em class="m">dx·dy</em>. The last term is the product
+  of two small quantities — as <em class="m">dx, dy → 0</em>, it vanishes, leaving the
+  exact relation above.</p>
+
+  <div class="graphs">
+    <div class="graph-card" style="max-width: 480px;">
+      <canvas id="c2prod" width="700" height="700"></canvas>
+      <p class="graph-caption">d(xy) = (x + dx)(y + dy) — xy = y·dx + x·dy, as the
+      shaded corner dx·dy vanishes as the steps shrink</p>
+    </div>
+  </div>
+  
+    
+  <p><em class="m">d(xy) = y&thinsp;dx + x&thinsp;dy</em> and divide by
+  <em class="m">xy</em>:</p>
+
+
+  <span class="eq"><span class="frac"><span class="num">d(xy)</span><span class="den">xy</span></span> &ensp;=&ensp; <span class="frac"><span class="num">dx</span><span class="den">x</span></span> &ensp;+&ensp; <span class="frac"><span class="num">dy</span><span class="den">y</span></span></span>
+
+
+  <p>Relative changes approximately add. Say <em class="m">x = 100</em>,
+  <em class="m">dx = 3</em>, <em class="m">y = 80</em>, <em class="m">dy = 1.6</em>.
+  Then <em class="m">dx/x</em> and <em class="m">dy/y</em> represent their respective
+  relative changes in the familiar sense: <em class="m">dx/x = 3%</em> and
+  <em class="m">dy/y = 2%</em>. A 3% rise in <em class="m">x</em> and a 2% rise in
+  <em class="m">y</em> produce a <em>5.06%</em> rise in <em class="m">xy</em> — not
+  exactly 5%, because the corner <em class="m">dx · dy = 0.03 × 0.02 = 0.06%</em>
+  is small but nonzero. As the steps shrink toward zero the corner vanishes, and the
+  approximation becomes exact.</p>
+
+  <p>We saw earlier in Part 1 that log is used to show the accumulation of infinitesimal
+  relative steps of <em class="m">dt/t</em>. So <em class="m">log(xy)</em> is simply
+  the total of all the small changes <em class="m">d(log(xy))</em> as
+  <em class="m">xy</em> grows from 1 to its final value, and each such step is
+  <em class="m">d(log(xy)) = d(xy)/(xy)</em>.</p>
+
+  <p>Exactly the same is true term by term: <em class="m">log(x)</em> is the sum of
+  all <em class="m">d(log x) = dx/x</em>, and <em class="m">log(y)</em> is the sum of
+  all <em class="m">d(log y) = dy/y</em>. Since each set of infinitesimal pieces
+  satisfies <em class="m">d(xy)/(xy) = dx/x + dy/y</em> exactly, so does their
+  total — we get an equation in aggregation:</p>
+
+  <span class="eq">log(a · b) &ensp;=&ensp; log(a) + log(b)</span>
+
+  <p>Not a definition — a consequence. The logarithm converts multiplication into
+  addition because <em class="m">1/x</em> measures relative change, and relative
+  changes add.</p>
+
+  <h3 class="subhead">Part 4 — exp: converting addition to multiplication</h3>
+
+  <p><em class="mo">exp</em> is the inverse of log. Where log converts multiplication
+  into addition, exp goes the other direction — it converts addition back into
+  multiplication:</p>
+
+  <span class="eq">exp(a + b) &ensp;=&ensp; exp(a) · exp(b)</span>
+
+  <p>Graphically, the two functions are exact reflections of each other across the
+  diagonal <em class="m">y = x</em>. Every point <em class="m">(x,&thinsp;log x)</em>
+  on the log curve has a mirror <em class="mo">(log x,&thinsp;x)</em> on the exp curve
+  — coordinates swapped. Two sample mirror pairs are marked:</p>
+
+  <div class="graphs">
+    <div class="graph-card" style="flex: 1 1 380px; max-width: 480px;">
+      <canvas id="c2c" width="700" height="700"></canvas>
+      <p class="graph-caption">log x and exp x are mirror images across y = x</p>
+    </div>
+  </div>
+
+  <p>One famous property of <em class="mo">exp</em> falls out of this mirror picture
+  almost for free: <em class="mo">exp</em> is its own derivative. The argument is
+  purely geometric — and traces straight back to <em class="m">1/x</em>.</p>
+
+  <p><strong>First, the slope of log.</strong>&ensp;By Part 1,
+  <em class="m">log x = ∫₁ˣ dt/t</em> — the accumulated area under
+  <em class="m">1/t</em> from 1 to <em class="m">x</em>. How fast does this area
+  grow as <em class="m">x</em> increases? When the right edge advances from
+  <em class="m">x</em> to <em class="m">x + dx</em>, the area gains a thin
+  vertical strip of width <em class="m">dx</em> and height <em class="m">1/x</em>
+  — the value of the integrand at that edge. So the added area is
+  <em class="m">(1/x) · dx</em>, and the rate of growth is simply the height
+  <em class="m">1/x</em>:</p>
+
+  <span class="eq"><span class="frac"><span class="num">d</span><span class="den">dx</span></span>&thinsp;log(x) &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den">x</span></span></span>
+
+  <p>This is the fundamental theorem of calculus in its most geometric form: the
+  derivative of an accumulation is the height of what is being accumulated.</p>
+
+  <p><strong>Now reflect across <em class="m">y = x</em>.</strong>&ensp;Reflecting
+  any line across the diagonal <em class="m">y = x</em> swaps its rise and run, so
+  a line of slope <em class="m">m</em> becomes a line of slope <em class="m">1/m</em>.
+  This means that wherever log and exp meet as mirror points, the tangent slopes at
+  those points are reciprocals of each other.</p>
+
+  <p>Pick a concrete example. At <em class="m">x = 2</em>, the log curve passes
+  through the point <em class="m">P = (2,&thinsp;log 2)</em>, and we just computed
+  that log has slope <em class="m">1/2</em> there. The mirror point on exp is
+  <em class="m">Q = (log 2,&thinsp;2)</em>, and the tangent there has slope
+  <em class="m">2</em> — the reciprocal of <em class="m">1/2</em>. Now look at the
+  coordinates of <em class="m">Q</em>: its <em>y</em>-coordinate is also
+  <em class="m">2</em>. The slope at <em class="m">Q</em> equals the
+  <em>y</em>-value at <em class="m">Q</em>.</p>
+
+  <div class="graphs">
+    <div class="graph-card" style="flex: 1 1 380px; max-width: 480px;">
+      <canvas id="c2d" width="700" height="700"></canvas>
+      <p class="graph-caption">Mirror tangents at a sample pair: slope 1/2 on log at
+      P = (2, log 2) reflects to slope 2 on exp at Q = (log 2, 2). The reflected slope
+      equals the y-coordinate of Q — and this holds at every pair.</p>
+    </div>
+  </div>
+
+  <p>This happens at <em>every</em> point on exp, because every point on exp is
+  the mirror of some point on log. The slope of exp at any point equals the
+  <em>y</em>-value at that point. Since the <em>y</em>-value is just
+  <em class="mo">exp(x)</em> itself:</p>
+
+  <span class="eq" style="color:var(--orange);"><span class="frac"><span class="num">d</span><span class="den">dx</span></span>&thinsp;exp(x) &ensp;=&ensp; exp(x)</span>
+
+  <p>The chain of reasoning is short: log was defined as the accumulation of
+  <em class="m">1/t</em>, so log has slope <em class="m">1/x</em>; reflection across
+  <em class="m">y = x</em> inverts slopes; <em class="m">1/(1/x) = x</em> at the
+  mirror point — which is the value of exp there. The self-derivative property of
+  exp is the geometric shadow of choosing <em class="m">1/t</em> as the integrand
+  for log.</p>
+
+  <div class="callout">
+    <p><strong>Key insight.</strong>&ensp;<em class="mo">exp</em> is the function
+    <em class="mo">e<sup>x</sup></em>, with many remarkable properties — its own
+    derivative, its role in compound growth, its appearance in Euler's formula. But
+    most fundamentally, it is simply the inverse of log. And log is simply
+    <em class="m">∫ dt/t</em> — the accumulation of <em class="m">1/t</em>. The
+    self-derivative property <em class="m">(exp)' = exp</em> is the mirror image of
+    <em class="m">(log)' = 1/x</em>. Once that <em class="m">1/x</em> is chosen as
+    the integrand for log, everything else about exp is determined.</p>
+  </div>
+
+  <div class="callout callout-cyan">
+    <p>The pieces are now in place. §1 gave us <em class="m">x²/2</em> — the natural
+    accumulation of linear change. §2 gives us <em class="mo">exp</em> — the converter
+    that turns additive things into multiplicative things. In §3 we study the combination of them through: <em class="m">exp(−x²/2)</em>.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SECTION 3 — exp(−x²/2)
+═══════════════════════════════════════════════════════════════ -->
+<div class="section" id="s3">
+  <div class="sec-head">
+    <span class="sec-num">§ 3</span>
+    <h2>What is exp(−x²/2)?</h2>
+  </div>
+
+  <!-- ── Part 1: 1D setup — energy and an unknown probability ── -->
+  <h3 class="subhead">Part 1 — A particle on a line: energy known, probability unknown</h3>
+
+  <p>Picture a gas molecule moving along a single direction with speed
+  <em class="m">x</em>. Its kinetic energy, by §1, is <em class="m">x²/2</em>. The
+  faster the molecule moves, the more energy it carries.</p>
+
+  <p>In thermal equilibrium, nature does not give equal probability to every speed.
+  Higher-energy states demand more thermal budget to populate, so they are less
+  likely to be found. Call the probability density at speed <em class="m">x</em>
+  the function <em class="m">P(x)</em>. We expect, on physical grounds, that:</p>
+
+  <ul style="color: var(--text); margin-left: 1.5em;">
+    <li><em class="m">P(x)</em> depends on the molecule through its energy
+        <em class="m">x²/2</em> alone — two states with the same energy are
+        equally likely.</li>
+    <li><em class="m">P(x)</em> decreases as the energy
+        <em class="m">x²/2</em> grows — the molecule is most likely near rest
+        and increasingly unlikely at extreme speeds.</li>
+  </ul>
+
+  <p>That is everything we know so far. We do not yet know the <em>form</em> of
+  <em class="m">P(x)</em>. Is it <em class="m">1/(1 + x²/2)</em>? A piecewise
+  linear bump?
+  <em class="m">2<sup>−x²/2</sup></em>?
+  Many candidates fit the two bullets above. To pin down the form we need a
+  stronger constraint — and we get it by looking at what happens in two
+  dimensions.</p>
+
+  <!-- ── Part 2: 2D + scalar addition + product rule → exp ────── -->
+  <h3 class="subhead">Part 2 — Two dimensions: combining the constraints forces exp</h3>
+
+  <p>Real particles do not move on a line. A gas molecule has velocity components
+  in every spatial direction. Add a second perpendicular direction,
+  <em class="m">y</em>. The particle now has two kinetic energies, one for each
+  axis:</p>
+
+  <span class="eq">x-direction:&ensp; energy = x²/2 &emsp;&emsp; y-direction:&ensp; energy = y²/2</span>
+
+  <p>The directions are independent — a force along <em class="m">x</em> has no
+  effect on the <em class="m">y</em>-velocity, and the molecule's
+  <em class="m">x</em>-speed tells you nothing about its <em class="m">y</em>-speed.
+  Two new facts now enter, and together they pin down the form of
+  <em class="m">P</em>.</p>
+
+  <p><strong>Energies are scalars.</strong>&ensp;Velocities are vectors — they
+  carry direction, and combine by the parallelogram rule. Energies are not. An
+  energy is a single number with no direction attached; it is a <em>scalar</em>.
+  Two scalars of the same dimension combine in only one way: by arithmetic addition. The total kinetic
+  energy at velocity <em class="m">(x, y)</em> is just the sum:</p>
+
+  <span class="eq">total energy &ensp;=&ensp; x²/2 &thinsp;+&thinsp; y²/2</span>
+
+  <p>No factors. No cross-terms. The two energies stack arithmetically.</p>
+
+  <p><strong>Probabilities multiply.</strong>&ensp;Probabilities for independent
+  events do <em>not</em> add — they multiply. The joint probability density of
+  finding the molecule at velocity <em class="m">(x, y)</em> is the product of
+  the one-dimensional densities:</p>
+
+  <span class="eq">P(x, y) &ensp;=&ensp; P(x) &thinsp;·&thinsp; P(y) &emsp;&emsp; (independence)</span>
+
+  <p>This is not a convention or an approximation — it is the mathematical
+  definition of statistical independence.</p>
+
+  <p>Now combine the facts collected so far:</p>
+
+  <ol style="color: var(--text); margin-left: 1.5em;">
+    <li><em class="m">P(x)</em> depends only on energy <em class="m">x²/2</em>
+        (Part 1). Write <em class="m">P(x) = f(x²/2)</em> for some unknown
+        function <em class="m">f</em> of energy.</li>
+    <li>In two dimensions, total energy is <em class="m">x²/2 + y²/2</em>. By
+        the same reasoning, the 2D density depends only on this total:
+        <em class="m">P(x, y) = f(x²/2 + y²/2)</em>.</li>
+    <li>By independence, <em class="m">P(x, y) = P(x) · P(y)
+        = f(x²/2) · f(y²/2)</em>.</li>
+  </ol>
+
+  <p>Combining (1)–(3):</p>
+
+  <span class="eq">f(x²/2 + y²/2) &ensp;=&ensp; f(x²/2) &thinsp;·&thinsp; f(y²/2)</span>
+
+  <p>Let <em class="m">a = x²/2</em> and <em class="m">b = y²/2</em>. The
+  unknown function <em class="m">f</em> from energy to relative probability must
+  satisfy:</p>
+
+  <span class="eq">f(a &thinsp;+&thinsp; b) &ensp;=&ensp; f(a) &thinsp;·&thinsp; f(b)</span>
+
+  <p>This is a strict functional equation. The only family of functions
+  satisfying it is exponentials — <em class="m">cᴱ</em> for some base
+  <em class="m">c</em>. Any such base reconciles addition (in energy) with
+  multiplication (in probability). <strong>The exponential form is forced by
+  the physics; it was never a stylistic choice.</strong></p>
+
+  <!-- ── Part 3: base e + sign → the bell emerges ─────────────── -->
+  <h3 class="subhead">Part 3 — Choosing the base and the sign: the bell emerges</h3>
+
+  <p>Among all exponentials we pick base <em class="m">e</em> for a single,
+  practical reason: as shown in §2 Part 4, it is the unique base whose derivative
+  is itself — <em class="m">d/dx exp(x) = exp(x)</em>. Every other base carries
+  an extra <em class="m">ln(c)</em> factor at every derivative, every integral,
+  every chain-rule step. Choosing <em class="m">e</em> simply makes the calculus
+  clean. So <em class="m">f(E) = exp(±E)</em>, and</p>
+
+  <span class="eq">P(x) &ensp;∝&ensp; exp(±x²/2)</span>
+
+  <p>The sign is the only remaining choice. Recall Part 1's requirement:
+  <em class="m">P(x)</em> must <em>decrease</em> as energy grows. The two
+  candidates behave very differently:</p>
+
+  <p><strong>Left</strong> — the two candidate exponents: <em class="m">x²/2</em>
+  in gold rises symmetrically, <em class="m">−x²/2</em> in pink falls
+  symmetrically. <strong>Right</strong> — what exp does to each.
+  <em class="mo">exp(+x²/2)</em> rockets upward to infinity — unbounded, infinite
+  total weight, cannot be a probability density. <em class="mo">exp(−x²/2)</em>
+  decays toward zero — bounded, peaked at 1, symmetric about the origin.
+  <strong>The bell curve.</strong></p>
+
+  <div class="graphs">
+    <div class="graph-card">
+      <canvas id="c3a" width="700" height="980"></canvas>
+      <p class="graph-caption">Inputs: x²/2 grows (gold), −x²/2 falls (pink)</p>
+    </div>
+    <div class="graph-card">
+      <canvas id="c3b" width="700" height="980"></canvas>
+      <p class="graph-caption">Outputs: exp(+x²/2) explodes (gold), exp(−x²/2) decays
+      into the bell (pink) — same axes</p>
+    </div>
+  </div>
+
+  <p>The minus sign is forced — by the requirement that probability decreases
+  with energy, and by the requirement that total probability remain finite. We
+  have arrived:</p>
+
+  <span class="eq" style="font-size:1.3rem; color:var(--pink);">P(x) &ensp;∝&ensp; exp(−x²/2)</span>
+
+  <p>This same structure appears wherever a system has a preferred resting
+  position. A spring stretched by distance <em class="m">x</em> stores potential
+  energy <em class="m">kx²/2</em>; a pendulum near equilibrium stores the same
+  form. Spring, pendulum, molecular speed — all the same bell, because they all
+  share the same underlying structure: a quadratic cost, the multiplicative
+  product rule, and exp as the unique bridge between them.</p>
+
+  <p>The shape is complete. What remains is its total weight — how much area
+  lies under this curve from <em class="m">−∞</em> to <em class="m">+∞</em>?
+  That is the question §4 answers — and the answer, surprisingly, is a circle.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SECTION 4 — the hidden circle
+═══════════════════════════════════════════════════════════════ -->
+<div class="section" id="s4">
+  <div class="sec-head">
+    <span class="sec-num">§ 4</span>
+    <h2>Why is There a Circle Hiding Within the Integral?</h2>
+  </div>
+
+  <p>§3 ended with a question: what is the total area under
+  <em class="mo">exp(−x²/2)</em>? Call that integral <em class="m">I</em>:</p>
+
+  <span class="eq">I &ensp;=&ensp; ∫<sub>−∞</sub><sup>+∞</sup> exp(−x²/2) dx &ensp;=&ensp; ?</span>
+
+  <p>This integral has no elementary antiderivative. You cannot evaluate it by
+  finding a function whose derivative is <em class="mo">exp(−x²/2)</em>; no such
+  function exists in closed form. A direct attack fails. We need a trick.</p>
+
+  <!-- ── Part 1: the 2D squaring trick ─────────────────────── -->
+  <h3 class="subhead">Part 1 — The 2D trick: multiply the integral by itself</h3>
+
+  <p>Compute <em class="m">I²</em> instead of <em class="m">I</em>. Since
+  <em class="m">I</em> is just a number,</p>
+
+  <span class="eq">I² &ensp;=&ensp; <span style="white-space:nowrap;">(∫ exp(−x²/2) dx)</span> &thinsp;·&thinsp; <span style="white-space:nowrap;">(∫ exp(−y²/2) dy)</span></span>
+
+  <p>Two independent 1D integrals multiplied together. Each runs over its own
+  variable. Because the two pieces are completely independent (the
+  <em class="m">x</em>-integral does not see <em class="m">y</em>, and vice versa),
+  the product can be written as a single double integral over the entire plane:</p>
+
+  <span class="eq">I² &ensp;=&ensp; ∫∫ exp(−x²/2) &thinsp;·&thinsp; exp(−y²/2) &thinsp;dx&thinsp;dy</span>
+
+  <p>Now use the product property of exp — the very thing established in §3:</p>
+
+  <span class="eq">exp(−x²/2) &thinsp;·&thinsp; exp(−y²/2) &ensp;=&ensp; exp(−(x²/2 + y²/2))</span>
+
+  <p>And recognise the Pythagorean structure inside: <em class="m">x²/2 + y²/2 = r²/2</em>,
+  where <em class="m">r² = x² + y²</em>. The two-dimensional integrand depends only
+  on the radial distance from the origin:</p>
+
+  <span class="eq">I² &ensp;=&ensp; ∫∫ exp(−r²/2) &thinsp;dx&thinsp;dy</span>
+
+  <p>The squaring trick has turned the impossible 1D integral into a 2D integral
+  with <strong>perfect circular symmetry</strong>. We never invoked rotation, never
+  invoked angles — Pythagoras and exp's product property produced the symmetry on
+  their own.</p>
+
+  <div class="graphs">
+    <div class="graph-card" style="max-width:520px;">
+      <canvas id="c4a" width="700" height="700"></canvas>
+      <p class="graph-caption">exp(−(x²+y²)/2) as a brightness heatmap: peak at
+      the origin, dark at the tails. Contours at r = 1, 2, 3 are perfect circles —
+      not imposed, but forced by exp's product property acting on two independent
+      straight-line accumulations.</p>
+    </div>
+  </div>
+
+  <!-- ── Part 2: polar integration, τ appears, result √τ ───── -->
+  <h3 class="subhead">Part 2 — Let the symmetry do the integration</h3>
+
+  <p>First, read the integral geometrically. The plane is tiled by tiny squares
+  of area <em class="m">dx · dy</em>. At each square, the integrand
+  <em class="mo">exp(−r²/2)</em> gives a height (a number between 0 and 1, decided
+  by how far that square sits from the origin). Multiply that height by the
+  square's area, and we have a thin column of volume
+  <em class="m">exp(−r²/2) · dx · dy</em>. The double integral <em class="m">I²</em>
+  is the <strong>sum of all those tiny columns</strong> over the entire plane —
+  the total volume under the 2D bell surface.</p>
+
+  <span class="eq">I² &ensp;=&ensp; <span style="color:var(--gold)">∑</span><sub>squares</sub> &ensp;<span style="color:var(--gold)">exp(−r²/2)</span> &thinsp;·&thinsp; <span style="color:var(--green)">dx&thinsp;·&thinsp;dy</span></span>
+
+  <p>Now we can do that sum any way we like, by carving the plane into whatever
+  shapes we choose. The square tiling is one option, but it is not the best one
+  here. Because the integrand depends only on <em class="m">r</em> — every point
+  at the same radius contributes the same height — there is a much more natural
+  carving: <strong>thin concentric donuts</strong>, one for each radius. Within
+  a single donut the height never varies, so an entire donut becomes a single
+  building block of the sum, replacing many separate squares all carrying the
+  same value.</p>
+
+  <div class="graphs">
+    <div class="graph-card">
+      <canvas id="c4grid" width="700" height="700"></canvas>
+      <p class="graph-caption">Square tiling: each tile has area dx · dy and a
+      height exp(−r²/2) that varies from tile to tile.</p>
+    </div>
+    <div class="graph-card">
+      <canvas id="c4rings" width="700" height="700"></canvas>
+      <p class="graph-caption">Donut tiling: each donut has the same height
+      exp(−r²/2) everywhere on it. Same total volume, counted by radius.</p>
+    </div>
+  </div>
+
+  <p><strong>Step 1 — the area of one donut.</strong>&ensp;A donut at radius
+  <em class="m">r</em> with thickness <em class="m">dr</em> has area equal to
+  its circumference times its thickness:</p>
+
+  <span class="eq">area of donut &ensp;=&ensp; <span style="color:var(--gold)">τ · r</span> &ensp;·&ensp; <span style="color:var(--green)">dr</span></span>
+
+  <p>This is where <em class="m">τ</em> enters — not as an abstract constant,
+  but as the circumference of the unit circle that every donut inherits.</p>
+
+  <p><strong>Step 2 — sum over all donuts.</strong>&ensp;Multiply each donut's
+  area by its (constant) height <em class="mo">exp(−r²/2)</em> and add up the
+  contributions. Because every donut shares the same <em class="m">τ</em>, it
+  factors out of the sum:</p>
+
+  <span class="eq">I² &ensp;=&ensp; <span style="color:var(--gold)">∑</span><sub>donuts</sub> &ensp;<span style="color:var(--gold)">exp(−r²/2)</span> &thinsp;·&thinsp; <span style="color:var(--green)">τ · r · dr</span> &ensp;=&ensp; τ &ensp;·&ensp; ∫<sub>0</sub><sup>∞</sup> r · exp(−r²/2) dr</span>
+
+  <p><strong>Step 3 — what is left inside.</strong>&ensp;Inside the integral
+  sits the function <em class="m">r · exp(−r²/2)</em> — the height at radius
+  <em class="m">r</em> multiplied by the linear circumference factor
+  <em class="m">r</em>. This product has a distinctive shape: near the origin
+  there is plenty of height but very little circumference, so the contribution
+  is small; far from the origin there is plenty of circumference but the height
+  has decayed to nothing. The two effects balance and the curve peaks at
+  <em class="m">r = 1</em>.</p>
+
+  <div class="graphs">
+    <div class="graph-card" style="max-width:520px;">
+      <canvas id="c4c" width="700" height="700"></canvas>
+      <p class="graph-caption">The radial integrand r·exp(−r²/2): rises near
+      zero (small donuts), peaks at r = 1, decays in the tail. Total area
+      under it is exactly 1.</p>
+    </div>
+  </div>
+
+  <p><strong>Step 4 — the radial integral collapses to 1.</strong>&ensp;Why is
+  that total area exactly 1? Substitute <em class="m">u = r²/2</em>, so
+  <em class="m">du = r · dr</em>. The radial integral becomes a plain
+  exponential decay:</p>
+
+  <span class="eq">∫<sub>0</sub><sup>∞</sup> r · exp(−r²/2) dr &ensp;=&ensp; ∫<sub>0</sub><sup>∞</sup> exp(−u) du &ensp;=&ensp; −exp(−u)&thinsp;|<sub>0</sub><sup>∞</sup> &ensp;=&ensp; 0 − (−1) &ensp;=&ensp; 1</span>
+
+  <p>Putting Steps 2 and 4 together: <em class="m">I² = τ · 1 = τ</em>. Take the
+  square root and the original 1D integral emerges:</p>
+
+  <span class="eq" style="font-size:1.45rem; color:var(--gold);">∫ exp(−x²/2) dx &ensp;=&ensp; √τ &ensp;≈&ensp; 2.507</span>
+
+  <div class="graphs">
+    <div class="graph-card" style="max-width:520px;">
+      <canvas id="c4d" width="700" height="700"></canvas>
+      <p class="graph-caption">Total area under exp(−x²/2) is √τ ≈ 2.507. The
+      standard normal probability density is exp(−x²/2) / √τ — not 1/√(2π) —
+      because τ, not π, is the natural constant here.</p>
+    </div>
+  </div>
+
+  <!-- ── Part 3: learnings ──────────────────────────────────── -->
+  <h3 class="subhead">Part 3 — What we have learned</h3>
+
+  <p>Look back at the path. We started with the most ordinary one-dimensional
+  thing — <em class="m">x²/2</em>, the natural accumulation of a linear quantity
+  (§1). We found the unique function that bridges additive cost to multiplicative
+  probability — <em class="mo">exp</em>, the inverse of the integral of
+  <em class="m">1/x</em> (§2). We combined them into the bell
+  <em class="mo">exp(−x²/2)</em> (§3). And the moment we tried to integrate that
+  bell, a circle dropped out of the sky with its circumference
+  <em class="m">τ</em> attached.</p>
+
+  <p><strong><em class="m">τ</em> was never introduced from outside.</strong> It
+  was sitting inside "the integral of <em class="m">x</em>" and "the inverse of the
+  integral of <em class="m">1/x</em>" all along, dormant in one dimension. The
+  moment a second perpendicular direction was added — and energies and
+  probabilities had to reconcile across it — exp's product property revealed the
+  hidden radial symmetry; the circle carried its circumference
+  <em class="m">τ</em> into the integration; and <em class="m">τ</em> emerged as
+  the exact area under the natural bell. No factors of 2, no bookkeeping, no
+  adjustments.</p>
+
+  <p>The Gaussian is not a special function dropped into physics. It is the shape
+  forced on the world by three things at once: a quadratic cost, the
+  multiplicative product rule for independent probabilities, and exp's role as the
+  unique bridge between the two. The constant <em class="m">τ</em> is not a
+  decoration — it is the geometric record of how perpendicular axes combine when
+  energies add and probabilities multiply.</p>
+
+  <p>The same calculation with a physical scale <em class="m">K</em> — replacing
+  <em class="m">x</em> with <em class="m">x/√K</em> — gives the general result
+  <em class="mg">∫ exp(−x²/(2K)) dx = √(τK)</em>. With
+  <em class="m">K = k<sub>B</sub>T</em> this is the Maxwell-Boltzmann
+  normalisation; with <em class="m">K = 1</em> it is the standard normal of
+  statistics. One formula, one constant, one shape — all of them consequences of
+  accumulation, independence, and the geometry of two perpendicular directions.</p>
+</div>
+
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     FOOTER — license, citation, source
+═══════════════════════════════════════════════════════════════ -->
+<footer>
+  <p>© 2026 Int Math Channel. Licensed under
+    <a href="https://creativecommons.org/licenses/by/4.0/" rel="license">Creative Commons Attribution 4.0 International (CC BY 4.0)</a>.
+    The text, figures, and source code on this page are all part of the work and carry the same license.</p>
+
+  <p><strong>Mirrors and translations are welcome.</strong> Please preserve this attribution and link back to the canonical URL —
+    <a href="https://intmathchannel.github.io/NatPhil/">intmathchannel.github.io/NatPhil</a> — so readers can find the latest version.
+    CC BY 4.0 permits commercial reuse (books, paid courses, classroom packets) with attribution; a courtesy note to the author is appreciated but not required.</p>
+
+  <p class="cite"><strong>Cite as:</strong> Int Math Channel (2026).
+    <em>Natural Derivation of Gaussian Integral</em>. https://intmathchannel.github.io/NatPhil/</p>
+
+  <p class="footer-meta">
+    <a href="https://github.com/intmathchannel/NatPhil">View source on GitHub</a> &nbsp;·&nbsp;
+    <a href="https://github.com/intmathchannel/NatPhil/issues">Report a typo or ask a question</a> &nbsp;·&nbsp;
+    Last updated 2026-05-24
+  </p>
+</footer>
+
+<!-- ════════════════════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+// ── Palette ──────────────────────────────────────────────────────
+const C = {
+  bg:       '#0a0a1c',
+  grid:     '#18183a',
+  axis:     '#38385a',
+  border:   '#22224a',
+  text:     '#8888a8',
+  gold:     '#f0c040',
+  cyan:     '#40c8f0',
+  green:    '#50d890',
+  orange:   '#f08840',
+  pink:     '#e06080',
+  red:      '#e05050',
+  muted:    '#60607a',
+  amber:    'rgba(240,160,50,',   // open paren — close with opacity + ')'
+  goldFill: 'rgba(240,192,64,',
+};
+
+// ── Plot class ────────────────────────────────────────────────────
+// Canvas attribute size = 2× display size (set via CSS width:100%).
+// All drawing uses logical (CSS) coordinates; we scale by dpr once.
+class Plot {
+  constructor(id, xMin, xMax, yMin, yMax) {
+    this.canvas = document.getElementById(id);
+    // Canvas attribute = 2× logical size; we draw in logical coords and scale up
+    this.lw = this.canvas.width  / 2;
+    this.lh = this.canvas.height / 2;
+    this.ctx = this.canvas.getContext('2d');
+    this.ctx.setTransform(2, 0, 0, 2, 0, 0);
+    this.xMin = xMin; this.xMax = xMax;
+    this.yMin = yMin; this.yMax = yMax;
+    this.pad = { t: 28, r: 28, b: 48, l: 56 };
+    this.pw = this.lw - this.pad.l - this.pad.r;  // plot width
+    this.ph = this.lh - this.pad.t - this.pad.b;  // plot height
+  }
+
+  // data → logical pixel
+  px(x, y) {
+    return [
+      this.pad.l + (x - this.xMin) / (this.xMax - this.xMin) * this.pw,
+      this.pad.t + (1 - (y - this.yMin) / (this.yMax - this.yMin)) * this.ph,
+    ];
+  }
+
+  clear() {
+    const { ctx, lw, lh, pad, pw, ph } = this;
+    ctx.clearRect(0, 0, lw, lh);
+    ctx.fillStyle = C.bg;
+    ctx.fillRect(pad.l, pad.t, pw, ph);
+    this._grid();
+  }
+
+  _nicestep(lo, hi, n = 5) {
+    const r = hi - lo, rough = r / n;
+    const mag = Math.pow(10, Math.floor(Math.log10(rough)));
+    const k = rough / mag;
+    const nice = k <= 1 ? 1 : k <= 2 ? 2 : k <= 5 ? 5 : 10;
+    return nice * mag;
+  }
+
+  _grid() {
+    const { ctx, pad, pw, ph, xMin, xMax, yMin, yMax } = this;
+    const xs = this._nicestep(xMin, xMax);
+    const ys = this._nicestep(yMin, yMax);
+    const EPS = 1e-9;
+
+    ctx.strokeStyle = C.grid;
+    ctx.lineWidth = 1;
+
+    for (let x = Math.ceil(xMin / xs - EPS) * xs; x <= xMax + EPS; x += xs) {
+      const [px] = this.px(x, 0);
+      ctx.beginPath(); ctx.moveTo(px, pad.t); ctx.lineTo(px, pad.t + ph); ctx.stroke();
+    }
+    for (let y = Math.ceil(yMin / ys - EPS) * ys; y <= yMax + EPS; y += ys) {
+      const [, py] = this.px(0, y);
+      ctx.beginPath(); ctx.moveTo(pad.l, py); ctx.lineTo(pad.l + pw, py); ctx.stroke();
+    }
+
+    // zero-value axis lines
+    ctx.strokeStyle = C.axis; ctx.lineWidth = 1.5;
+    if (yMin <= 0 && 0 <= yMax) {
+      const [, py] = this.px(0, 0);
+      ctx.beginPath(); ctx.moveTo(pad.l, py); ctx.lineTo(pad.l + pw, py); ctx.stroke();
+    }
+    if (xMin <= 0 && 0 <= xMax) {
+      const [px] = this.px(0, 0);
+      ctx.beginPath(); ctx.moveTo(px, pad.t); ctx.lineTo(px, pad.t + ph); ctx.stroke();
+    }
+
+    // border
+    ctx.strokeStyle = C.border; ctx.lineWidth = 1;
+    ctx.strokeRect(pad.l, pad.t, pw, ph);
+
+    // tick labels
+    ctx.fillStyle = C.text; ctx.font = '12px monospace';
+    ctx.textAlign = 'center';
+    for (let x = Math.ceil(xMin / xs - EPS) * xs; x <= xMax + EPS; x += xs) {
+      if (Math.abs(x) < xs * 0.1) continue;
+      const [px, py] = this.px(x, yMin);
+      const lab = Math.abs(x - Math.round(x)) < EPS ? Math.round(x).toString() : x.toFixed(1);
+      ctx.fillText(lab, px, py + 17);
+    }
+    ctx.textAlign = 'right';
+    for (let y = Math.ceil(yMin / ys - EPS) * ys; y <= yMax + EPS; y += ys) {
+      if (Math.abs(y) < ys * 0.1) continue;
+      const [px, py] = this.px(xMin, y);
+      const lab = Math.abs(y - Math.round(y)) < EPS ? Math.round(y).toString() : y.toFixed(1);
+      ctx.fillText(lab, px - 7, py + 4);
+    }
+  }
+
+  curve(fn, color, lw = 2.5, x0 = this.xMin, x1 = this.xMax, steps = 500) {
+    const { ctx, pad, pw, ph } = this;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(pad.l, pad.t, pw, ph);
+    ctx.clip();
+    ctx.beginPath();
+    let first = true;
+    for (let i = 0; i <= steps; i++) {
+      const x = x0 + (x1 - x0) * i / steps;
+      const y = fn(x);
+      if (!isFinite(y)) { first = true; continue; }
+      const [px, py] = this.px(x, Math.max(this.yMin - 1, Math.min(this.yMax + 1, y)));
+      first ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      first = false;
+    }
+    ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.stroke();
+    ctx.restore();
+  }
+
+  // fill a closed polygon given as [[x,y], ...]
+  poly(pts, color) {
+    const ctx = this.ctx;
+    ctx.beginPath();
+    pts.forEach(([x, y], i) => {
+      const [px, py] = this.px(x, y);
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    });
+    ctx.closePath();
+    ctx.fillStyle = color; ctx.fill();
+  }
+
+  dot(x, y, color, r = 6, ring = null) {
+    const [px, py] = this.px(x, y);
+    const ctx = this.ctx;
+    ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI * 2);
+    ctx.fillStyle = color; ctx.fill();
+    if (ring) {
+      ctx.beginPath(); ctx.arc(px, py, r + 3.5, 0, Math.PI * 2);
+      ctx.strokeStyle = ring; ctx.lineWidth = 1.5; ctx.stroke();
+    }
+  }
+
+  dash(x0, y0, x1, y1, color, opacity = 0.4) {
+    const [px0, py0] = this.px(x0, y0);
+    const [px1, py1] = this.px(x1, y1);
+    const ctx = this.ctx;
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath(); ctx.moveTo(px0, py0); ctx.lineTo(px1, py1);
+    ctx.strokeStyle = color; ctx.lineWidth = 1; ctx.globalAlpha = opacity;
+    ctx.stroke();
+    ctx.setLineDash([]); ctx.globalAlpha = 1;
+  }
+
+  label(x, y, text, color, font = 'italic 13px Georgia', align = 'left', dy = 0) {
+    const [px, py] = this.px(x, y);
+    const ctx = this.ctx;
+    ctx.fillStyle = color; ctx.font = font; ctx.textAlign = align;
+    ctx.fillText(text, px, py + dy);
+  }
+}
+
+// ── Plot helpers ─────────────────────────────────────────────────
+// Rotated y-axis label and horizontal x-axis label
+Plot.prototype.xlabel = function(text, color = C.text) {
+  const { ctx, pad, pw, ph } = this;
+  ctx.fillStyle = color; ctx.font = '12px Georgia'; ctx.textAlign = 'center';
+  ctx.fillText(text, pad.l + pw / 2, pad.t + ph + 38);
+};
+Plot.prototype.ylabel = function(text, color = C.text) {
+  const { ctx, pad, ph } = this;
+  ctx.save();
+  ctx.fillStyle = color; ctx.font = '12px Georgia'; ctx.textAlign = 'center';
+  ctx.translate(pad.l - 44, pad.t + ph / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText(text, 0, 0);
+  ctx.restore();
+};
+
+// ── Section 1 ─────────────────────────────────────────────────────
+
+const T_MAX = 3.3;   // shared endpoint for all section-1 graphs
+
+// Riemann blocks
+const p1g = new Plot('c1g', 0, T_MAX, 0, T_MAX);  // same y-range as p1v
+const p1v = new Plot('c1v', 0, T_MAX, 0, T_MAX); // v=t staircase
+
+// Area / parabola
+const p1a = new Plot('c1a', 0, T_MAX, 0, T_MAX);
+const p1b = new Plot('c1b', 0, T_MAX, 0, 6.0);
+
+function draw1(t, N) {
+  const dt  = t / N;
+  const t2h = t * t / 2;
+
+  /* ── Left: v = t as N colored strips (left Riemann sum) ── */
+  p1a.clear();
+
+  for (let k = 0; k < N; k++) {
+    const xk = k * dt;
+    const vk = xk;   // left Riemann: height = v at left edge
+    p1a.poly([[xk,0],[xk,vk],[xk+dt,vk],[xk+dt,0]], posColor(xk, 0.82));
+    if (vk > 0) {
+      const [x0]     = p1a.px(xk, 0);
+      const [x1, y0] = p1a.px(xk + dt, 0);
+      const [, yVk]  = p1a.px(0, vk);
+      p1a.ctx.strokeStyle = 'rgba(10,10,30,0.4)';
+      p1a.ctx.lineWidth = 0.8;
+      p1a.ctx.strokeRect(x0, yVk, x1 - x0, y0 - yVk);
+    }
+  }
+
+  // Smooth v = x reference line
+  p1a.curve(x => x, C.cyan, 2.5);
+
+  // Gold dot at current endpoint
+  p1a.dot(t, t, C.gold, 5);
+
+  // "dx" annotation when strips are wide enough
+  if (dt > 0.14 && N > 2) {
+    const k0 = Math.floor(N * 0.55);
+    const [ax, ay] = p1a.px(k0 * dt + dt * 0.5, k0 * dt * 0.45);
+    p1a.ctx.fillStyle = 'rgba(0,0,0,0.75)';
+    p1a.ctx.font = `${Math.min(12, Math.max(8, Math.floor(dt * 55)))}px Georgia`;
+    p1a.ctx.textAlign = 'center';
+    p1a.ctx.fillText('dx = v · dt', ax, ay + 4);
+  }
+
+  p1a.label(3.1, 3.3, 'v = x', C.cyan, 'italic 14px Georgia', 'left');
+  { const [px, py] = p1a.px(t, 0); p1a.ctx.fillStyle = C.gold; p1a.ctx.font = 'italic 13px Georgia'; p1a.ctx.textAlign = 'center'; p1a.ctx.fillText('t', px, py + 20); }
+  p1a.xlabel('time  t', C.text);
+  p1a.ylabel('velocity  v', C.text);
+
+  /* ── Right: colored tick lengths stacking up A(t) ── */
+  p1b.clear();
+  const ctx1b = p1b.ctx;
+
+  // Faint column fills for context (like c1v)
+  let aAcc = 0;
+  for (let k = 0; k < N; k++) {
+    const dA = (k * dt) * dt;
+    p1b.poly([[k*dt,0],[k*dt,aAcc+dA],[(k+1)*dt,aAcc+dA],[(k+1)*dt,0]], 'rgba(18,22,55,0.5)');
+    aAcc += dA;
+  }
+
+  // Muted staircase outline
+  {
+    aAcc = 0;
+    const [spx, spy] = p1b.px(0, 0);
+    ctx1b.strokeStyle = 'rgba(55,62,105,0.5)';
+    ctx1b.lineWidth = 1;
+    ctx1b.beginPath(); ctx1b.moveTo(spx, spy);
+    for (let k = 0; k < N; k++) {
+      const dA = (k * dt) * dt;
+      const [px0, pyT] = p1b.px(k * dt, aAcc + dA);
+      const [px1]      = p1b.px((k + 1) * dt, aAcc + dA);
+      ctx1b.lineTo(px0, pyT); ctx1b.lineTo(px1, pyT);
+      aAcc += dA;
+    }
+    ctx1b.stroke();
+  }
+
+  // Colored riser lines — each is a dA length
+  ctx1b.lineCap = 'round';
+  aAcc = 0;
+  for (let k = 0; k < N; k++) {
+    const dA = (k * dt) * dt;
+    if (dA > 0) {
+      const [px0, py0] = p1b.px(k * dt, aAcc);
+      const [,    py1] = p1b.px(k * dt, aAcc + dA);
+      ctx1b.strokeStyle = posColor(k * dt, 0.92);
+      ctx1b.lineWidth = 4;
+      ctx1b.beginPath(); ctx1b.moveTo(px0, py0); ctx1b.lineTo(px0, py1); ctx1b.stroke();
+    }
+    aAcc += dA;
+  }
+  ctx1b.lineCap = 'butt';
+
+  // "dA" annotation on one riser when wide enough
+  if (dt > 0.14 && N > 2) {
+    const k0 = Math.floor(N * 0.6);
+    let a0 = 0;
+    for (let i = 0; i < k0; i++) a0 += (i * dt) * dt;
+    const dA0 = (k0 * dt) * dt;
+    const [ax, ay] = p1b.px(k0 * dt + 0.08, a0 + dA0 * 0.5);
+    ctx1b.fillStyle = 'rgba(255,255,255,0.65)';
+    ctx1b.font = `${Math.min(12, Math.max(8, Math.floor(dt * 50)))}px Georgia`;
+    ctx1b.textAlign = 'left';
+    ctx1b.fillText('dx', ax, ay + 4);
+  }
+
+  // Smooth parabola — exact integral limit
+  p1b.curve(x => x * x / 2, C.gold, 2.5);
+
+  // Gold dot at (t, t²/2)
+  p1b.dot(t, t2h, C.gold, 6, C.goldFill + '.4)');
+
+  p1b.label(2.3, 5.6, 'x(t) = t²/2', C.gold, 'italic 14px Georgia');
+  { const [px, py] = p1b.px(t, 0); p1b.ctx.fillStyle = C.gold; p1b.ctx.font = 'italic 13px Georgia'; p1b.ctx.textAlign = 'center'; p1b.ctx.fillText('t', px, py + 20); }
+  p1b.xlabel('time  t', C.text);
+  p1b.ylabel('distance  x', C.text);
+}
+
+// ── draw1riemann: g=1 blocks (left) + v staircase (right) ────────
+function blockColor(k, N, a) {
+  const hue = Math.round((k / Math.max(N - 1, 1)) * 270);
+  return `hsla(${hue},85%,65%,${a})`;
+}
+// Position-fixed color: hue tied to absolute x so colors don't shift as N grows
+function posColor(x, a) {
+  const hue = Math.round((x / T_MAX) * 270);
+  return `hsla(${hue},85%,65%,${a})`;
+}
+
+function draw1riemann(N) {
+  const dt = T_MAX / N;
+
+  /* ── Left: constant g=1 with N colored bars ── */
+  p1g.clear();
+
+  for (let k = 0; k < N; k++) {
+    const x0 = k * dt, x1 = (k + 1) * dt;
+    p1g.poly([[x0,0],[x0,1],[x1,1],[x1,0]], blockColor(k, N, 0.82));
+    // thin separator line
+    const [px1] = p1g.px(x1, 0);
+    const [, pyT] = p1g.px(0, 1);
+    const [, py0] = p1g.px(0, 0);
+    p1g.ctx.strokeStyle = 'rgba(10,10,30,0.4)';
+    p1g.ctx.lineWidth = 0.8;
+    p1g.ctx.beginPath(); p1g.ctx.moveTo(px1, py0); p1g.ctx.lineTo(px1, pyT); p1g.ctx.stroke();
+  }
+
+  // g=1 reference line on top
+  p1g.curve(_ => 1, 'rgba(255,255,255,0.45)', 1.5);
+  p1g.label(0.12, 1.18, 'g = 1', 'rgba(255,255,255,0.55)', 'italic 13px Georgia');
+
+  // Annotate one block with label when blocks are wide enough
+  if (dt > 0.14) {
+    const k0 = Math.floor(N / 2);
+    const cx = (k0 + 0.5) * dt;
+    const [ax, ay] = p1g.px(cx, 0.5);
+    const fs = Math.min(12, Math.max(8, Math.floor(dt * 55)));
+    p1g.ctx.fillStyle = 'rgba(0,0,0,0.75)';
+    p1g.ctx.font = `${fs}px Georgia`;
+    p1g.ctx.textAlign = 'center';
+    p1g.ctx.fillText('dv =', ax, ay - 1);
+    p1g.ctx.fillText('g·dt', ax, ay + fs + 1);
+  }
+
+  p1g.xlabel('time  t', C.text);
+  p1g.ylabel('acceleration  g', C.text);
+
+  /* ── Right: staircase with colored RISER lines — dv as a length ── */
+  p1v.clear();
+  const ctx1v = p1v.ctx;
+
+  // Faint column fills give spatial context (accumulated velocity region)
+  for (let k = 0; k < N; k++) {
+    const x0 = k * dt, x1 = (k + 1) * dt;
+    const v1 = (k + 1) * dt;
+    p1v.poly([[x0,0],[x0,v1],[x1,v1],[x1,0]], 'rgba(18,22,55,0.5)');
+  }
+
+  // Muted staircase outline
+  {
+    const [spx, spy] = p1v.px(0, 0);
+    ctx1v.strokeStyle = 'rgba(55,62,105,0.5)';
+    ctx1v.lineWidth = 1;
+    ctx1v.beginPath();
+    ctx1v.moveTo(spx, spy);
+    for (let k = 0; k < N; k++) {
+      const x0 = k * dt, x1 = (k + 1) * dt;
+      const v1 = (k + 1) * dt;
+      const [px0, py1] = p1v.px(x0, v1);
+      const [px1]      = p1v.px(x1, v1);
+      ctx1v.lineTo(px0, py1);   // riser
+      ctx1v.lineTo(px1, py1);   // tread
+    }
+    ctx1v.stroke();
+  }
+
+  // Colored RISER lines — each is a dv LENGTH, not an area
+  ctx1v.lineCap = 'round';
+  for (let k = 0; k < N; k++) {
+    const x0 = k * dt;
+    const v0 = k * dt, v1 = (k + 1) * dt;
+    const [px0, py_v0] = p1v.px(x0, v0);
+    const [,    py_v1] = p1v.px(x0, v1);
+    ctx1v.strokeStyle = blockColor(k, N, 0.92);
+    ctx1v.lineWidth = 4;
+    ctx1v.beginPath();
+    ctx1v.moveTo(px0, py_v0);
+    ctx1v.lineTo(px0, py_v1);
+    ctx1v.stroke();
+  }
+  ctx1v.lineCap = 'butt';
+
+  // Annotate one riser with "dv" when steps are wide enough
+  if (dt > 0.14) {
+    const k0 = Math.floor(N / 2);
+    const x0 = k0 * dt;
+    const v0 = k0 * dt, v1 = (k0 + 1) * dt;
+    const [ax, ay] = p1v.px(x0 + 0.08, (v0 + v1) / 2);
+    ctx1v.fillStyle = 'rgba(255,255,255,0.65)';
+    ctx1v.font = `${Math.min(12, Math.max(8, Math.floor(dt * 50)))}px Georgia`;
+    ctx1v.textAlign = 'left';
+    ctx1v.fillText('dv = g·dt', ax, ay + 4);
+  }
+
+  // Smooth v = t curve (gold — exact integral limit)
+  p1v.curve(x => x, C.gold, 2);
+  p1v.label(2.45, 2.72, 'v = t', C.gold, 'italic 13px Georgia');
+
+  p1v.xlabel('time  t', C.text);
+  p1v.ylabel('velocity  v', C.text);
+}
+
+// ── Riemann slider ────────────────────────────────────────────────
+const sl1n = document.getElementById('sl1n');
+const vl1n = document.getElementById('vl1n');
+sl1n.addEventListener('input', () => {
+  vl1n.textContent = sl1n.value;
+  draw1riemann(+sl1n.value);
+});
+
+// ── Area slider + N slider + play button ─────────────────────────
+const sl1   = document.getElementById('sl1');
+const vl1   = document.getElementById('vl1');
+const sl1an = document.getElementById('sl1an');
+const vl1an = document.getElementById('vl1an');
+const play1 = document.getElementById('play1');
+
+sl1.addEventListener('input', () => {
+  const t = +sl1.value;
+  vl1.textContent = t.toFixed(2);
+  draw1(t, +sl1an.value);
+});
+
+sl1an.addEventListener('input', () => {
+  vl1an.textContent = sl1an.value;
+  draw1(+sl1.value, +sl1an.value);
+});
+
+let raf1 = null;
+play1.addEventListener('click', () => {
+  if (raf1) {
+    cancelAnimationFrame(raf1);
+    raf1 = null;
+    play1.textContent = '▶ play';
+    play1.classList.remove('active');
+    return;
+  }
+  play1.textContent = '◼ stop';
+  play1.classList.add('active');
+  // Fix strip width at current t/N — strips accumulate at constant dt
+  const dtFixed = (+sl1.value) / (+sl1an.value);
+  let animT = Math.max(0.05, dtFixed);
+  const step = () => {
+    animT += 0.012;
+    if (animT > 3.3) {
+      animT = 3.3;
+      play1.textContent = '▶ play';
+      play1.classList.remove('active');
+      raf1 = null;
+    }
+    const animN = Math.max(2, Math.min(50, Math.round(animT / dtFixed)));
+    sl1.value   = animT;
+    sl1an.value = animN;
+    vl1.textContent   = animT.toFixed(2);
+    vl1an.textContent = animN;
+    draw1(animT, animN);
+    if (raf1 !== null) raf1 = requestAnimationFrame(step);
+    else if (animT < 3.3) raf1 = null;
+  };
+  raf1 = requestAnimationFrame(step);
+});
+
+// Initial draws
+draw1riemann(+sl1n.value);
+draw1(+sl1.value, +sl1an.value);
+
+// ── Section 2 ─────────────────────────────────────────────────────
+
+const V_END_MAX = 7.5;
+const p2a  = new Plot('c2a',  1, V_END_MAX, 0, 2.3);
+const p2ar = new Plot('c2ar', 1, V_END_MAX, 0, 2.3);
+const p2b  = new Plot('c2b', 0.5, 10, 0, 2);
+const p2c  = new Plot('c2c', -2, 3, -2, 3);
+const p2d  = new Plot('c2d', -0.5, 4, -0.5, 4);
+
+function bCol2(k, N, a) {
+  const hue = Math.round((k / Math.max(N - 1, 1)) * 270);
+  return `hsla(${hue},85%,65%,${a})`;
+}
+// Position-fixed color: hue tied to absolute V so colors don't shift as N grows
+function posColor2(vk, a) {
+  const hue = Math.round(((vk - 1) / (V_END_MAX - 1)) * 270);
+  return `hsla(${hue},85%,65%,${a})`;
+}
+
+function draw2riemann(N, vEnd) {
+  const dV = (vEnd - 1) / N;
+
+  /* ── Left: P = 1/V Riemann blocks ── */
+  p2a.clear();
+
+  // Shaded area under P=1/V (exact integral = log vEnd)
+  {
+    const pts = [[1, 0]];
+    for (let i = 0; i <= 200; i++) {
+      const v = 1 + (vEnd - 1) * i / 200;
+      pts.push([v, 1 / v]);
+    }
+    pts.push([vEnd, 0]);
+    p2a.poly(pts, 'rgba(64,200,240,0.10)');
+  }
+
+  for (let k = 0; k < N; k++) {
+    const vk = 1 + k * dV;
+    const pk = 1 / vk;
+    p2a.poly([[vk, 0], [vk, pk], [vk + dV, pk], [vk + dV, 0]], posColor2(vk, 0.82));
+    const [x0]     = p2a.px(vk, 0);
+    const [x1, y0] = p2a.px(vk + dV, 0);
+    const [, yPk]  = p2a.px(0, pk);
+    p2a.ctx.strokeStyle = 'rgba(10,10,30,0.4)';
+    p2a.ctx.lineWidth = 0.8;
+    p2a.ctx.strokeRect(x0, yPk, x1 - x0, y0 - yPk);
+  }
+
+  p2a.curve(v => 1 / v, C.cyan, 2.5, 1.0, V_END_MAX);
+
+  if (dV > 0.35) {
+    const k0 = Math.floor(N / 3);
+    const vk = 1 + k0 * dV;
+    const [ax, ay] = p2a.px(vk + dV * 0.5, (1 / vk) * 0.45);
+    p2a.ctx.fillStyle = 'rgba(0,0,0,0.8)';
+    p2a.ctx.font = '11px Georgia';
+    p2a.ctx.textAlign = 'center';
+    p2a.ctx.fillText('dW', ax, ay + 4);
+  }
+
+  p2a.dash(vEnd, 0, vEnd, 1 / vEnd, C.gold, 0.6);
+  p2a.dot(vEnd, 1 / vEnd, C.gold, 4);
+  { const [px, py] = p2a.px(1, 0); p2a.ctx.fillStyle = C.text; p2a.ctx.font = '12px monospace'; p2a.ctx.textAlign = 'center'; p2a.ctx.fillText('1', px, py + 17); }
+  p2a.label(V_END_MAX - 0.3, 0.42, 'P = 1/V', C.cyan, 'italic 13px Georgia', 'right');
+  p2a.xlabel('V  (volume)', C.text);
+  p2a.ylabel('P  (pressure)', C.text);
+
+  /* ── Right: accumulated work staircase — colored RISER lines ── */
+  p2ar.clear();
+  const ctx2ar = p2ar.ctx;
+
+  // Faint column fills (spatial context)
+  let wAcc = 0;
+  for (let k = 0; k < N; k++) {
+    const vk = 1 + k * dV;
+    const dW = dV / vk;
+    p2ar.poly([[vk,0],[vk,wAcc+dW],[vk+dV,wAcc+dW],[vk+dV,0]], 'rgba(18,22,55,0.5)');
+    wAcc += dW;
+  }
+
+  // Muted staircase outline
+  wAcc = 0;
+  {
+    const [spx, spy] = p2ar.px(1, 0);
+    ctx2ar.strokeStyle = 'rgba(55,62,105,0.5)';
+    ctx2ar.lineWidth = 1;
+    ctx2ar.beginPath();
+    ctx2ar.moveTo(spx, spy);
+    for (let k = 0; k < N; k++) {
+      const vk = 1 + k * dV;
+      const dW = dV / vk;
+      const [px0, py1] = p2ar.px(vk, wAcc + dW);
+      const [px1]      = p2ar.px(vk + dV, wAcc + dW);
+      ctx2ar.lineTo(px0, py1);
+      ctx2ar.lineTo(px1, py1);
+      wAcc += dW;
+    }
+    ctx2ar.stroke();
+  }
+
+  // Colored RISER lines — each is a dW length
+  wAcc = 0;
+  ctx2ar.lineCap = 'round';
+  for (let k = 0; k < N; k++) {
+    const vk = 1 + k * dV;
+    const dW = dV / vk;
+    const [px0, py_w0] = p2ar.px(vk, wAcc);
+    const [,    py_w1] = p2ar.px(vk, wAcc + dW);
+    ctx2ar.strokeStyle = posColor2(vk, 0.92);
+    ctx2ar.lineWidth = 4;
+    ctx2ar.beginPath();
+    ctx2ar.moveTo(px0, py_w0);
+    ctx2ar.lineTo(px0, py_w1);
+    ctx2ar.stroke();
+    wAcc += dW;
+  }
+  ctx2ar.lineCap = 'butt';
+
+  // Annotate one riser with "dW" when wide enough
+  if (dV > 0.35) {
+    let w0 = 0;
+    const k0 = Math.floor(N / 3);
+    for (let k = 0; k < k0; k++) w0 += dV / (1 + k * dV);
+    const vk0 = 1 + k0 * dV;
+    const [ax, ay] = p2ar.px(vk0 + 0.08, w0 + (dV / vk0) / 2);
+    ctx2ar.fillStyle = 'rgba(255,255,255,0.65)';
+    ctx2ar.font = '11px Georgia';
+    ctx2ar.textAlign = 'left';
+    ctx2ar.fillText('dW', ax, ay + 4);
+  }
+
+  // Gold smooth curve — exact integral limit W = log V
+  p2ar.curve(v => Math.log(v), C.gold, 2.5, 1.01, V_END_MAX);
+
+  [2, 4].filter(v => v <= vEnd + 0.05).forEach(v => {
+    const lv = Math.log(v);
+    p2ar.dash(1, lv, V_END_MAX, lv, C.gold, 0.25);
+    const [plx, ply] = p2ar.px(1, lv);
+    p2ar.ctx.fillStyle = C.goldFill + '0.7)';
+    p2ar.ctx.font = '11px monospace';
+    p2ar.ctx.textAlign = 'left';
+    p2ar.ctx.fillText('log ' + v, plx + 7, ply - 4);
+  });
+
+  p2ar.dash(1, Math.log(vEnd), vEnd, Math.log(vEnd), C.gold, 0.4);
+  p2ar.dash(vEnd, 0, vEnd, Math.log(vEnd), C.gold, 0.55);
+  p2ar.dot(vEnd, Math.log(vEnd), C.gold, 6, C.goldFill + '0.4)');
+  {
+    const [px, py] = p2ar.px(1, Math.log(vEnd));
+    p2ar.ctx.fillStyle = C.goldFill + '0.75)';
+    p2ar.ctx.font = '11px monospace';
+    p2ar.ctx.textAlign = 'right';
+    p2ar.ctx.fillText(Math.log(vEnd).toFixed(3), px - 8, py + 4);
+  }
+  { const [px, py] = p2ar.px(1, 0); p2ar.ctx.fillStyle = C.text; p2ar.ctx.font = '12px monospace'; p2ar.ctx.textAlign = 'center'; p2ar.ctx.fillText('1', px, py + 17); }
+  p2ar.label(V_END_MAX - 0.3, 2.1, 'W = log V', C.gold, 'italic 13px Georgia', 'right');
+  p2ar.xlabel('V  (volume)', C.text);
+  p2ar.ylabel('W  (work)', C.text);
+}
+
+function draw2b() {
+  p2b.clear();
+
+  const bands = [
+    { a: 1, b: 2, fill: 'rgba(224,96,128,0.22)',  edge: C.pink   },
+    { a: 2, b: 4, fill: 'rgba(240,136,64,0.22)',   edge: C.orange },
+    { a: 4, b: 8, fill: 'rgba(80,216,144,0.22)',   edge: C.green  },
+  ];
+
+  bands.forEach(({ a, b, fill }) => {
+    const pts = [[a, 0]];
+    for (let i = 0; i <= 200; i++) {
+      const t = a + (b - a) * i / 200;
+      pts.push([t, 1 / t]);
+    }
+    pts.push([b, 0]);
+    p2b.poly(pts, fill);
+  });
+
+  // 1/t curve
+  p2b.curve(t => 1 / t, C.cyan, 2.5, 0.5, 10);
+
+  // Dividers at band boundaries
+  [1, 2, 4, 8].forEach(v => p2b.dash(v, 0, v, 1 / v, C.text, 0.3));
+
+  // Area label at geometric midpoint of each band
+  const logTwo = Math.log(2).toFixed(3);
+  bands.forEach(({ a, b, edge }) => {
+    const midX = Math.sqrt(a * b);
+    const midH = 1 / midX;
+    p2b.label(midX, midH * 0.5, `= log 2 ≈ ${logTwo}`, edge, '10px monospace', 'center');
+  });
+
+  // Manual x=1 label
+  {
+    const [px, py] = p2b.px(1, 0);
+    p2b.ctx.fillStyle = C.text;
+    p2b.ctx.font = '12px monospace';
+    p2b.ctx.textAlign = 'center';
+    p2b.ctx.fillText('1', px, py + 17);
+  }
+
+  p2b.label(9.2, 1.75, 'P = 1/V', C.cyan, 'italic 13px Georgia', 'right');
+  p2b.xlabel('V  (volume)', C.text);
+}
+
+function draw2c() {
+  p2c.clear();
+
+  // y = x diagonal
+  p2c.curve(x => x, 'rgba(150,150,180,0.3)', 1.5);
+
+  // log(x) for x in (0, 3]
+  p2c.curve(x => Math.log(x), C.cyan, 2.5, 0.04, 3);
+
+  // exp(x) only where y ≤ 3
+  p2c.curve(x => Math.exp(x), C.orange, 2.5, -2, Math.log(3));
+
+  // Anchor dots: (1, log1)=(1,0) on log; (0, exp0)=(0,1) on exp
+  p2c.dot(1, 0, C.cyan,   4);
+  p2c.dot(0, 1, C.orange, 4);
+  p2c.dash(1, 0, 0, 1, 'rgba(200,200,220,0.35)', 0.6);
+
+  // Mirror pair at x=2: log(2)≈0.693
+  const mx = 2, my = Math.log(2);
+  p2c.dot(mx, my, C.cyan,   4, 'rgba(64,200,240,0.3)');
+  p2c.dot(my, mx, C.orange, 4, 'rgba(240,136,64,0.3)');
+  p2c.dash(mx, my, my, mx, 'rgba(200,200,220,0.4)', 0.65);
+
+  // Labels
+  p2c.label(2.7,  1.05, 'log x', C.cyan,                    'italic 13px Georgia', 'left');
+  p2c.label(0.9,  2.85, 'exp x', C.orange,                  'italic 13px Georgia', 'center');
+  p2c.label(2.4,  2.62, 'y = x', 'rgba(150,150,180,0.45)',  'italic 12px Georgia', 'left');
+
+  p2c.xlabel('x', C.text);
+  p2c.ylabel('y', C.text);
+}
+
+// ── c2d: tangent inversion at one mirror pair ────────────────────
+function draw2d() {
+  p2d.clear();
+
+  // y = x diagonal (subtle)
+  p2d.curve(x => x, 'rgba(150,150,180,0.3)', 1.5);
+
+  // log(x) cyan
+  p2d.curve(x => Math.log(x), C.cyan, 2.5, 0.04, 4);
+  // exp(x) orange (only where y ≤ 4)
+  p2d.curve(x => Math.exp(x), C.orange, 2.5, -0.5, Math.log(4));
+
+  // Mirror pair: P = (2, log 2),  Q = (log 2, 2)
+  const a = 2;
+  const la = Math.log(a);          // ≈ 0.693
+
+  // Tangent at P on log: slope 1/a = 1/2
+  //   line: y = la + (1/a)(x - a)
+  const slopeLog = 1 / a;
+  const tlog = x => la + slopeLog * (x - a);
+  p2d.curve(tlog, 'rgba(64,200,240,0.55)', 1.5, 0, 4);
+
+  // Tangent at Q on exp: slope a = 2
+  //   line: y = a + a (x - la)
+  const slopeExp = a;
+  const texp = x => a + slopeExp * (x - la);
+  p2d.curve(texp, 'rgba(240,136,64,0.55)', 1.5, -0.3, 1.5);
+
+  // Mirror dashed line connecting P and Q
+  p2d.dash(a, la, la, a, 'rgba(200,200,220,0.45)', 0.7);
+
+  // The dots
+  p2d.dot(a,  la, C.cyan,   5, 'rgba(64,200,240,0.30)');
+  p2d.dot(la, a,  C.orange, 5, 'rgba(240,136,64,0.30)');
+
+  // Short point labels (full coordinates are in the prose)
+  { const ctx = p2d.ctx;
+    ctx.font = 'italic 13px Georgia';
+    ctx.fillStyle = C.cyan;
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    const [px1, py1] = p2d.px(a, la);
+    ctx.fillText('P', px1 + 8, py1 + 4);
+
+    ctx.fillStyle = C.orange;
+    ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+    const [px2, py2] = p2d.px(la, a);
+    ctx.fillText('Q', px2 - 8, py2 - 4);
+
+    // Slope annotations: lower-right (clear of all curves) and left-middle (clear of all curves)
+    ctx.font = 'italic 11px Georgia';
+    ctx.fillStyle = 'rgba(64,200,240,0.95)';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const [sx1, sy1] = p2d.px(3.5, 0.25);   // lower-right, well below log curve
+    ctx.fillText('slope = 1/2', sx1, sy1);
+
+    ctx.fillStyle = 'rgba(240,136,64,0.95)';
+    ctx.textAlign = 'left';
+    const [sx2, sy2] = p2d.px(-0.3, 2.8);   // left side, above exp curve, clear of Q
+    ctx.fillText('slope = 2', sx2, sy2);
+  }
+
+  // Curve labels — placed clear of tangent lines
+  p2d.label(3.7,  0.95, 'log x', C.cyan,                    'italic 13px Georgia', 'left');
+  p2d.label(0.35, 3.55, 'exp x', C.orange,                  'italic 13px Georgia', 'left');
+  p2d.label(3.45, 3.65, 'y = x', 'rgba(150,150,180,0.5)',   'italic 12px Georgia', 'left');
+
+  p2d.xlabel('x', C.text);
+  p2d.ylabel('y', C.text);
+}
+
+// ── Section 2 sliders ────────────────────────────────────────────
+const sl2n = document.getElementById('sl2n');
+const vl2n = document.getElementById('vl2n');
+const sl2v = document.getElementById('sl2v');
+const vl2v = document.getElementById('vl2v');
+
+function update2() {
+  const N    = +sl2n.value;
+  const vEnd = +sl2v.value;
+  vl2n.textContent = N;
+  vl2v.textContent = vEnd.toFixed(2);
+  draw2riemann(N, vEnd);
+}
+
+sl2n.addEventListener('input', update2);
+sl2v.addEventListener('input', update2);
+
+update2();
+draw2b();
+draw2c();
+draw2d();
+
+let raf2 = null;
+const play2 = document.getElementById('play2');
+play2.addEventListener('click', () => {
+  if (raf2) {
+    cancelAnimationFrame(raf2);
+    raf2 = null;
+    play2.textContent = '▶ play';
+    play2.classList.remove('active');
+    return;
+  }
+  play2.textContent = '◼ stop';
+  play2.classList.add('active');
+  // Fix block width at current (V-1)/N — blocks accumulate at constant dV
+  const dvFixed = (+sl2v.value - 1) / +sl2n.value;
+  let animV = Math.max(1.05, 1 + dvFixed);
+  const step = () => {
+    animV += 0.025;
+    if (animV >= V_END_MAX) {
+      animV = V_END_MAX;
+      play2.textContent = '▶ play';
+      play2.classList.remove('active');
+      raf2 = null;
+    }
+    const animN = Math.max(2, Math.min(50, Math.round((animV - 1) / dvFixed)));
+    sl2v.value = animV;
+    sl2n.value = animN;
+    vl2v.textContent = animV.toFixed(2);
+    vl2n.textContent = animN;
+    draw2riemann(animN, animV);
+    if (raf2 !== null) raf2 = requestAnimationFrame(step);
+  };
+  raf2 = requestAnimationFrame(step);
+});
+
+// ── Product-rule rectangle diagram ──────────────────────────────────
+function drawProductRule() {
+  const canvas = document.getElementById('c2prod');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(2, 0, 0, 2, 0, 0);
+  const W = 350, H = 350;
+
+  ctx.fillStyle = '#0a0a1c';
+  ctx.fillRect(0, 0, W, H);
+
+  const Cg = '#f0c040', Co = '#f08840', Cc = '#40c8f0', Cm = '#8888a8', Ct = '#c4c4dc';
+
+  // Layout
+  const ox = 82, oy = 278;        // bottom-left of main rect (screen coords)
+  const RW = 162, RH = 130;       // main rect w, h
+  const DW = 44,  DH = 36;        // dx strip w, dy strip h
+
+  // Fills
+  ctx.fillStyle = 'rgba(64,200,240,0.10)';
+  ctx.fillRect(ox, oy - RH, RW, RH);
+
+  ctx.fillStyle = 'rgba(240,136,64,0.30)';
+  ctx.fillRect(ox + RW, oy - RH, DW, RH);
+
+  ctx.fillStyle = 'rgba(240,192,64,0.30)';
+  ctx.fillRect(ox, oy - RH - DH, RW, DH);
+
+  ctx.fillStyle = 'rgba(136,136,168,0.13)';
+  ctx.fillRect(ox + RW, oy - RH - DH, DW, DH);
+
+  // Outlines
+  ctx.lineWidth = 1.5; ctx.setLineDash([]);
+  ctx.strokeStyle = Cc; ctx.strokeRect(ox, oy - RH, RW, RH);
+  ctx.strokeStyle = Co; ctx.strokeRect(ox + RW, oy - RH, DW, RH);
+  ctx.strokeStyle = Cg; ctx.strokeRect(ox, oy - RH - DH, RW, DH);
+  ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+  ctx.strokeStyle = Cm; ctx.strokeRect(ox + RW, oy - RH - DH, DW, DH);
+  ctx.setLineDash([]);
+
+  // Interior labels
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+
+  ctx.fillStyle = Cc; ctx.font = 'italic 22px Georgia';
+  ctx.fillText('xy', ox + RW / 2, oy - RH / 2);
+
+  ctx.fillStyle = Co; ctx.font = 'italic 13px Georgia';
+  ctx.save();
+  ctx.translate(ox + RW + DW / 2, oy - RH / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('y · dx', 0, 0);
+  ctx.restore();
+
+  ctx.fillStyle = Cg; ctx.font = 'italic 13px Georgia';
+  ctx.fillText('x · dy', ox + RW / 2, oy - RH - DH / 2);
+
+  ctx.fillStyle = Cm; ctx.font = '10px monospace';
+  ctx.fillText('≈ 0', ox + RW + DW / 2, oy - RH - DH / 2);
+
+  // Dimension labels
+  ctx.font = 'italic 14px Georgia';
+  ctx.textBaseline = 'top';
+
+  ctx.fillStyle = Cc; ctx.textAlign = 'center';
+  ctx.fillText('x', ox + RW / 2, oy + 9);
+
+  ctx.fillStyle = Co;
+  ctx.fillText('dx', ox + RW + DW / 2, oy + 9);
+
+  ctx.save();
+  ctx.translate(ox - 16, oy - RH / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textBaseline = 'middle'; ctx.fillStyle = Cc;
+  ctx.fillText('y', 0, 0);
+  ctx.restore();
+
+  ctx.save();
+  ctx.translate(ox - 16, oy - RH - DH / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textBaseline = 'middle'; ctx.fillStyle = Cg;
+  ctx.fillText('dy', 0, 0);
+  ctx.restore();
+
+  // Dashed brace around entire new area (L-shape border)
+  ctx.strokeStyle = '#50d890'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  ctx.moveTo(ox,              oy - RH);
+  ctx.lineTo(ox,              oy - RH - DH);
+  ctx.lineTo(ox + RW + DW,   oy - RH - DH);
+  ctx.lineTo(ox + RW + DW,   oy);
+  ctx.lineTo(ox + RW,        oy);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // "d(xy)" label to the right of the brace
+  ctx.fillStyle = '#50d890'; ctx.font = 'italic 13px Georgia';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillText('d(xy)', ox + RW + DW + 10, oy - (RH + DH) / 2);
+
+  // Title
+  ctx.fillStyle = Ct; ctx.font = '12px Georgia';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText('(x + dx)(y + dy)  =  xy  +  y·dx  +  x·dy  +  dx·dy', W / 2, 14);
+}
+
+drawProductRule();
+
+// ── Scale-invariance strip diagram ──────────────────────────────────
+function drawScaleInvariance() {
+  const V1 = 1.5, dV1 = 0.5, c = 2;     // strip 1: [1.5, 2.0]
+  const V2 = c * V1, dV2 = c * dV1;     // strip 2: [3.0, 4.0]
+  const h1 = 1 / V1, h2 = 1 / V2;       // heights 0.667 and 0.333
+
+  const p = new Plot('c2scale', 0.7, 5.2, 0, 0.88);
+  p.clear();
+  p.ylabel('1/V', C.muted);
+
+  // Strip fills
+  p.poly([[V1,0],[V1,h1],[V1+dV1,h1],[V1+dV1,0]], 'rgba(240,136,64,0.32)');
+  p.poly([[V2,0],[V2,h2],[V2+dV2,h2],[V2+dV2,0]], 'rgba(240,192,64,0.28)');
+
+  // 1/V curve on top
+  p.curve(x => 1/x, C.cyan, 2);
+
+  const ctx = p.ctx;
+
+  // Strip outlines
+  const [x1l, y1b] = p.px(V1,       0);
+  const [x1r, y1t] = p.px(V1+dV1,   h1);
+  const [x2l, y2b] = p.px(V2,       0);
+  const [x2r, y2t] = p.px(V2+dV2,   h2);
+
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = C.orange;
+  ctx.strokeRect(x1l, y1t, x1r-x1l, y1b-y1t);
+  ctx.strokeStyle = C.gold;
+  ctx.strokeRect(x2l, y2t, x2r-x2l, y2b-y2t);
+
+  // Area labels inside strips
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.font = 'italic 12px Georgia';
+  ctx.fillStyle = C.orange;
+  ctx.fillText('dV/V', (x1l+x1r)/2, (y1t+y1b)/2 - 4);
+  ctx.fillStyle = C.gold;
+  ctx.fillText('dV/V', (x2l+x2r)/2, (y2t+y2b)/2 - 4);
+
+  // "= same area" bridge
+  const xBridge = (x1r + x2l) / 2;
+  const yBridge = (y1t + y1b) / 2 - 4;
+  ctx.fillStyle = C.green; ctx.font = 'bold 13px Georgia';
+  ctx.fillText('=', xBridge, yBridge);
+
+  // Height labels (right edge of each strip, at top)
+  ctx.font = 'italic 11px Georgia'; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+  ctx.fillStyle = C.orange;
+  ctx.fillText('1/V', x1r + 3, y1t + 2);
+  ctx.fillStyle = C.gold;
+  ctx.fillText('1/(c·V)', x2r + 3, y2t + 2);
+
+  // Width arrows + labels below x-axis (yLab placed below tick-number baseline at +17)
+  const yLab = y1b + 24;
+  ctx.textBaseline = 'top'; ctx.font = 'italic 11px Georgia';
+
+  ctx.fillStyle = C.orange; ctx.textAlign = 'center';
+  ctx.fillText('← dV →', (x1l+x1r)/2, yLab);
+  ctx.fillText('V', (x1l+x1r)/2, yLab + 14);
+
+  ctx.fillStyle = C.gold;
+  ctx.fillText('← d(c·V) →', (x2l+x2r)/2, yLab);
+  ctx.fillText('c·V', (x2l+x2r)/2, yLab + 14);
+}
+
+drawScaleInvariance();
+
+// ── Section 3 ─────────────────────────────────────────────────────
+
+// c3a and c3b share identical ranges so axes align column-by-column
+const p3a = new Plot('c3a', -3,   3,  -5,   5);     // both parabolas
+const p3b = new Plot('c3b', -3,   3,  -5,   5);     // both exp curves — SAME range
+
+function draw3() {
+  const yInf = Math.exp(-0.5);  // e^−½ ≈ 0.607, inflection height
+
+  /* ── c3a: x²/2 (gold) and −x²/2 (pink) ── */
+  p3a.clear();
+  p3a.curve(x =>  x * x / 2, C.gold, 2.5);
+  p3a.curve(x => -x * x / 2, C.pink, 2.5);
+  p3a.dot(0, 0, C.text, 4);
+  p3a.label( 2.15,  4.3, 'x²/2',  C.gold, 'italic 14px Georgia', 'left');
+  p3a.label( 2.15, -4.3, '−x²/2', C.pink, 'italic 14px Georgia', 'left');
+  { const ctx = p3a.ctx;
+    const [ax, ay] = p3a.px(1.55,  1.1);
+    const [bx, by] = p3a.px(1.55, -1.1);
+    ctx.strokeStyle = C.muted; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(ax, ay + 4); ctx.lineTo(bx, by - 4); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = C.muted; ctx.font = 'bold 12px Georgia';
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText('×(−1)', ax + 4, (ay + by) / 2);
+  }
+  p3a.xlabel('x', C.text);
+  p3a.ylabel('y', C.text);
+
+  /* ── c3b: exp(+x²/2) gold (exits top) + exp(−x²/2) pink (bell) ── */
+  // Same x/y range as c3a so both charts align column by column
+  p3b.clear();
+  // Shade area under bell (pink, subtle)
+  { const pts = [];
+    for (let x = -3; x <= 3; x += 0.04) pts.push([x, Math.exp(-x * x / 2)]);
+    pts.push([3, 0], [-3, 0]);
+    p3b.poly(pts, 'rgba(224,96,128,0.10)');
+  }
+  // exp(+x²/2) in gold — return NaN beyond yMax so curve ends cleanly (no clamping artifact)
+  const yMax3 = 5;
+  p3b.curve(x => { const v = Math.exp(x * x / 2); return v <= yMax3 ? v : NaN; }, C.gold, 2.5);
+  // exp(−x²/2) in pink (bell)
+  p3b.curve(x => Math.exp(-x * x / 2), C.pink, 2.5);
+  // Peak of bell
+  p3b.dot(0, 1, C.pink, 6, 'rgba(224,96,128,0.30)');
+  p3b.dash(-3, 1, 3, 1, C.pink, 0.20);
+  { const [px, py] = p3b.px(0.1, 1);
+    p3b.ctx.fillStyle = C.pink; p3b.ctx.font = '11px monospace';
+    p3b.ctx.textAlign = 'left'; p3b.ctx.fillText('1', px + 6, py + 4); }
+  // Inflection points on bell
+  [-1, 1].forEach(xi => {
+    p3b.dash(xi, 0, xi, yInf, C.pink, 0.25);
+    p3b.dot(xi, yInf, C.pink, 4);
+  });
+  // "↑ ∞" arrows at the two exit points of the gold curve (~x = ±1.79)
+  const xExit = Math.sqrt(2 * Math.log(yMax3));  // ≈ 1.794
+  [-xExit, xExit].forEach(xe => {
+    const ctx = p3b.ctx;
+    const [px, py] = p3b.px(xe, yMax3);
+    ctx.strokeStyle = C.gold; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(px, py + 2); ctx.lineTo(px, py - 14); ctx.stroke();
+    // arrowhead
+    ctx.beginPath(); ctx.moveTo(px - 4, py - 10); ctx.lineTo(px, py - 16); ctx.lineTo(px + 4, py - 10); ctx.stroke();
+    ctx.fillStyle = C.gold; ctx.font = 'italic 10px Georgia';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    ctx.fillText('∞', px, py - 17);
+  });
+  // Labels
+  p3b.label(-2.9, 4.6, 'exp(+x²/2)', C.gold, 'italic 13px Georgia', 'left');
+  p3b.label(-2.9, 1.35, 'exp(−x²/2)', C.pink, 'italic 13px Georgia', 'left');
+  p3b.xlabel('x', C.text);
+  p3b.ylabel('y', C.text);
+
+}
+
+draw3();
+
+// ── Section 4 ─────────────────────────────────────────────────────
+
+const p4c = new Plot('c4c', 0, 4,  0, 0.75);
+const p4d = new Plot('c4d', -4, 4, 0, 1.15);
+const TAU     = 2 * Math.PI;
+const sqrtTau = Math.sqrt(TAU);  // ≈ 2.5066
+
+function drawHeatmap4a() {
+  const canvas = document.getElementById('c4a');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;  // 700 × 700
+  const pL=112, pR=56, pT=56, pB=96;
+  const pw=W-pL-pR, ph=H-pT-pB;               // 532 × 548
+  const xMin=-3.5, xMax=3.5, yMin=-3.5, yMax=3.5;
+
+  ctx.fillStyle = C.bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Helpers (full-pixel coordinates, no setTransform)
+  const toX = xd => pL + (xd-xMin)/(xMax-xMin)*pw;
+  const toY = yd => pT + (yMax-yd)/(yMax-yMin)*ph;
+  const cx=toX(0), cy=toY(0), rPx=pw/(xMax-xMin);  // ≈ 76 px/unit
+
+  // Pixel-by-pixel heatmap: bg #0a0a1c → gold #f0c040
+  const imgData = ctx.createImageData(pw, ph);
+  for (let j=0; j<ph; j++) {
+    for (let i=0; i<pw; i++) {
+      const xd = xMin + (i/pw)*(xMax-xMin);
+      const yd = yMax  - (j/ph)*(yMax-yMin);
+      const z  = Math.exp(-(xd*xd + yd*yd)/2);
+      const r  = Math.round(10 + z*230);
+      const g  = Math.round(10 + z*182);
+      const b  = Math.round(28 + z*36);
+      const ix = (j*pw+i)*4;
+      imgData.data[ix]=r; imgData.data[ix+1]=g; imgData.data[ix+2]=b; imgData.data[ix+3]=255;
+    }
+  }
+  ctx.putImageData(imgData, pL, pT);
+
+  // Contour circles at r = 1, 2, 3
+  [[1, C.cyan, 2, false],
+   [2, 'rgba(64,200,240,0.50)', 1.5, true],
+   [3, 'rgba(64,200,240,0.32)', 1.2, true]].forEach(([r, col, lw, dash]) => {
+    ctx.beginPath(); ctx.arc(cx, cy, r*rPx, 0, Math.PI*2);
+    ctx.strokeStyle=col; ctx.lineWidth=lw;
+    ctx.setLineDash(dash ? [6,4] : []); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle=C.cyan; ctx.font='13px Georgia';
+    ctx.textAlign='left'; ctx.textBaseline='bottom';
+    ctx.fillText('r = '+r, cx + r*rPx/Math.SQRT2 + 5, cy - r*rPx/Math.SQRT2 - 2);
+  });
+
+  // Axes
+  ctx.strokeStyle=C.axis; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(pL,cy); ctx.lineTo(pL+pw,cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx,pT); ctx.lineTo(cx,pT+ph); ctx.stroke();
+
+  // Tick labels
+  ctx.fillStyle=C.text; ctx.font='12px monospace';
+  ctx.textAlign='center'; ctx.textBaseline='top';
+  for (const v of [-3,-2,-1,1,2,3]) ctx.fillText(v, toX(v), cy+5);
+  ctx.textAlign='right'; ctx.textBaseline='middle';
+  for (const v of [-3,-2,-1,1,2,3]) ctx.fillText(v, cx-5, toY(v));
+
+  // Axis labels
+  ctx.fillStyle=C.text; ctx.font='italic 15px Georgia';
+  ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('x', pL+pw+8, cy);
+  ctx.textAlign='center'; ctx.textBaseline='bottom'; ctx.fillText('y', cx, pT-5);
+}
+
+function draw4b() {
+  const canvas = document.getElementById('c4b');
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(2,0,0,2,0,0);
+  const w=canvas.width/2, h=canvas.height/2;  // logical 350 × 350
+
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,w,h);
+
+  const pL=56, pR=28, pT=28, pB=48;
+  const pw=w-pL-pR, ph=h-pT-pB;
+  const xMin=-3.5, xMax=3.5, yMin=-3.5, yMax=3.5;
+  const toX = xd => pL+(xd-xMin)/(xMax-xMin)*pw;
+  const toY = yd => pT+(yMax-yd)/(yMax-yMin)*ph;
+  const cx=toX(0), cy=toY(0), rPx=pw/(xMax-xMin);  // ≈ 38 px/unit
+
+  // Radial gradient background suggesting the 2D Gaussian
+  const grd = ctx.createRadialGradient(cx,cy,0, cx,cy,3*rPx);
+  grd.addColorStop(0,    'rgba(240,192,64,0.42)');
+  grd.addColorStop(0.28, 'rgba(240,192,64,0.12)');
+  grd.addColorStop(0.7,  'rgba(240,192,64,0.03)');
+  grd.addColorStop(1,    'rgba(10,10,28,0)');
+  ctx.fillStyle=grd; ctx.fillRect(pL,pT,pw,ph);
+
+  // Grid
+  ctx.strokeStyle=C.grid; ctx.lineWidth=0.4;
+  for (const v of [-3,-2,-1,0,1,2,3]) {
+    ctx.beginPath(); ctx.moveTo(toX(v),pT); ctx.lineTo(toX(v),pT+ph); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(pL,toY(v)); ctx.lineTo(pL+pw,toY(v)); ctx.stroke();
+  }
+
+  // Shaded annulus r = 1.5 → 1.9 (representative ring)
+  const rIn=1.5, rOut=1.9;
+  ctx.beginPath();
+  ctx.arc(cx,cy,rOut*rPx,0,Math.PI*2);
+  ctx.arc(cx,cy,rIn*rPx,0,Math.PI*2,true);  // CCW inner → annulus via nonzero winding
+  ctx.fillStyle='rgba(80,216,144,0.38)'; ctx.fill();
+  ctx.strokeStyle=C.green; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.arc(cx,cy,rOut*rPx,0,Math.PI*2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx,cy,rIn*rPx,0,Math.PI*2);  ctx.stroke();
+
+  // r arrow: origin → inner ring (horizontal)
+  const arX = cx+rIn*rPx;
+  ctx.strokeStyle=C.cyan; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(arX,cy); ctx.stroke();
+  ctx.fillStyle=C.cyan;
+  ctx.beginPath(); ctx.moveTo(arX,cy); ctx.lineTo(arX-5,cy-3); ctx.lineTo(arX-5,cy+3); ctx.fill();
+  ctx.font='italic 12px Georgia'; ctx.textAlign='center'; ctx.textBaseline='bottom';
+  ctx.fillText('r', cx+rIn*rPx/2, cy-4);
+
+  // dr bracket below the ring
+  const dx1=cx+rIn*rPx, dx2=cx+rOut*rPx;
+  ctx.strokeStyle=C.green; ctx.lineWidth=1;
+  ctx.beginPath();
+  ctx.moveTo(dx1,cy+8);  ctx.lineTo(dx1,cy+14);
+  ctx.moveTo(dx2,cy+8);  ctx.lineTo(dx2,cy+14);
+  ctx.moveTo(dx1,cy+11); ctx.lineTo(dx2,cy+11);
+  ctx.stroke();
+  ctx.fillStyle=C.green; ctx.font='italic 11px Georgia';
+  ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.fillText('dr', (dx1+dx2)/2, cy+15);
+
+  // Labels
+  const topRing = cy - rOut*rPx;
+  ctx.fillStyle=C.gold; ctx.font='italic 11px Georgia';
+  ctx.textAlign='center'; ctx.textBaseline='bottom';
+  ctx.fillText('circumference = τ · r', cx, topRing-5);
+  ctx.fillStyle=C.green; ctx.font='11px Georgia';
+  ctx.textAlign='left'; ctx.textBaseline='middle';
+  ctx.fillText('area = τ · r · dr', dx2+6, cy);
+
+  // Axes
+  ctx.strokeStyle=C.axis; ctx.lineWidth=0.8;
+  ctx.beginPath(); ctx.moveTo(pL,cy); ctx.lineTo(pL+pw,cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx,pT); ctx.lineTo(cx,pT+ph); ctx.stroke();
+
+  // Tick labels
+  ctx.fillStyle=C.text; ctx.font='11px monospace';
+  ctx.textAlign='center'; ctx.textBaseline='top';
+  for (const v of [-3,-2,-1,1,2,3]) ctx.fillText(v, toX(v), cy+4);
+  ctx.textAlign='right'; ctx.textBaseline='middle';
+  for (const v of [-3,-2,-1,1,2,3]) ctx.fillText(v, cx-4, toY(v));
+
+  // Axis labels
+  ctx.fillStyle=C.text; ctx.font='italic 14px Georgia';
+  ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('x', pL+pw+10, cy);
+  ctx.textAlign='center'; ctx.textBaseline='bottom'; ctx.fillText('y', cx, pT-3);
+}
+
+function draw4c() {
+  p4c.clear();
+  // Shaded area under curve
+  { const pts = [[0,0]];
+    for (let r=0.01; r<=4; r+=0.02) pts.push([r, r * Math.exp(-r*r/2)]);
+    pts.push([4,0]);
+    p4c.poly(pts, 'rgba(80,216,144,0.22)');
+  }
+  p4c.curve(r => r * Math.exp(-r*r/2), C.green, 2.5);
+  // Peak at r = 1
+  const pk = Math.exp(-0.5);  // ≈ 0.607
+  p4c.dot(1, pk, C.green, 5, 'rgba(80,216,144,0.30)');
+  p4c.dash(1, 0, 1, pk, C.muted, 0.3);
+  p4c.label(1.12, pk + 0.035, 'peak at r = 1', C.green, '11px Georgia', 'left');
+  p4c.label(2.0, 0.27, 'area = 1', C.green, 'italic 13px Georgia', 'left');
+  // Manual r=1 tick (auto-grid zero-suppression may hide it)
+  { const [lx, ly] = p4c.px(1, 0);
+    p4c.ctx.fillStyle=C.text; p4c.ctx.font='12px monospace';
+    p4c.ctx.textAlign='center'; p4c.ctx.textBaseline='top';
+    p4c.ctx.fillText('1', lx, ly+5);
+  }
+  p4c.xlabel('r', C.text);
+  p4c.ylabel('r · exp(−r²/2)', C.text);
+}
+
+function draw4d() {
+  p4d.clear();
+  // Shaded area under bell
+  { const pts = [[-4,0]];
+    for (let x=-4; x<=4; x+=0.04) pts.push([x, Math.exp(-x*x/2)]);
+    pts.push([4,0]);
+    p4d.poly(pts, 'rgba(224,96,128,0.22)');
+  }
+  p4d.curve(x => Math.exp(-x*x/2), C.pink, 2.5);
+  // Peak dot
+  p4d.dot(0, 1, C.pink, 5, 'rgba(224,96,128,0.30)');
+  // Inflection points at ±1
+  const yInf4 = Math.exp(-0.5);
+  [-1, 1].forEach(xi => {
+    p4d.dash(xi, 0, xi, yInf4, C.muted, 0.25);
+    p4d.dot(xi, yInf4, C.pink, 4);
+  });
+  // √τ area label centred inside the bell
+  p4d.label(0, 0.18, '√τ ≈ 2.507', C.gold, 'italic 15px Georgia', 'center');
+  p4d.xlabel('x', C.text);
+  p4d.ylabel('exp(−x²/2)', C.text);
+}
+
+// ── c4grid: square-tile decomposition (dx · dy) ──────────────────
+function drawGrid4() {
+  const canvas = document.getElementById('c4grid');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const pL=112, pR=56, pT=56, pB=96;
+  const pw=W-pL-pR, ph=H-pT-pB;
+  const xMin=-3.5, xMax=3.5, yMin=-3.5, yMax=3.5;
+
+  ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, H);
+
+  const toX = xd => pL + (xd-xMin)/(xMax-xMin)*pw;
+  const toY = yd => pT + (yMax-yd)/(yMax-yMin)*ph;
+
+  const N = 28;                                    // 28 × 28 tiles, dx ≈ 0.25
+  const dx = (xMax-xMin)/N, dy = (yMax-yMin)/N;
+  for (let j=0; j<N; j++) {
+    for (let i=0; i<N; i++) {
+      const xc = xMin + (i+0.5)*dx;
+      const yc = yMin + (j+0.5)*dy;
+      const z  = Math.exp(-(xc*xc + yc*yc)/2);
+      const r  = Math.round(10 + z*230);
+      const g  = Math.round(10 + z*182);
+      const b  = Math.round(28 + z*36);
+      ctx.fillStyle = `rgb(${r},${g},${b})`;
+      const px0 = toX(xMin + i*dx), px1 = toX(xMin + (i+1)*dx);
+      const py0 = toY(yMin + (j+1)*dy), py1 = toY(yMin + j*dy);
+      ctx.fillRect(px0, py0, px1-px0, py1-py0);
+    }
+  }
+  // Grid lines (subtle, since there are many)
+  ctx.strokeStyle = 'rgba(10,10,28,0.35)'; ctx.lineWidth = 0.5;
+  for (let i=0; i<=N; i++) {
+    const px = toX(xMin + i*dx);
+    ctx.beginPath(); ctx.moveTo(px, pT); ctx.lineTo(px, pT+ph); ctx.stroke();
+    const py = toY(yMin + i*dy);
+    ctx.beginPath(); ctx.moveTo(pL, py); ctx.lineTo(pL+pw, py); ctx.stroke();
+  }
+
+  // dx, dy label on a representative tile (leader extends into dark area)
+  const ic = Math.floor(N*0.66), jc = Math.floor(N*0.52);
+  const tx0 = toX(xMin + ic*dx),     ty0 = toY(yMin + (jc+1)*dy);
+  const tx1 = toX(xMin + (ic+1)*dx), ty1 = toY(yMin + jc*dy);
+  ctx.strokeStyle = C.pink; ctx.lineWidth = 2.5;
+  ctx.strokeRect(tx0, ty0, tx1-tx0, ty1-ty0);
+  // leader line into the dark area beyond the bright region
+  const labelX = toX(2.7), labelY = (ty0+ty1)/2;
+  ctx.beginPath(); ctx.moveTo(tx1, labelY); ctx.lineTo(labelX - 4, labelY);
+  ctx.stroke();
+  ctx.fillStyle = C.pink; ctx.font = 'italic 15px Georgia';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillText('dx · dy', labelX, labelY);
+
+  // Axes
+  const cx=toX(0), cy=toY(0);
+  ctx.strokeStyle=C.axis; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(pL,cy); ctx.lineTo(pL+pw,cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx,pT); ctx.lineTo(cx,pT+ph); ctx.stroke();
+
+  // Tick labels
+  ctx.fillStyle=C.text; ctx.font='12px monospace';
+  ctx.textAlign='center'; ctx.textBaseline='top';
+  for (const v of [-3,-2,-1,1,2,3]) ctx.fillText(v, toX(v), cy+5);
+  ctx.textAlign='right'; ctx.textBaseline='middle';
+  for (const v of [-3,-2,-1,1,2,3]) ctx.fillText(v, cx-5, toY(v));
+
+  // Axis labels
+  ctx.fillStyle=C.text; ctx.font='italic 15px Georgia';
+  ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('x', pL+pw+8, cy);
+  ctx.textAlign='center'; ctx.textBaseline='bottom'; ctx.fillText('y', cx, pT-5);
+}
+
+// ── c4rings: concentric donut decomposition ──────────────────────
+function drawRings4() {
+  const canvas = document.getElementById('c4rings');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const pL=112, pR=56, pT=56, pB=96;
+  const pw=W-pL-pR, ph=H-pT-pB;
+  const xMin=-3.5, xMax=3.5, yMin=-3.5, yMax=3.5;
+
+  ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, H);
+
+  const toX = xd => pL + (xd-xMin)/(xMax-xMin)*pw;
+  const toY = yd => pT + (yMax-yd)/(yMax-yMin)*ph;
+  const cx=toX(0), cy=toY(0), rPx=pw/(xMax-xMin);
+
+  // Clip to plot area
+  ctx.save();
+  ctx.beginPath(); ctx.rect(pL, pT, pw, ph); ctx.clip();
+
+  const N = 14;
+  const dr = 3.5 / N;
+  // Draw outermost first so inner donuts overwrite
+  for (let k=N; k>=1; k--) {
+    const rOut = k*dr, rIn = (k-1)*dr;
+    const rMid = (rOut+rIn)/2;
+    const z = Math.exp(-rMid*rMid/2);
+    const r = Math.round(10 + z*230);
+    const g = Math.round(10 + z*182);
+    const b = Math.round(28 + z*36);
+    ctx.fillStyle = `rgb(${r},${g},${b})`;
+    ctx.beginPath(); ctx.arc(cx, cy, rOut*rPx, 0, Math.PI*2); ctx.fill();
+  }
+  // Ring outlines
+  ctx.strokeStyle = 'rgba(10,10,28,0.55)'; ctx.lineWidth = 1;
+  for (let k=1; k<=N; k++) {
+    ctx.beginPath(); ctx.arc(cx, cy, k*dr*rPx, 0, Math.PI*2); ctx.stroke();
+  }
+  ctx.restore();
+
+  // Highlight a representative donut and label τ·r·dr
+  const kSel = 5;                       // donut at r ≈ 1.25
+  const rIn = (kSel-1)*dr, rOut = kSel*dr, rMid = (rIn+rOut)/2;
+  ctx.strokeStyle = C.cyan; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.arc(cx, cy, rIn *rPx, 0, Math.PI*2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, rOut*rPx, 0, Math.PI*2); ctx.stroke();
+  // leader line from outer edge of donut to label
+  const angle = -Math.PI*0.20;
+  const lx0 = cx + rOut*rPx*Math.cos(angle), ly0 = cy + rOut*rPx*Math.sin(angle);
+  const lx1 = cx + (rOut+0.6)*rPx*Math.cos(angle), ly1 = cy + (rOut+0.6)*rPx*Math.sin(angle);
+  ctx.beginPath(); ctx.moveTo(lx0, ly0); ctx.lineTo(lx1, ly1); ctx.stroke();
+  ctx.fillStyle = C.cyan; ctx.font = 'italic 15px Georgia';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillText('τ · r · dr', lx1 + 4, ly1);
+
+  // Axes
+  ctx.strokeStyle=C.axis; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(pL,cy); ctx.lineTo(pL+pw,cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx,pT); ctx.lineTo(cx,pT+ph); ctx.stroke();
+
+  // Tick labels
+  ctx.fillStyle=C.text; ctx.font='12px monospace';
+  ctx.textAlign='center'; ctx.textBaseline='top';
+  for (const v of [-3,-2,-1,1,2,3]) ctx.fillText(v, toX(v), cy+5);
+  ctx.textAlign='right'; ctx.textBaseline='middle';
+  for (const v of [-3,-2,-1,1,2,3]) ctx.fillText(v, cx-5, toY(v));
+
+  // Axis labels
+  ctx.fillStyle=C.text; ctx.font='italic 15px Georgia';
+  ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('x', pL+pw+8, cy);
+  ctx.textAlign='center'; ctx.textBaseline='bottom'; ctx.fillText('y', cx, pT-5);
+}
+
+function draw4() {
+  drawHeatmap4a();
+  drawGrid4();
+  drawRings4();
+  draw4c();
+  draw4d();
+}
+
+draw4();
+</script>
+</body>
+</html>

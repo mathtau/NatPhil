@@ -1,0 +1,8 @@
+# Exclude all files and folders starting with a dot
+.*
+# But keep .gitignore itself
+!.gitignore
+
+# OS / editor cruft
+Thumbs.db
+desktop.ini
