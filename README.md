@@ -10,9 +10,9 @@
 </p>
 
 <p align="center">
-  <a href="https://intmathchannel.github.io/NatPhil/">Read in English</a>
+  <a href="https://mathtau.github.io/NatPhil/">Read in English</a>
   &nbsp;·&nbsp;
-  <a href="https://intmathchannel.github.io/NatPhil/index_zh.html">阅读中文版</a>
+  <a href="https://mathtau.github.io/NatPhil/index_zh.html">阅读中文版</a>
 </p>
 
 ---
@@ -50,4 +50,4 @@ python -m http.server 8000
 
 ## License
 
-Article text and figures: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — see [`LICENSE`](LICENSE). Attribution to **Int Math Channel** appreciated.
+Article text and figures: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — see [`LICENSE`](LICENSE). Attribution to **MathTau** appreciated.
