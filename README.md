@@ -10,9 +10,9 @@
 </p>
 
 <p align="center">
-  <a href="https://mathtau.github.io/NatPhil/">Read in English</a>
+  <a href="https://mathtau.com/">Read in English</a>
   &nbsp;·&nbsp;
-  <a href="https://mathtau.github.io/NatPhil/index_zh.html">阅读中文版</a>
+  <a href="https://mathtau.com/index_zh.html">阅读中文版</a>
 </p>
 
 ---
