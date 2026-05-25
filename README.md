@@ -48,6 +48,10 @@ python -m http.server 8000
 | `og-card.png` | Open-Graph social-share image |
 | `og_card.py` | Script that regenerates `og-card.png` |
 
+## Contact
+
+Typos, questions, collaboration: [tau@mathtau.com](mailto:tau@mathtau.com) or open a [GitHub issue](https://github.com/mathtau/NatPhil/issues).
+
 ## License
 
 Article text and figures: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — see [`LICENSE`](LICENSE). Attribution to **MathTau** appreciated.
