@@ -51,8 +51,15 @@
     /* ── Header ─────────────────────────────────────────────────── */
     header {
       text-align: center;
-      padding: 72px 24px 52px;
+      padding: 56px 24px 52px;
       border-bottom: 1px solid var(--border);
+    }
+    header .brand-mark {
+      display: block;
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 18px;
+      filter: drop-shadow(0 0 30px rgba(240,192,64,.18));
     }
     header h1 {
       font-size: 2.6rem;
@@ -298,6 +305,7 @@
 </div>
 
 <header>
+  <img src="logo.svg" alt="" class="brand-mark">
   <h1>高斯积分的自然推导</h1>
   <p>从线性变化到隐藏圆的视觉之旅</p>
 </header>
