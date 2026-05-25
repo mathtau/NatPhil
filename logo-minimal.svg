@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Minimal variant: a single ring + τ -->
+  <rect width="200" height="200" rx="28" fill="#0c0c1e"/>
+  <circle cx="100" cy="100" r="68" fill="none" stroke="#f0c040" stroke-width="3"/>
+  <text x="97" y="119" font-family="Georgia, 'Times New Roman', serif" font-size="78"
+        fill="#f0c040" text-anchor="middle" font-style="italic">τ</text>
+</svg>

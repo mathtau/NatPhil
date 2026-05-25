@@ -22,7 +22,9 @@
   <meta property="og:locale:alternate" content="zh_CN">
   <meta name="twitter:card" content="summary_large_image">
 
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230c0c1e'/%3E%3Ctext x='50' y='74' font-family='Georgia' font-size='80' fill='%23f0c040' text-anchor='middle'%3Eτ%3C/text%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml" href="logo-minimal.svg">
+  <link rel="apple-touch-icon" href="logo-minimal.svg">
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -565,6 +567,9 @@
   <div class="graphs">
     <div class="graph-card" style="max-width: 520px;">
       <canvas id="c2scale" width="700" height="560"></canvas>
+      <div style="text-align:center; margin: 4px 0 2px;">
+        <button class="btn" id="play2scale">&#9654; play</button>
+      </div>
       <p class="graph-caption">Both strips have the same area dV/V — the 1/(c·V) height
       and the c·dV width cancel exactly</p>
     </div>
@@ -598,6 +603,9 @@
   <div class="graphs">
     <div class="graph-card" style="max-width: 480px;">
       <canvas id="c2prod" width="700" height="700"></canvas>
+      <div style="text-align:center; margin: 4px 0 2px;">
+        <button class="btn" id="playProd">&#9654; play</button>
+      </div>
       <p class="graph-caption">d(xy) = (x + dx)(y + dy) — xy = y·dx + x·dy, as the
       shaded corner dx·dy vanishes as the steps shrink</p>
     </div>
@@ -1977,7 +1985,7 @@ play2.addEventListener('click', () => {
 });
 
 // ── Product-rule rectangle diagram ──────────────────────────────────
-function drawProductRule() {
+function drawProductRule(scale = 1) {
   const canvas = document.getElementById('c2prod');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
@@ -1990,30 +1998,34 @@ function drawProductRule() {
   const Cg = '#f0c040', Co = '#f08840', Cc = '#40c8f0', Cm = '#8888a8', Ct = '#c4c4dc';
 
   // Layout
-  const ox = 82, oy = 278;        // bottom-left of main rect (screen coords)
-  const RW = 162, RH = 130;       // main rect w, h
-  const DW = 44,  DH = 36;        // dx strip w, dy strip h
+  const ox = 82, oy = 278;
+  const RW = 162, RH = 130;
+  const DW = 44 * scale, DH = 36 * scale;
 
   // Fills
   ctx.fillStyle = 'rgba(64,200,240,0.10)';
   ctx.fillRect(ox, oy - RH, RW, RH);
 
-  ctx.fillStyle = 'rgba(240,136,64,0.30)';
-  ctx.fillRect(ox + RW, oy - RH, DW, RH);
-
-  ctx.fillStyle = 'rgba(240,192,64,0.30)';
-  ctx.fillRect(ox, oy - RH - DH, RW, DH);
-
-  ctx.fillStyle = 'rgba(136,136,168,0.13)';
-  ctx.fillRect(ox + RW, oy - RH - DH, DW, DH);
+  if (DW > 0) {
+    ctx.fillStyle = 'rgba(240,136,64,0.30)';
+    ctx.fillRect(ox + RW, oy - RH, DW, RH);
+  }
+  if (DH > 0) {
+    ctx.fillStyle = 'rgba(240,192,64,0.30)';
+    ctx.fillRect(ox, oy - RH - DH, RW, DH);
+  }
+  if (DW > 0 && DH > 0) {
+    ctx.fillStyle = 'rgba(136,136,168,0.13)';
+    ctx.fillRect(ox + RW, oy - RH - DH, DW, DH);
+  }
 
   // Outlines
   ctx.lineWidth = 1.5; ctx.setLineDash([]);
   ctx.strokeStyle = Cc; ctx.strokeRect(ox, oy - RH, RW, RH);
-  ctx.strokeStyle = Co; ctx.strokeRect(ox + RW, oy - RH, DW, RH);
-  ctx.strokeStyle = Cg; ctx.strokeRect(ox, oy - RH - DH, RW, DH);
+  if (DW > 0) { ctx.strokeStyle = Co; ctx.strokeRect(ox + RW, oy - RH, DW, RH); }
+  if (DH > 0) { ctx.strokeStyle = Cg; ctx.strokeRect(ox, oy - RH - DH, RW, DH); }
   ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
-  ctx.strokeStyle = Cm; ctx.strokeRect(ox + RW, oy - RH - DH, DW, DH);
+  if (DW > 0 && DH > 0) { ctx.strokeStyle = Cm; ctx.strokeRect(ox + RW, oy - RH - DH, DW, DH); }
   ctx.setLineDash([]);
 
   // Interior labels
@@ -2022,18 +2034,24 @@ function drawProductRule() {
   ctx.fillStyle = Cc; ctx.font = 'italic 22px Georgia';
   ctx.fillText('xy', ox + RW / 2, oy - RH / 2);
 
-  ctx.fillStyle = Co; ctx.font = 'italic 13px Georgia';
-  ctx.save();
-  ctx.translate(ox + RW + DW / 2, oy - RH / 2);
-  ctx.rotate(-Math.PI / 2);
-  ctx.fillText('y · dx', 0, 0);
-  ctx.restore();
+  if (DW > 25) {
+    ctx.fillStyle = Co; ctx.font = 'italic 13px Georgia';
+    ctx.save();
+    ctx.translate(ox + RW + DW / 2, oy - RH / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('y · dx', 0, 0);
+    ctx.restore();
+  }
 
-  ctx.fillStyle = Cg; ctx.font = 'italic 13px Georgia';
-  ctx.fillText('x · dy', ox + RW / 2, oy - RH - DH / 2);
+  if (DH > 18) {
+    ctx.fillStyle = Cg; ctx.font = 'italic 13px Georgia';
+    ctx.fillText('x · dy', ox + RW / 2, oy - RH - DH / 2);
+  }
 
-  ctx.fillStyle = Cm; ctx.font = '10px monospace';
-  ctx.fillText('≈ 0', ox + RW + DW / 2, oy - RH - DH / 2);
+  if (DW > 25 && DH > 18) {
+    ctx.fillStyle = Cm; ctx.font = '10px monospace';
+    ctx.fillText('≈ 0', ox + RW + DW / 2, oy - RH - DH / 2);
+  }
 
   // Dimension labels
   ctx.font = 'italic 14px Georgia';
@@ -2042,8 +2060,10 @@ function drawProductRule() {
   ctx.fillStyle = Cc; ctx.textAlign = 'center';
   ctx.fillText('x', ox + RW / 2, oy + 9);
 
-  ctx.fillStyle = Co;
-  ctx.fillText('dx', ox + RW + DW / 2, oy + 9);
+  if (DW > 12) {
+    ctx.fillStyle = Co;
+    ctx.fillText('dx', ox + RW + DW / 2, oy + 9);
+  }
 
   ctx.save();
   ctx.translate(ox - 16, oy - RH / 2);
@@ -2052,28 +2072,31 @@ function drawProductRule() {
   ctx.fillText('y', 0, 0);
   ctx.restore();
 
-  ctx.save();
-  ctx.translate(ox - 16, oy - RH - DH / 2);
-  ctx.rotate(-Math.PI / 2);
-  ctx.textBaseline = 'middle'; ctx.fillStyle = Cg;
-  ctx.fillText('dy', 0, 0);
-  ctx.restore();
+  if (DH > 12) {
+    ctx.save();
+    ctx.translate(ox - 16, oy - RH - DH / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.textBaseline = 'middle'; ctx.fillStyle = Cg;
+    ctx.fillText('dy', 0, 0);
+    ctx.restore();
+  }
 
   // Dashed brace around entire new area (L-shape border)
-  ctx.strokeStyle = '#50d890'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
-  ctx.beginPath();
-  ctx.moveTo(ox,              oy - RH);
-  ctx.lineTo(ox,              oy - RH - DH);
-  ctx.lineTo(ox + RW + DW,   oy - RH - DH);
-  ctx.lineTo(ox + RW + DW,   oy);
-  ctx.lineTo(ox + RW,        oy);
-  ctx.stroke();
-  ctx.setLineDash([]);
+  if (DW > 2 || DH > 2) {
+    ctx.strokeStyle = '#50d890'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(ox,              oy - RH);
+    ctx.lineTo(ox,              oy - RH - DH);
+    ctx.lineTo(ox + RW + DW,   oy - RH - DH);
+    ctx.lineTo(ox + RW + DW,   oy);
+    ctx.lineTo(ox + RW,        oy);
+    ctx.stroke();
+    ctx.setLineDash([]);
 
-  // "d(xy)" label to the right of the brace
-  ctx.fillStyle = '#50d890'; ctx.font = 'italic 13px Georgia';
-  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-  ctx.fillText('d(xy)', ox + RW + DW + 10, oy - (RH + DH) / 2);
+    ctx.fillStyle = '#50d890'; ctx.font = 'italic 13px Georgia';
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText('d(xy)', ox + RW + DW + 10, oy - (RH + DH) / 2);
+  }
 
   // Title
   ctx.fillStyle = Ct; ctx.font = '12px Georgia';
@@ -2083,11 +2106,39 @@ function drawProductRule() {
 
 drawProductRule();
 
+let rafProd = null;
+const playProd = document.getElementById('playProd');
+playProd.addEventListener('click', () => {
+  if (rafProd) {
+    cancelAnimationFrame(rafProd);
+    rafProd = null;
+    playProd.textContent = '▶ play';
+    playProd.classList.remove('active');
+    drawProductRule();
+    return;
+  }
+  playProd.textContent = '◼ stop';
+  playProd.classList.add('active');
+  let t = 0;
+  const step = () => {
+    t += 0.012;
+    if (t > 1) {
+      t = 1;
+      playProd.textContent = '▶ play';
+      playProd.classList.remove('active');
+      rafProd = null;
+    }
+    drawProductRule(t);
+    if (rafProd !== null) rafProd = requestAnimationFrame(step);
+  };
+  rafProd = requestAnimationFrame(step);
+});
+
 // ── Scale-invariance strip diagram ──────────────────────────────────
-function drawScaleInvariance() {
-  const V1 = 1.5, dV1 = 0.5, c = 2;     // strip 1: [1.5, 2.0]
-  const V2 = c * V1, dV2 = c * dV1;     // strip 2: [3.0, 4.0]
-  const h1 = 1 / V1, h2 = 1 / V2;       // heights 0.667 and 0.333
+function drawScaleInvariance(dV1 = 0.5) {
+  const V1 = 1.5, c = 2;
+  const V2 = c * V1, dV2 = c * dV1;
+  const h1 = 1 / V1, h2 = 1 / V2;
 
   const p = new Plot('c2scale', 0.7, 5.2, 0, 0.88);
   p.clear();
@@ -2114,13 +2165,15 @@ function drawScaleInvariance() {
   ctx.strokeStyle = C.gold;
   ctx.strokeRect(x2l, y2t, x2r-x2l, y2b-y2t);
 
-  // Area labels inside strips
-  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.font = 'italic 12px Georgia';
-  ctx.fillStyle = C.orange;
-  ctx.fillText('dV/V', (x1l+x1r)/2, (y1t+y1b)/2 - 4);
-  ctx.fillStyle = C.gold;
-  ctx.fillText('dV/V', (x2l+x2r)/2, (y2t+y2b)/2 - 4);
+  // Area labels inside strips — show only when strips are wide enough
+  if (dV1 > 0.18) {
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = 'italic 12px Georgia';
+    ctx.fillStyle = C.orange;
+    ctx.fillText('dV/V', (x1l+x1r)/2, (y1t+y1b)/2 - 4);
+    ctx.fillStyle = C.gold;
+    ctx.fillText('dV/V', (x2l+x2r)/2, (y2t+y2b)/2 - 4);
+  }
 
   // "= same area" bridge
   const xBridge = (x1r + x2l) / 2;
@@ -2149,6 +2202,35 @@ function drawScaleInvariance() {
 }
 
 drawScaleInvariance();
+
+let raf2scale = null;
+const play2scale = document.getElementById('play2scale');
+play2scale.addEventListener('click', () => {
+  if (raf2scale) {
+    cancelAnimationFrame(raf2scale);
+    raf2scale = null;
+    play2scale.textContent = '▶ play';
+    play2scale.classList.remove('active');
+    drawScaleInvariance();
+    return;
+  }
+  play2scale.textContent = '◼ stop';
+  play2scale.classList.add('active');
+  let t = 0;
+  const step = () => {
+    t += 0.012;
+    if (t > 1) {
+      t = 1;
+      play2scale.textContent = '▶ play';
+      play2scale.classList.remove('active');
+      raf2scale = null;
+    }
+    const dV1 = 0.02 + (0.5 - 0.02) * t;
+    drawScaleInvariance(dV1);
+    if (raf2scale !== null) raf2scale = requestAnimationFrame(step);
+  };
+  raf2scale = requestAnimationFrame(step);
+});
 
 // ── Section 3 ─────────────────────────────────────────────────────
 
