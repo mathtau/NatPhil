@@ -1,0 +1,2711 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>完整优雅的欧拉公式</title>
+
+  <meta name="description" content="可视化推导欧拉公式，在互动图表中完整表述其优雅。">
+  <meta name="author" content="MathTau">
+
+  <link rel="canonical" href="https://mathtau.com/euler/index_zh.html">
+  <link rel="alternate" hreflang="en" href="https://mathtau.com/euler/">
+  <link rel="alternate" hreflang="zh" href="https://mathtau.com/euler/index_zh.html">
+  <link rel="license" href="https://creativecommons.org/licenses/by/4.0/">
+
+  <meta property="og:title" content="完整优雅的欧拉公式">
+  <meta property="og:description" content="为什么 e^(iπ) + 1 = 0 并非优雅的完整形式，而 e^(iτ) = 1 才是。">
+  <meta property="og:url" content="https://mathtau.com/euler/index_zh.html">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="https://mathtau.com/euler/og-card.png">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:locale:alternate" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" type="image/svg+xml" href="/logo-minimal.svg">
+  <link rel="apple-touch-icon" href="/logo-minimal.svg">
+
+  <!-- ═══ CSS：与英文版共用完全相同的样式 ═══════════════════════════ -->
+  <!-- NOTE: CSS block identical to index.html — begin -->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0c0c1e;
+      --surface:   #111128;
+      --border:    #22224a;
+      --text:      #c4c4dc;
+      --muted:     #8888a8;
+      --gold:      #f4c830;
+      --cyan:      #40c8f0;
+      --green:     #50d890;
+      --orange:    #f08840;
+      --pink:      #d040a0;
+      --red:       #e84040;
+      --blue:      #7ab0ff;
+      --purple:    #b070f0;
+    }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.75;
+      font-size: 1.05rem;
+      overflow-x: hidden;
+    }
+
+    /* 中文行距略宽 */
+    p { margin-bottom: 1.1em; }
+
+    em.m     { font-style: italic; color: #c8c8e0;       }
+    em.mx    { font-style: italic; color: var(--red);    }
+    em.my    { font-style: italic; color: var(--cyan);   }
+    em.mt    { font-style: italic; color: var(--purple); }
+    em.mtau  { font-style: italic; color: var(--gold);   }
+    em.mg    { font-style: italic; color: var(--green);  }
+
+    .placeholder { color: var(--muted); font-style: italic; border: 1px dashed var(--border); padding: 0.5em 1em; margin: 1em 0; border-radius: 4px; }
+
+    /* — layout identical to English version — */
+    main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    .section { margin: 3rem 0; padding-top: 1rem; border-top: 1px solid var(--border); }
+    .section:first-child { border-top: none; }
+    .sec-head { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1.5rem; }
+    .sec-num { font-family: 'IBM Plex Mono', monospace; color: var(--gold); font-size: 1.1rem; white-space: nowrap; }
+    h2 { font-family: 'Playfair Display', Georgia, serif; font-size: 1.5rem; font-weight: 500; color: var(--gold); }
+    h3.subhead { font-size: 1.05rem; font-weight: 500; color: var(--cyan); margin: 2rem 0 0.8rem; font-style: italic; }
+    .eq { display: block; text-align: center; font-style: italic; font-family: Georgia, serif; padding: 1rem 0; font-size: 1.1rem; }
+    .eq-pair { display: grid; grid-template-columns: auto auto 1fr auto 1fr; align-items: baseline; gap: 0.3em 0.6em; justify-content: center; padding: 0.8rem 0; font-style: italic; font-family: Georgia, serif; }
+    .eqp-lhs { text-align: right; }
+    .eqp-eq  { color: var(--muted); }
+    .frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; margin: 0 0.1em; }
+    .frac .num { border-bottom: 1px solid currentColor; padding: 0 0.1em; line-height: 1.2; }
+    .frac .den { padding: 0 0.1em; line-height: 1.2; }
+    .callout { border-left: 3px solid var(--gold); background: rgba(244,200,48,.06); padding: 0.8em 1.2em; margin: 1.2em 0; border-radius: 0 6px 6px 0; }
+    .callout p { margin: 0; }
+    .callout-cyan { border-left-color: var(--cyan); background: rgba(64,200,240,.06); }
+    .graphs { display: flex; gap: 20px; flex-wrap: wrap; margin: 32px 0; }
+    .graph-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 18px 12px; flex: 1 1 380px; }
+    .graph-card canvas { display: block; width: 100%; height: auto; }
+    .graph-card-head { padding: 0.5rem 0.8rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; min-height: 2.2em; display: flex; align-items: center; }
+    .graph-caption { font-size: 0.8rem; color: var(--muted); text-align: center; padding: 0.4em 0.8em 0.6em; font-style: italic; }
+    .controls { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; padding: 0.4rem 0.8rem; font-size: 0.9rem; }
+    .controls label { color: var(--muted); font-size: 0.85rem; }
+    .val { font-family: 'IBM Plex Mono', monospace; color: var(--gold); min-width: 36px; }
+    input[type=range] { flex: 1; min-width: 120px; max-width: 240px; accent-color: var(--gold); }
+    .fn-tabs { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .fn-tab { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-family: Georgia, serif; font-style: italic; }
+    .fn-tab.active { border-color: var(--gold); color: var(--gold); }
+    .fold-note { position: relative; height: 64px; margin: 0.5rem 0; }
+    .fold-from { position: absolute; top: 4px;    left: calc(50% + 10px); font-size: 0.82rem; color: var(--muted); font-style: italic; }
+    .fold-arrow { position: absolute; top: 50%;   left: calc(50% - 5px); transform: translateY(-50%); font-size: 1.1rem; color: var(--muted); }
+    .fold-to   { position: absolute; bottom: 4px; right: calc(50% + 10px); text-align: right; font-size: 0.82rem; color: var(--muted); font-style: italic; }
+    .mul-grid table { border-collapse: collapse; margin: 0 auto; }
+    .mul-grid td, .mul-grid th { border: 1px solid var(--border); padding: 0.3em 0.6em; text-align: center; font-size: 0.9rem; font-style: italic; }
+    .d0 { background: rgba(244,200,48,.12); }
+    .d1 { background: rgba(64,200,240,.08); }
+    .d2 { background: rgba(80,216,144,.08); }
+    .d3 { background: rgba(240,136,64,.08); }
+    .d4 { background: rgba(176,112,240,.08); }
+    .diag-sums { margin: 0.8em auto; max-width: 640px; font-size: 0.88rem; }
+    .diag-row { display: flex; align-items: baseline; gap: 0.5em; margin: 0.3em 0; font-style: italic; }
+    .diag-lhs { color: var(--muted); min-width: 180px; text-align: right; }
+    .diag-mid { flex: 1; }
+    .diag-rhs { min-width: 100px; }
+    .ds0 { color: var(--gold); }
+    .ds1 { color: var(--cyan); }
+    .ds2 { color: var(--green); }
+    .ds3 { color: var(--orange); }
+    .ds4 { color: var(--purple); }
+    #chart-tip { position: fixed; pointer-events: none; z-index: 999; background: rgba(10,10,30,.92); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; font-size: 0.78rem; font-family: 'IBM Plex Mono', monospace; color: var(--text); display: none; }
+    header { text-align: center; padding: 56px 24px 52px; border-bottom: 1px solid var(--border); }
+    header .brand-mark { display: block; width: 200px; height: 200px; margin: 0 auto 18px; filter: drop-shadow(0 0 30px rgba(244,200,48,.18)); }
+    header h1 { font-family: 'Playfair Display', Georgia, serif; font-size: 2.6rem; color: var(--gold); letter-spacing: 0.03em; text-shadow: 0 0 50px rgba(244,200,48,.25); }
+    header p { margin-top: 14px; color: #6090c0; font-style: italic; font-size: 1.05rem; max-width: none; }
+    .lang-toggle { position: fixed; top: 16px; right: 16px; z-index: 100; display: flex; gap: 2px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 3px; }
+    .lang-toggle a { padding: 6px 14px; border-radius: 6px; text-decoration: none; color: var(--text); font-size: .9rem; transition: color .2s, background .2s; }
+    .lang-toggle a:hover { color: var(--gold); }
+    .lang-toggle a.active { background: rgba(244,200,48,.15); color: var(--gold); }
+    .home-link { position: fixed; top: 16px; left: 16px; z-index: 100; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 6px 14px; font-size: .9rem; color: #6090c0; text-decoration: none; transition: color .2s, border-color .2s; }
+    .home-link:hover { color: var(--gold); border-color: rgba(244,200,48,.4); }
+    footer { border-top: 1px solid var(--border); padding: 2rem 1.5rem; max-width: 920px; margin: 0 auto; font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+    footer a { color: var(--muted); }
+    footer a:hover { color: var(--gold); }
+    .cite { font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; margin-top: 0.8em; }
+    .footer-meta { margin-top: 0.8em; }
+    .home-btn-wrap { text-align: center; padding: 1rem; }
+    .home-btn { display: inline-block; padding: 0.5rem 1.5rem; border: 1px solid var(--border); color: var(--muted); text-decoration: none; border-radius: 4px; font-size: 0.85rem; }
+    .home-btn:hover { color: var(--gold); border-color: rgba(244,200,48,.4); }
+  </style>
+</head>
+<body>
+
+<div id="chart-tip"></div>
+
+<a href="/index_zh.html" class="home-link">← MathTau</a>
+
+<div class="lang-toggle">
+  <a href="index.html">EN</a>
+  <a href="index_zh.html" class="active">中文</a>
+</div>
+
+<header>
+  <img src="/logo.svg" alt="" class="brand-mark">
+  <h1>完整优雅的欧拉公式</h1>
+  <p>在互动图表中完整表述其优雅</p>
+  <p style="margin-top:10px; font-size:.88rem; color:var(--muted); letter-spacing:.06em;">数学韬 <em style="font-style:normal; color:var(--gold); font-weight:600;">τ</em></p>
+</header>
+
+<main>
+
+<!-- ═══ 序章 ════════════════════════════════════════════════════════ -->
+<div class="section" id="prelude">
+  <div class="sec-head">
+    <span class="sec-num">序章</span>
+    <h2>不该印在T 恤正面的等式</h2>
+  </div>
+
+  <p>人们告诉你，数学中最美的等式是</p>
+
+  <span class="eq"><em class="mg">e</em><sup><em class="my">i</em>π</sup> + 1 = 0</span>
+
+  <p>五个基本常数——<em class="m">0</em>、<em class="m">1</em>、<em class="mg">e</em>、<em class="my">i</em>、<em class="m">π</em>——在一行里相互绑定，连同基本运算符：乘方、乘法、加法、等号。它印在 T 恤、纹身、宿舍墙报上。这是数学之美的陈词滥调。</p>
+
+  <p>它并不是最美的等式，因为它只讲了故事的一半——字面意义上的一半。真正完整的版本，不需要移项，不需要填空，不需要补一个零——是：</p>
+
+  <span class="eq"><em class="mg">exp</em>(<em class="my">i</em><em class="mtau">τ</em>) <em class="m">= 1</em></span>
+
+  <p>τ（tau）代表一整圈：圆的周长与半径之比，约等于 6.283。把一根绳子绕任意圆一圈，绳子的长度是半径的 τ 倍。转满一整圈等于 τ 弧度。</p>
+
+  <p>本文从一个观察出发推导欧拉公式，找到藏在公式里的单位圆，走过它在世界中被使用的地方，最后说明那个著名的恒等式只是一部影片中被定格的半帧。</p>
+</div>
+
+<!-- ═══ §1 ════════════════════════════════════════════════════════════ -->
+<div class="section" id="s1">
+  <div class="sec-head">
+    <span class="sec-num">§ 1</span>
+    <h2>认识 <em class="mg">exp</em></h2>
+  </div>
+
+  <p>假设我们有一张图，横轴是时间 <em class="mx">t</em>，纵轴是某个量 <em class="mg">v</em>。我们想求曲线下方的总面积——从起点到任意时刻累积了多少。</p>
+
+  <p>策略：把面积分成若干细长的竖条。每一条足够窄，可以当作矩形。将它们并排相加，就得到总面积的估计；条越细，估计越准。</p>
+
+  <p>我们把条的宽度记为 <em class="mx">dt</em>——字母 <em class="m">d</em> 是 <strong>delta</strong> 的缩写，代表紧跟在它后面那个量的微小变化。该时刻条的高度是 <em class="mg">v</em>，因此条的面积是 <em class="mg">v</em> · <em class="mx">dt</em>。我们把这一微小面积记为 <em class="my">dx</em>——对运行总量 <em class="my">x</em> 的微小增量：</p>
+
+  <span class="eq"><em class="my">dx</em> &ensp;=&ensp; <em class="mg">v</em> · <em class="mx">dt</em></span>
+
+  <p>右边图表从零出发，逐步累加每一个 <em class="my">dx</em>——即左边函数的运行总面积。选一个左边的函数，拖动 <em class="mx">N</em> 来细化小块，看面积如何积累成 <em class="my">x</em>：</p>
+
+  <div class="graphs">
+    <div class="graph-card">
+      <div class="graph-card-head" style="flex-direction:column;align-items:flex-start;">
+        <div class="fn-tabs">
+          <button class="fn-tab active" data-fn="2">v = 1</button>
+          <button class="fn-tab" data-fn="1">v = t</button>
+          <button class="fn-tab" data-fn="0">v = t²/2</button>
+        </div>
+        <div class="controls">
+          <label>小块 <em class="mx">N</em> =</label>
+          <input type="range" id="slDerivN" min="3" max="50" step="1" value="10">
+          <span class="val" id="vlDerivN">10</span>
+        </div>
+      </div>
+      <canvas id="cDerivL" width="700" height="600"></canvas>
+      <p class="graph-caption"><em class="mg">v</em> — 每一步的变化速度。每个彩色小块的面积为 <em class="mg">v</em> · <em class="mx">dt</em>；所有小块之和即曲线下的总面积。</p>
+    </div>
+    <div class="graph-card">
+      <div class="graph-card-head"></div>
+      <canvas id="cDerivR" width="700" height="600"></canvas>
+      <p class="graph-caption"><em class="my">x</em> — 累积面积。每个竖线的长度等于 <em class="my">dx</em> = <em class="mg">v</em>·<em class="mx">dt</em>；曲线记录运行总量。</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p><strong>这是微积分的基础。</strong>左边彩块的总面积等于右边竖线的总长——因为每一块和对应的竖线承载同一个值 <em class="my">dx</em> = <em class="mg">v</em> · <em class="mx">dt</em>，只是画法不同。累积变化速度就能还原量本身。</p>
+  </div>
+
+  <p>每张右侧图表都是左侧函数的累积面积。从 <em class="mg">v</em> <em class="m">= 1</em>（一条平线）出发，面积线性增长为 <em class="my">x</em> <em class="m">=</em> <em class="mx">t</em>。取 <em class="mg">v</em> <em class="m">=</em> <em class="mx">t</em>，面积弯曲成 <em class="my">x</em> <em class="m">=</em> <em class="mx">t</em><em class="m">²/2</em>。再进一步：<em class="mg">v</em> <em class="m">=</em> <em class="mx">t</em><em class="m">²/2</em> 积分得 <em class="my">x</em> <em class="m">=</em> <em class="mx">t</em><em class="m">³/6</em>。每次积分加一次 <em class="mx">t</em> 的幂次。</p>
+
+  <div class="callout">
+    <p>注意分母：从 <em class="mg">v</em> <em class="m">=</em> <em class="mx">t</em> 积分得 <em class="mx">t</em><em class="m">²/2</em>，而不是 <em class="mx">t</em><em class="m">²</em>。那个 2 从哪里来？从 <em class="mx">t</em> <em class="m">= 0</em> 开始，一条上升直线下方的面积是三角形：底 <em class="mx">t</em>，高 <em class="mg">v</em> <em class="m">=</em> <em class="mx">t</em>，面积 <em class="m">= ½ ·</em> <em class="mx">t</em> <em class="m">·</em> <em class="mx">t</em> <em class="m">=</em> <em class="mx">t</em><em class="m">²/2</em>。½ 是三角形因子——每个二维三角形都有它。</p>
+
+    <p><em class="mx">t</em><em class="m">³/6</em> 中的 ⅙ 可以分解为 <em class="m">½ × ⅓</em>。½ 是同一个三角形因子；⅓ 是棱锥因子，三维棱锥中出现的那个分数。在一个维度内再积分一次，就把两个因子乘在一起：<em class="m">2 × 3 = 6</em>，故分母为 6。</p>
+
+    <p>每个维度都向分母贡献一个因子。后续几何系列将精确解释每个维度为何贡献那个因子。现在请记住：这些分母不是任意的——它们是形状的指纹。</p>
+  </div>
+
+  <h3 class="subhead">第一部分 — 当两张图显示同一条曲线时</h3>
+
+  <p>上面的图表总是显示不同的函数——左右曲线从不重合。但有一个不同的问题：能否找到一个函数，使两张图显示<em>完全相同</em>的曲线——<em class="mg">v</em> 与 <em class="my">x</em> 是同一个函数？</p>
+
+  <p>这样的函数将是自我放大的：它在每一时刻的增长率等于它当前的值。右图越高，斜率就越陡——积累得越多，增长就越快。储蓄账户就是这样复利的：余额越大，利息越多，进而余额更大。人口增长、放射性衰变和电容充电都以同样的方式运作——都由同一条曲线支配。</p>
+
+  <p>如何找到它？我们使用<strong>折叠加差法</strong>。从任意试探 <em class="mg">v</em> 开始——不必正确。折叠它：构造变化累积图得到 <em class="my">x</em>。两张图一开始不会吻合，但 <em class="my">x</em> 会告诉你 <em class="mg">v</em> 缺了什么：凡是在 <em class="my">x</em> 中有而 <em class="mg">v</em> 中还没有的，就是差距。把差距加回 <em class="mg">v</em>，再次折叠。每一轮差距都变小。持续下去，两张图被迫越来越接近，直到合二为一。</p>
+
+  <p>最简单的试探是 <em class="mg">v</em> = 1——一条平线。它的积分是 <em class="my">x</em> = <em class="mx">t</em>。虽然不同，但右图立刻给出了缺失的部分：<em class="m">+</em><em class="mx">t</em>。折叠进去：<em class="mg">v</em> = 1 + <em class="mx">t</em>。再次积分：<em class="my">x</em> = <em class="mx">t</em><em class="m"> + </em><em class="mx">t</em><em class="m">²/2</em>。又有缺失的部分。折叠进去。观察每次修复如何产生下一次：</p>
+
+  <div class="controls">
+    <label>小块 <em class="mx">N</em> =</label>
+    <input type="range" id="slExpN" min="4" max="40" step="1" value="10">
+    <span class="val" id="vlExpN">10</span>
+  </div>
+
+  <!-- §1 exp construction chart pairs — same canvas IDs as English -->
+  <div class="graphs">
+    <div class="graph-card">
+      <div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="mg">v</em> = 1</span></div>
+      <canvas id="cExpL1" width="700" height="600"></canvas>
+      <p class="graph-caption">绿色：<em class="mg">v</em> = 1。</p>
+    </div>
+    <div class="graph-card">
+      <div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="my">x</em> = <em class="mx">t</em></span></div>
+      <canvas id="cExpR1" width="700" height="600"></canvas>
+      <p class="graph-caption">蓝色：折叠结果。</p>
+    </div>
+  </div>
+  <div class="fold-note">
+    <span class="fold-from"><em class="m">+</em><em class="mx">t</em> in <em class="my">x</em>, missing from <em class="mg">v</em></span>
+    <span class="fold-arrow">↙</span>
+    <span class="fold-to">add<em class="m">+</em><em class="mx">t</em> to <em class="mg">v</em>:</span>
+  </div>
+  <div class="graphs">
+    <div class="graph-card">
+      <div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="mg">v</em> = 1 + <em class="mx">t</em></span></div>
+      <canvas id="cExpL2" width="700" height="600"></canvas>
+      <p class="graph-caption"></p>
+    </div>
+    <div class="graph-card">
+      <div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="my">x</em> = <em class="mx">t</em> + <em class="mx">t</em><em class="m">²/2</em></span></div>
+      <canvas id="cExpR2" width="700" height="600"></canvas>
+      <p class="graph-caption"></p>
+    </div>
+  </div>
+  <div class="fold-note">
+    <span class="fold-from"><em class="m">+</em><em class="mx">t</em><em class="m">²/2</em> in <em class="my">x</em>, missing from <em class="mg">v</em></span>
+    <span class="fold-arrow">↙</span>
+    <span class="fold-to">add<em class="m">+</em><em class="mx">t</em><em class="m">²/2</em> to <em class="mg">v</em>:</span>
+  </div>
+  <div class="graphs">
+    <div class="graph-card">
+      <div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="mg">v</em> = 1 + <em class="mx">t</em> + <em class="mx">t</em><em class="m">²/2</em></span></div>
+      <canvas id="cExpL3" width="700" height="600"></canvas>
+      <p class="graph-caption"></p>
+    </div>
+    <div class="graph-card">
+      <div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="my">x</em> = <em class="mx">t</em> + <em class="mx">t</em><em class="m">²/2 + </em><em class="mx">t</em><em class="m">³/6</em></span></div>
+      <canvas id="cExpR3" width="700" height="600"></canvas>
+      <p class="graph-caption"></p>
+    </div>
+  </div>
+  <div class="fold-note">
+    <span class="fold-from"><em class="m">+</em><em class="mx">t</em><em class="m">³/6</em> in <em class="my">x</em>, missing from <em class="mg">v</em></span>
+    <span class="fold-arrow">↙</span>
+    <span class="fold-to">add<em class="m">+</em><em class="mx">t</em><em class="m">³/6</em> to <em class="mg">v</em>:</span>
+  </div>
+  <div class="graphs">
+    <div class="graph-card">
+      <div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="mg">v</em> = 1 + <em class="mx">t</em> + <em class="m">··· + </em><em class="mx">t</em><em class="m">⁴/24</em></span></div>
+      <canvas id="cExpL4" width="700" height="600"></canvas>
+      <p class="graph-caption"></p>
+    </div>
+    <div class="graph-card">
+      <div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="my">x</em> = <em class="mx">t</em> + <em class="m">··· + </em><em class="mx">t</em><em class="m">⁴/24</em></span></div>
+      <canvas id="cExpR4" width="700" height="600"></canvas>
+      <p class="graph-caption"></p>
+    </div>
+  </div>
+  <div class="fold-note">
+    <span class="fold-from"><em class="m">+</em><em class="mx">t</em><em class="m">⁴/24</em> in <em class="my">x</em>, missing from <em class="mg">v</em></span>
+    <span class="fold-arrow">↙</span>
+    <span class="fold-to">add<em class="m">+</em><em class="mx">t</em><em class="m">⁴/24</em> to <em class="mg">v</em>:</span>
+  </div>
+  <div class="graphs">
+    <div class="graph-card">
+      <div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="mg">v</em> = 1 + <em class="mx">t</em> + <em class="m">··· + </em><em class="mx">t</em><em class="m">⁵/120</em></span></div>
+      <canvas id="cExpL5" width="700" height="600"></canvas>
+      <p class="graph-caption"></p>
+    </div>
+    <div class="graph-card">
+      <div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="my">x</em> = <em class="mx">t</em> + <em class="m">··· + </em><em class="mx">t</em><em class="m">⁵/120</em></span></div>
+      <canvas id="cExpR5" width="700" height="600"></canvas>
+      <p class="graph-caption"></p>
+    </div>
+  </div>
+  <div class="fold-note">
+    <span class="fold-from"><em class="m">+</em><em class="mx">t</em><em class="m">⁵/120</em> in <em class="my">x</em>, missing from <em class="mg">v</em></span>
+    <span class="fold-arrow">↙</span>
+    <span class="fold-to">add<em class="m">+</em><em class="mx">t</em><em class="m">⁵/120</em> to <em class="mg">v</em>:</span>
+  </div>
+  <div class="graphs">
+    <div class="graph-card">
+      <div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="mg">v</em> = 1 + <em class="mx">t</em> + <em class="m">··· + </em><em class="mx">t</em><em class="m">⁵/120</em></span></div>
+      <canvas id="cExpL6" width="700" height="600"></canvas>
+      <p class="graph-caption">绿色：v 含 6 项。</p>
+    </div>
+    <div class="graph-card">
+      <div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="my">x</em> = <em class="mx">t</em> + <em class="m">··· + </em><em class="mx">t</em><em class="m">⁶/720</em></span></div>
+      <canvas id="cExpR6" width="700" height="600"></canvas>
+      <p class="graph-caption">两张图形状相同，相差恰好为 1：<em class="mg">v</em> 从 1 出发，<em class="my">x</em> 从 0 出发。</p>
+    </div>
+  </div>
+  <div class="fold-note">
+    <span class="fold-from"><em class="m">···</em> in <em class="my">x</em>, missing from <em class="mg">v</em></span>
+    <span class="fold-arrow">↙</span>
+    <span class="fold-to">add<em class="m">···</em> to <em class="mg">v</em>:</span>
+  </div>
+
+  <p>随着项数积累，两张图越来越趋向同一形状。在极限处它们描出同一条曲线——相差恰好为 1：<em class="mg">v</em> 从 1 出发，而 <em class="my">x</em> 从 0 出发。</p>
+
+  <p>只要让 <em class="my">x</em> 从 1 而不是 0 出发，这个差距就消失了。此时两张图承载同一个等式，每一步的小块与竖线完全吻合：</p>
+
+  <div class="graphs">
+    <div class="graph-card">
+      <div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="mg">v</em> = 1 + <em class="mx">t</em> + <em class="mx">t</em><em class="m">²/2 + </em><em class="mx">t</em><em class="m">³/6 + </em><em class="mx">t</em><em class="m">⁴/24 + </em><em class="mx">t</em><em class="m">⁵/120 + ···</em></span></div>
+      <canvas id="cExpLF" width="700" height="600"></canvas>
+      <p class="graph-caption">绿色：<em class="mg">v</em> = <em class="mg">exp</em>(<em class="mx">t</em>)。每个小块面积 = <em class="mg">v</em>·<em class="mx">dt</em>。</p>
+    </div>
+    <div class="graph-card">
+      <div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="my">x</em> = 1 + <em class="mx">t</em> + <em class="mx">t</em><em class="m">²/2 + </em><em class="mx">t</em><em class="m">³/6 + </em><em class="mx">t</em><em class="m">⁴/24 + </em><em class="mx">t</em><em class="m">⁵/120 + ···</em></span></div>
+      <canvas id="cExpRF" width="700" height="600"></canvas>
+      <p class="graph-caption">蓝色：<em class="my">x</em> = <em class="mg">exp</em>(<em class="mx">t</em>)。两张图现在合二为一。</p>
+    </div>
+  </div>
+
+  <p>这个函数在每一点的变化速度等于函数本身——处处如此，始终如此。我们将其命名为 <strong><em class="mg">exp</em></strong>：</p>
+
+  <span class="eq"><em class="mg">exp</em>(<em class="mx">t</em>) &ensp;=&ensp;
+  1 + <em class="mx">t</em> +
+  <span class="frac"><span class="num"><em class="mx">t</em>²</span><span class="den">2!</span></span> +
+  <span class="frac"><span class="num"><em class="mx">t</em>³</span><span class="den">3!</span></span> +
+  <span class="frac"><span class="num"><em class="mx">t</em>⁴</span><span class="den">4!</span></span>
+  + ···</span>
+
+  <p>其中 <em class="m">n!</em>（<em>n 的阶乘</em>）是从 1 到 n 所有整数之积：<em class="m">2!=2，3!=6，4!=24</em>。这些分母正是第一部分中的积分自然出现的系数：2 来自二维三角形，3 来自三维棱锥，每个维度乘进一个新数字。以后的系列将给出完整解释。</p>
+
+  <h3 class="subhead">第二部分 — 一个关键性质</h3>
+
+  <p>先验证一件事：把 <em class="mx">t</em><em class="m"> = 0</em> 代入级数，第一项后的所有项都含 <em class="mx">t</em> 因子，全部消失：</p>
+
+  <span class="eq"><em class="mg">exp</em>(0) &ensp;=&ensp; 1 + 0 +
+  <span class="frac"><span class="num">0²</span><span class="den">2!</span></span> + ··· &ensp;=&ensp; 1</span>
+
+  <p>第二个事实：满足"变化速度等于自身"这一条件的函数族恰好是 <em class="my">x</em> = <em class="m">c</em> · <em class="mg">exp</em>(<em class="mx">t</em>)，其中 <em class="m">c</em> 是任意常数——也就是 <em class="my">x</em>(0) 的值。<em class="m">c = 0</em> 的情况是 <em class="my">x</em> = 0，是同族的成员。</p>
+
+  <p>关键恒等式在此。将两个级数展开，把第一个级数的每一项乘以第二个级数的每一项：</p>
+
+  <div style="font-size:.95rem;">
+    <span class="eq"><em class="mg">exp</em>(<em class="mx">a</em>) &ensp;=&ensp; 1 + <em class="mx">a</em> +
+    <span class="frac"><span class="num"><em class="mx">a</em>²</span><span class="den">2!</span></span> +
+    <span class="frac"><span class="num"><em class="mx">a</em>³</span><span class="den">3!</span></span> + ···</span>
+    <span class="eq"><em class="mg">exp</em>(<em class="my">b</em>) &ensp;=&ensp; 1 + <em class="my">b</em> +
+    <span class="frac"><span class="num"><em class="my">b</em>²</span><span class="den">2!</span></span> +
+    <span class="frac"><span class="num"><em class="my">b</em>³</span><span class="den">3!</span></span> + ···</span>
+  </div>
+
+  <div class="mul-grid">
+    <table>
+      <thead><tr>
+        <th>×</th>
+        <th><em class="mx">b</em>⁰/0!</th>
+        <th><em class="mx">b</em>/1!</th>
+        <th><em class="mx">b</em><sup>2</sup>/2!</th>
+        <th><em class="mx">b</em><sup>3</sup>/3!</th>
+        <th><em class="mx">b</em><sup>4</sup>/4!</th>
+      </tr></thead>
+      <tbody>
+        <tr><th><em class="mx">a</em>⁰/0!</th><td class="d0">1</td><td class="d1"><em class="mx">b</em></td><td class="d2"><em class="mx">b</em><sup>2</sup>/2!</td><td class="d3"><em class="mx">b</em><sup>3</sup>/3!</td><td class="d4"><em class="mx">b</em><sup>4</sup>/4!</td></tr>
+        <tr><th><em class="mx">a</em>/1!</th><td class="d1"><em class="mx">a</em></td><td class="d2"><em class="mx">ab</em></td><td class="d3"><em class="mx">a</em><em class="my">b</em><sup>2</sup>/2!</td><td class="d4"><em class="mx">a</em><em class="my">b</em><sup>3</sup>/3!</td><td></td></tr>
+        <tr><th><em class="mx">a</em><sup>2</sup>/2!</th><td class="d2"><em class="mx">a</em><sup>2</sup>/2!</td><td class="d3"><em class="mx">a</em><sup>2</sup><em class="my">b</em>/2!</td><td class="d4"><em class="mx">a</em><sup>2</sup><em class="my">b</em><sup>2</sup>/4</td><td></td><td></td></tr>
+        <tr><th><em class="my">b</em><sup>2</sup>/2!</th><td class="d2"><em class="my">b</em><sup>2</sup>/2!</td><td class="d3"><em class="mx">a</em><em class="my">b</em><sup>2</sup>/2!</td><td></td><td></td><td></td></tr>
+        <tr><th><em class="mx">a</em><sup>3</sup>/3!</th><td class="d3"><em class="mx">a</em><sup>3</sup>/3!</td><td class="d4"><em class="mx">a</em><sup>3</sup><em class="my">b</em>/3!</td><td></td><td></td><td></td></tr>
+        <tr><th><em class="my">b</em><sup>3</sup>/3!</th><td class="d3"><em class="my">b</em><sup>3</sup>/3!</td><td></td><td></td><td></td><td></td></tr>
+        <tr><th><em class="mx">a</em><sup>4</sup>/4!</th><td class="d4"><em class="mx">a</em><sup>4</sup>/4!</td><td></td><td></td><td></td><td></td></tr>
+        <tr><th><em class="my">b</em><sup>4</sup>/4!</th><td class="d4"><em class="my">b</em><sup>4</sup>/4!</td><td></td><td></td><td></td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>同一对角线上的每个单元格，<em class="mx">a</em> 与 <em class="my">b</em> 的幂次之和相同。把各对角线分别求和：</p>
+
+  <div class="diag-sums">
+    <div class="diag-row">
+      <span class="diag-lhs ds0">1</span>
+      <span class="diag-eq">=</span>
+      <span class="diag-mid"></span>
+      <span class="diag-eq" style="visibility:hidden">=</span>
+      <span class="diag-rhs ds0">1</span>
+    </div>
+    <div class="diag-row">
+      <span class="diag-lhs ds1"><em class="mx">a</em> + <em class="my">b</em></span>
+      <span class="diag-eq">=</span>
+      <span class="diag-mid"></span>
+      <span class="diag-eq" style="visibility:hidden">=</span>
+      <span class="diag-rhs ds1">(<em class="mx">a</em> + <em class="my">b</em>)</span>
+    </div>
+    <div class="diag-row">
+      <span class="diag-lhs ds2"><em class="mx">a</em><sup>2</sup>/2! &ensp;+&ensp; <em class="mx">a</em><em class="my">b</em> &ensp;+&ensp; <em class="my">b</em><sup>2</sup>/2!</span>
+      <span class="diag-eq">=</span>
+      <span class="diag-mid ds2">(<em class="mx">a</em><sup>2</sup> + 2<em class="mx">a</em><em class="my">b</em> + <em class="my">b</em><sup>2</sup>)/2!</span>
+      <span class="diag-eq">=</span>
+      <span class="diag-rhs ds2">(<em class="mx">a</em>+<em class="my">b</em>)<sup>2</sup>/2!</span>
+    </div>
+    <div class="diag-row">
+      <span class="diag-lhs ds3"><em class="mx">a</em><sup>3</sup>/3! &ensp;+&ensp; <em class="mx">a</em><sup>2</sup><em class="my">b</em>/2! &ensp;+&ensp; <em class="mx">a</em><em class="my">b</em><sup>2</sup>/2! &ensp;+&ensp; <em class="my">b</em><sup>3</sup>/3!</span>
+      <span class="diag-eq">=</span>
+      <span class="diag-mid ds3">(<em class="mx">a</em><sup>3</sup> + 3<em class="mx">a</em><sup>2</sup><em class="my">b</em> + 3<em class="mx">a</em><em class="my">b</em><sup>2</sup> + <em class="my">b</em><sup>3</sup>)/3!</span>
+      <span class="diag-eq">=</span>
+      <span class="diag-rhs ds3">(<em class="mx">a</em>+<em class="my">b</em>)<sup>3</sup>/3!</span>
+    </div>
+    <div class="diag-row">
+      <span class="diag-lhs ds4"><em class="mx">a</em><sup>4</sup>/4! &ensp;+&ensp; <em class="mx">a</em><sup>3</sup><em class="my">b</em>/3! &ensp;+&ensp; <em class="mx">a</em><sup>2</sup><em class="my">b</em><sup>2</sup>/4 &ensp;+&ensp; <em class="mx">a</em><em class="my">b</em><sup>3</sup>/3! &ensp;+&ensp; <em class="my">b</em><sup>4</sup>/4!</span>
+      <span class="diag-eq">=</span>
+      <span class="diag-mid ds4">(<em class="mx">a</em><sup>4</sup> + 4<em class="mx">a</em><sup>3</sup><em class="my">b</em> + 6<em class="mx">a</em><sup>2</sup><em class="my">b</em><sup>2</sup> + 4<em class="mx">a</em><em class="my">b</em><sup>3</sup> + <em class="my">b</em><sup>4</sup>)/4!</span>
+      <span class="diag-eq">=</span>
+      <span class="diag-rhs ds4">(<em class="mx">a</em>+<em class="my">b</em>)<sup>4</sup>/4!</span>
+    </div>
+    <div class="diag-row" style="color:var(--muted); font-size:.85rem;">
+      <span class="diag-lhs">···</span>
+      <span class="diag-eq">=</span>
+      <span class="diag-mid"></span>
+      <span class="diag-eq" style="visibility:hidden">=</span>
+      <span class="diag-rhs">···</span>
+    </div>
+  </div>
+
+  <p>由二项式定理，每条对角线之和等于 (<em class="mx">a</em>+<em class="my">b</em>)<sup><em class="m">n</em></sup>/<em class="m">n</em>!。将所有对角线加总：</p>
+
+  <span class="eq"><em class="mg">exp</em>(<em class="mx">a</em>) · <em class="mg">exp</em>(<em class="my">b</em>) &ensp;=&ensp;
+  1 + (<em class="mx">a</em>+<em class="my">b</em>) +
+  <span class="frac"><span class="num">(<em class="mx">a</em>+<em class="my">b</em>)²</span><span class="den">2!</span></span> +
+  <span class="frac"><span class="num">(<em class="mx">a</em>+<em class="my">b</em>)³</span><span class="den">3!</span></span> +
+  ··· &ensp;=&ensp; <em class="mg">exp</em>(<em class="mx">a</em> + <em class="my">b</em>)</span>
+
+  <p>这篇文章现在要问：<strong>如果我们给 <em class="mg">exp</em> 输入一个会<em>旋转</em>而不是缩放的数，会发生什么？</strong>要回答这个问题，需要两个新函数：cos 和 sin。</p>
+</div>
+
+<!-- ═══ §2 ════════════════════════════════════════════════════════════ -->
+<div class="section" id="s2">
+  <div class="sec-head">
+    <span class="sec-num">§ 2</span>
+    <h2>重新认识 <em class="mx">cos</em> 与 <em class="my">sin</em></h2>
+  </div>
+
+  <h3 class="subhead">第一部分 — 单位圆</h3>
+
+  <p>在代数中，平方差有标准分解：</p>
+
+  <span class="eq"><em class="mx">x</em><em class="m">² −</em> <em class="my">y</em><em class="m">² &ensp;=&ensp; (</em><em class="mx">x</em> <em class="m">+</em> <em class="my">y</em><em class="m">)(</em><em class="mx">x</em> <em class="m">−</em> <em class="my">y</em><em class="m">)</em></span>
+
+  <p>平方和 <em class="mx">x</em><em class="m">² +</em> <em class="my">y</em><em class="m">²</em> 拒绝同样的处理。但假设我们允许一个数 <em class="my">i</em>，具有唯一的定义性质：<em class="my">i</em><em class="m">² = −1</em>。称它为<em>不可见数</em>——它在普通数轴上没有位置，却遵守代数的所有通常规则。有了它，平方和就变成了变相的平方差：</p>
+
+  <span class="eq"><em class="mx">x</em><em class="m">² +</em> <em class="my">y</em><em class="m">² &ensp;=&ensp; </em><em class="mx">x</em><em class="m">² − (</em><em class="my">i</em><em class="my">y</em><em class="m">)² &ensp;=&ensp; (</em><em class="mx">x</em> <em class="m">+ </em><em class="my">i</em><em class="my">y</em><em class="m">)(</em><em class="mx">x</em> <em class="m">− </em><em class="my">i</em><em class="my">y</em><em class="m">)</em></span>
+
+  <p>一个结合了普通部分和"不可见部分"的数——如 <em class="mx">x</em> <em class="m">+ </em><em class="my">i</em><em class="my">y</em>——称为<em>复数</em>。</p>
+
+  <p>在半径为 1 的圆上放一个点，从 <em class="m">(1, 0)</em> 出发沿逆时针方向走。走过弧长 <em class="mt">θ</em> 后，它的横纵坐标就是我们命名为 <em class="mx">cos</em>(<em class="mt">θ</em>) 和 <em class="my">sin</em>(<em class="mt">θ</em>) 的两个数——这就是它们的定义。</p>
+
+  <div class="graphs" style="justify-content:center;">
+    <div class="graph-card" style="flex:0 0 340px;max-width:340px;">
+      <canvas id="cUnitDef" width="640" height="640" style="width:320px;height:320px;display:block;margin:0 auto;"></canvas>
+      <div class="controls" style="justify-content:center;">
+        <label><em class="mt">θ</em></label>
+        <input type="range" id="sDef" min="0" max="628" step="1" value="90">
+        <span class="val" id="vDef">90°</span>
+        <button class="btn" id="btnDef">▶</button>
+      </div>
+      <p class="graph-caption">红色竖线为 <em class="mx">cos</em>(<em class="mt">θ</em>)，蓝色竖线为 <em class="my">sin</em>(<em class="mt">θ</em>)，金色箭头为点 <em class="m">p</em>(<em class="mt">θ</em>)。</p>
+    </div>
+  </div>
+
+  <p>由于点始终在单位圆上，勾股定理给出：</p>
+  <span class="eq"><em class="mx">cos</em>²(<em class="mt">θ</em>) <em class="m">+</em> <em class="my">sin</em>²(<em class="mt">θ</em>) <em class="m">= 1</em></span>
+
+  <p>反方向走角度 <em class="m">−</em><em class="mt">θ</em>，点落在相同的横坐标但相反的纵坐标处。</p>
+
+  <div class="graphs" style="justify-content:center;">
+    <div class="graph-card" style="flex:0 0 340px;max-width:340px;">
+      <canvas id="cReflect" width="640" height="640" style="width:320px;height:320px;display:block;margin:0 auto;"></canvas>
+      <div class="controls" style="justify-content:center;">
+        <label><em class="mt">θ</em></label>
+        <input type="range" id="sReflect" min="0.1" max="3.04" step="0.01" value="0.9">
+        <span class="val" id="vReflect">0.90</span>
+        <button class="btn" id="btnReflect">▶</button>
+      </div>
+      <p class="graph-caption">两点的横坐标相同：<em class="mx">cos</em>(<em class="m">−</em><em class="mt">θ</em>) <em class="m">=</em> <em class="mx">cos</em>(<em class="mt">θ</em>)。纵坐标相反：<em class="my">sin</em>(<em class="m">−</em><em class="mt">θ</em>) <em class="m">= −</em><em class="my">sin</em>(<em class="mt">θ</em>)。</p>
+    </div>
+  </div>
+
+  <p>勾股恒等式是一个平方和。利用 <em class="my">i</em><em class="m">² = −1</em>，平方和可以像平方差一样分解：</p>
+
+  <span class="eq"><em class="m">(</em><em class="mx">cos</em>(<em class="mt">θ</em>) <em class="m">+ </em><em class="my">i</em> <em class="my">sin</em>(<em class="mt">θ</em>)<em class="m">) · (</em><em class="mx">cos</em>(<em class="mt">θ</em>) <em class="m">− </em><em class="my">i</em> <em class="my">sin</em>(<em class="mt">θ</em>)<em class="m">) = 1</em></span>
+
+  <p>图表已表明：<em class="mx">cos</em>(<em class="m">−</em><em class="mt">θ</em>) <em class="m">=</em> <em class="mx">cos</em>(<em class="mt">θ</em>)，<em class="my">sin</em>(<em class="m">−</em><em class="mt">θ</em>) <em class="m">= −</em><em class="my">sin</em>(<em class="mt">θ</em>)。代入第二个因子：</p>
+
+  <span class="eq"><em class="mx">cos</em>(<em class="mt">θ</em>) <em class="m">− </em><em class="my">i</em> <em class="my">sin</em>(<em class="mt">θ</em>) &ensp;=&ensp; <em class="mx">cos</em>(<em class="m">−</em><em class="mt">θ</em>) <em class="m">+ </em><em class="my">i</em> <em class="my">sin</em>(<em class="m">−</em><em class="mt">θ</em>)</span>
+
+  <p>这与第一个因子具有完全相同的形式——只是角度换成了 <em class="m">−</em><em class="mt">θ</em>。将这一模式命名，并把两个因子一并写出：</p>
+
+  <div class="eq-pair">
+    <span class="eqp-lhs"><em class="m">p</em>(<em class="m">+</em><em class="mt">θ</em>)</span>
+    <span class="eqp-eq">=</span>
+    <span><em class="mx">cos</em>(<em class="m">+</em><em class="mt">θ</em>)</span>
+    <span><em class="m">+ </em><em class="my">i</em></span>
+    <span><em class="my">sin</em>(<em class="m">+</em><em class="mt">θ</em>)</span>
+
+    <span class="eqp-lhs"><em class="m">p</em>(<em class="m">−</em><em class="mt">θ</em>)</span>
+    <span class="eqp-eq">=</span>
+    <span><em class="mx">cos</em>(<em class="m">−</em><em class="mt">θ</em>)</span>
+    <span><em class="m">+ </em><em class="my">i</em></span>
+    <span><em class="my">sin</em>(<em class="m">−</em><em class="mt">θ</em>)</span>
+  </div>
+
+  <p>两者之积即勾股恒等式：</p>
+
+  <span class="eq"><em class="m">p</em>(<em class="mt">θ</em>) <em class="m">· p(−</em><em class="mt">θ</em><em class="m">) = 1</em></span>
+
+  <h3 class="subhead">一个熟悉的性质</h3>
+
+  <p>这个"乘积等于 1"的模式在 §1 中出现过。由 <em class="mg">exp</em> 的性质：</p>
+
+  <span class="eq"><em class="mg">exp</em>(<em class="mx">t</em>) <em class="m">·</em> <em class="mg">exp</em>(<em class="m">−</em><em class="mx">t</em>) &ensp;=&ensp; <em class="mg">exp</em>(<em class="mx">t</em> <em class="m">−</em> <em class="mx">t</em>) &ensp;=&ensp; <em class="mg">exp</em>(<em class="m">0</em>) &ensp;=&ensp; <em class="m">1</em></span>
+
+  <p><em class="m">p</em> 与 <em class="mg">exp</em> 满足同一方程。<em class="m">p</em> 是否其实就是 <em class="mg">exp</em> 从不同角度看到的结果？让我们把 <em class="m">p</em>(<em class="mt">θ</em>) 展开为幂级数，一探究竟。</p>
+
+  <h3 class="subhead">第二部分 — 构造 <em class="mx">cos</em></h3>
+
+  <p>先陈述几个事实（后续系列将给出证明）：在圆上，<em class="mx">cos</em> 的变化速度是 <em class="m">−</em><em class="my">sin</em>，而 <em class="my">sin</em> 的变化速度是 <em class="mx">cos</em>。因此对 <em class="mx">cos</em> 折叠两次得到 <em class="m">−</em><em class="mx">cos</em>：函数与自身的二重折叠取反。</p>
+
+  <p>用折叠加差法构造 <em class="mx">cos</em>，但每次折叠需走两层，差值带符号翻转。每一行显示完整的双重折叠过程：v 作为小块 → 折叠一次得 y（竖线）→ y 作为小块 → 再次折叠得 x（竖线）。修复规则：新的 <em class="mg">v</em> <em class="m">= 1 −</em> <em class="my">x</em>。</p>
+
+  <div class="controls">
+    <label>小块 <em class="mt">N</em> =</label>
+    <input type="range" id="slCosN" min="4" max="40" step="1" value="12">
+    <span class="val" id="vlCosN">12</span>
+  </div>
+
+  <!-- cos construction rows — same canvas IDs as English -->
+  <div class="graphs">
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span id="hdCosN" style="font:italic 12px Georgia;"><em class="mg">v</em> <em class="m">= 1</em></span></div><canvas id="cCos1a" width="700" height="600"></canvas><p class="graph-caption">试探 <em class="mg">v</em> = 1</p></div>
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;">折叠 <em class="mg">v</em> 一次</span></div><canvas id="cCos1b" width="700" height="600"></canvas><p class="graph-caption">∫<em class="mg">v</em> 竖线</p></div>
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="m">y</em> 小块</span></div><canvas id="cCos1c" width="700" height="600"></canvas><p class="graph-caption">中间 y</p></div>
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;">再次折叠 y</span></div><canvas id="cCos1d" width="700" height="600"></canvas><p class="graph-caption">双重折叠结果 <em class="my">x</em></p></div>
+  </div>
+  <div class="fold-note"><span class="fold-from"><em class="m">+</em><em class="mt">θ</em><em class="m">²/2</em> in <em class="my">x</em>, missing from <em class="mg">v</em></span><span class="fold-arrow">↙</span><span class="fold-to">add<em class="m">−</em><em class="mt">θ</em><em class="m">²/2</em> to <em class="mg">v</em>:</span></div>
+  <div class="graphs">
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="mg">v</em> <em class="m">= 1 −</em> <em class="mt">θ</em><em class="m">²/2</em></span></div><canvas id="cCos2a" width="700" height="600"></canvas><p class="graph-caption">试探 <em class="mg">v</em></p></div>
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;">折叠 <em class="mg">v</em> 一次</span></div><canvas id="cCos2b" width="700" height="600"></canvas><p class="graph-caption">∫<em class="mg">v</em></p></div>
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="m">y</em> 小块</span></div><canvas id="cCos2c" width="700" height="600"></canvas><p class="graph-caption">中间 y</p></div>
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;">再次折叠 y</span></div><canvas id="cCos2d" width="700" height="600"></canvas><p class="graph-caption">双重折叠结果 <em class="my">x</em></p></div>
+  </div>
+  <div class="fold-note"><span class="fold-from"><em class="m">−</em><em class="mt">θ</em><em class="m">⁴/24</em> in <em class="my">x</em>, missing from <em class="mg">v</em></span><span class="fold-arrow">↙</span><span class="fold-to">add<em class="m">+</em><em class="mt">θ</em><em class="m">⁴/24</em> to <em class="mg">v</em>:</span></div>
+  <div class="graphs">
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span id="hdCosHN" style="font:italic 12px Georgia;"><em class="mg">v</em> <em class="m">= 1 −</em> <em class="mt">θ</em><em class="m">²/2 +</em> <em class="mt">θ</em><em class="m">⁴/24</em></span></div><canvas id="cCos3a" width="700" height="600"></canvas><p class="graph-caption">试探 <em class="mg">v</em>（3项）</p></div>
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;">折叠 <em class="mg">v</em> 一次</span></div><canvas id="cCos3b" width="700" height="600"></canvas><p class="graph-caption">∫<em class="mg">v</em></p></div>
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="m">y</em> 小块</span></div><canvas id="cCos3c" width="700" height="600"></canvas><p class="graph-caption">中间 y</p></div>
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;">再次折叠 y</span></div><canvas id="cCos3d" width="700" height="600"></canvas><p class="graph-caption">双重折叠结果 <em class="my">x</em></p></div>
+  </div>
+  <div class="fold-note"><span class="fold-from"><em class="m">+</em><em class="mt">θ</em><em class="m">⁶/720</em> in <em class="my">x</em>, missing from <em class="mg">v</em></span><span class="fold-arrow">↙</span><span class="fold-to">add<em class="m">−</em><em class="mt">θ</em><em class="m">⁶/720</em> to <em class="mg">v</em>:</span></div>
+  <div class="graphs">
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="mg">v</em> <em class="m">= 1 −</em> <em class="mt">θ</em><em class="m">²/2 +</em> <em class="mt">θ</em><em class="m">⁴/24 −</em> <em class="mt">θ</em><em class="m">⁶/720</em></span></div><canvas id="cCos4a" width="700" height="600"></canvas><p class="graph-caption">试探 <em class="mg">v</em>（4项）</p></div>
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;">折叠 <em class="mg">v</em> 一次</span></div><canvas id="cCos4b" width="700" height="600"></canvas><p class="graph-caption">∫<em class="mg">v</em></p></div>
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="m">y</em> 小块</span></div><canvas id="cCos4c" width="700" height="600"></canvas><p class="graph-caption">中间 y</p></div>
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;">再次折叠 y</span></div><canvas id="cCos4d" width="700" height="600"></canvas><p class="graph-caption">双重折叠结果 <em class="my">x</em></p></div>
+  </div>
+  <div class="fold-note"><span class="fold-from"><em class="m">−</em><em class="mt">θ</em><em class="m">⁸/40320</em> in <em class="my">x</em>, missing from <em class="mg">v</em></span><span class="fold-arrow">↙</span><span class="fold-to">add<em class="m">+</em><em class="mt">θ</em><em class="m">⁸/40320</em> to <em class="mg">v</em>:</span></div>
+  <div class="fold-note"><span class="fold-from"><em class="m">···</em> — <em class="mg">v</em> 收敛至 <em class="mx">cos</em></span><span class="fold-arrow">↙</span><span class="fold-to">add in:</span></div>
+
+  <p>随着修复积累，<em class="mg">v</em> 收敛至 <em class="mx">cos</em>。左图显示 <em class="mg">v</em> ≈ <em class="mx">cos</em> 作为小块，右图显示双重折叠结果 <em class="my">x</em> ≈ 1 − <em class="mx">cos</em> 作为竖线——两张图相加处处等于 1，这正是定义 <em class="mx">cos</em> 的方程 <em class="mg">v</em> = 1 − <em class="my">x</em>。</p>
+
+  <div class="graphs">
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="mg">v</em> <em class="m">≈</em> <em class="mx">cos</em>(<em class="mt">θ</em>)</span></div><canvas id="cCosLFa" width="700" height="600"></canvas><p class="graph-caption"><em class="mg">v</em> ≈ cos(θ)</p></div>
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;">折叠 <em class="mg">v</em> 一次</span></div><canvas id="cCosLFb" width="700" height="600"></canvas><p class="graph-caption">∫<em class="mg">v</em> ≈ sin(θ)</p></div>
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="m">y</em> ≈ sin(θ)</span></div><canvas id="cCosLFc" width="700" height="600"></canvas><p class="graph-caption">中间 y 小块</p></div>
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;">再次折叠 y</span></div><canvas id="cCosLFd" width="700" height="600"></canvas><p class="graph-caption">∬<em class="mg">v</em> ≈ 1 − cos(θ)，双重折叠结果 <em class="my">x</em></p></div>
+  </div>
+
+  <h3 class="subhead">第三部分 — 构造 <em class="my">sin</em></h3>
+
+  <p><em class="my">sin</em> 具有相同的"抵抗"性质：折叠两次取反得到 sin 本身。试探从 <em class="mg">v</em> = <em class="mt">θ</em> 开始（因为 sin(0)=0，零点斜率为 1）。修复规则：新的 <em class="mg">v</em> = <em class="mt">θ</em> − <em class="my">x</em>。</p>
+
+  <div class="graphs">
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="mg">v</em> <em class="m">=</em> <em class="mt">θ</em></span></div><canvas id="cSin1a" width="700" height="600"></canvas><p class="graph-caption">试探 <em class="mg">v</em> = θ</p></div>
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;">折叠 <em class="mg">v</em> 一次</span></div><canvas id="cSin1b" width="700" height="600"></canvas><p class="graph-caption">∫<em class="mg">v</em> = θ²/2</p></div>
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="m">y</em> = θ²/2</span></div><canvas id="cSin1c" width="700" height="600"></canvas><p class="graph-caption">中间 y 小块</p></div>
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;">再次折叠 y</span></div><canvas id="cSin1d" width="700" height="600"></canvas><p class="graph-caption">∫y = θ³/6，双重折叠结果 <em class="my">x</em></p></div>
+  </div>
+  <div class="fold-note"><span class="fold-from"><em class="m">+</em><em class="mt">θ</em><em class="m">³/6</em> in <em class="my">x</em>, missing from <em class="mg">v</em></span><span class="fold-arrow">↙</span><span class="fold-to">add<em class="m">−</em><em class="mt">θ</em><em class="m">³/6</em> to <em class="mg">v</em>:</span></div>
+  <div class="graphs">
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="mg">v</em> <em class="m">=</em> <em class="mt">θ</em><em class="m"> −</em> <em class="mt">θ</em><em class="m">³/6</em></span></div><canvas id="cSin2a" width="700" height="600"></canvas><p class="graph-caption">试探 <em class="mg">v</em></p></div>
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;">折叠 <em class="mg">v</em> 一次</span></div><canvas id="cSin2b" width="700" height="600"></canvas><p class="graph-caption">∫<em class="mg">v</em></p></div>
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="m">y</em> 小块</span></div><canvas id="cSin2c" width="700" height="600"></canvas><p class="graph-caption">中间 y</p></div>
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;">再次折叠 y</span></div><canvas id="cSin2d" width="700" height="600"></canvas><p class="graph-caption">双重折叠结果 <em class="my">x</em></p></div>
+  </div>
+  <div class="fold-note"><span class="fold-from"><em class="m">−</em><em class="mt">θ</em><em class="m">⁵/120</em> in <em class="my">x</em>, missing from <em class="mg">v</em></span><span class="fold-arrow">↙</span><span class="fold-to">add<em class="m">+</em><em class="mt">θ</em><em class="m">⁵/120</em> to <em class="mg">v</em>:</span></div>
+  <div class="graphs">
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span id="hdSinImN" style="font:italic 12px Georgia;"><em class="mg">v</em> <em class="m">=</em> <em class="mt">θ</em><em class="m"> −</em> <em class="mt">θ</em><em class="m">³/6 +</em> <em class="mt">θ</em><em class="m">⁵/120</em></span></div><canvas id="cSin3a" width="700" height="600"></canvas><p class="graph-caption">试探 <em class="mg">v</em>（3项）</p></div>
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;">折叠 <em class="mg">v</em> 一次</span></div><canvas id="cSin3b" width="700" height="600"></canvas><p class="graph-caption">∫<em class="mg">v</em></p></div>
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="m">y</em> 小块</span></div><canvas id="cSin3c" width="700" height="600"></canvas><p class="graph-caption">中间 y</p></div>
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;">再次折叠 y</span></div><canvas id="cSin3d" width="700" height="600"></canvas><p class="graph-caption">双重折叠结果 <em class="my">x</em></p></div>
+  </div>
+  <div class="fold-note"><span class="fold-from"><em class="m">···</em> — <em class="mg">v</em> 收敛至 <em class="my">sin</em></span><span class="fold-arrow">↙</span><span class="fold-to">add in:</span></div>
+
+  <p>随着修复积累，<em class="mg">v</em> 收敛至 <em class="my">sin</em>。左图显示 <em class="mg">v</em> <em class="m">≈</em> <em class="my">sin</em> 作为小块，右图显示双重折叠结果 <em class="my">x</em> <em class="m">≈</em> <em class="mt">θ</em> <em class="m">−</em> <em class="my">sin</em> 作为竖线。两张图在每一点相加等于 <em class="mt">θ</em>——这正是定义方程：<em class="mg">v</em> <em class="m">=</em> <em class="mt">θ</em> <em class="m">−</em> <em class="my">x</em>。</p>
+
+  <div class="graphs">
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="mg">v</em> ≈ sin(θ)</span></div><canvas id="cSinLFa" width="700" height="600"></canvas><p class="graph-caption"><em class="mg">v</em> ≈ sin(θ)</p></div>
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;">折叠 <em class="mg">v</em> 一次</span></div><canvas id="cSinLFb" width="700" height="600"></canvas><p class="graph-caption">∫<em class="mg">v</em> ≈ 1 − cos(θ)</p></div>
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="m">y</em> ≈ 1 − cos(θ)</span></div><canvas id="cSinLFc" width="700" height="600"></canvas><p class="graph-caption">中间 y 小块</p></div>
+    <div class="graph-card" style="min-width:0;flex:1;"><div class="graph-card-head"><span style="font:italic 12px Georgia;">再次折叠 y</span></div><canvas id="cSinLFd" width="700" height="600"></canvas><p class="graph-caption">∬<em class="mg">v</em> ≈ θ − sin(θ)，双重折叠结果 <em class="my">x</em></p></div>
+  </div>
+
+  <p>随着项数积累，两个近似都锁定了各自的目标。</p>
+</div>
+
+<!-- ═══ §3 ════════════════════════════════════════════════════════════ -->
+<div class="section" id="s3">
+  <div class="sec-head">
+    <span class="sec-num">§ 3</span>
+    <h2><em class="mtau">τ</em>、<em class="my">i</em> 与 <em class="mg">e</em> 的 Tie</h2>
+  </div>
+
+  <p>在对比之前，先说明记号。把 <em class="mx">t</em><em class="m"> = 1</em> 代入级数，求和约为 <em class="m">2.718…</em>——这个数就是 <strong><em class="mg">e</em></strong>。乘法性质 <em class="mg">exp</em>(<em class="mx">a</em>+<em class="mx">b</em>) = <em class="mg">exp</em>(<em class="mx">a</em>) · <em class="mg">exp</em>(<em class="mx">b</em>) 与 <em class="mg">e</em><sup><em class="mx">a</em></sup> · <em class="mg">e</em><sup><em class="mx">b</em></sup> = <em class="mg">e</em><sup><em class="mx">a</em>+<em class="mx">b</em></sup> 完全吻合，故 <em class="mg">exp</em>(<em class="mx">t</em>) <em class="m">= </em><em class="mg">e</em><sup><em class="mx">t</em></sup>。</p>
+
+  <p>对于复数输入，普通算术对"e 的虚数次幂"没有定义。<em class="mg">e</em><sup><em class="my">i</em><em class="mt">θ</em></sup> 是 <em class="mg">exp</em>(<em class="my">i</em><em class="mt">θ</em>) 的简写——级数代入虚数参数。这是严格的定义。</p>
+
+  <p>三个函数各有一个幂级数。并排放置，联系便清晰可见：</p>
+
+  <div style="margin:1.6rem 0; text-align:center;">
+  <table style="font-style:italic; font-family:Georgia,'Times New Roman',serif; font-size:1.3rem; border-collapse:separate; border-spacing:0; margin:0 auto; white-space:nowrap; line-height:2.4; color:#c4c4dc;">
+    <tr>
+      <td style="text-align:right; padding-right:0.6em;"><em class="mg">exp</em>(<em class="mx">t</em>)</td><td style="padding:0 0.3em;">=</td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="m">1</em></td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="m">+</em> <em class="mx">t</em></td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="m">+</em> <span class="frac"><span class="num"><em class="mx">t</em>²</span><span class="den">2!</span></span></td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="m">+</em> <span class="frac"><span class="num"><em class="mx">t</em>³</span><span class="den">3!</span></span></td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="m">+</em> <span class="frac"><span class="num"><em class="mx">t</em>⁴</span><span class="den">4!</span></span></td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="m">+</em> <span class="frac"><span class="num"><em class="mx">t</em>⁵</span><span class="den">5!</span></span></td>
+      <td style="padding:0 0.5em;"><em class="m">+ ···</em></td>
+    </tr>
+    <tr>
+      <td style="text-align:right; padding-right:0.6em;"><em class="mx">cos</em>(<em class="mt">θ</em>)</td><td style="padding:0 0.3em;">=</td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="m">1</em></td><td></td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="m">−</em> <span class="frac"><span class="num"><em class="mt">θ</em>²</span><span class="den">2!</span></span></td><td></td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="m">+</em> <span class="frac"><span class="num"><em class="mt">θ</em>⁴</span><span class="den">4!</span></span></td><td></td>
+      <td style="padding:0 0.5em;"><em class="m">+ ···</em></td>
+    </tr>
+    <tr>
+      <td style="text-align:right; padding-right:0.6em;"><em class="my">sin</em>(<em class="mt">θ</em>)</td><td style="padding:0 0.3em;">=</td>
+      <td></td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="mt">θ</em></td><td></td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="m">−</em> <span class="frac"><span class="num"><em class="mt">θ</em>³</span><span class="den">3!</span></span></td><td></td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="m">+</em> <span class="frac"><span class="num"><em class="mt">θ</em>⁵</span><span class="den">5!</span></span></td>
+      <td style="padding:0 0.5em;"><em class="m">+ ···</em></td>
+    </tr>
+    <tr><td colspan="9" style="font-style:normal; font-size:0.85rem; color:#8888a8; border-top:1px solid rgba(136,136,168,0.25); padding:1.8em 0 0.3em; text-align:center;">令 <em class="mx">t</em> = <em class="my">i</em><em class="mt">θ</em></td></tr>
+    <tr><td colspan="9" style="font-style:normal; font-size:0.82rem; color:#8888a8; padding:0.1em 0; text-align:center;"><em class="my">i</em><em class="m"><sup>k</sup></em> =</td></tr>
+    <tr style="color:#8888a8; line-height:1.8;">
+      <td style="text-align:right; padding-right:0.6em; font-style:normal; font-size:0.82rem;"><em class="my">i</em><em class="m"><sup>k</sup></em></td><td style="padding:0 0.3em; font-style:normal; font-size:0.82rem;">=</td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="my">i</em><em class="m">⁰ = 1</em></td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="my">i</em><em class="m">¹ = </em><em class="my">i</em></td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="my">i</em><em class="m">² = −1</em></td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="my">i</em><em class="m">³ = −</em><em class="my">i</em></td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="my">i</em><em class="m">⁴ = 1</em></td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="my">i</em><em class="m">⁵ = </em><em class="my">i</em></td>
+      <td style="padding:0 0.5em;"><em class="m">···</em></td>
+    </tr>
+    <tr>
+      <td style="text-align:right; padding-right:0.6em;"><em class="mg">exp</em>(<em class="my">i</em><em class="mt">θ</em>)</td><td style="padding:0 0.3em;">=</td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="m">1</em></td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="m">+ </em><em class="my">i</em><em class="mt">θ</em></td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="m">−</em> <span class="frac"><span class="num"><em class="mt">θ</em>²</span><span class="den">2!</span></span></td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="m">− </em><em class="my">i</em><span class="frac"><span class="num"><em class="mt">θ</em>³</span><span class="den">3!</span></span></td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="m">+</em> <span class="frac"><span class="num"><em class="mt">θ</em>⁴</span><span class="den">4!</span></span></td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="m">+ </em><em class="my">i</em><span class="frac"><span class="num"><em class="mt">θ</em>⁵</span><span class="den">5!</span></span></td>
+      <td style="padding:0 0.5em;"><em class="m">+ ···</em></td>
+    </tr>
+    <tr><td colspan="9" style="font-style:normal; font-size:0.82rem; color:#8888a8; border-top:1px solid rgba(136,136,168,0.25); padding:1.8em 0 0.3em; text-align:center;">仅偶数列——将符号换成 i 幂次：1 → i⁰, i⁴, … &ensp;·&ensp; −1 → i², i⁶, …</td></tr>
+    <tr>
+      <td style="text-align:right; padding-right:0.6em;"><em class="mx">cos</em>(<em class="mt">θ</em>)</td><td style="padding:0 0.3em;">=</td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="my">i</em><em class="m">⁰</em></td><td></td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="m">+ </em><em class="my">i</em><em class="m">²</em><span class="frac"><span class="num"><em class="mt">θ</em>²</span><span class="den">2!</span></span></td><td></td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="m">+ </em><em class="my">i</em><em class="m">⁴</em><span class="frac"><span class="num"><em class="mt">θ</em>⁴</span><span class="den">4!</span></span></td><td></td>
+      <td style="padding:0 0.5em;"><em class="m">+ ···</em></td>
+    </tr>
+    <tr><td colspan="9" style="font-style:normal; font-size:0.82rem; color:#8888a8; padding:0.2em 0; text-align:center;">乘以 <em class="my">i</em>：i → i¹, i⁵, … &ensp;·&ensp; −i → i³, i⁷, …</td></tr>
+    <tr>
+      <td style="text-align:right; padding-right:0.6em;"><em class="my">i</em> <em class="my">sin</em>(<em class="mt">θ</em>)</td><td style="padding:0 0.3em;">=</td>
+      <td></td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="my">i</em><em class="m">¹</em><em class="mt">θ</em></td><td></td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="m">+ </em><em class="my">i</em><em class="m">³</em><span class="frac"><span class="num"><em class="mt">θ</em>³</span><span class="den">3!</span></span></td><td></td>
+      <td style="text-align:center; padding:0 0.5em;"><em class="m">+ </em><em class="my">i</em><em class="m">⁵</em><span class="frac"><span class="num"><em class="mt">θ</em>⁵</span><span class="den">5!</span></span></td>
+      <td style="padding:0 0.5em;"><em class="m">+ ···</em></td>
+    </tr>
+  </table>
+  </div>
+
+  <p>按列读下来：<em class="mx">cos</em> 收集 <em class="mg">exp</em> 中所有偶次项。这些列中的 <em class="my">i</em> 幂次（<em class="my">i</em><em class="m">⁰ = 1, </em><em class="my">i</em><em class="m">² = −1, </em><em class="my">i</em><em class="m">⁴ = 1, …</em>）是实数且交替变号——恰好是 <em class="mx">cos</em> 级数的符号。<em class="my">sin</em> 收集奇次项。那些列的 <em class="my">i</em> 幂次（<em class="my">i</em><em class="m">¹ = </em><em class="my">i</em><em class="m">, </em><em class="my">i</em><em class="m">³ = −</em><em class="my">i</em><em class="m">, </em><em class="my">i</em><em class="m">⁵ = </em><em class="my">i</em><em class="m">, …</em>）是虚数且交替变号——即 <em class="my">sin</em> 级数的符号，每项携带一个 <em class="my">i</em> 因子。</p>
+
+  <p>把两行相加。每一项形如 <em class="my">i</em><em class="m"><sup>k</sup></em><em class="mt">θ</em><em class="m"><sup>k</sup>/k! = (</em><em class="my">i</em><em class="mt">θ</em><em class="m">)<sup>k</sup>/k!</em>——与 <em class="mg">exp</em> 级数完全相同，只是以 <em class="my">i</em><em class="mt">θ</em> 代替 <em class="mx">t</em>。这就是<strong>欧拉公式</strong>：</p>
+
+  <span class="eq" style="font-size:1.3rem; padding:28px 0;"><em class="mg">exp</em>(<em class="my">i</em><em class="mt">θ</em>) &ensp;=&ensp; <em class="mx">cos</em>(<em class="mt">θ</em>) <em class="m">+ </em><em class="my">i</em> <em class="my">sin</em>(<em class="mt">θ</em>)</span>
+
+  <p>§1 中无限增长的指数函数，输入一个"不可见的"参数后，被驯服到单位圆上，永远旋转。当 <em class="mt">θ</em> <em class="m">= </em><em class="mtau">τ</em>（整整一圈）时，点回到了出发点：</p>
+
+  <span class="eq"><em class="mg">exp</em>(<em class="my">i</em><em class="mtau">τ</em>) &ensp;=&ensp; <em class="m">1</em></span>
+
+  <p>此外，对任意整数 <em class="m">k</em>：<em class="mg">exp</em>(<em class="my">i</em><em class="m"> · k · </em><em class="mtau">τ</em>) <em class="m">= 1</em>——每多一个 <em class="mtau">τ</em> 就多转一整圈，始终落回 1。</p>
+
+  <!-- Four-chart breakdown -->
+  <p><em class="m">N</em> 是从幂级数中取出的项数。<em class="m">N = 1</em> 时只有常数项；每增加一项，逼近就更精确一步。图表标题会随之更新，显示当前包含哪些项。按 ▶ 观看曲线收敛，或拖动 <em class="mt">θ</em> 在四张图上同步查看当前值。</p>
+
+  <div style="text-align:center; margin:1rem 0;">
+    <div class="controls" style="display:inline-block; margin-right:2em;">
+      <button id="btnSeriesN" style="background:#1a1a3a;border:1px solid #444;color:#c4c4dc;padding:2px 8px;cursor:pointer;border-radius:3px;font-size:0.85rem;">▶</button>
+      <label>幂次上限 <em class="m">N</em></label>
+      <input type="range" id="sSeriesN" min="1" max="20" step="1" value="4">
+      <span class="val" id="vSeriesN">4</span>
+    </div>
+    <div class="controls" style="display:inline-block;">
+      <button id="btnSeriesTheta" style="background:#1a1a3a;border:1px solid #444;color:#c4c4dc;padding:2px 8px;cursor:pointer;border-radius:3px;font-size:0.85rem;">▶</button>
+      <label><em class="mt">θ</em></label>
+      <input type="range" id="sSeriesTheta" min="0" max="628" step="1" value="0">
+      <span class="val" id="vSeriesTheta">0°</span>
+    </div>
+  </div>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; max-width:720px; margin:0 auto;">
+    <div class="graph-card">
+      <div class="graph-card-head"><span id="hdCosN2" style="font:italic 12px Georgia;"><em class="mx">cos</em>(<em class="mt">θ</em>)</span></div>
+      <canvas id="cSinConv" width="640" height="640" style="width:100%;display:block;"></canvas>
+      <p class="graph-caption" id="vSinTerms">偶数项</p>
+    </div>
+    <div class="graph-card">
+      <div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="mx">cos</em>(<em class="mt">θ</em>): Re 轴</span></div>
+      <canvas id="cCosConv" width="640" height="640" style="width:100%;display:block;"></canvas>
+      <p class="graph-caption" id="vCosTerms">偶数项（Re 轴）</p>
+    </div>
+    <div class="graph-card">
+      <div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="my">sin</em>(<em class="mt">θ</em>): Im 轴</span></div>
+      <canvas id="cISinConv" width="640" height="640" style="width:100%;display:block;"></canvas>
+      <p class="graph-caption" id="vISinTerms">奇数项（Im 轴）</p>
+    </div>
+    <div class="graph-card">
+      <div class="graph-card-head"><span style="font:italic 12px Georgia;"><em class="mg">exp</em>(<em class="my">i</em><em class="mt">θ</em>) = <em class="mx">cos</em>(<em class="mt">θ</em>) + i <em class="my">sin</em>(<em class="mt">θ</em>)</span></div>
+      <canvas id="cSeriesConv" width="640" height="640" style="width:100%;display:block;"></canvas>
+      <p class="graph-caption" id="vCombTerms">全部项——螺旋收敛至单位圆</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ §4 ════════════════════════════════════════════════════════════ -->
+<div class="section" id="s4">
+  <div class="sec-head">
+    <span class="sec-num">§ 4</span>
+    <h2>这意味着什么——以及为何是 <em class="mtau">τ</em></h2>
+  </div>
+
+  <h3 class="subhead">第一部分 — 等式的应用</h3>
+
+  <p>旋转箭头的图像遍布现代科学与工程。以下四个领域：</p>
+
+  <p><strong>交流电路。</strong>正弦电压是旋转箭头 <em class="mg">exp</em>(iω<em class="mx">t</em>) 的实部（水平投影）。电阻、电容、电感各自只需用一个复数因子来缩放或旋转箭头。微分方程变成了乘法。</p>
+  <span class="eq"><em class="m">V₀ cos(ω</em><em class="mx">t</em><em class="m">) = Re[V₀ ·</em> <em class="mg">exp</em><em class="m">(</em><em class="my">i</em><em class="m">ω</em><em class="mx">t</em><em class="m">)]</em></span>
+
+  <p><strong>傅里叶分析。</strong>任何信号都是旋转箭头之和，每个频率一支。不同频率的箭头在完整周期内自动相消——它们彼此"听不见"，让电话、Wi-Fi 和广播得以共享同一空气。</p>
+  <span class="eq"><em class="m">f(</em><em class="mx">t</em><em class="m">) = Σ c<sub>n</sub> ·</em> <em class="mg">exp</em><em class="m">(</em><em class="my">i</em><em class="m">nω</em><em class="mx">t</em><em class="m">)</em></span>
+
+  <p><strong>量子力学。</strong>能量为 <em class="m">E</em> 的粒子携带一个隐藏的旋转箭头，转速由其能量决定。概率（箭头长度的平方）不受旋转影响，但当两条路径相遇时，方向相同的箭头相加，方向相反的相消。双缝干涉就是两支箭头做算术。</p>
+  <span class="eq"><em class="m">ψ(</em><em class="mx">t</em><em class="m">) =</em> <em class="mg">exp</em><em class="m">(−</em><em class="my">i</em><em class="m">E</em><em class="mx">t</em><em class="m">/ℏ) · ψ₀</em></span>
+
+  <p><strong>电磁波。</strong>光、无线电波、X 射线——所有这些都是在空间和时间中运动的旋转箭头。物理场是实部。当两列波相遇，箭头相加：方向相同得亮纹，方向相反得暗纹。干涉条纹、衍射光栅、肥皂泡的颜色——都是箭头算术。</p>
+  <span class="eq"><em class="m">E =</em> <em class="mg">exp</em><em class="m">(</em><em class="my">i</em><em class="m">(k</em><em class="mx">x</em><em class="m"> − ω</em><em class="mx">t</em><em class="m">))</em></span>
+
+  <h3 class="subhead">第二部分 — 整圆与半圆</h3>
+
+  <div class="callout">
+    <p><strong>关于记号 <em class="mg">e</em><sup><em class="my">i</em><em class="mt">θ</em></sup> 的说明。</strong>级数在 <em class="mx">t</em><em class="m"> = 1</em> 处的求和为 <em class="m">1 + 1 + ½ + ⅙ + ··· ≈ 2.718…</em>，即数 <strong><em class="mg">e</em></strong>。乘法性质 <em class="mg">exp</em>(<em class="mx">a</em><em class="m">+</em><em class="mx">b</em>) <em class="m">=</em> <em class="mg">exp</em>(<em class="mx">a</em>) <em class="m">·</em> <em class="mg">exp</em>(<em class="mx">b</em>) 与实数的 <em class="mg">e</em><sup><em class="mx">a</em></sup><em class="m"> · </em><em class="mg">e</em><sup><em class="mx">b</em></sup><em class="m"> = </em><em class="mg">e</em><sup><em class="mx">a</em><em class="m">+</em><em class="mx">b</em></sup> 完全吻合，故对所有实数 <em class="mx">t</em>，<em class="mg">exp</em>(<em class="mx">t</em>) <em class="m">= </em><em class="mg">e</em><sup><em class="mx">t</em></sup>。</p>
+    <p>对复数输入，普通算术对"将一个数提升到虚数次幂"没有规则。<em class="mg">e</em><sup><em class="my">i</em><em class="mt">θ</em></sup> 是<strong>借用实数情形的记号</strong>——意思是 <em class="mg">exp</em>(<em class="my">i</em><em class="mt">θ</em>)，即级数在虚数参数处的取值。仅此而已。</p>
+  </div>
+
+  <div class="graphs">
+    <div class="graph-card">
+      <div class="graph-card-head"><span style="font:italic 13px Georgia; color:#e84040;">θ = π — 半圈</span></div>
+      <canvas id="cHalfCircle" width="640" height="640" style="width:100%;display:block;"></canvas>
+      <p class="graph-caption" style="font-size:1.05rem; text-align:center;"><em class="mg">e</em><sup><em class="my">i</em><em class="m">π</em></sup> <em class="m">= −1</em> — 影片定格在半途，移项得 <em class="mg">e</em><sup><em class="my">i</em><em class="m">π</em></sup><em class="m"> + 1 = 0</em></p>
+    </div>
+    <div class="graph-card">
+      <div class="graph-card-head"><span style="font:italic 13px Georgia; color:#f4c830;">θ = τ — 整圈</span></div>
+      <canvas id="cFullCircle" width="640" height="640" style="width:100%;display:block;"></canvas>
+      <p class="graph-caption" style="font-size:1.05rem; text-align:center;"><em class="mg">e</em><sup><em class="my">i</em><em class="mtau">τ</em></sup> <em class="m">= 1</em> — 转满整圈，回到起点。无需任何补充。</p>
+    </div>
+  </div>
+
+  <p>对任意整数 <em class="m">k</em>，<em class="mg">exp</em>(<em class="my">i</em><em class="m"> · k · </em><em class="mtau">τ</em>) <em class="m">= 1</em>——每多一个 <em class="mtau">τ</em> 多转一圈，始终落回 1。<em class="mtau">τ</em> 的等式对所有整数均成立；π 的等式只对奇数 <em class="m">k</em> 成立。</p>
+
+  <h3 class="subhead">第三部分 — 我们为何习惯于 <em class="m">π</em></h3>
+
+  <p>现代没有人再用直径来测量圆。每一个涉及圆的现代公式都用<em>半径</em>。<em class="mtau">τ</em>（周长与半径之比）才是这些公式的自然常数。我们继承的 <em class="m">π</em>（周长与<em>直径</em>之比）来自古代几何学家——他们用绳子横放量直径，不绕圆量周长。</p>
+
+  <p>欧拉时代，希腊字母像今天的 x、y 一样被用作通用变量，没有固定含义。欧拉的《无穷分析引论》（1748）恰好用 <em class="m">π</em> 表示周长与直径之比，数学界随之效仿。这并非深思熟虑的选择，只是一本著名教科书凝固了约定。<em class="mtau">τ</em> 姗姗来迟，发现领域已被占据。在自然性上，<em class="mtau">τ</em> 几乎总是更简洁或更直觉：它就是完整的圆，而不是圆的一半。（参见：Hartl，《Tau 宣言》。）</p>
+
+  <p>这一历史偶然在每处都带来一个多余的因子 2：</p>
+
+  <div style="overflow-x:auto; margin:1.2rem 0;">
+  <table style="margin:0 auto; border-collapse:collapse; font-style:italic; font-family:Georgia,serif; color:#c4c4dc;">
+    <thead><tr>
+      <th style="padding:0.4em 1.2em; text-align:left; color:#8888a8; font-weight:normal; border-bottom:1px solid #333;">公式</th>
+      <th style="padding:0.4em 1.2em; text-align:center; color:#8888a8; font-weight:normal; border-bottom:1px solid #333;">用 <em class="m">π</em></th>
+      <th style="padding:0.4em 1.2em; text-align:center; color:#f4c830; font-weight:normal; border-bottom:1px solid #333;">用 <em class="mtau">τ</em></th>
+    </tr></thead>
+    <tbody>
+      <tr><td style="padding:0.3em 1.2em;">圆的周长</td><td style="padding:0.3em 1.2em; text-align:center;"><em class="m">2πr</em></td><td style="padding:0.3em 1.2em; text-align:center;"><em class="mtau">τ</em><em class="m">r</em></td></tr>
+      <tr style="background:rgba(255,255,255,.03);"><td style="padding:0.3em 1.2em;">一整圈（弧度）</td><td style="padding:0.3em 1.2em; text-align:center;"><em class="m">2π</em></td><td style="padding:0.3em 1.2em; text-align:center;"><em class="mtau">τ</em></td></tr>
+      <tr><td style="padding:0.3em 1.2em;">单摆周期</td><td style="padding:0.3em 1.2em; text-align:center;"><em class="m">2π√(L/g)</em></td><td style="padding:0.3em 1.2em; text-align:center;"><em class="mtau">τ</em><em class="m">√(L/g)</em></td></tr>
+      <tr style="background:rgba(255,255,255,.03);"><td style="padding:0.3em 1.2em;">傅里叶核</td><td style="padding:0.3em 1.2em; text-align:center;"><em class="mg">e</em><sup><em class="m">2π</em><em class="my">i</em><em class="m">ft</em></sup></td><td style="padding:0.3em 1.2em; text-align:center;"><em class="mg">e</em><sup><em class="my">i</em><em class="mtau">τ</em><em class="m">ft</em></sup></td></tr>
+      <tr><td style="padding:0.3em 1.2em;">高斯归一化</td><td style="padding:0.3em 1.2em; text-align:center;"><em class="m">1/√(2π)</em></td><td style="padding:0.3em 1.2em; text-align:center;"><em class="m">1/√</em><em class="mtau">τ</em></td></tr>
+      <tr style="background:rgba(255,255,255,.03);"><td style="padding:0.3em 1.2em;">欧拉公式（整圈）</td><td style="padding:0.3em 1.2em; text-align:center;"><em class="mg">e</em><sup><em class="m">2π</em><em class="my">i</em></sup><em class="m"> = 1</em></td><td style="padding:0.3em 1.2em; text-align:center;"><em class="mg">e</em><sup><em class="my">i</em><em class="mtau">τ</em></sup> <em class="m">= 1</em></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3 class="subhead">第四部分 — 审美问题</h3>
+
+  <p><em class="mg">e</em><sup><em class="my">i</em><em class="m">π</em></sup><em class="m"> + 1 = 0</em> 包含五个基本常数 <em class="m">0, 1, </em><em class="mg">e</em><em class="m">, </em><em class="my">i</em><em class="m">, π</em>。但 0 和 1 是语法性的——任何等式都能被改写成含这两者的形式。<em class="mg">e</em><sup><em class="my">i</em><em class="mtau">τ</em></sup> <em class="m">= 1</em> 已经含有 1；改写为减法同样得到五个常数，同一个把戏。</p>
+
+  <div class="callout">
+    <p><em class="mg">e</em><sup><em class="my">i</em><em class="mtau">τ</em></sup> <em class="m">= 1</em> 已含 <em class="m">1</em>。改写为 <em class="mg">e</em><sup><em class="my">i</em><em class="mtau">τ</em></sup> <em class="m">− 1 = 0</em> 得 <em class="m">{0, 1, </em><em class="mg">e</em><em class="m">, </em><em class="my">i</em><em class="m">, </em><em class="mtau">τ</em><em class="m">}</em>——五个常数，同一个把戏。</p>
+  </div>
+
+  <p><em class="mg">e</em><sup><em class="my">i</em><em class="m">π</em></sup><em class="m"> + 1 = 0</em> 的实质是三个陈述粘合：走半圈、到达 −1、加 1、到达 0。<em class="mg">e</em><sup><em class="my">i</em><em class="mtau">τ</em></sup> <em class="m">= 1</em> 是一个内容：转满整圈，回到起点。并排比较：</p>
+
+  <div style="display:flex; gap:2rem; justify-content:center; align-items:center; margin:1.5rem 0; flex-wrap:wrap;">
+    <div style="text-align:center;">
+      <span style="color:#8888a8; font-size:0.8rem; display:block; margin-bottom:0.3em;">三步合并</span>
+      <span class="eq" style="font-size:1.4rem;"><em class="mg">e</em><sup><em class="my">i</em>π</sup> + 1 = 0</span>
+    </div>
+    <div style="font-size:1.5rem; color:#555;">对</div>
+    <div style="text-align:center;">
+      <span style="color:#f4c830; font-size:0.8rem; display:block; margin-bottom:0.3em;">一个内容</span>
+      <span class="eq" style="font-size:1.4rem;"><em class="mg">e</em><sup><em class="my">i</em><em class="mtau">τ</em></sup> = 1</span>
+    </div>
+  </div>
+
+  <p>一个内容比三个更优雅。而且它的推广更干净：在指数上加任意整数 <em class="m">k</em>，等式仍然成立——</p>
+
+  <span class="eq"><em class="mg">exp</em>(<em class="my">i</em><em class="m"> · k · </em><em class="mtau">τ</em>) <em class="m">= 1</em> &ensp; 对任意整数 <em class="m">k</em></span>
+
+  <p>因为每多一个 <em class="mtau">τ</em> 就多转整整一圈，始终落回 1。π 的版本做不到这一点：<em class="mg">e</em><sup><em class="my">i</em><em class="m">kπ</em></sup><em class="m"> + 1 = 0</em> 只对<em>奇数</em> <em class="m">k</em> 成立——<em class="m">k</em> 为偶数时，点落在 <em class="m">+1</em> 而非 <em class="m">−1</em>，等式不成立。τ 的恒等式对所有整数都成立；π 的恒等式只对其中一半成立。</p>
+
+  <p style="text-align:center; font-style:italic; margin:2rem 0 0; color:var(--muted);">如果 <em class="mg">e</em><sup><em class="my">i</em><em class="m">π</em></sup><em class="m"> + 1 = 0</em> 值得印在你的 T 恤上，那它属于<em>背面</em>——只走了半圈。<em>正面</em>，属于 <em class="mg">e</em><sup><em class="my">i</em><em class="mtau">τ</em></sup> <em class="m">= 1</em>。</p>
+</div>
+
+<!-- ═══ 尾声 ══════════════════════════════════════════════════════════ -->
+<div class="section" id="epilogue" style="margin-top: 64px;">
+  <p style="text-align:center; font-style:italic; color: var(--cyan); font-size:1.1rem; max-width: 720px; margin: 0 auto 18px;">
+    这是本站的两条定律。下一篇文章把圆藏在 <em class="m">√π</em> 里——然后揭示它其实一直是 <em class="mtau">√τ</em>。
+  </p>
+  <p style="text-align:center; color: var(--muted); font-size: .95rem; max-width: 720px; margin: 0 auto;">
+    <span style="color: var(--gold); font-style: italic; display:block; margin-bottom:0.5em;">
+      定律一：凡见 <em class="m">π</em>，<em class="mtau">τ</em> 更自然——<em class="m">π</em> 始终只是半个圆。
+    </span>
+    <span style="color: var(--gold); font-style: italic; display:block; margin-bottom:0.8em;">
+      定律二：凡等式中出现 <em style="font-weight: 600;" class="mtau">τ</em>，必有圆形浮现。
+    </span>
+    <a href="../gaussian/index_zh.html" style="color: var(--cyan); border-bottom: 1px dotted rgba(64,200,240,.5);">
+      继续阅读：高斯积分的自然推导 →
+    </a>
+  </p>
+</div>
+
+<div class="home-btn-wrap">
+  <a href="/index_zh.html" class="home-btn">← 返回 MathTau</a>
+</div>
+
+</main>
+
+<footer>
+  <p>© 2026 MathTau。本文采用
+    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="license">知识共享 署名 4.0 国际许可（CC BY 4.0）</a>。
+    页面上的文字、插图与源代码均属于本作品，遵循同一许可。</p>
+  <p><strong>欢迎转载与翻译。</strong>请保留此署名并链接回标准 URL —— <a href="https://mathtau.com/euler/">mathtau.com/euler</a> —— 以便读者找到最新版本。</p>
+  <p class="cite"><strong>引用方式：</strong>MathTau (2026)。《完整优雅的欧拉公式》。https://mathtau.com/euler/</p>
+  <p class="footer-meta">
+    <a href="https://github.com/mathtau/NatPhil">在 GitHub 查看源码</a> &nbsp;·&nbsp;
+    <a href="https://github.com/mathtau/NatPhil/issues">报告错误或提问</a> &nbsp;·&nbsp;
+    联系 <a href="mailto:tau@mathtau.com">tau@mathtau.com</a>
+  </p>
+</footer>
+
+<!-- ═══ JavaScript — 与英文版完全相同 ════════════════════════════════ -->
+<!-- NOTE: The script block below is identical to euler/index.html.
+     All canvas IDs in this file match the English version so the
+     same drawing code works without modification. -->
+<script>
+'use strict';
+
+// ── Shared palette, color helper, and Plot class ───────────────────────
+
+const C = {
+  bg: '#0a0a1c', grid: '#18183a', axis: '#38385a', border: '#22224a',
+  text: '#8888a8', gold: '#f4c830', cyan: '#40c8f0', green: '#50d890', blue: '#40c8f0', red: '#e84040',
+};
+
+function blockColor(k, N, a) {
+  return `hsla(${Math.round((k / Math.max(N - 1, 1)) * 270)},85%,65%,${a})`;
+}
+
+class Plot {
+    constructor(id, xMin, xMax, yMin, yMax) {
+      this.canvas = document.getElementById(id);
+      this.lw = this.canvas.width  / 2;
+      this.lh = this.canvas.height / 2;
+      this.ctx = this.canvas.getContext('2d');
+      this.ctx.setTransform(2, 0, 0, 2, 0, 0);
+      this.xMin = xMin; this.xMax = xMax;
+      this.yMin = yMin; this.yMax = yMax;
+      this.pad = { t: 28, r: 28, b: 48, l: 56 };
+      this.pw = this.lw - this.pad.l - this.pad.r;
+      this.ph = this.lh - this.pad.t - this.pad.b;
+    }
+    px(x, y) {
+      return [
+        this.pad.l + (x - this.xMin) / (this.xMax - this.xMin) * this.pw,
+        this.pad.t + (1 - (y - this.yMin) / (this.yMax - this.yMin)) * this.ph,
+      ];
+    }
+    clear() {
+      const { ctx, lw, lh, pad, pw, ph } = this;
+      ctx.clearRect(0, 0, lw, lh);
+      ctx.fillStyle = C.bg;
+      ctx.fillRect(pad.l, pad.t, pw, ph);
+      this._grid();
+    }
+    _nicestep(lo, hi, n = 5) {
+      const r = hi - lo, rough = r / n;
+      const mag = Math.pow(10, Math.floor(Math.log10(rough)));
+      const k = rough / mag;
+      return (k <= 1 ? 1 : k <= 2 ? 2 : k <= 5 ? 5 : 10) * mag;
+    }
+    _grid() {
+      const { ctx, pad, pw, ph, xMin, xMax, yMin, yMax } = this;
+      const xs = this._nicestep(xMin, xMax);
+      const ys = this._nicestep(yMin, yMax);
+      const EPS = 1e-9;
+      ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+      for (let x = Math.ceil(xMin / xs - EPS) * xs; x <= xMax + EPS; x += xs) {
+        const [px] = this.px(x, 0);
+        ctx.beginPath(); ctx.moveTo(px, pad.t); ctx.lineTo(px, pad.t + ph); ctx.stroke();
+      }
+      for (let y = Math.ceil(yMin / ys - EPS) * ys; y <= yMax + EPS; y += ys) {
+        const [, py] = this.px(0, y);
+        ctx.beginPath(); ctx.moveTo(pad.l, py); ctx.lineTo(pad.l + pw, py); ctx.stroke();
+      }
+      ctx.strokeStyle = C.axis; ctx.lineWidth = 1.5;
+      if (yMin <= 0 && 0 <= yMax) {
+        const [, py] = this.px(0, 0);
+        ctx.beginPath(); ctx.moveTo(pad.l, py); ctx.lineTo(pad.l + pw, py); ctx.stroke();
+      }
+      if (xMin <= 0 && 0 <= xMax) {
+        const [px] = this.px(0, 0);
+        ctx.beginPath(); ctx.moveTo(px, pad.t); ctx.lineTo(px, pad.t + ph); ctx.stroke();
+      }
+      ctx.strokeStyle = C.border; ctx.lineWidth = 1;
+      ctx.strokeRect(pad.l, pad.t, pw, ph);
+      ctx.fillStyle = C.text; ctx.font = '11px "IBM Plex Mono", monospace'; ctx.textAlign = 'center';
+      for (let x = Math.ceil(xMin / xs - EPS) * xs; x <= xMax + EPS; x += xs) {
+        if (Math.abs(x) < xs * 0.1) continue;
+        const [px, py] = this.px(x, yMin);
+        const lab = Math.abs(x - Math.round(x)) < EPS ? Math.round(x).toString() : x.toFixed(1);
+        ctx.fillText(lab, px, py + 17);
+      }
+      ctx.textAlign = 'right';
+      for (let y = Math.ceil(yMin / ys - EPS) * ys; y <= yMax + EPS; y += ys) {
+        if (Math.abs(y) < ys * 0.1) continue;
+        const [px, py] = this.px(xMin, y);
+        const lab = Math.abs(y - Math.round(y)) < EPS ? Math.round(y).toString() : y.toFixed(1);
+        ctx.fillText(lab, px - 7, py + 4);
+      }
+    }
+    curve(fn, color, lw = 2.5, x0 = this.xMin, x1 = this.xMax, steps = 500) {
+      const { ctx, pad, pw, ph } = this;
+      ctx.save();
+      ctx.beginPath(); ctx.rect(pad.l, pad.t, pw, ph); ctx.clip();
+      ctx.beginPath(); let first = true;
+      for (let i = 0; i <= steps; i++) {
+        const x = x0 + (x1 - x0) * i / steps;
+        const y = fn(x);
+        if (!isFinite(y)) { first = true; continue; }
+        const [px, py] = this.px(x, Math.max(this.yMin - 1, Math.min(this.yMax + 1, y)));
+        first ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+        first = false;
+      }
+      ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.stroke();
+      ctx.restore();
+    }
+    poly(pts, color) {
+      const ctx = this.ctx;
+      ctx.beginPath();
+      pts.forEach(([x, y], i) => {
+        const [px, py] = this.px(x, y);
+        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      });
+      ctx.closePath();
+      ctx.fillStyle = color; ctx.fill();
+    }
+    dot(x, y, color, r = 6) {
+      const [px, py] = this.px(x, y);
+      this.ctx.beginPath(); this.ctx.arc(px, py, r, 0, Math.PI * 2);
+      this.ctx.fillStyle = color; this.ctx.fill();
+    }
+    xlabel(text, color = C.text) {
+      const { ctx, pad, pw, ph } = this;
+      ctx.fillStyle = color; ctx.font = '12px Georgia'; ctx.textAlign = 'center';
+      ctx.fillText(text, pad.l + pw / 2, pad.t + ph + 38);
+    }
+    ylabel(text, color = C.text) {
+      const { ctx, pad, ph } = this;
+      ctx.save();
+      ctx.fillStyle = color; ctx.font = '12px Georgia'; ctx.textAlign = 'center';
+      ctx.translate(pad.l - 44, pad.t + ph / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillText(text, 0, 0);
+      ctx.restore();
+    }
+}
+
+// ── Block / riser tooltips ─────────────────────────────────────────────
+function tipSetup(canvas, side, xMax, getDtN, getV, rateLabel, areaLabel, getColor) {
+  const PAD = { l: 56, r: 28, t: 28, b: 48 };
+  canvas.addEventListener('mousemove', e => {
+    const tip = document.getElementById('chart-tip');
+    if (!tip) return;
+    const rect = canvas.getBoundingClientRect();
+    const lw = canvas.width / 2;
+    const pw = lw - PAD.l - PAD.r;
+    const lx = (e.clientX - rect.left) * (lw / rect.width);
+    if (lx < PAD.l || lx > PAD.l + pw) { tip.style.display = 'none'; return; }
+    const { dt, N } = getDtN();
+    if (!dt || !N) { tip.style.display = 'none'; return; }
+    const dataX = (lx - PAD.l) / pw * xMax;
+    const k = side === 'rhs'
+      ? Math.max(0, Math.min(N - 1, Math.round(dataX / dt)))
+      : Math.max(0, Math.floor(dataX / dt));
+    if (k >= N) { tip.style.display = 'none'; return; }
+    const v = getV(k * dt);
+    const area = v * dt;
+    const col = getColor ? getColor(k, N, dt) : '#c4c4dc';
+    const dim = '#5a5a80';
+    tip.innerHTML = side === 'lhs'
+      ? `<div style="color:${dim}">dt = ${dt.toFixed(3)}</div>` +
+        `<div style="color:${col}">${rateLabel} = ${v.toFixed(3)}</div>` +
+        `<div style="color:${col}">${areaLabel} = ${rateLabel}·dt = ${area.toFixed(3)}</div>`
+      : `<div style="color:${col}">${areaLabel} = ${rateLabel}·dt = ${area.toFixed(3)}</div>`;
+    tip.style.display = 'block';
+    tip.style.left = (e.clientX + 14) + 'px';
+    tip.style.top  = (e.clientY - 14) + 'px';
+  });
+  canvas.addEventListener('mouseleave', () => {
+    const tip = document.getElementById('chart-tip');
+    if (tip) tip.style.display = 'none';
+  });
+}
+
+// ── § 1 Part 1 — Derivative visualization ─────────────────────────────
+(function () {
+  const XMAX = 3;
+
+  // lo/hi is shared by both LHS and RHS so axes stay identical for comparison
+  const FNS = [
+    { df: x => x*x/2,   f: x => x*x*x/6,   f0: 0, lo: 0, hi: 5.5 },
+    { df: x => x,       f: x => x*x/2,     f0: 0, lo: 0, hi: 5.5 },
+    { df: x => 1,       f: x => x,         f0: 0, lo: 0, hi: 5.5 },
+  ];
+
+  let curFn = 2, curN = 10;
+
+  function drawPair(fn, N) {
+    const dx = XMAX / N;
+
+    // ── Left: f'(x) as N colored blocks ───────────────────────────
+    const pL = new Plot('cDerivL', 0, XMAX, fn.lo, fn.hi);
+    pL.clear();
+
+    for (let k = 0; k < N; k++) {
+      const xk = k * dx;
+      const dfk = fn.df(xk);
+      if (dfk > 0) {
+        pL.poly([[xk,0],[xk,dfk],[xk+dx,dfk],[xk+dx,0]], blockColor(k, N, 0.82));
+        const [px1]    = pL.px(xk + dx, 0);
+        const [, py0]  = pL.px(0, 0);
+        const [, pyT]  = pL.px(0, dfk);
+        pL.ctx.strokeStyle = 'rgba(10,10,30,0.4)';
+        pL.ctx.lineWidth = 0.8;
+        pL.ctx.beginPath(); pL.ctx.moveTo(px1, py0); pL.ctx.lineTo(px1, pyT); pL.ctx.stroke();
+      }
+    }
+
+    if (dx > 0.22 && N > 2) {
+      const k0 = Math.floor(N * 0.55);
+      const vk0 = fn.df(k0 * dx);
+      if (vk0 > 0.15) {
+        const ctx = pL.ctx;
+        const [pxL, pyBot] = pL.px(k0 * dx, 0);
+        const [pxR]        = pL.px((k0 + 1) * dx, 0);
+        const [pxMid]      = pL.px(k0 * dx + dx * 0.5, 0);
+        const [, pyTop]    = pL.px(0, vk0);
+        const [, pyMid]    = pL.px(0, vk0 * 0.5);
+        const serif = 3, inset = 5;
+        ctx.strokeStyle = C.red;
+        ctx.lineWidth   = 1;
+        ctx.font        = 'italic 10px Georgia';
+        // horizontal bracket at block base → labels dt
+        const yDt = pyBot - inset;
+        ctx.beginPath();
+        ctx.moveTo(pxL + 2, yDt - serif); ctx.lineTo(pxL + 2, yDt + serif);
+        ctx.moveTo(pxL + 2, yDt);         ctx.lineTo(pxR - 2, yDt);
+        ctx.moveTo(pxR - 2, yDt - serif); ctx.lineTo(pxR - 2, yDt + serif);
+        ctx.stroke();
+        ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 3;
+        ctx.fillStyle = C.red;
+        ctx.textAlign = 'center';
+        ctx.fillText('dt', pxMid, yDt - 3);
+        // vertical bracket at block right edge → labels v
+        const xV = pxR - inset;
+        ctx.beginPath();
+        ctx.moveTo(xV - serif, pyTop + 2); ctx.lineTo(xV + serif, pyTop + 2);
+        ctx.moveTo(xV,         pyTop + 2); ctx.lineTo(xV,         pyBot - 2);
+        ctx.moveTo(xV - serif, pyBot - 2); ctx.lineTo(xV + serif, pyBot - 2);
+        ctx.stroke();
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'right';
+        ctx.fillText('v', xV - 4, pyMid + 4);
+        ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0;
+      }
+    }
+
+    pL.curve(fn.df, C.green, 2);
+    pL.xlabel("t", C.red);
+    pL.ylabel("v", C.green);
+
+    // ── Right: f(x) built from stacked riser increments ───────────
+    const pR = new Plot('cDerivR', 0, XMAX, fn.lo, fn.hi);
+    pR.clear();
+    const ctxR = pR.ctx;
+
+    // Faint column fills — cumulative height at each step
+    let acc = fn.f0;
+    for (let k = 0; k < N; k++) {
+      const df = fn.df(k * dx) * dx;
+      pR.poly([[k*dx,0],[k*dx,acc+df],[(k+1)*dx,acc+df],[(k+1)*dx,0]], 'rgba(18,22,55,0.5)');
+      acc += df;
+    }
+
+    // Muted staircase outline
+    {
+      acc = fn.f0;
+      const [spx, spy] = pR.px(0, fn.f0);
+      ctxR.strokeStyle = 'rgba(55,62,105,0.5)';
+      ctxR.lineWidth = 1;
+      ctxR.beginPath(); ctxR.moveTo(spx, spy);
+      for (let k = 0; k < N; k++) {
+        const df = fn.df(k * dx) * dx;
+        const [px0, pyT] = pR.px(k * dx, acc + df);
+        const [px1]      = pR.px((k + 1) * dx, acc + df);
+        ctxR.lineTo(px0, pyT); ctxR.lineTo(px1, pyT);
+        acc += df;
+      }
+      ctxR.stroke();
+    }
+
+    // Colored riser lines — each length = f'(xk)·dx
+    ctxR.lineCap = 'round';
+    acc = fn.f0;
+    for (let k = 0; k < N; k++) {
+      const df = fn.df(k * dx) * dx;
+      if (df > 0.001) {
+        const [px0, py0] = pR.px(k * dx, acc);
+        const [,    py1] = pR.px(k * dx, acc + df);
+        ctxR.strokeStyle = blockColor(k, N, 0.92);
+        ctxR.lineWidth = 4;
+        ctxR.beginPath(); ctxR.moveTo(px0, py0); ctxR.lineTo(px0, py1); ctxR.stroke();
+      }
+      acc += df;
+    }
+    ctxR.lineCap = 'butt';
+
+    pR.curve(fn.f, C.blue, 2.5);
+    pR.dot(XMAX, fn.f(XMAX), C.blue, 5);
+
+    if (dx > 0.22 && N > 2) {
+      const k0 = Math.floor(N * 0.55);
+      let a0 = fn.f0;
+      for (let i = 0; i < k0; i++) a0 += fn.df(i * dx) * dx;
+      const df0 = fn.df(k0 * dx) * dx;
+      const [bxL, byBase] = pR.px(k0 * dx, 0);
+      const [bxR]         = pR.px((k0 + 1) * dx, 0);
+      const [bxMid]       = pR.px(k0 * dx + dx * 0.5, 0);
+      const serif = 3, inset = 5;
+      ctxR.strokeStyle = C.red; ctxR.lineWidth = 1;
+      ctxR.font = 'italic 10px Georgia';
+      const yDt = byBase - inset;
+      ctxR.beginPath();
+      ctxR.moveTo(bxL + 2, yDt - serif); ctxR.lineTo(bxL + 2, yDt + serif);
+      ctxR.moveTo(bxL + 2, yDt);         ctxR.lineTo(bxR - 2, yDt);
+      ctxR.moveTo(bxR - 2, yDt - serif); ctxR.lineTo(bxR - 2, yDt + serif);
+      ctxR.stroke();
+      ctxR.shadowColor = 'rgba(0,0,0,0.9)'; ctxR.shadowBlur = 3;
+      ctxR.fillStyle = C.red; ctxR.textAlign = 'center';
+      ctxR.fillText('dt', bxMid, yDt - 3);
+      ctxR.shadowColor = 'transparent'; ctxR.shadowBlur = 0;
+      if (df0 > 0.08) {
+        const [ax, ay] = pR.px(k0 * dx + 0.08, a0 + df0 * 0.5);
+        ctxR.textAlign = 'left';
+        const _segs = [['dx', C.blue], ['=', C.text], ['v', C.green], ['\xB7', C.text], ['dt', C.red]];
+        let _w = 0; for (const [t] of _segs) _w += ctxR.measureText(t).width;
+        ctxR.fillStyle = 'rgba(10,10,28,0.82)';
+        ctxR.fillRect(ax - 2, ay - 8, _w + 4, 13);
+        ctxR.shadowColor = 'rgba(0,0,0,0.9)'; ctxR.shadowBlur = 3;
+        let cx = ax;
+        for (const [t, c] of _segs) {
+          ctxR.fillStyle = c; ctxR.fillText(t, cx, ay + 4); cx += ctxR.measureText(t).width;
+        }
+        ctxR.shadowColor = 'transparent'; ctxR.shadowBlur = 0;
+      }
+    }
+
+    pR.xlabel("t", C.red);
+    pR.ylabel("x", C.blue);
+  }
+
+  function redraw() { drawPair(FNS[curFn], curN); }
+
+  document.querySelectorAll('.fn-tab:not(.exp-tab)').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.fn-tab:not(.exp-tab)').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      curFn = +btn.dataset.fn;
+      redraw();
+    });
+  });
+
+  const slN = document.getElementById('slDerivN');
+  const vlN = document.getElementById('vlDerivN');
+  slN.addEventListener('input', () => {
+    curN = +slN.value;
+    vlN.textContent = curN;
+    redraw();
+  });
+
+  redraw();
+
+  const _cDerivL = document.getElementById('cDerivL');
+  const _cDerivR = document.getElementById('cDerivR');
+  tipSetup(_cDerivL, 'lhs', XMAX, () => ({ dt: XMAX / curN, N: curN }), xk => FNS[curFn].df(xk), 'v', 'dx', (k, N) => blockColor(k, N, 1));
+  tipSetup(_cDerivR, 'rhs', XMAX, () => ({ dt: XMAX / curN, N: curN }), xk => FNS[curFn].df(xk), 'v', 'dx', (k, N) => blockColor(k, N, 1));
+})();
+
+// ── § 1 Part 2 — exp(x) construction ──────────────────────────────────
+(function () {
+  const XMAX = 2, YMAX = 8;
+
+  function fact(n) { let r = 1; for (let i = 2; i <= n; i++) r *= i; return r; }
+
+  function pSum(x, n) {
+    let s = 0;
+    for (let i = 0; i < n; i++) s += Math.pow(x, i) / fact(i);
+    return s;
+  }
+
+  function drawExpPair(n, leftId, rightId, N) {
+    const dx = XMAX / N;
+
+    // ── Left: v_n = pSum(x, n) as N colored blocks ──────────────────
+    const pL = new Plot(leftId, 0, XMAX, 0, YMAX);
+    pL.clear();
+
+    for (let k = 0; k < N; k++) {
+      const xk = k * dx;
+      const vk = pSum(xk, n);
+      if (vk > 0) {
+        pL.poly([[xk,0],[xk,vk],[xk+dx,vk],[xk+dx,0]], blockColor(k, N, 0.82));
+        const [px1]   = pL.px(xk + dx, 0);
+        const [, py0] = pL.px(0, 0);
+        const [, pyT] = pL.px(0, vk);
+        pL.ctx.strokeStyle = 'rgba(10,10,30,0.4)';
+        pL.ctx.lineWidth = 0.8;
+        pL.ctx.beginPath(); pL.ctx.moveTo(px1, py0); pL.ctx.lineTo(px1, pyT); pL.ctx.stroke();
+      }
+    }
+
+    {
+      const k0 = Math.floor(N * 0.55);
+      const vk0 = pSum(k0 * dx, n);
+      if (vk0 > 0.15) {
+        const ctx = pL.ctx;
+        const [pxL, pyBot] = pL.px(k0 * dx, 0);
+        const [pxR]        = pL.px((k0 + 1) * dx, 0);
+        const [pxMid]      = pL.px(k0 * dx + dx * 0.5, 0);
+        const [, pyTop]    = pL.px(0, vk0);
+        const [, pyMid]    = pL.px(0, vk0 * 0.5);
+        const serif = 3, inset = 5;
+        ctx.strokeStyle = C.red;
+        ctx.lineWidth   = 1;
+        ctx.font        = 'italic 10px Georgia';
+        const yDt = pyBot - inset;
+        ctx.beginPath();
+        ctx.moveTo(pxL + 2, yDt - serif); ctx.lineTo(pxL + 2, yDt + serif);
+        ctx.moveTo(pxL + 2, yDt);         ctx.lineTo(pxR - 2, yDt);
+        ctx.moveTo(pxR - 2, yDt - serif); ctx.lineTo(pxR - 2, yDt + serif);
+        ctx.stroke();
+        ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 3;
+        ctx.fillStyle = C.red;
+        ctx.textAlign = 'center';
+        ctx.fillText('dt', pxMid, yDt - 3);
+        const xV = pxR - inset;
+        ctx.beginPath();
+        ctx.moveTo(xV - serif, pyTop + 2); ctx.lineTo(xV + serif, pyTop + 2);
+        ctx.moveTo(xV,         pyTop + 2); ctx.lineTo(xV,         pyBot - 2);
+        ctx.moveTo(xV - serif, pyBot - 2); ctx.lineTo(xV + serif, pyBot - 2);
+        ctx.stroke();
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'right';
+        ctx.fillText('v', xV - 4, pyMid + 4);
+        ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0;
+      }
+    }
+
+    pL.curve(x => pSum(x, n), C.green, 2);
+    pL.xlabel('t', C.red);
+    pL.ylabel('v', C.green);
+
+    // ── Right: a_n = ∫₀ˣ v_n dt = pSum(x,n+1)−1 as riser increments ─
+    const pR = new Plot(rightId, 0, XMAX, 0, YMAX);
+    pR.clear();
+    const ctxR = pR.ctx;
+
+    let acc = 0;
+    for (let k = 0; k < N; k++) {
+      const da = pSum(k * dx, n) * dx;
+      pR.poly([[k*dx,0],[k*dx,acc+da],[(k+1)*dx,acc+da],[(k+1)*dx,0]], 'rgba(18,22,55,0.5)');
+      acc += da;
+    }
+
+    {
+      acc = 0;
+      const [spx, spy] = pR.px(0, 0);
+      ctxR.strokeStyle = 'rgba(55,62,105,0.5)';
+      ctxR.lineWidth = 1;
+      ctxR.beginPath(); ctxR.moveTo(spx, spy);
+      for (let k = 0; k < N; k++) {
+        const da = pSum(k * dx, n) * dx;
+        const [px0, pyT] = pR.px(k * dx, acc + da);
+        const [px1]      = pR.px((k + 1) * dx, acc + da);
+        ctxR.lineTo(px0, pyT); ctxR.lineTo(px1, pyT);
+        acc += da;
+      }
+      ctxR.stroke();
+    }
+
+    ctxR.lineCap = 'round';
+    acc = 0;
+    for (let k = 0; k < N; k++) {
+      const da = pSum(k * dx, n) * dx;
+      if (da > 0.001) {
+        const [px0, py0] = pR.px(k * dx, acc);
+        const [,    py1] = pR.px(k * dx, acc + da);
+        ctxR.strokeStyle = blockColor(k, N, 0.92);
+        ctxR.lineWidth = 4;
+        ctxR.beginPath(); ctxR.moveTo(px0, py0); ctxR.lineTo(px0, py1); ctxR.stroke();
+      }
+      acc += da;
+    }
+    ctxR.lineCap = 'butt';
+
+    pR.curve(x => pSum(x, n + 1) - 1, C.blue, 2);
+
+    if (dx > 0.14 && N > 2) {
+      const k0 = Math.floor(N * 0.55);
+      let a0 = 0;
+      for (let i = 0; i < k0; i++) a0 += pSum(i * dx, n) * dx;
+      const da0 = pSum(k0 * dx, n) * dx;
+      const [bxL, byBase] = pR.px(k0 * dx, 0);
+      const [bxR]         = pR.px((k0 + 1) * dx, 0);
+      const [bxMid]       = pR.px(k0 * dx + dx * 0.5, 0);
+      const serif = 3, inset = 5;
+      ctxR.strokeStyle = C.red; ctxR.lineWidth = 1;
+      ctxR.font = 'italic 10px Georgia';
+      const yDt = byBase - inset;
+      ctxR.beginPath();
+      ctxR.moveTo(bxL + 2, yDt - serif); ctxR.lineTo(bxL + 2, yDt + serif);
+      ctxR.moveTo(bxL + 2, yDt);         ctxR.lineTo(bxR - 2, yDt);
+      ctxR.moveTo(bxR - 2, yDt - serif); ctxR.lineTo(bxR - 2, yDt + serif);
+      ctxR.stroke();
+      ctxR.shadowColor = 'rgba(0,0,0,0.9)'; ctxR.shadowBlur = 3;
+      ctxR.fillStyle = C.red; ctxR.textAlign = 'center';
+      ctxR.fillText('dt', bxMid, yDt - 3);
+      ctxR.shadowColor = 'transparent'; ctxR.shadowBlur = 0;
+      if (da0 > 0.08) {
+        const [ax, ay] = pR.px(k0 * dx + 0.08, a0 + da0 * 0.5);
+        ctxR.textAlign = 'left';
+        const _segs = [['dx', C.blue], ['=', C.text], ['v', C.green], ['\xB7', C.text], ['dt', C.red]];
+        let _w = 0; for (const [t] of _segs) _w += ctxR.measureText(t).width;
+        ctxR.fillStyle = 'rgba(10,10,28,0.82)';
+        ctxR.fillRect(ax - 2, ay - 8, _w + 4, 13);
+        ctxR.shadowColor = 'rgba(0,0,0,0.9)'; ctxR.shadowBlur = 3;
+        let cx = ax;
+        for (const [t, c] of _segs) {
+          ctxR.fillStyle = c; ctxR.fillText(t, cx, ay + 4); cx += ctxR.measureText(t).width;
+        }
+        ctxR.shadowColor = 'transparent'; ctxR.shadowBlur = 0;
+      }
+    }
+
+    pR.xlabel('t', C.red);
+    pR.ylabel('x', C.blue);
+  }
+
+  function drawFinalPair(N) {
+    const dx = XMAX / N;
+    const nT = 8;
+
+    // Left: v = exp(t) ≈ pSum(t, nT)
+    const pL = new Plot('cExpLF', 0, XMAX, 0, YMAX);
+    pL.clear();
+
+    for (let k = 0; k < N; k++) {
+      const xk = k * dx;
+      const vk = pSum(xk, nT);
+      if (vk > 0) {
+        pL.poly([[xk,0],[xk,vk],[xk+dx,vk],[xk+dx,0]], blockColor(k, N, 0.82));
+        const [px1]   = pL.px(xk + dx, 0);
+        const [, py0] = pL.px(0, 0);
+        const [, pyT] = pL.px(0, vk);
+        pL.ctx.strokeStyle = 'rgba(10,10,30,0.4)'; pL.ctx.lineWidth = 0.8;
+        pL.ctx.beginPath(); pL.ctx.moveTo(px1, py0); pL.ctx.lineTo(px1, pyT); pL.ctx.stroke();
+      }
+    }
+
+    if (dx > 0.22 && N > 2) {
+      const k0 = Math.floor(N * 0.55);
+      const vk0 = pSum(k0 * dx, nT);
+      if (vk0 > 0.15) {
+        const ctx = pL.ctx;
+        const [pxL2, pyBot] = pL.px(k0 * dx, 0);
+        const [pxR2]        = pL.px((k0 + 1) * dx, 0);
+        const [pxMid2]      = pL.px(k0 * dx + dx * 0.5, 0);
+        const [, pyTop]     = pL.px(0, vk0);
+        const [, pyMid]     = pL.px(0, vk0 * 0.5);
+        const serif = 3, inset = 5;
+        ctx.strokeStyle = 'rgba(0,0,0,0.6)'; ctx.lineWidth = 1;
+        ctx.font = 'italic 10px Georgia';
+        const yDt = pyBot - inset;
+        ctx.beginPath();
+        ctx.moveTo(pxL2 + 2, yDt - serif); ctx.lineTo(pxL2 + 2, yDt + serif);
+        ctx.moveTo(pxL2 + 2, yDt);         ctx.lineTo(pxR2 - 2, yDt);
+        ctx.moveTo(pxR2 - 2, yDt - serif); ctx.lineTo(pxR2 - 2, yDt + serif);
+        ctx.stroke();
+        ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 3;
+        ctx.fillStyle = C.red; ctx.textAlign = 'center';
+        ctx.fillText('dt', pxMid2, yDt - 3);
+        const xV = pxR2 - inset;
+        ctx.beginPath();
+        ctx.moveTo(xV - serif, pyTop + 2); ctx.lineTo(xV + serif, pyTop + 2);
+        ctx.moveTo(xV,         pyTop + 2); ctx.lineTo(xV,         pyBot - 2);
+        ctx.moveTo(xV - serif, pyBot - 2); ctx.lineTo(xV + serif, pyBot - 2);
+        ctx.stroke();
+        ctx.fillStyle = '#ffffff'; ctx.textAlign = 'right';
+        ctx.fillText('v', xV - 4, pyMid + 4);
+        ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0;
+      }
+    }
+
+    pL.curve(x => pSum(x, nT), C.green, 2);
+    pL.xlabel('t', C.red);
+    pL.ylabel('v', C.green);
+
+    // Right: x = exp(t), starting from x₀ = 1
+    const pR = new Plot('cExpRF', 0, XMAX, 0, YMAX);
+    pR.clear();
+    const ctxR = pR.ctx;
+
+    let acc = 1;
+    for (let k = 0; k < N; k++) {
+      const da = pSum(k * dx, nT) * dx;
+      pR.poly([[k*dx,0],[k*dx,acc+da],[(k+1)*dx,acc+da],[(k+1)*dx,0]], 'rgba(18,22,55,0.5)');
+      acc += da;
+    }
+
+    {
+      acc = 1;
+      const [spx, spy] = pR.px(0, 1);
+      ctxR.strokeStyle = 'rgba(55,62,105,0.5)'; ctxR.lineWidth = 1;
+      ctxR.beginPath(); ctxR.moveTo(spx, spy);
+      for (let k = 0; k < N; k++) {
+        const da = pSum(k * dx, nT) * dx;
+        const [px0, pyT] = pR.px(k * dx, acc + da);
+        const [px1]      = pR.px((k + 1) * dx, acc + da);
+        ctxR.lineTo(px0, pyT); ctxR.lineTo(px1, pyT);
+        acc += da;
+      }
+      ctxR.stroke();
+    }
+
+    ctxR.lineCap = 'round';
+    acc = 1;
+    for (let k = 0; k < N; k++) {
+      const da = pSum(k * dx, nT) * dx;
+      if (da > 0.001) {
+        const [px0, py0] = pR.px(k * dx, acc);
+        const [,    py1] = pR.px(k * dx, acc + da);
+        ctxR.strokeStyle = blockColor(k, N, 0.92); ctxR.lineWidth = 4;
+        ctxR.beginPath(); ctxR.moveTo(px0, py0); ctxR.lineTo(px0, py1); ctxR.stroke();
+      }
+      acc += da;
+    }
+    ctxR.lineCap = 'butt';
+
+    pR.curve(x => pSum(x, nT), C.blue, 2);
+
+    if (dx > 0.14 && N > 2) {
+      const k0 = Math.floor(N * 0.55);
+      let a0 = 1;
+      for (let i = 0; i < k0; i++) a0 += pSum(i * dx, nT) * dx;
+      const da0 = pSum(k0 * dx, nT) * dx;
+      const [bxL, byBase] = pR.px(k0 * dx, 0);
+      const [bxR]         = pR.px((k0 + 1) * dx, 0);
+      const [bxMid]       = pR.px(k0 * dx + dx * 0.5, 0);
+      const serif = 3, inset = 5;
+      ctxR.strokeStyle = C.red; ctxR.lineWidth = 1;
+      ctxR.font = 'italic 10px Georgia';
+      const yDt = byBase - inset;
+      ctxR.beginPath();
+      ctxR.moveTo(bxL + 2, yDt - serif); ctxR.lineTo(bxL + 2, yDt + serif);
+      ctxR.moveTo(bxL + 2, yDt);         ctxR.lineTo(bxR - 2, yDt);
+      ctxR.moveTo(bxR - 2, yDt - serif); ctxR.lineTo(bxR - 2, yDt + serif);
+      ctxR.stroke();
+      ctxR.shadowColor = 'rgba(0,0,0,0.9)'; ctxR.shadowBlur = 3;
+      ctxR.fillStyle = C.red; ctxR.textAlign = 'center';
+      ctxR.fillText('dt', bxMid, yDt - 3);
+      ctxR.shadowColor = 'transparent'; ctxR.shadowBlur = 0;
+      if (da0 > 0.08) {
+        const [ax, ay] = pR.px(k0 * dx + 0.08, a0 + da0 * 0.5);
+        ctxR.textAlign = 'left';
+        const _segs = [['dx', C.blue], ['=', C.text], ['v', C.green], ['\xB7', C.text], ['dt', C.red]];
+        let _w = 0; for (const [t] of _segs) _w += ctxR.measureText(t).width;
+        ctxR.fillStyle = 'rgba(10,10,28,0.82)';
+        ctxR.fillRect(ax - 2, ay - 8, _w + 4, 13);
+        ctxR.shadowColor = 'rgba(0,0,0,0.9)'; ctxR.shadowBlur = 3;
+        let cx = ax;
+        for (const [t, c] of _segs) {
+          ctxR.fillStyle = c; ctxR.fillText(t, cx, ay + 4); cx += ctxR.measureText(t).width;
+        }
+        ctxR.shadowColor = 'transparent'; ctxR.shadowBlur = 0;
+      }
+    }
+    pR.xlabel('t', C.red);
+    pR.ylabel('x', C.blue);
+  }
+
+  let curExpN = 10;
+
+  function redrawAllExp() {
+    for (let n = 1; n <= 6; n++) drawExpPair(n, `cExpL${n}`, `cExpR${n}`, curExpN);
+    drawFinalPair(curExpN);
+  }
+
+  redrawAllExp();
+
+  const slExpN = document.getElementById('slExpN');
+  const vlExpN = document.getElementById('vlExpN');
+  slExpN.addEventListener('input', () => {
+    curExpN = +slExpN.value;
+    vlExpN.textContent = curExpN;
+    redrawAllExp();
+  });
+
+  for (let n = 1; n <= 6; n++) {
+    const _n = n;
+    tipSetup(document.getElementById(`cExpL${n}`), 'lhs', XMAX,
+      () => ({ dt: XMAX / curExpN, N: curExpN }),
+      xk => pSum(xk, _n), 'v', 'dx',
+      (k, N) => blockColor(k, N, 1));
+    tipSetup(document.getElementById(`cExpR${n}`), 'rhs', XMAX,
+      () => ({ dt: XMAX / curExpN, N: curExpN }),
+      xk => pSum(xk, _n), 'v', 'dx',
+      (k, N) => blockColor(k, N, 1));
+  }
+  tipSetup(document.getElementById('cExpLF'), 'lhs', XMAX,
+    () => ({ dt: XMAX / curExpN, N: curExpN }),
+    xk => pSum(xk, 8), 'v', 'dx',
+    (k, N) => blockColor(k, N, 1));
+  tipSetup(document.getElementById('cExpRF'), 'rhs', XMAX,
+    () => ({ dt: XMAX / curExpN, N: curExpN }),
+    xk => pSum(xk, 8), 'v', 'dx',
+    (k, N) => blockColor(k, N, 1));
+})();
+
+// ── § 2 cos series — fold-and-add-the-difference, two levels deep ───────
+(function () {
+  const XMAX    = Math.PI;
+  function fact(n) { let r = 1; for (let i = 2; i <= n; i++) r *= i; return r; }
+
+  function cosSum(θ, n) {
+    let s = 0;
+    for (let k = 0; k < n; k++) s += Math.pow(-1, k) * Math.pow(θ, 2*k) / fact(2*k);
+    return s;
+  }
+
+  function sinSum(θ, n) {
+    let s = 0;
+    for (let k = 0; k < n; k++) s += Math.pow(-1, k) * Math.pow(θ, 2*k+1) / fact(2*k+1);
+    return s;
+  }
+
+  // blocks: colored filled rectangles showing fn value
+  function drawBlocks(fn, id, N, yMin, yMax, yLab, yCol) {
+    const dx = XMAX / N;
+    const _cv = document.getElementById(id);
+    if (_cv) _cv.height = Math.round((_cv.width - 168) * (yMax - yMin) / XMAX + 152);
+    const p = new Plot(id, 0, XMAX, yMin, yMax);
+    p.clear();
+    for (let k = 0; k < N; k++) {
+      const xk = k * dx, vk = fn(xk);
+      p.poly([[xk,0],[xk,vk],[xk+dx,vk],[xk+dx,0]], blockColor(k, N, 0.82));
+      const [px1] = p.px(xk + dx, 0);
+      const [, py0] = p.px(0, 0);
+      const [, pyT] = p.px(0, vk);
+      p.ctx.strokeStyle = 'rgba(10,10,30,0.4)'; p.ctx.lineWidth = 0.8;
+      p.ctx.beginPath(); p.ctx.moveTo(px1, py0); p.ctx.lineTo(px1, pyT); p.ctx.stroke();
+    }
+    p.curve(fn, yCol, 2);
+    p.xlabel('t', C.red);
+    p.ylabel(yLab, yCol);
+  }
+
+  // risers: accumulated area of fn, with integral curve curveFn
+  function drawRisers(fn, curveFn, id, N, yMin, yMax, yLab, yCol) {
+    const dx = XMAX / N;
+    const _cv = document.getElementById(id);
+    if (_cv) _cv.height = Math.round((_cv.width - 168) * (yMax - yMin) / XMAX + 152);
+    const p = new Plot(id, 0, XMAX, yMin, yMax);
+    p.clear();
+    const ctx = p.ctx;
+
+    let acc = 0;
+    for (let k = 0; k < N; k++) {
+      const da = fn(k * dx) * dx;
+      p.poly([[k*dx,0],[k*dx,acc+da],[(k+1)*dx,acc+da],[(k+1)*dx,0]], 'rgba(18,22,55,0.5)');
+      acc += da;
+    }
+
+    { acc = 0;
+      const [spx, spy] = p.px(0, 0);
+      ctx.strokeStyle = 'rgba(55,62,105,0.5)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(spx, spy);
+      for (let k = 0; k < N; k++) {
+        const da = fn(k * dx) * dx;
+        const [px0, pyT] = p.px(k * dx, acc + da);
+        const [px1]      = p.px((k+1) * dx, acc + da);
+        ctx.lineTo(px0, pyT); ctx.lineTo(px1, pyT);
+        acc += da;
+      }
+      ctx.stroke();
+    }
+
+    ctx.lineCap = 'round';
+    acc = 0;
+    for (let k = 0; k < N; k++) {
+      const da = fn(k * dx) * dx;
+      if (Math.abs(da) > 0.001) {
+        const [px0, py0] = p.px(k * dx, acc);
+        const [, py1]    = p.px(k * dx, acc + da);
+        ctx.strokeStyle = blockColor(k, N, 0.92); ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.moveTo(px0, py0); ctx.lineTo(px0, py1); ctx.stroke();
+      }
+      acc += da;
+    }
+    ctx.lineCap = 'butt';
+
+    p.curve(curveFn, yCol, 2);
+    p.xlabel('t', C.red);
+    p.ylabel(yLab, yCol);
+  }
+
+  let curCosN = 12;
+
+  function redrawAllCos() {
+    const N = curCosN;
+
+    // All cos charts share one y-range: cos values reach -3.93, double-fold reaches 4.93
+    const cLo = -4, cHi = 5;
+
+    for (let n = 1; n <= 4; n++) {
+      const v   = θ => cosSum(θ, n);
+      const fv  = θ => sinSum(θ, n);
+      const ffv = θ => 1 - cosSum(θ, n + 1);
+      drawBlocks (v,       `cCos${n}a`, N, cLo, cHi, 'v', C.green);
+      drawRisers (v,  fv,  `cCos${n}b`, N, cLo, cHi, 'y', C.text);
+      drawBlocks (fv,      `cCos${n}c`, N, cLo, cHi, 'y', C.text);
+      drawRisers (fv, ffv, `cCos${n}d`, N, cLo, cHi, 'x', C.blue);
+    }
+
+    // Final cos row: converged v ≈ cos, all four steps
+    const nF = 8;
+    const vF   = θ => cosSum(θ, nF);
+    const fvF  = θ => sinSum(θ, nF);
+    const ffvF = θ => 1 - cosSum(θ, nF + 1);
+    drawBlocks (vF,        'cCosLFa', N, -2, 2, 'v', C.green);
+    drawRisers (vF,  fvF,  'cCosLFb', N, -2, 2, 'y', C.text);
+    drawBlocks (fvF,       'cCosLFc', N, -2, 2, 'y', C.text);
+    drawRisers (fvF, ffvF, 'cCosLFd', N, -2, 2, 'x', C.blue);
+
+    // All sin charts share one y-range: sin values reach -2.03, double-fold reaches 5.17
+    const sLo = -3, sHi = 6;
+
+    for (let n = 1; n <= 3; n++) {
+      const v   = θ => sinSum(θ, n);
+      const fv  = θ => 1 - cosSum(θ, n + 1);
+      const ffv = θ => θ - sinSum(θ, n + 1);
+      drawBlocks (v,       `cSin${n}a`, N, sLo, sHi, 'v', C.green);
+      drawRisers (v,  fv,  `cSin${n}b`, N, sLo, sHi, 'y', C.text);
+      drawBlocks (fv,      `cSin${n}c`, N, sLo, sHi, 'y', C.text);
+      drawRisers (fv, ffv, `cSin${n}d`, N, sLo, sHi, 'x', C.blue);
+    }
+
+    // Final sin row: converged v ≈ sin, all four steps
+    const nSF = 8;
+    const vSF   = θ => sinSum(θ, nSF);
+    const fvSF  = θ => 1 - cosSum(θ, nSF + 1);
+    const ffvSF = θ => θ - sinSum(θ, nSF + 1);
+    drawBlocks (vSF,         'cSinLFa', N, -1, 4, 'v', C.green);
+    drawRisers (vSF,  fvSF,  'cSinLFb', N, -1, 4, 'y', C.text);
+    drawBlocks (fvSF,        'cSinLFc', N, -1, 4, 'y', C.text);
+    drawRisers (fvSF, ffvSF, 'cSinLFd', N, -1, 4, 'x', C.blue);
+  }
+
+  redrawAllCos();
+
+  const slCosN = document.getElementById('slCosN');
+  const vlCosN = document.getElementById('vlCosN');
+  if (slCosN) {
+    slCosN.addEventListener('input', () => {
+      curCosN = +slCosN.value;
+      if (vlCosN) vlCosN.textContent = curCosN;
+      redrawAllCos();
+    });
+  }
+})();
+
+// ── § 2 — Unit circle figures ─────────────────────────────────────────
+(function () {
+  'use strict';
+  const TAU = Math.PI * 2;
+
+  const CV = {
+    bg:     '#0c0c1e',
+    axis:   'rgba(100,100,180,.55)',
+    grid:   'rgba(60,60,120,.4)',
+    text:   '#c4c4dc',
+    muted:  '#8888a8',
+    gold:   '#f4c830',
+    cyan:   '#40c8f0',
+    green:  '#50d890',
+    blue:   '#40c8f0',
+    red:    '#e84040',
+    purple: '#b070f0',
+    circle: 'rgba(64,200,240,.45)',
+  };
+
+  // ── Shared unit-circle canvas helper ────────────────────────────────
+  function ucPlot(id) {
+    const cv = document.getElementById(id);
+    if (!cv) return null;
+    const ctx = cv.getContext('2d');
+    const SZ = 320, PAD = 38, R = (SZ - 2 * PAD) / 2;
+    const CX = SZ / 2, CY = SZ / 2;
+    cv.width = SZ * 2; cv.height = SZ * 2;
+    cv.style.width = SZ + 'px'; cv.style.height = SZ + 'px';
+    ctx.setTransform(2, 0, 0, 2, 0, 0);
+
+    // math → screen coordinate transform
+    const px = x => CX + x * R;
+    const py = y => CY - y * R;
+
+    function base(useI) {
+      ctx.fillStyle = CV.bg;
+      ctx.fillRect(0, 0, SZ, SZ);
+      ctx.strokeStyle = CV.axis; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(PAD / 2, CY); ctx.lineTo(SZ - PAD / 2, CY); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(CX, PAD / 2); ctx.lineTo(CX, SZ - PAD / 2); ctx.stroke();
+      ctx.strokeStyle = CV.grid; ctx.lineWidth = 0.75;
+      for (const v of [-1, -0.5, 0.5, 1]) {
+        ctx.beginPath(); ctx.moveTo(px(v), CY - 3); ctx.lineTo(px(v), CY + 3); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(CX - 3, py(v)); ctx.lineTo(CX + 3, py(v)); ctx.stroke();
+      }
+      ctx.font = '11px IBM Plex Mono, monospace';
+      ctx.fillStyle = CV.muted;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+      ctx.fillText('1', px(1) + 2, CY + 5);
+      ctx.fillText('−1', px(-1) - 2, CY + 5);
+      ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+      ctx.fillText(useI ? 'i'  : '1',  CX - 5, py( 1));
+      ctx.fillText(useI ? '−i' : '−1', CX - 5, py(-1));
+    }
+
+    function circle(color, lw) {
+      ctx.beginPath(); ctx.arc(CX, CY, R, 0, TAU);
+      ctx.strokeStyle = color || CV.circle; ctx.lineWidth = lw || 1.5; ctx.stroke();
+    }
+
+    function dot(x, y, color, r) {
+      ctx.beginPath(); ctx.arc(px(x), py(y), r || 4, 0, TAU);
+      ctx.fillStyle = color; ctx.fill();
+    }
+
+    function arrow(x1, y1, x2, y2, color, lw) {
+      const sx1 = px(x1), sy1 = py(y1), sx2 = px(x2), sy2 = py(y2);
+      const dx = sx2 - sx1, dy = sy2 - sy1, len = Math.hypot(dx, dy);
+      if (len < 2) return;
+      const ux = dx / len, uy = dy / len;
+      ctx.lineWidth = lw || 2; ctx.strokeStyle = color;
+      ctx.beginPath(); ctx.moveTo(sx1, sy1); ctx.lineTo(sx2, sy2); ctx.stroke();
+      const ah = 9, aw = 4;
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(sx2, sy2);
+      ctx.lineTo(sx2 - ah*ux + aw*(-uy), sy2 - ah*uy + aw*ux);
+      ctx.lineTo(sx2 - ah*ux - aw*(-uy), sy2 - ah*uy - aw*ux);
+      ctx.closePath(); ctx.fill();
+    }
+
+    function label(x, y, text, color, align, baseline) {
+      ctx.font = 'italic 12px Georgia, serif';
+      ctx.fillStyle = color;
+      ctx.textAlign = align || 'center';
+      ctx.textBaseline = baseline || 'middle';
+      ctx.fillText(text, px(x), py(y));
+    }
+
+    // Math-CCW arc 0→theta: anticlockwise=true on screen (y-flip)
+    function arcCCW(theta, rfrac, color, dashed) {
+      if (dashed) ctx.setLineDash([3, 4]);
+      ctx.beginPath();
+      ctx.arc(CX, CY, R * rfrac, 0, -theta, true);
+      ctx.strokeStyle = color || CV.purple; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    // Math-CW arc 0→-theta: anticlockwise=false on screen
+    function arcCW(theta, rfrac, color, dashed) {
+      if (dashed) ctx.setLineDash([3, 4]);
+      ctx.beginPath();
+      ctx.arc(CX, CY, R * rfrac, 0, theta, false);
+      ctx.strokeStyle = color || CV.purple; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    return { ctx, px, py, base, circle, dot, arrow, label, arcCCW, arcCW };
+  }
+
+  // ── Figure A: cUnitDef — cos/sin as coordinates ──────────────────────
+  const pA = ucPlot('cUnitDef');
+  const slA = document.getElementById('sDef');
+  const valA = document.getElementById('vDef');
+
+  function drawA(theta) {
+    if (!pA) return;
+    const { ctx, px, py, base, circle, dot, arrow, label, arcCCW } = pA;
+    base(false); circle();
+
+    const cx = Math.cos(theta), sy = Math.sin(theta);
+
+    // θ arc (purple, CCW)
+    arcCCW(theta, 0.22);
+    label(0.31 * Math.cos(theta / 2), 0.31 * Math.sin(theta / 2), 'θ', CV.purple);
+
+    // Red bar: origin → (cx, 0) = cos(θ)
+    ctx.beginPath(); ctx.moveTo(px(0), py(0)); ctx.lineTo(px(cx), py(0));
+    ctx.strokeStyle = CV.red; ctx.lineWidth = 2.5; ctx.stroke();
+
+    // Blue bar: (cx,0) → (cx, sy) = sin(θ)
+    ctx.beginPath(); ctx.moveTo(px(cx), py(0)); ctx.lineTo(px(cx), py(sy));
+    ctx.strokeStyle = CV.blue; ctx.lineWidth = 2.5; ctx.stroke();
+
+    // Faint dashed drop line to y-axis
+    ctx.setLineDash([3, 4]);
+    ctx.strokeStyle = 'rgba(196,196,220,.18)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(px(cx), py(sy)); ctx.lineTo(px(0), py(sy)); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Gold vector p(θ) and dots
+    arrow(0, 0, cx, sy, CV.gold, 2);
+    dot(cx, sy, CV.gold, 5);
+    dot(cx, 0, CV.red, 3);
+    dot(0, sy, CV.blue, 3);
+
+    // cos(θ) label — below red bar (flip if sin negative)
+    label(cx / 2, sy >= -0.05 ? -0.14 : 0.14, 'cos(θ)', CV.red);
+
+    // sin(θ) label — beside blue bar
+    const sLX = cx + (cx >= 0 ? 0.17 : -0.17);
+    label(sLX, sy / 2, 'sin(θ)', CV.blue, cx >= 0 ? 'left' : 'right');
+
+    // p(θ) label
+    if (Math.abs(sy) > 0.05 || Math.abs(cx - 1) > 0.05)
+      label(1.18 * cx, 1.18 * sy, 'p(θ)', CV.gold);
+  }
+
+  // Play animation for Figure A: θ sweeps continuously around the full circle
+  let rafA = null, thetaA = slA ? +slA.value : 0.9;
+
+  function animateA() {
+    thetaA += 0.02;
+    if (thetaA >= TAU) thetaA -= TAU;
+    if (slA) { slA.value = thetaA.toFixed(2); if (valA) valA.textContent = thetaA.toFixed(2); }
+    drawA(thetaA);
+    rafA = requestAnimationFrame(animateA);
+  }
+
+  const btnA = document.getElementById('btnDef');
+  if (btnA) {
+    btnA.addEventListener('click', () => {
+      if (rafA) {
+        cancelAnimationFrame(rafA); rafA = null;
+        btnA.textContent = '▶ Play'; btnA.classList.remove('active');
+      } else {
+        btnA.textContent = '■ Stop'; btnA.classList.add('active');
+        animateA();
+      }
+    });
+  }
+
+  if (pA && slA) {
+    slA.addEventListener('input', () => {
+      if (rafA) { cancelAnimationFrame(rafA); rafA = null; if (btnA) { btnA.textContent = '▶ Play'; btnA.classList.remove('active'); } }
+      thetaA = +slA.value;
+      if (valA) valA.textContent = thetaA.toFixed(2);
+      drawA(thetaA);
+    });
+    drawA(+slA.value);
+  }
+
+  // ── Figure Reflect: cReflect — cos(−θ)=cos(θ), sin(−θ)=−sin(θ) ────
+  const pRef = ucPlot('cReflect');
+  const slRef = document.getElementById('sReflect');
+  const valRef = document.getElementById('vReflect');
+  const btnRef = document.getElementById('btnReflect');
+
+  function drawReflect(theta) {
+    if (!pRef) return;
+    const { ctx, px, py, base, circle, dot, label, arcCCW, arcCW } = pRef;
+    base(false); circle();
+
+    const cx = Math.cos(theta), sy = Math.sin(theta);
+
+    // Arc labels: θ CCW solid, −θ CW dashed
+    arcCCW(theta, 0.22);
+    arcCW(theta, 0.22, null, true);
+
+    const ta = theta / 2;
+    label( 0.31 * Math.cos(ta),  0.31 * Math.sin(ta), 'θ',  CV.purple);
+    label( 0.31 * Math.cos(ta), -0.31 * Math.sin(ta), '−θ', CV.purple);
+
+    // Shared red horizontal bar: origin → cos(θ) on x-axis
+    ctx.beginPath();
+    ctx.moveTo(px(0), py(0)); ctx.lineTo(px(cx), py(0));
+    ctx.strokeStyle = CV.red; ctx.lineWidth = 2.5; ctx.stroke();
+
+    // Blue bar up (to p(θ)) and blue bar down (to p(−θ))
+    ctx.beginPath();
+    ctx.moveTo(px(cx), py(0)); ctx.lineTo(px(cx), py(sy));
+    ctx.strokeStyle = CV.blue; ctx.lineWidth = 2; ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(px(cx), py(0)); ctx.lineTo(px(cx), py(-sy));
+    ctx.strokeStyle = CV.blue; ctx.lineWidth = 2; ctx.stroke();
+
+    // Faint dashed vertical connector between the two mirror points
+    ctx.setLineDash([3, 4]);
+    ctx.beginPath();
+    ctx.moveTo(px(cx), py(sy)); ctx.lineTo(px(cx), py(-sy));
+    ctx.strokeStyle = 'rgba(196,196,220,.18)'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Dots: p(θ) gold, p(−θ) green, cos(θ) on axis red
+    dot(cx,  sy, CV.gold,  5);
+    dot(cx, -sy, CV.green, 5);
+    dot(cx,   0, CV.red,   3);
+
+    // Labels
+    label(cx / 2, sy >= -0.05 ? -0.14 : 0.14, 'cos(θ)', CV.red);
+    const xOff  = cx >= 0 ?  0.18 : -0.18;
+    const align = cx >= 0 ? 'left' : 'right';
+    if (sy > 0.05)  label(cx + xOff,  sy * 0.55, 'sin(θ)',  CV.blue, align);
+    if (sy > 0.05)  label(cx + xOff, -sy * 0.55, '−sin(θ)', CV.blue, align);
+  }
+
+  // Play animation: oscillate θ between 0.2 and 3.04
+  let rafRef = null, thetaRef = 0.9, dirRef = 1;
+  const minTR = 0.2, maxTR = 3.04;
+
+  function animateRef() {
+    thetaRef += dirRef * 0.018;
+    if (thetaRef >= maxTR) { thetaRef = maxTR; dirRef = -1; }
+    if (thetaRef <= minTR) { thetaRef = minTR; dirRef =  1; }
+    if (slRef) { slRef.value = thetaRef.toFixed(2); if (valRef) valRef.textContent = thetaRef.toFixed(2); }
+    drawReflect(thetaRef);
+    rafRef = requestAnimationFrame(animateRef);
+  }
+
+  if (btnRef) {
+    btnRef.addEventListener('click', () => {
+      if (rafRef) {
+        cancelAnimationFrame(rafRef); rafRef = null;
+        btnRef.textContent = '▶ Play'; btnRef.classList.remove('active');
+      } else {
+        btnRef.textContent = '■ Stop'; btnRef.classList.add('active');
+        animateRef();
+      }
+    });
+  }
+
+  if (pRef && slRef) {
+    slRef.addEventListener('input', () => {
+      if (rafRef) { cancelAnimationFrame(rafRef); rafRef = null; if (btnRef) { btnRef.textContent = '▶ Play'; btnRef.classList.remove('active'); } }
+      thetaRef = +slRef.value;
+      if (valRef) valRef.textContent = thetaRef.toFixed(2);
+      drawReflect(thetaRef);
+    });
+    drawReflect(+slRef.value);
+  }
+
+  // ── Figure B: cPPair — p(θ)·p(-θ) = 1 ──────────────────────────────
+  const pB = ucPlot('cPPair');
+  const slB = document.getElementById('sPP');
+  const valB = document.getElementById('vPP');
+
+  function drawB(theta) {
+    if (!pB) return;
+    const { ctx, px, py, base, circle, dot, arrow, label, arcCCW, arcCW } = pB;
+    base(true); circle();
+
+    const cx = Math.cos(theta), sy = Math.sin(theta);
+
+    arcCCW(theta, 0.22);               // solid CCW for +θ
+    arcCW(theta, 0.22, null, true);    // dashed CW for −θ
+
+    const ta = theta / 2;
+    label(0.31 * Math.cos(ta),  0.31 * Math.sin(ta), 'θ',  CV.purple);
+    label(0.31 * Math.cos(ta), -0.31 * Math.sin(ta), '−θ', CV.purple);
+
+    arrow(0, 0, cx,  sy, CV.gold,  2.5);
+    dot(cx,  sy, CV.gold,  5);
+    arrow(0, 0, cx, -sy, CV.green, 2.5);
+    dot(cx, -sy, CV.green, 5);
+
+    // "= 1" marker
+    dot(1, 0, '#ffffff', 4);
+    ctx.font = '11px IBM Plex Mono, monospace';
+    ctx.fillStyle = CV.text; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText('= 1', px(1) + 7, py(0));
+
+    const lr = 1.18, vOff = sy < 0.15 ? 0.14 : 0;
+    label(lr * cx,  lr * sy + vOff, 'p(θ)',  CV.gold);
+    label(lr * cx, -lr * sy - vOff, 'p(−θ)', CV.green);
+  }
+
+  if (pB && slB) {
+    slB.addEventListener('input', () => {
+      const t = +slB.value;
+      if (valB) valB.textContent = t.toFixed(2);
+      drawB(t);
+    });
+    drawB(+slB.value);
+  }
+
+  // ── Partial sums for the four series breakdown ───────────────────────
+  const pISin = ucPlot('cISinConv');
+  const pComb = ucPlot('cSeriesConv');
+  const slC   = document.getElementById('sSeriesN');
+  const valC  = document.getElementById('vSeriesN');
+
+  function expPartial(theta, N) {
+    let re = 0, im = 0, tRe = 1, tIm = 0;
+    for (let k = 0; k < N; k++) {
+      re += tRe; im += tIm;
+      const nRe = -tIm * theta / (k + 1);
+      const nIm =  tRe * theta / (k + 1);
+      tRe = nRe; tIm = nIm;
+    }
+    return [re, im];
+  }
+
+  function cosSinPartial(theta, N) {
+    let cosP = 0, sinP = 0, tRe = 1, tIm = 0;
+    for (let k = 0; k < N; k++) {
+      if (k % 2 === 0) cosP += tRe; else sinP += tIm;
+      const nRe = -tIm * theta / (k + 1);
+      const nIm =  tRe * theta / (k + 1);
+      tRe = nRe; tIm = nIm;
+    }
+    return [cosP, sinP];
+  }
+
+  // Build short formula string for chart titles (max 3 terms then ···)
+  const SUP = ['⁰','¹','²','³','⁴','⁵','⁶','⁷','⁸','⁹',
+               '¹⁰','¹¹','¹²','¹³','¹⁴','¹⁵','¹⁶','¹⁷','¹⁸','¹⁹','²⁰'];
+  function cosTitleFormula(N) {
+    const shown = [], evenKs = [];
+    for (let k = 0; k < N; k += 2) evenKs.push(k);
+    for (let i = 0; i < Math.min(4, evenKs.length); i++) {
+      const k = evenKs[i];
+      if (k === 0) shown.push('1');
+      else shown.push((i % 2 === 0 ? '+ ' : '− ') + 'θ' + SUP[k] + '/' + k + '!');
+    }
+    const more = evenKs.length > 4 ? ' ···' : '';
+    return 'cos(θ) = ' + (shown.length ? shown.join(' ') + more : '0');
+  }
+  function sinTitleFormula(N) {
+    const shown = [], oddKs = [];
+    for (let k = 1; k < N; k += 2) oddKs.push(k);
+    for (let i = 0; i < Math.min(4, oddKs.length); i++) {
+      const k = oddKs[i];
+      shown.push((i === 0 ? '' : i % 2 === 0 ? '+ ' : '− ') + 'θ' + SUP[k] + '/' + k + '!');
+    }
+    const more = oddKs.length > 4 ? ' ···' : '';
+    return 'sin(θ) = ' + (shown.length ? shown.join(' ') + more : '0');
+  }
+
+  function activeTerms(N, parity) {
+    const ks = [];
+    for (let k = 0; k < N; k++)
+      if (parity === 'all' || (parity === 'even' && k%2===0) || (parity === 'odd' && k%2===1))
+        ks.push(k);
+    return ks.length ? 'k = ' + ks.join(', ') : '(no terms yet)';
+  }
+
+  // Shared alignment constants — match ucPlot PAD=38, R=122 exactly
+  // so that ±1 in function plots is at the same pixel y as ±1 in the unit circle
+  const FP_PAD = 38, FP_RANGE = 1; // yMin=-1, yMax=1
+
+  // ── Function plot: θ on x-axis, value on y-axis ─────────────────────
+  function drawFuncPlot(canvasId, partialFn, targetFn, color, N, theta, yLabel) {
+    const cv = document.getElementById(canvasId);
+    if (!cv) return;
+    const W = cv.width / 2, H = cv.height / 2;
+    const ctx = cv.getContext('2d');
+    ctx.setTransform(2, 0, 0, 2, 0, 0);
+    const PL = FP_PAD, PR = 10, PT = FP_PAD, PB = FP_PAD;
+    const pw = W - PL - PR, ph = H - PT - PB;
+    const yMin = -FP_RANGE, yMax = FP_RANGE;
+    const tx = th => PL + (th / TAU) * pw;
+    const ty = v  => PT + (1 - (v - yMin) / (yMax - yMin)) * ph;
+
+    ctx.fillStyle = '#0c0c1e'; ctx.fillRect(0, 0, W, H);
+
+    // Grid lines at ±1
+    ctx.strokeStyle = 'rgba(60,60,120,.4)'; ctx.lineWidth = 0.5;
+    for (const v of [-1, 1]) {
+      ctx.beginPath(); ctx.moveTo(PL, ty(v)); ctx.lineTo(PL+pw, ty(v)); ctx.stroke();
+    }
+    ctx.strokeStyle = 'rgba(100,100,180,.7)'; ctx.lineWidth = 0.8;
+    ctx.beginPath(); ctx.moveTo(PL, ty(0)); ctx.lineTo(PL+pw, ty(0)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(PL, PT); ctx.lineTo(PL, PT+ph); ctx.stroke();
+
+    // y-axis labels
+    ctx.font = '10px IBM Plex Mono,monospace'; ctx.fillStyle = '#8888a8';
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    for (const [v, lbl] of [[1,'1'],[0,'0'],[-1,'-1']]) {
+      ctx.fillText(lbl, PL-4, ty(v));
+      ctx.beginPath(); ctx.strokeStyle='rgba(100,100,180,.4)'; ctx.lineWidth=0.4;
+      ctx.moveTo(PL-2,ty(v)); ctx.lineTo(PL+2,ty(v)); ctx.stroke();
+    }
+
+    // y-axis label (Re / Im)
+    ctx.save();
+    ctx.translate(12, PT + ph/2);
+    ctx.rotate(-Math.PI/2);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = yLabel === 'Im' ? '#40c8f0' : '#8888a8';
+    ctx.fillText(yLabel || '', 0, 0);
+    ctx.restore();
+
+    // x-axis ticks: 0, τ/4, τ/2, 3τ/4, τ  + "θ →" at end
+    ctx.fillStyle = '#8888a8'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    for (const [th, lbl] of [[0,'0'],[TAU/4,'τ/4'],[TAU/2,'τ/2'],[3*TAU/4,'3τ/4']]) {
+      ctx.fillText(lbl, tx(th), PT+ph+4);
+      ctx.beginPath(); ctx.strokeStyle='rgba(100,100,180,.5)'; ctx.lineWidth=0.5;
+      ctx.moveTo(tx(th), PT+ph); ctx.lineTo(tx(th), PT+ph+3); ctx.stroke();
+      if (th > 0) {
+        ctx.strokeStyle='rgba(60,60,120,.3)'; ctx.lineWidth=0.4;
+        ctx.beginPath(); ctx.moveTo(tx(th), PT); ctx.lineTo(tx(th), PT+ph); ctx.stroke();
+      }
+    }
+    ctx.fillStyle = '#8888a8'; ctx.textAlign = 'center';
+    ctx.fillText('τ', tx(TAU), PT+ph+4);
+    ctx.fillStyle = '#c4c4dc'; ctx.textAlign = 'left';
+    ctx.fillText('  θ →', tx(TAU), PT+ph+4);
+
+    // Clip to plot area
+    ctx.save();
+    ctx.beginPath(); ctx.rect(PL, PT, pw, ph); ctx.clip();
+
+    // Target function — grey dashed
+    ctx.strokeStyle = 'rgba(136,136,168,.5)'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
+    ctx.beginPath();
+    for (let i = 0; i <= 300; i++) {
+      const th = (i/300)*TAU;
+      i===0 ? ctx.moveTo(tx(th), ty(targetFn(th))) : ctx.lineTo(tx(th), ty(targetFn(th)));
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+
+    // Partial sum
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i <= 300; i++) {
+      const th = (i/300)*TAU;
+      const v = partialFn(th, N);
+      i===0 ? ctx.moveTo(tx(th), ty(v)) : ctx.lineTo(tx(th), ty(v));
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    // θ dot + crosshairs
+    if (theta !== undefined && theta >= 0) {
+      const v = partialFn(theta, N);
+      const dotX = tx(theta), dotY = ty(v);
+      ctx.strokeStyle = 'rgba(244,200,48,.35)'; ctx.lineWidth = 0.8; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(dotX, PT); ctx.lineTo(dotX, PT+ph); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(PL, dotY); ctx.lineTo(dotX, dotY); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#f4c830';
+      ctx.beginPath(); ctx.arc(dotX, dotY, 4, 0, TAU); ctx.fill();
+      // value label
+      ctx.font = '9px IBM Plex Mono,monospace'; ctx.fillStyle = '#f4c830';
+      ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      ctx.fillText(v.toFixed(2), dotX+5, dotY);
+    }
+
+    // N label
+    ctx.font = '11px IBM Plex Mono,monospace'; ctx.fillStyle = CV.text;
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillText('N = ' + N, PL+4, PT+2);
+  }
+
+  // ── Horizontal function plot: Re on x, θ on y ───────────────────────
+  function drawFuncPlotH(canvasId, partialFn, targetFn, color, N, theta) {
+    const cv = document.getElementById(canvasId);
+    if (!cv) return;
+    const W = cv.width / 2, H = cv.height / 2;
+    const ctx = cv.getContext('2d');
+    ctx.setTransform(2, 0, 0, 2, 0, 0);
+    // Same PAD as ucPlot so ±1 on Re axis aligns with ±1 on unit circle
+    const PL = FP_PAD, PR = FP_PAD, PT = FP_PAD, PB = FP_PAD;
+    const pw = W - PL - PR, ph = H - PT - PB;
+    const xMin = -FP_RANGE, xMax = FP_RANGE;
+    const tx = v  => PL + (v - xMin) / (xMax - xMin) * pw;
+    const ty = th => PT + (th / TAU) * ph;
+
+    ctx.fillStyle = '#0c0c1e'; ctx.fillRect(0, 0, W, H);
+
+    // Horizontal grid lines at -1, 0, 1 (now these are x-positions)
+    ctx.strokeStyle = 'rgba(60,60,120,.4)'; ctx.lineWidth = 0.5;
+    for (const v of [-1, 1]) {
+      ctx.beginPath(); ctx.moveTo(tx(v), PT); ctx.lineTo(tx(v), PT+ph); ctx.stroke();
+    }
+    ctx.strokeStyle = 'rgba(100,100,180,.7)'; ctx.lineWidth = 0.8;
+    ctx.beginPath(); ctx.moveTo(tx(0), PT); ctx.lineTo(tx(0), PT+ph); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(PL, PT); ctx.lineTo(PL+pw, PT); ctx.stroke();
+
+    // x-axis (Re) ticks at bottom
+    ctx.font = '10px IBM Plex Mono,monospace'; ctx.fillStyle = '#8888a8';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    for (const [v, lbl] of [[-1,'-1'],[0,'0'],[1,'1']]) {
+      ctx.fillText(lbl, tx(v), PT+ph+4);
+      ctx.beginPath(); ctx.strokeStyle='rgba(100,100,180,.5)'; ctx.lineWidth=0.5;
+      ctx.moveTo(tx(v), PT+ph); ctx.lineTo(tx(v), PT+ph+3); ctx.stroke();
+    }
+    ctx.fillStyle = '#e84040'; ctx.textAlign = 'right';
+    ctx.fillText('Re', PL+pw+PR-2, PT+ph+4);
+
+    // y-axis (θ) ticks at right
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    for (const [th, lbl] of [[0,'0'],[TAU/4,'τ/4'],[TAU/2,'τ/2'],[3*TAU/4,'3τ/4']]) {
+      ctx.fillText(lbl, PL+pw+4, ty(th));
+      ctx.beginPath(); ctx.strokeStyle='rgba(100,100,180,.4)'; ctx.lineWidth=0.4;
+      ctx.moveTo(PL, ty(th)); ctx.lineTo(PL+pw, ty(th)); ctx.stroke();
+    }
+    ctx.fillText('τ', PL+pw+4, ty(TAU));
+    ctx.fillStyle = '#c4c4dc';
+    ctx.fillText(' θ ↓', PL+pw+4, ty(TAU)+11);
+
+    // Target — grey dashed
+    ctx.strokeStyle = 'rgba(136,136,168,.5)'; ctx.lineWidth = 1; ctx.setLineDash([4,4]);
+    ctx.beginPath();
+    for (let i = 0; i <= 300; i++) {
+      const th = (i/300)*TAU;
+      i===0 ? ctx.moveTo(tx(targetFn(th)), ty(th)) : ctx.lineTo(tx(targetFn(th)), ty(th));
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+
+    // Partial sum
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i <= 300; i++) {
+      const th = (i/300)*TAU;
+      const v = partialFn(th, N);
+      i===0 ? ctx.moveTo(tx(v), ty(th)) : ctx.lineTo(tx(v), ty(th));
+    }
+    ctx.stroke();
+
+    // θ dot
+    if (theta !== undefined && theta >= 0) {
+      const v = partialFn(theta, N);
+      ctx.strokeStyle = 'rgba(244,200,48,.35)'; ctx.lineWidth = 0.8; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(PL, ty(theta)); ctx.lineTo(PL+pw, ty(theta)); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(tx(v), PT); ctx.lineTo(tx(v), PT+ph); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#f4c830';
+      ctx.beginPath(); ctx.arc(tx(v), ty(theta), 4, 0, TAU); ctx.fill();
+      ctx.font = '9px IBM Plex Mono,monospace'; ctx.fillStyle = '#f4c830';
+      ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      ctx.fillText(v.toFixed(2), tx(v)+5, ty(theta));
+    }
+
+    ctx.font = '11px IBM Plex Mono,monospace'; ctx.fillStyle = CV.text;
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillText('N = ' + N, PL+4, PT+2);
+  }
+
+  function drawAllSeries(N, theta) {
+    drawFuncPlot('cSinConv',  (t,n)=>cosSinPartial(t,n)[0], Math.cos, '#e84040', N, theta, 'Re');
+    drawFuncPlotH('cCosConv', (t,n)=>cosSinPartial(t,n)[0], Math.cos, '#e84040', N, theta);
+    drawFuncPlot('cISinConv', (t,n)=>cosSinPartial(t,n)[1], Math.sin, '#40c8f0', N, theta, 'Im');
+
+    // cos+i·sin: rainbow spiral + θ dot
+    if (pComb) {
+      const { ctx, px, py, base, circle, dot } = pComb;
+      base(true); circle('rgba(64,200,240,.18)', 1);
+      for (let s = 0; s < 360; s++) {
+        const t1=(s/360)*TAU, t2=((s+1)/360)*TAU;
+        const [r1,i1]=expPartial(t1,N), [r2,i2]=expPartial(t2,N);
+        ctx.beginPath(); ctx.moveTo(px(r1),py(i1)); ctx.lineTo(px(r2),py(i2));
+        ctx.strokeStyle=`hsla(${Math.round((s/360)*270)},85%,65%,.9)`;
+        ctx.lineWidth=1.8; ctx.stroke();
+      }
+      circle(CV.circle, 1.5); dot(1,0,'#ffffff',4);
+      // Re / Im axis labels
+      ctx.font = '11px IBM Plex Mono,monospace';
+      ctx.fillStyle = '#e84040'; ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+      ctx.fillText('Re', 301, 163);
+      ctx.fillStyle = '#40c8f0'; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+      ctx.fillText('Im', 163, 19);
+      if (theta !== undefined) {
+        const [re,im] = expPartial(theta, N);
+        const dx = px(re), dy = py(im);
+        const d0re = px(0), d0im = py(0);
+        // Dashed crosshairs to Re and Im axes
+        ctx.strokeStyle = 'rgba(244,200,48,.35)'; ctx.lineWidth = 0.8; ctx.setLineDash([3,3]);
+        ctx.beginPath(); ctx.moveTo(dx, dy); ctx.lineTo(dx, d0im); ctx.stroke(); // vertical → Re axis
+        ctx.beginPath(); ctx.moveTo(dx, dy); ctx.lineTo(d0re, dy); ctx.stroke(); // horizontal → Im axis
+        ctx.setLineDash([]);
+        // Gold dot
+        ctx.fillStyle='#f4c830';
+        ctx.beginPath(); ctx.arc(dx, dy, 5, 0, TAU); ctx.fill();
+        // Value labels
+        ctx.font = '10px IBM Plex Mono,monospace';
+        ctx.fillStyle = '#e84040'; // Re = cos color
+        ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText(re.toFixed(2), dx, d0im + 3);
+        ctx.fillStyle = '#40c8f0'; // Im = i·sin color
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillText(im.toFixed(2) + 'i', d0re - 3, dy);
+      }
+      ctx.font='13px IBM Plex Mono,monospace'; ctx.fillStyle=CV.text;
+      ctx.textAlign='left'; ctx.textBaseline='top'; ctx.fillText('N = '+N, 10, 8);
+    }
+
+    const el = id => document.getElementById(id);
+    const ec=el('vCosTerms'),es=el('vSinTerms'),ei=el('vISinTerms'),cb=el('vCombTerms');
+    if (es) es.textContent = 'odd terms '  + activeTerms(N,'odd')  + ' — converges to sin(θ) (grey dashed)';
+    if (ec) ec.textContent = 'even terms ' + activeTerms(N,'even') + ' — converges to cos(θ) (grey dashed)';
+    if (ei) ei.textContent = 'same odd terms — y-axis is Im, shows sin(θ) lives on imaginary axis';
+    if (cb) cb.textContent = 'all terms ' + activeTerms(N,'all')   + ' — spiral tightens to unit circle';
+    if (valC) valC.textContent = N;
+    // Dynamic chart titles showing current partial sum formula
+    const cosF = cosTitleFormula(N), sinF = sinTitleFormula(N);
+    const hc = el('hdCosN'), hch = el('hdCosHN'), hsi = el('hdSinImN');
+    if (hc)  hc.textContent  = cosF;
+    if (hch) hch.textContent = cosF + ' (Re axis)';
+    if (hsi) hsi.textContent = sinF + ' (Im axis)';
+  }
+
+  const slTheta  = document.getElementById('sSeriesTheta');
+  const valTheta = document.getElementById('vSeriesTheta');
+  const btnN     = document.getElementById('btnSeriesN');
+  const btnTheta = document.getElementById('btnSeriesTheta');
+
+  function getCurTheta() { return slTheta ? +slTheta.value / 100 : 0; }
+  function getCurN()     { return slC ? +slC.value : 4; }
+
+  function redraw() { drawAllSeries(getCurN(), getCurTheta()); }
+
+  if (slC)     slC.addEventListener('input',     () => { if (valC)     valC.textContent = getCurN(); redraw(); });
+  if (slTheta) slTheta.addEventListener('input', () => {
+    if (valTheta) valTheta.textContent = (getCurTheta() / TAU * 360).toFixed(0) + '°';
+    redraw();
+  });
+
+  // Play buttons
+  let ivN = null, ivTheta = null;
+
+  if (btnN) btnN.addEventListener('click', () => {
+    if (ivN) { clearInterval(ivN); ivN = null; btnN.textContent = '▶'; return; }
+    btnN.textContent = '⏸';
+    ivN = setInterval(() => {
+      const n = Math.min(getCurN() + 1, 20);
+      if (slC) slC.value = n;
+      if (valC) valC.textContent = n;
+      redraw();
+      if (n >= 20) { clearInterval(ivN); ivN = null; btnN.textContent = '▶'; }
+    }, 700);
+  });
+
+  if (btnTheta) btnTheta.addEventListener('click', () => {
+    if (ivTheta) { clearInterval(ivTheta); ivTheta = null; btnTheta.textContent = '▶'; return; }
+    btnTheta.textContent = '⏸';
+    ivTheta = setInterval(() => {
+      const v = (+slTheta.value + 3) % 629;
+      slTheta.value = v;
+      if (valTheta) valTheta.textContent = (v / 100 / TAU * 360).toFixed(0) + '°';
+      redraw();
+    }, 25);
+  });
+
+  redraw();
+
+  // ── Figures: cHalfCircle / cFullCircle — static side-by-side ─────────
+  (function () {
+    const SZ = 320, PAD = 38, R = (SZ - 2*PAD)/2, CX = SZ/2, CY = SZ/2;
+
+    function drawCircle(canvasId, theta, arcColor, dotColor) {
+      const cv = document.getElementById(canvasId);
+      if (!cv) return;
+      cv.width = SZ*2; cv.height = SZ*2;
+      cv.style.width = SZ+'px'; cv.style.height = SZ+'px';
+      const ctx = cv.getContext('2d');
+      ctx.setTransform(2,0,0,2,0,0);
+      const px = x => CX + x*R;
+      const py = y => CY - y*R;
+
+      // Background
+      ctx.fillStyle = '#0c0c1e'; ctx.fillRect(0,0,SZ,SZ);
+
+      // Axes
+      ctx.strokeStyle = 'rgba(100,100,180,.55)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(PAD/2,CY); ctx.lineTo(SZ-PAD/2,CY); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(CX,PAD/2); ctx.lineTo(CX,SZ-PAD/2); ctx.stroke();
+
+      // Axis labels
+      ctx.font = '11px IBM Plex Mono,monospace'; ctx.fillStyle = '#8888a8';
+      ctx.textAlign='center'; ctx.textBaseline='top';
+      ctx.fillText('1',  px(1), CY+5); ctx.fillText('-1', px(-1), CY+5);
+      ctx.textAlign='left'; ctx.textBaseline='middle';
+      ctx.fillText('i', CX+5, py(1)); ctx.fillText('-i', CX+5, py(-1));
+      ctx.fillStyle = '#e84040'; ctx.textAlign='right'; ctx.textBaseline='top';
+      ctx.fillText('Re', SZ-PAD/2+1, CY+5);
+      ctx.fillStyle = '#40c8f0'; ctx.textAlign='left'; ctx.textBaseline='bottom';
+      ctx.fillText('Im', CX+5, PAD/2-1);
+
+      // Faint full circle
+      ctx.strokeStyle = 'rgba(64,200,240,.2)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(CX,CY,R,0,TAU); ctx.stroke();
+
+      const isAtPi  = Math.abs(theta - Math.PI) < 0.05;
+      const isAtTau = Math.abs(theta - TAU) < 0.05;
+      const arcCol  = isAtTau ? '#f4c830' : isAtPi ? '#e84040' : 'rgba(64,200,240,.75)';
+
+      // Coloured arc from 0 to θ (CCW)
+      if (theta > 0.01) {
+        ctx.strokeStyle = arcCol; ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.arc(CX, CY, R, 0, -theta, true); ctx.stroke();
+      }
+
+      // Radial line centre → point
+      const re = Math.cos(theta), im = Math.sin(theta);
+      ctx.strokeStyle = 'rgba(196,196,220,.6)'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(CX,CY); ctx.lineTo(px(re),py(im)); ctx.stroke();
+
+      // Dot
+      ctx.fillStyle = arcCol;
+      ctx.beginPath(); ctx.arc(px(re),py(im),5,0,TAU); ctx.fill();
+
+      // Starting point (1,0)
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath(); ctx.arc(px(1),py(0),3,0,TAU); ctx.fill();
+
+      // θ label
+      ctx.font='11px IBM Plex Mono,monospace'; ctx.fillStyle=CV.text;
+      ctx.textAlign='left'; ctx.textBaseline='top';
+      ctx.fillText('θ = '+(theta/TAU*360).toFixed(0)+'°', 10, 8);
+
+    }
+
+    drawCircle('cHalfCircle', Math.PI, '#e84040', '#e84040');
+    drawCircle('cFullCircle', TAU,       '#f4c830', '#f4c830');
+  })();
+
+  // ── Figure CP: cComplexPlane — complex number as a 2D point ─────────
+  const pCP = ucPlot('cComplexPlane');
+  const sCP_a = document.getElementById('sCP_a');
+  const sCP_b = document.getElementById('sCP_b');
+  const vCP_a = document.getElementById('vCP_a');
+  const vCP_b = document.getElementById('vCP_b');
+
+  function drawCP(a, b) {
+    if (!pCP) return;
+    const { ctx, px, py, base, dot, arrow, label } = pCP;
+    base(true);
+
+    // Red horizontal bar: origin → (a, 0)  [real part]
+    if (Math.abs(a) > 0.02) {
+      ctx.beginPath(); ctx.moveTo(px(0), py(0)); ctx.lineTo(px(a), py(0));
+      ctx.strokeStyle = CV.red; ctx.lineWidth = 2.5; ctx.stroke();
+    }
+
+    // Cyan vertical bar: (a, 0) → (a, b)  [imaginary part]
+    if (Math.abs(b) > 0.02) {
+      ctx.beginPath(); ctx.moveTo(px(a), py(0)); ctx.lineTo(px(a), py(b));
+      ctx.strokeStyle = CV.cyan; ctx.lineWidth = 2.5; ctx.stroke();
+    }
+
+    // Faint dashed horizontal from point to i-axis
+    if (Math.abs(a) > 0.02 && Math.abs(b) > 0.02) {
+      ctx.setLineDash([3, 4]);
+      ctx.strokeStyle = 'rgba(196,196,220,.18)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(px(a), py(b)); ctx.lineTo(px(0), py(b)); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    // Gold arrow + gold dot at the complex number's position
+    arrow(0, 0, a, b, CV.gold, 2);
+    dot(a, b, CV.gold, 5);
+    if (Math.abs(a) > 0.02) dot(a, 0, CV.red, 3);
+
+    // Bar labels
+    if (Math.abs(a) > 0.07)
+      label(a / 2, b >= 0 ? -0.14 : 0.14, 'a', CV.red);
+    if (Math.abs(b) > 0.07) {
+      const xOff  = a >= 0 ?  0.17 : -0.17;
+      const align = a >= 0 ? 'left' : 'right';
+      label(a + xOff, b / 2, 'b', CV.cyan, align);
+    }
+
+    // Multi-color "a + ib" label near the gold dot
+    const len = Math.hypot(a, b);
+    if (len > 0.05) {
+      const lx = Math.max(-0.9, Math.min(0.9, a + (a / len) * 0.22));
+      const ly = Math.max(-0.9, Math.min(0.9, b + (b / len) * 0.22));
+      ctx.font = 'italic 12px Georgia, serif';
+      ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+      const wa = ctx.measureText('a').width;
+      const wi = ctx.measureText(' + i').width;
+      const wb = ctx.measureText('b').width;
+      let tx = px(lx) - (wa + wi + wb) / 2;
+      const ty = py(ly);
+      ctx.fillStyle = CV.red;  ctx.fillText('a',    tx, ty); tx += wa;
+      ctx.fillStyle = CV.text; ctx.fillText(' + i', tx, ty); tx += wi;
+      ctx.fillStyle = CV.cyan; ctx.fillText('b',    tx, ty);
+    }
+  }
+
+  if (pCP) {
+    const redrawCP = () => {
+      const a = sCP_a ? +sCP_a.value : 0.6;
+      const b = sCP_b ? +sCP_b.value : 0.7;
+      if (vCP_a) vCP_a.textContent = a.toFixed(2);
+      if (vCP_b) vCP_b.textContent = b.toFixed(2);
+      drawCP(a, b);
+    };
+    if (sCP_a) sCP_a.addEventListener('input', redrawCP);
+    if (sCP_b) sCP_b.addEventListener('input', redrawCP);
+    redrawCP();
+  }
+
+  // ── Figure MulI: cMulByI — each ×i is a 90° CCW rotation ────────────
+  const pMI = ucPlot('cMulByI');
+  const btnMI = document.getElementById('btnMulI');
+
+  const MI_PTS    = [[1,0],[0,1],[-1,0],[0,-1]];
+  const MI_LABELS = ['1', 'i', '−1', '−i'];
+  let miStep = 0, miPrev = -1;   // miPrev = −1 → no arc yet
+
+  function drawMulI() {
+    if (!pMI) return;
+    const { ctx, px, py, base, dot, arrow, label } = pMI;
+    base(true);
+
+    // Faint dots at all four positions
+    for (let k = 0; k < 4; k++) {
+      const [x, y] = MI_PTS[k];
+      dot(x, y, 'rgba(136,136,168,.28)', 3);
+    }
+
+    // Purple dashed arc showing the last ×i step
+    if (miPrev >= 0) {
+      const fromA = miPrev * Math.PI / 2;
+      const toA   = (miPrev + 1) * Math.PI / 2;
+      const cX = px(0), cY = py(0), scR = px(1) - px(0);
+      ctx.beginPath();
+      ctx.arc(cX, cY, scR * 0.42, -fromA, -toA, true);
+      ctx.strokeStyle = CV.purple; ctx.lineWidth = 1.5;
+      ctx.setLineDash([3, 4]); ctx.stroke(); ctx.setLineDash([]);
+
+      // Small arrowhead at the end of the arc (at 0.42 radius, CCW tangent)
+      const ex = 0.42 * Math.cos(toA), ey = 0.42 * Math.sin(toA);
+      const ux = -Math.sin(toA), uy = Math.cos(toA); // CCW tangent direction
+      const ah = 0.055, aw = 0.022;
+      ctx.fillStyle = CV.purple;
+      ctx.beginPath();
+      ctx.moveTo(px(ex),                   py(ey));
+      ctx.lineTo(px(ex - ux*ah + uy*aw),  py(ey - uy*ah - ux*aw));
+      ctx.lineTo(px(ex - ux*ah - uy*aw),  py(ey - uy*ah + ux*aw));
+      ctx.closePath(); ctx.fill();
+
+      // "× i" label at the arc midpoint
+      const midA = (fromA + toA) / 2;
+      label(0.62 * Math.cos(midA), 0.62 * Math.sin(midA), '× i', CV.purple);
+    }
+
+    // Gold arrow for current position
+    const [x, y] = MI_PTS[miStep];
+    arrow(0, 0, x, y, CV.gold, 2.5);
+
+    // Labels for all four positions (current = gold, others = muted)
+    for (let k = 0; k < 4; k++) {
+      const [kx, ky] = MI_PTS[k];
+      const color = k === miStep ? CV.gold : 'rgba(136,136,168,.45)';
+      label(kx * 1.22, ky * 1.22, MI_LABELS[k], color);
+    }
+    dot(x, y, CV.gold, 5);
+  }
+
+  if (pMI) drawMulI();
+
+  if (btnMI) {
+    btnMI.addEventListener('click', () => {
+      miPrev = miStep;
+      miStep = (miStep + 1) % 4;
+      drawMulI();
+    });
+  }
+
+})();
+</script>
+
+</body>
+</html>
