@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MathTau — mathematical explainers, derived naturally</title>
+
+  <meta name="description" content="MathTau publishes visual derivations of mathematical objects from first principles. Interactive figures, no memorization, no hand-waving.">
+  <meta name="author" content="MathTau">
+
+  <link rel="canonical" href="https://mathtau.com/">
+  <link rel="alternate" hreflang="en" href="https://mathtau.com/">
+  <link rel="alternate" hreflang="zh" href="https://mathtau.com/index_zh.html">
+  <link rel="license" href="https://creativecommons.org/licenses/by/4.0/">
+
+  <meta property="og:title" content="MathTau">
+  <meta property="og:description" content="Mathematical explainers, derived naturally.">
+  <meta property="og:url" content="https://mathtau.com/">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://mathtau.com/og-card.png">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="zh_CN">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" type="image/svg+xml" href="/logo-minimal.svg">
+  <link rel="apple-touch-icon" href="/logo-minimal.svg">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0c0c1e;
+      --surface:   #111128;
+      --surface-2: #16163a;
+      --border:    #22224a;
+      --text:      #c4c4dc;
+      --muted:     #8888a8;
+      --gold:      #f4c830;
+      --cyan:      #40c8f0;
+      --green:     #50d890;
+      --orange:    #f08840;
+      --pink:      #d040a0;
+      --red:       #e84040;
+      --blue:      #6080f0;
+      --purple:    #b070f0;
+    }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+
+    /* ── Header ─────────────────────────────────────────────────── */
+    header.site-head {
+      text-align: center;
+      padding: 90px 24px 64px;
+      border-bottom: 1px solid var(--border);
+    }
+    header.site-head .brand-mark {
+      display: block;
+      width: 220px;
+      height: 220px;
+      margin: 0 auto 22px;
+      filter: drop-shadow(0 0 40px rgba(244,200,48,.20));
+    }
+    header.site-head h1 {
+      font-size: 3rem;
+      font-style: italic;
+      color: var(--gold);
+      letter-spacing: 0.03em;
+      text-shadow: 0 0 50px rgba(244,200,48,.25);
+    }
+    header.site-head p.tagline {
+      margin-top: 16px;
+      color: #6090c0;
+      font-style: italic;
+      font-size: 1.15rem;
+    }
+    header.site-head p.thesis {
+      margin-top: 22px;
+      color: var(--gold);
+      font-style: italic;
+      font-size: .98rem;
+      letter-spacing: .015em;
+      opacity: .92;
+      max-width: 640px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    header.site-head p.thesis em {
+      font-style: italic;
+      font-weight: 600;
+    }
+
+    /* ── Language toggle ─────────────────────────────────────────── */
+    .lang-toggle {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 100;
+      display: flex;
+      gap: 2px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 3px;
+      font-family: 'Georgia', serif;
+    }
+    .lang-toggle a {
+      padding: 6px 14px;
+      border-radius: 6px;
+      text-decoration: none;
+      color: var(--text);
+      font-size: .9rem;
+      transition: color .2s, background .2s;
+    }
+    .lang-toggle a:hover { color: var(--gold); }
+    .lang-toggle a.active {
+      background: rgba(244,200,48,.15);
+      color: var(--gold);
+    }
+
+    /* ── Layout ─────────────────────────────────────────────────── */
+    main {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 28px 100px;
+    }
+
+    /* ── Intro section ──────────────────────────────────────────── */
+    .intro {
+      margin-top: 64px;
+      max-width: 740px;
+    }
+    .intro p {
+      font-size: 1.1rem;
+      margin-bottom: 18px;
+    }
+    em.m     { font-style: italic; color: var(--cyan);   }
+    em.mx    { font-style: italic; color: var(--red);    }
+    em.my    { font-style: italic; color: var(--blue);   }
+    em.mt    { font-style: italic; color: var(--purple); }
+    em.mr    { font-style: italic; color: var(--orange); }
+    em.mtau  { font-style: italic; color: var(--gold);   }
+    em.mg    { font-style: italic; color: var(--green);  }
+    em.mp    { font-style: italic; color: var(--pink);   }
+
+    /* ── Laws block ─────────────────────────────────────────────── */
+    .laws {
+      margin-top: 52px;
+      border-left: 2px solid rgba(244,200,48,.22);
+      padding-left: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .law {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      white-space: nowrap;
+    }
+    .law-num {
+      font-family: monospace;
+      font-size: .75rem;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+    .law-text {
+      font-size: 1.05rem;
+      font-style: italic;
+      color: var(--text);
+      line-height: 1.65;
+      white-space: nowrap;
+    }
+
+    /* ── Articles section ───────────────────────────────────────── */
+    .articles {
+      margin-top: 80px;
+    }
+    .section-label {
+      font-size: .78rem;
+      color: var(--muted);
+      font-family: monospace;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 36px;
+    }
+
+    /* big featured article card */
+    .article-card {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 36px;
+      transition: border-color .25s, transform .25s, box-shadow .25s;
+    }
+    .article-card:hover {
+      border-color: rgba(244,200,48,.35);
+      transform: translateY(-2px);
+      box-shadow: 0 18px 48px -20px rgba(244,200,48,.18);
+    }
+    .article-card .card-image {
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .article-card .card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .article-card .card-body {
+      padding: 38px 40px 36px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .article-card .card-num {
+      font-family: monospace;
+      font-size: .78rem;
+      color: var(--muted);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .article-card h3 {
+      font-size: 1.6rem;
+      color: var(--gold);
+      font-weight: normal;
+      line-height: 1.3;
+      margin-bottom: 12px;
+    }
+    .article-card .subtitle {
+      font-style: italic;
+      color: var(--cyan);
+      font-size: 1.02rem;
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+    .article-card .description {
+      color: var(--text);
+      font-size: .98rem;
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+    .article-card .article-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      align-items: center;
+    }
+    .article-card .read-link {
+      font-family: 'Georgia', serif;
+      color: var(--gold);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(244,200,48,.35);
+      padding-bottom: 2px;
+      font-size: 1rem;
+      transition: border-color .2s, color .2s;
+    }
+    .article-card .read-link:hover {
+      color: var(--gold);
+      border-bottom-color: var(--gold);
+    }
+    .article-card .read-link.secondary {
+      color: var(--muted);
+      border-bottom-color: rgba(96,96,122,.35);
+    }
+    .article-card .read-link.secondary:hover {
+      color: var(--cyan);
+      border-bottom-color: var(--cyan);
+    }
+
+    /* placeholder card for future content */
+    .article-card.placeholder {
+      grid-template-columns: 1fr;
+      border-style: dashed;
+      background: transparent;
+    }
+    .article-card.placeholder .card-body {
+      text-align: center;
+      padding: 56px 40px;
+      color: var(--muted);
+      font-style: italic;
+    }
+    .article-card.placeholder:hover {
+      transform: none;
+      box-shadow: none;
+      border-color: var(--border);
+    }
+
+    @media (max-width: 760px) {
+      header.site-head { padding: 60px 24px 44px; }
+      header.site-head .brand-mark { width: 150px; height: 150px; }
+      header.site-head h1 { font-size: 2.2rem; }
+      .article-card { grid-template-columns: 1fr; }
+      .article-card .card-image { aspect-ratio: 1200 / 630; }
+      .article-card .card-body { padding: 28px 26px; }
+      .article-card h3 { font-size: 1.35rem; }
+    }
+
+    /* ── Footer ───────────────────────────────────────────────── */
+    footer {
+      max-width: 1080px;
+      margin: 60px auto 0;
+      padding: 36px 28px 60px;
+      border-top: 1px solid var(--border);
+      font-size: .9rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    footer p { margin-bottom: 14px; max-width: 760px; }
+    footer p:last-child { margin-bottom: 0; }
+    footer a {
+      color: var(--cyan);
+      text-decoration: none;
+      border-bottom: 1px dotted rgba(64,200,240,.5);
+      transition: color .2s, border-color .2s;
+    }
+    footer a:hover { color: var(--gold); border-bottom-color: var(--gold); }
+    footer .footer-meta {
+      font-family: monospace;
+      font-size: .82rem;
+      letter-spacing: .02em;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+<div class="lang-toggle">
+  <a href="index.html" class="active">English</a>
+  <a href="index_zh.html">中文</a>
+</div>
+
+<header class="site-head">
+  <img src="/logo.svg" alt="" class="brand-mark">
+  <h1>MathTau</h1>
+  <p class="tagline">mathematical explainers, derived naturally</p>
+  <p class="thesis">whenever <em>τ</em> appears in an equation, a circle will always emerge somewhere</p>
+</header>
+
+<main>
+
+  <!-- ── Intro ──────────────────────────────────────────────────── -->
+  <section class="intro">
+    <p>MathTau publishes visual derivations of mathematical objects from
+    first principles — not as definitions to memorize, but as inevitable
+    consequences of simpler underlying structures.</p>
+
+    <p>Every article ships with interactive figures. Drag sliders, hit
+    <em class="m">play</em>, watch the geometry build from zero.</p>
+  </section>
+
+  <!-- ── Laws ─────────────────────────────────────────────────────── -->
+  <section class="laws" aria-label="The Laws of MathTau">
+    <div class="law">
+      <span class="law-num">MathTau Law I</span>
+      <p class="law-text">Whenever <em class="m">π</em> appears in an equation, it should be replaced by <em class="mtau">τ</em>.</p>
+    </div>
+    <div class="law">
+      <span class="law-num">MathTau Law II</span>
+      <p class="law-text">Whenever <em class="mtau">τ</em> appears in an equation, a circle will always emerge somewhere.</p>
+    </div>
+  </section>
+
+  <!-- ── Articles ───────────────────────────────────────────────── -->
+  <section class="articles">
+    <div class="section-label">Articles</div>
+
+    <!-- Featured article: Euler's Formula -->
+    <a href="/euler/" style="text-decoration:none; color:inherit; display:block;">
+      <article class="article-card">
+        <div class="card-image">
+          <img src="/euler/og-card.png" alt="Half-circle and full-circle traversal of the complex unit circle">
+        </div>
+        <div class="card-body">
+          <div class="card-num">§ 01 &nbsp;·&nbsp; 2026</div>
+          <h3>Euler's Formula in its True Elegance</h3>
+          <p class="subtitle">Why <em>e<sup>iπ</sup> + 1 = 0</em> is not the most elegant form — and <em>e<sup>iτ</sup> = 1</em> is</p>
+          <p class="description">
+            Derive <em>e<sup>iθ</sup> = cos θ + i sin θ</em> from a single observation:
+            multiplying by <em>i</em> is rotation by 90°. The unit circle is hiding in the
+            derivative. Then see why the famous identity is a half-frame of the real movie.
+          </p>
+          <p class="article-links">
+            <span class="read-link">Read in English →</span>
+            <a href="/euler/index_zh.html" class="read-link secondary"
+               onclick="event.stopPropagation()">阅读中文版</a>
+          </p>
+        </div>
+      </article>
+    </a>
+
+    <!-- Featured article: Gaussian -->
+    <a href="/gaussian/" style="text-decoration:none; color:inherit; display:block;">
+      <article class="article-card">
+        <div class="card-image">
+          <img src="/gaussian/og-card.png" alt="Square tiling and donut tiling of the Gaussian bell curve">
+        </div>
+        <div class="card-body">
+          <div class="card-num">§ 02 &nbsp;·&nbsp; 2026</div>
+          <h3>Natural Derivation of the Gaussian Integral</h3>
+          <p class="subtitle">A visual journey from linear change to the hidden circle</p>
+          <p class="description">
+            Why does <em>∫ exp(−x²/2) dx = √τ</em>? Four sections, from the most
+            ordinary observation (constant acceleration) to a surprising consequence
+            (a circle emerges from a one-dimensional integral). Each step is built
+            interactively — drag, play, watch.
+          </p>
+          <p class="article-links">
+            <span class="read-link">Read in English →</span>
+            <a href="/gaussian/index_zh.html" class="read-link secondary"
+               onclick="event.stopPropagation()">阅读中文版</a>
+          </p>
+        </div>
+      </article>
+    </a>
+
+    <!-- Placeholder for future article -->
+    <div class="article-card placeholder">
+      <div class="card-body">
+        more articles in progress<br>
+        <span style="font-size:.85rem; opacity:.7;">
+          (How much space does a unit-ball occupy? Stay tuned.)
+        </span>
+      </div>
+    </div>
+
+  </section>
+
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     FOOTER — license, citation, contact, source
+═══════════════════════════════════════════════════════════════ -->
+<footer>
+  <p>© 2026 MathTau. Articles licensed under
+    <a href="https://creativecommons.org/licenses/by/4.0/" rel="license">CC BY 4.0</a>.
+    The text, figures, and source code of every article carry the same license.
+    Mirrors and translations are welcome — please preserve attribution and link back to
+    <a href="https://mathtau.com/">mathtau.com</a>.</p>
+
+  <p class="footer-meta">
+    <a href="https://github.com/mathtau/NatPhil">View source on GitHub</a> &nbsp;·&nbsp;
+    <a href="https://github.com/mathtau/NatPhil/issues">Report a typo or ask a question</a> &nbsp;·&nbsp;
+    Contact <a href="mailto:tau@mathtau.com">tau@mathtau.com</a> &nbsp;·&nbsp;
+    Last updated 2026-05-25
+  </p>
+</footer>
+
+</body>
+</html>

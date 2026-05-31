@@ -1,29 +1,29 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>高斯积分的自然推导</title>
 
-  <meta name="description" content="高斯积分的可视化推导 —— 从 x²/2 到隐藏的圆周，附交互式图表。">
+  <meta name="description" content="高斯积分的可视化推导，在互动图表中从线性变化到隐藏的圆圈。">
   <meta name="author" content="MathTau">
 
-  <link rel="canonical" href="https://mathtau.com/index_zh.html">
-  <link rel="alternate" hreflang="en" href="https://mathtau.com/">
-  <link rel="alternate" hreflang="zh" href="https://mathtau.com/index_zh.html">
+  <link rel="canonical" href="https://mathtau.com/gaussian/index_zh.html">
+  <link rel="alternate" hreflang="en" href="https://mathtau.com/gaussian/">
+  <link rel="alternate" hreflang="zh" href="https://mathtau.com/gaussian/index_zh.html">
   <link rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.zh">
 
   <meta property="og:title" content="高斯积分的自然推导">
-  <meta property="og:description" content="从线性变化到隐藏圆周的可视化之旅。">
-  <meta property="og:url" content="https://mathtau.com/index_zh.html">
+  <meta property="og:description" content="从线性变化到隐藏圆圈的可视化之旅。">
+  <meta property="og:url" content="https://mathtau.com/gaussian/index_zh.html">
   <meta property="og:type" content="article">
-  <meta property="og:image" content="https://mathtau.com/og-card.png">
+  <meta property="og:image" content="https://mathtau.com/gaussian/og-card.png">
   <meta property="og:locale" content="zh_CN">
   <meta property="og:locale:alternate" content="en_US">
   <meta name="twitter:card" content="summary_large_image">
 
-  <link rel="icon" type="image/svg+xml" href="logo-minimal.svg">
-  <link rel="apple-touch-icon" href="logo-minimal.svg">
+  <link rel="icon" type="image/svg+xml" href="/logo-minimal.svg">
+  <link rel="apple-touch-icon" href="/logo-minimal.svg">
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -33,12 +33,15 @@
       --surface:   #111128;
       --border:    #22224a;
       --text:      #c4c4dc;
-      --muted:     #60607a;
-      --gold:      #f0c040;
+      --muted:     #8888a8;
+      --gold:      #f4c830;
       --cyan:      #40c8f0;
       --green:     #50d890;
       --orange:    #f08840;
-      --pink:      #e06080;
+      --pink:      #d040a0;
+      --red:       #e84040;
+      --blue:      #6080f0;
+      --purple:    #b070f0;
     }
 
     body {
@@ -59,17 +62,17 @@
       width: 200px;
       height: 200px;
       margin: 0 auto 18px;
-      filter: drop-shadow(0 0 30px rgba(240,192,64,.18));
+      filter: drop-shadow(0 0 30px rgba(244,200,48,.18));
     }
     header h1 {
       font-size: 2.6rem;
       color: var(--gold);
       letter-spacing: 0.05em;
-      text-shadow: 0 0 50px rgba(240,192,64,.25);
+      text-shadow: 0 0 50px rgba(244,200,48,.25);
     }
     header p {
       margin-top: 14px;
-      color: var(--muted);
+      color: #6090c0;
       font-style: italic;
       font-size: 1.05rem;
       max-width: none;
@@ -94,15 +97,21 @@
       border-bottom: 1px solid var(--border);
       margin-bottom: 28px;
     }
-    .sec-num  { font-size: .78rem; color: var(--muted); font-family: monospace; letter-spacing: .08em; }
+    .sec-num  { font-size: .78rem; color: #6090c0; font-family: monospace; letter-spacing: .08em; }
     h2        { font-size: 1.5rem; font-weight: normal; color: var(--gold); }
 
     p         { margin-bottom: 18px; max-width: 740px; }
 
     /* inline math highlight */
-    em.m      { font-style: italic; color: var(--cyan); }
-    em.mg     { font-style: italic; color: var(--green); }
-    em.mo     { font-style: italic; color: var(--orange); }
+    em.m     { font-style: italic; color: var(--cyan);   }
+    em.mx    { font-style: italic; color: var(--red);    }
+    em.my    { font-style: italic; color: var(--blue);   }
+    em.mt    { font-style: italic; color: var(--purple); }
+    em.mr    { font-style: italic; color: var(--orange); }
+    em.mtau  { font-style: italic; color: var(--gold);   }
+    em.mg    { font-style: italic; color: var(--green);  }
+    em.mp    { font-style: italic; color: var(--pink);   }
+    em.mo    { font-style: italic; color: var(--orange); }
 
     /* centred equation display */
     .eq {
@@ -110,14 +119,14 @@
       text-align: center;
       font-style: italic;
       font-size: 1.25rem;
-      color: var(--green);
+      color: #c8c8e0;
       margin: 30px auto;
       letter-spacing: .02em;
     }
 
     /* callout box */
     .callout {
-      background: rgba(240,192,64,.05);
+      background: rgba(244,200,48,.05);
       border-left: 3px solid var(--gold);
       border-radius: 0 8px 8px 0;
       padding: 16px 20px;
@@ -212,7 +221,7 @@
       width: 18px; height: 18px;
       background: var(--gold);
       border-radius: 50%;
-      box-shadow: 0 0 10px rgba(240,192,64,.45);
+      box-shadow: 0 0 10px rgba(244,200,48,.45);
     }
     .val { font-family: monospace; color: var(--gold); min-width: 48px; }
 
@@ -260,15 +269,48 @@
       padding: 6px 14px;
       border-radius: 6px;
       text-decoration: none;
-      color: var(--muted);
+      color: var(--text);
       font-size: .9rem;
       transition: color .2s, background .2s;
     }
     .lang-toggle a:hover { color: var(--gold); }
     .lang-toggle a.active {
-      background: rgba(240,192,64,.15);
+      background: rgba(244,200,48,.15);
       color: var(--gold);
     }
+
+    /* ── Home link ───────────────────────────────────────────────── */
+    .home-link {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 100;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-family: 'Georgia', serif;
+      font-size: .9rem;
+      color: #6090c0;
+      text-decoration: none;
+      transition: color .2s, border-color .2s;
+    }
+    .home-link:hover { color: var(--gold); border-color: rgba(244,200,48,.4); }
+    .home-btn {
+      display: inline-block;
+      margin: 56px auto 0;
+      padding: 12px 32px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: #6090c0;
+      font-family: 'Georgia', serif;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: color .2s, border-color .2s;
+    }
+    .home-btn:hover { color: var(--gold); border-color: rgba(244,200,48,.4); }
+    .home-btn-wrap { text-align: center; padding-bottom: 20px; }
 
     /* ── Footer ───────────────────────────────────────────────── */
     footer {
@@ -296,9 +338,42 @@
       letter-spacing: .02em;
       color: var(--muted);
     }
+    /* inline thesis tooltip */
+    .tip {
+      position: relative;
+      border-bottom: 1px dotted var(--gold);
+      cursor: help;
+    }
+    .tip::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: max-content;
+      max-width: 260px;
+      padding: 6px 10px;
+      background: var(--surface);
+      border: 1px solid var(--gold);
+      border-radius: 5px;
+      color: var(--gold);
+      font-size: .82rem;
+      font-style: normal;
+      font-family: 'Georgia', serif;
+      line-height: 1.4;
+      white-space: normal;
+      text-align: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .18s;
+      z-index: 20;
+    }
+    .tip:hover::after { opacity: 1; }
   </style>
 </head>
 <body>
+
+<a href="/index_zh.html" class="home-link">← MathTau</a>
 
 <div class="lang-toggle">
   <a href="index.html">English</a>
@@ -306,12 +381,51 @@
 </div>
 
 <header>
-  <img src="logo.svg" alt="" class="brand-mark">
+  <img src="/logo.svg" alt="" class="brand-mark">
   <h1>高斯积分的自然推导</h1>
   <p>从线性变化到隐藏圆的视觉之旅</p>
+  <p style="margin-top:10px; font-size:.88rem; color:var(--muted); letter-spacing:.06em;">数学韬 <em style="font-style:normal; color:var(--gold); font-weight:600;">τ</em></p>
 </header>
 
 <main>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     序章 —— 等式两侧各藏着同一个圆周
+═══════════════════════════════════════════════════════════════ -->
+<div class="section" id="prelude">
+  <div class="sec-head">
+    <span class="sec-num">序章</span>
+    <h2>等式两侧各藏着同一个圆圈</h2>
+  </div>
+
+  <p>高斯积分最常被引用的形式是：</p>
+
+  <span class="eq">∫ <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²)</em> <em class="mx">dx</em> &ensp;=&ensp; √π</span>
+
+  <p>乍一读，十分漂亮：一个没有初等原函数的函数，在整条实数轴上积分之后，
+  给出一个有限的值，里面还含着数学里最有名的常数。人们把它印在 T 恤上。</p>
+
+  <p>但这个等式的两边，都谈不上<em>自然的</em>优雅。</p>
+
+  <p><strong>右边</strong>的 <em class="m">√π</em> 并不是自然的圆周常数的选择。
+  右侧更自然的写法是 <em class="m">√(</em><em class="mtau">τ</em><em class="m">/2)</em>，
+  但这里仍把 <em class="mtau">τ</em> 藏在 <em class="m">/2</em> 后面。
+  （为什么是 <em class="mtau">τ</em> 而不是 <em class="m">π</em> 才是圆的自然常数？
+  请参看姊妹篇
+  <a href="../euler/index_zh.html" style="color: var(--gold);">欧拉公式的真正优雅</a>。）</p>
+
+  <p><strong>左边</strong>，乍一看 <em class="mx">x</em><em class="m">²</em> 似乎比它的一半更自然。
+  但正如本文所揭示的，更自然的形式其实是 <em class="mx">x</em><em class="m">²/2</em>。</p>
+
+  <p>如果我们将两边都<em>自然化</em>，就能得到这个等式的<em>基本形式</em>：</p>
+
+  <span class="eq">∫ <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em> <em class="mx">dx</em> &ensp;=&ensp; √<em class="mtau">τ</em></span>
+
+  <p>左边指数里的 <em class="m">/2</em>，与右边的 <em class="mtau">τ</em>，
+  并非随意的选择 —— 它们之间有着更深层的联系。
+  本文之后的内容，就是追溯这两者的共同来源，以及
+  <span class="tip" data-tip="MathTau 定律二：凡等式中出现 τ，必有圆形浮现。">那个一直藏匿其中的圆</span>。</p>
+</div>
 
 <!-- ═══════════════════════════════════════════════════════════════
      第一节 — x²/2
@@ -319,33 +433,33 @@
 <div class="section" id="s1">
   <div class="sec-head">
     <span class="sec-num">§ 1</span>
-    <h2><span class="frac"><span class="num">x²</span><span class="den">2</span></span> 的自然出现</h2>
+    <h2><span class="frac"><span class="num"><em class="mx">x</em>²</span><span class="den">2</span></span> 的自然出现</h2>
   </div>
 
   <!-- ── 第一部分：为何 v = t ──────────────────────────────── -->
-  <h3 class="subhead">第一部分 — 为什么 v = t 是自然的速度？</h3>
+  <h3 class="subhead">第一部分 — 为什么 <em class="mg">v</em> = <em class="mx">t</em> 是自然的速度？</h3>
 
   <p>重力是恒定加速度的典型例子——在地球表面附近，它让下落物体以约 9.8 m/s²
-  的加速度向下运动，在人类尺度上几乎完美恒定。加速度即速度的变化率：</p>
+  的加速度向下运动，在人类尺度上几乎完美恒定。加速度即速度的变化速度：</p>
 
-  <span class="eq">a &ensp;=&ensp; <span class="frac"><span class="num">dv</span><span class="den">dt</span></span></span>
+  <span class="eq"><em class="mg">a</em> &ensp;=&ensp; <span class="frac"><span class="num"><em class="mg">dv</em></span><span class="den"><em class="mx">dt</em></span></span></span>
 
-  <p>重新整理：每一微小时间片 <em class="m">dt</em> 提供一份速度增量
-  <em class="m">dv = a · dt</em>。令 <em class="m">a = 1</em> 可使数值简化而不改变结构。
-  当 <em class="m">a = 1</em> 时：<em class="mg">dv = dt</em>。</p>
+  <p>重新整理：每一微小时间片 <em class="mx">dt</em> 提供一份速度增量
+  <em class="mg">dv</em> <em class="m">=</em> <em class="mg">a</em> <em class="m">·</em> <em class="mx">dt</em>。令 <em class="mg">a</em> <em class="m">= 1</em> 可使数值简化而不改变结构。
+  当 <em class="mg">a</em> <em class="m">= 1</em> 时：<em class="mg">dv</em> <em class="m">=</em> <em class="mx">dt</em>。</p>
 
-  <p>现在看看恒定的 <em class="m">a</em> 如何在同一时间区间内累积出
-  <em class="m">v</em>：</p>
+  <p>现在看看恒定的 <em class="mg">a</em> 如何在同一时间区间内累积出
+  <em class="mg">v</em>：</p>
 
-  <p><strong>左图</strong>——时间轴上恒定的 <em class="m">a = 1</em>。
-  <em class="m">N</em> 个彩色方块，每个高度为 1，宽度为 <em class="m">dt</em>，因此面积为：</p>
+  <p><strong>左图</strong>——时间轴上恒定的 <em class="mg">a</em> <em class="m">= 1</em>。
+  <em class="mx">N</em> 个彩色方块，每个高度为 1，宽度为 <em class="mx">dt</em>，因此面积为：</p>
 
-  <span class="eq">1 · dt &ensp;=&ensp; a · dt &ensp;=&ensp; dt &ensp;=&ensp; dv</span>
+  <span class="eq"><em class="m">1 ·</em> <em class="mx">dt</em> &ensp;=&ensp; <em class="mg">a</em> <em class="m">·</em> <em class="mx">dt</em> &ensp;=&ensp; <em class="mx">dt</em> &ensp;=&ensp; <em class="mg">dv</em></span>
 
-  <p><strong>右图</strong>——时间轴上的 <em class="m">v</em>。每个时间区间内，
-  <em class="m">v</em> 按定义增长 <em class="mg">dv</em>：右图上每段刻度长度对应左图中
-  一个方块的面积，在大 <em class="m">N</em> 极限下完美贴合 <em class="m">v = t</em>。
-  拖动 <em class="m">N</em>：</p>
+  <p><strong>右图</strong>——时间轴上的 <em class="mg">v</em>。每个时间区间内，
+  <em class="mg">v</em> 按定义增长 <em class="mg">dv</em>：右图上每段刻度长度对应左图中
+  一个方块的面积，在大 <em class="mx">N</em> 极限下完美贴合 <em class="mg">v</em> <em class="m">=</em> <em class="mx">t</em>。
+  拖动 <em class="mx">N</em>：</p>
 
   <div class="controls">
     <label>N =</label>
@@ -357,8 +471,8 @@
     <div class="graph-card">
       <canvas id="c1g" width="700" height="700"></canvas>
       <p class="graph-caption">
-        恒定加速度 g = 1——每个彩色方块代表一份速度增量
-        <em>dv = g · dt</em>
+        恒定加速度 a = 1——每个彩色方块代表一份速度增量
+        <em>dv = a · dt</em>
       </p>
     </div>
     <div class="graph-card">
@@ -370,30 +484,30 @@
   </div>
 
   <p>当 <em class="m">N → ∞</em> 时，每个切片变得越来越细，阶梯就成为光滑直线
-  <em class="m">v = t</em>。这条直线不是人为选择的——它由重力的恒定性所强制：
+  <em class="mg">v</em> <em class="m">=</em> <em class="mx">t</em>。这条直线不是人为选择的——它由重力的恒定性所强制：
   相等的推动累积成线性增长。</p>
 
   <!-- ── 第二部分：自然的距离 ────────────────────────── -->
-  <h3 class="subhead">第二部分 — 为什么 x = t²/2 是自然的距离？</h3>
+  <h3 class="subhead">第二部分 — 为什么 <em class="my">x</em> = <em class="mx">t</em>²/2 是自然的距离？</h3>
 
   <p>距离等于速度乘以时间。每个瞬时贡献一条薄薄的面积条
-  <em class="m">v · dt = t · dt</em>，总距离就是所有条形的总和——即
-  <em class="m">v = t</em> 下方的面积。</p>
+  <em class="mg">v</em> <em class="m">·</em> <em class="mx">dt</em> <em class="m">=</em> <em class="mx">t</em> <em class="m">·</em> <em class="mx">dt</em>，总距离就是所有条形的总和——即
+  <em class="mg">v</em> <em class="m">=</em> <em class="mx">t</em> 下方的面积。</p>
 
-  <p>这个区域是一个直角三角形，底为 <em class="m">t</em>、高为
-  <em class="m">t</em>。其面积恰好是外接正方形的一半：</p>
+  <p>这个区域是一个直角三角形，底为 <em class="mx">t</em>、高为
+  <em class="mx">t</em>。其面积恰好是外接正方形的一半：</p>
 
-  <span class="eq">x &ensp;=&ensp; ½ · t · t &ensp;=&ensp; <span class="frac"><span class="num">t²</span><span class="den">2</span></span></span>
+  <span class="eq"><em class="my">x</em> &ensp;=&ensp; <em class="m">½ ·</em> <em class="mx">t</em> <em class="m">·</em> <em class="mx">t</em> &ensp;=&ensp; <span class="frac"><span class="num"><em class="mx">t</em>²</span><span class="den">2</span></span></span>
 
-  <p><strong>左图</strong>——时间轴上的 <em class="m">v = t</em>。每条彩色条带
-  高为 <em class="m">v</em>、宽为 <em class="m">dt</em>，因此面积为：</p>
+  <p><strong>左图</strong>——时间轴上的 <em class="mg">v</em> <em class="m">=</em> <em class="mx">t</em>。每条彩色条带
+  高为 <em class="mg">v</em>、宽为 <em class="mx">dt</em>，因此面积为：</p>
 
-  <span class="eq">v · dt &ensp;=&ensp; t · dt &ensp;=&ensp; dx</span>
+  <span class="eq"><em class="mg">v</em> <em class="m">·</em> <em class="mx">dt</em> &ensp;=&ensp; <em class="mx">t</em> <em class="m">·</em> <em class="mx">dt</em> &ensp;=&ensp; <em class="my">dx</em></span>
 
-  <p><strong>右图</strong>——时间轴上的距离 <em class="m">x(t)</em>。每一刻，
+  <p><strong>右图</strong>——时间轴上的距离 <em class="my">x</em><em class="m">(</em><em class="mx">t</em><em class="m">)</em>。每一刻，
   距离按左图条带的面积增长：右图上每段刻度长度对应一条条带的面积，
-  在大 <em class="m">N</em> 极限下勾勒出 <em class="m">x(t) = t²/2</em>。
-  拖动 <em class="m">t</em>——或点击播放：</p>
+  在大 <em class="mx">N</em> 极限下勾勒出 <em class="my">x</em><em class="m">(</em><em class="mx">t</em><em class="m">) =</em> <em class="mx">t</em><em class="m">²/2</em>。
+  拖动 <em class="mx">t</em>——或点击播放：</p>
 
   <div class="controls">
     <label>N =</label>
@@ -422,48 +536,48 @@
     </div>
   </div>
 
-  <p>右图中的抛物线 <em class="m">t²/2</em> 正是左图中不断生长的三角形。
-  其上任一点的斜率即为速度：<em class="mg">d/dt (t²/2) = t</em>。
+  <p>右图中的抛物线 <em class="mx">t</em><em class="m">²/2</em> 正是左图中不断生长的三角形。
+  其上任一点的斜率即为速度：<em class="m">d/</em><em class="mx">dt</em> <em class="m">(</em><em class="mx">t</em><em class="m">²/2) =</em> <em class="mx">t</em>。
   直线与抛物线互为镜像。</p>
 
   <div class="callout">
-    <p><strong>关键洞察。</strong>&ensp;<em class="m">t²/2</em> 是自然的距离，
+    <p><strong>关键洞察。</strong>&ensp;<em class="mx">t</em><em class="m">²/2</em> 是自然的距离，
     因为它是由线性速度构成的三角形面积——而任何三角形的面积都是其外接矩形的一半。
     ½ 来自几何，而非约定。</p>
   </div>
 
   <!-- ── 第三部分：自然的出现 ──────────────────────────── -->
-  <h3 class="subhead">第三部分 — x²/2 出现在任何线性增长之处</h3>
+  <h3 class="subhead">第三部分 — <em class="mx">x</em>²/2 在线性增长之处出现</h3>
 
-  <p>第二部分表明，恒定加速度下的距离是 <em class="m">t²/2</em>。
+  <p>第二部分表明，恒定加速度下的距离是 <em class="mx">t</em><em class="m">²/2</em>。
   这只是一个更深层模式的特例。它出现的原因很简单：</p>
 
-  <span class="eq"><span class="frac"><span class="num">d</span><span class="den">dx</span></span><span style="font-style:italic"> (</span><span class="frac"><span class="num">x²</span><span class="den">2</span></span><span style="font-style:italic">)</span> &ensp;=&ensp; x</span>
+  <span class="eq"><span class="frac"><span class="num">d</span><span class="den"><em class="mx">dx</em></span></span><span style="font-style:italic"> (</span><span class="frac"><span class="num"><em class="mx">x</em>²</span><span class="den">2</span></span><span style="font-style:italic">)</span> &ensp;=&ensp; <em class="mx">x</em></span>
 
-  <p><em class="m">x²/2</em> 是 <em class="m">x</em> 的积分——即按 <em class="m">x</em>
+  <p><em class="mx">x</em><em class="m">²/2</em> 是 <em class="mx">x</em> 的积分——即按 <em class="mx">x</em>
   自身比例增长的任何量的自然累积。每当物理给你一个线性增长的量，对其积分就会得到
-  <em class="m">x²/2</em>。½ 不是人为插入的；它是直线与坐标轴之间的三角形面积。</p>
+  <em class="mx">x</em><em class="m">²/2</em>。½ 不是人为插入的；它是直线与坐标轴之间的三角形面积。</p>
 
   <p>再举两个物理例子——都很熟悉，都是同一个三角形：</p>
 
-  <p><strong>动能。</strong>力 <em class="m">F = ma</em> 加速质量。速度按时间线性增长：
-  <em class="m">v = at</em>。功 = 力 × 距离，而距离 = <em class="m">t²/2</em>（第二部分）。
+  <p><strong>动能。</strong>力 <em class="m">F = m</em><em class="mg">a</em> 加速质量。速度按时间线性增长：
+  <em class="mg">v</em> <em class="m">=</em> <em class="mg">a</em><em class="mx">t</em>。功 = 力 × 距离，而距离 = <em class="mx">t</em><em class="m">²/2</em>（第二部分）。
   因此：</p>
 
-  <span class="eq">KE &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den">2</span></span>mv²</span>
+  <span class="eq">KE &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den">2</span></span>m<em class="mg">v</em>²</span>
 
   <p>这里的 ½ 与第二部分是同一个三角形——速度从 0 线性增长，所以平均值是终值的一半。</p>
 
   <p><strong>弹簧能量。</strong>胡克定律指出，恢复力按位移成正比增长：
-  <em class="m">F = kx</em>。压缩弹簧 <em class="m">x</em> 距离所需的功是该直线下方的面积
+  <em class="m">F = k</em><em class="mx">x</em>。压缩弹簧 <em class="mx">x</em> 距离所需的功是该直线下方的面积
   ——又一个三角形：</p>
 
-  <span class="eq">PE &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den">2</span></span>kx²</span>
+  <span class="eq">PE &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den">2</span></span>k<em class="mx">x</em>²</span>
 
   <div class="callout callout-cyan">
-    <p><strong>关键洞察。</strong>&ensp;<em class="m">½mv²</em> 与 <em class="m">½kx²</em>
+    <p><strong>关键洞察。</strong>&ensp;<em class="m">½m</em><em class="mg">v</em><em class="m">²</em> 与 <em class="m">½k</em><em class="mx">x</em><em class="m">²</em>
     携带同一个 ½，原因相同：物理量（速度、力）线性增长，所以其累积效应是三角形面积
-    ——恰好是外接矩形的一半。<em class="m">x²/2</em> 是线性增长被积分一次的通用印记。</p>
+    ——恰好是外接矩形的一半。<em class="mx">x</em><em class="m">²/2</em> 是线性增长被积分一次的通用印记。</p>
   </div>
 </div>
 
@@ -473,33 +587,33 @@
 <div class="section" id="s2">
   <div class="sec-head">
     <span class="sec-num">§ 2</span>
-    <h2>1/x、log(x) 与 exp(y) 的自然出现</h2>
+    <h2>1/<em class="mx">x</em>、<em class="my">log</em>(<em class="mx">x</em>) 与 <em class="mg">exp</em>(<em class="my">y</em>) 的自然出现</h2>
   </div>
 
-  <h3 class="subhead">第一部分 — 为什么 1/x 自然出现？</h3>
+  <h3 class="subhead">第一部分 — 为什么 1/<em class="mx">x</em> 自然出现？</h3>
 
   <p>波义耳定律是反比关系的典型例子——保持温度不变，压强与体积成反比。
   令比例常数为 1：</p>
 
-  <span class="eq">PV &ensp;=&ensp; 1 &ensp;⟹&ensp; P &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den">V</span></span></span>
+  <span class="eq"><em class="mg">P</em><em class="mx">V</em> &ensp;=&ensp; <em class="m">1</em> &ensp;⟹&ensp; <em class="mg">P</em> &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den"><em class="mx">V</em></span></span></span>
 
   <p>体积减半，压强翻倍；压缩到三分之一，压强变三倍。
-  对体积作图，这就是曲线 <em class="m">y = 1/x</em>。</p>
+  对体积作图，这就是曲线 <em class="my">y</em><em class="m"> = 1/</em><em class="mx">x</em>。</p>
 
-  <p>现在问：<em>气体从体积 1 膨胀到体积 <em class="m">V</em> 时释放多少功？</em>
-  功是压强乘以体积变化。每个微小膨胀 <em class="m">dV</em> 贡献：</p>
+  <p>现在问：<em>气体从体积 1 膨胀到体积 </em><em class="mx">V</em><em> 时释放多少功？</em>
+  功是压强乘以体积变化。每个微小膨胀 <em class="mx">dV</em> 贡献：</p>
 
-  <span class="eq">dW &ensp;=&ensp; P &thinsp;·&thinsp; dV &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den">V</span></span> dV</span>
+  <span class="eq"><em class="my">dW</em> &ensp;=&ensp; <em class="mg">P</em> &thinsp;·&thinsp; <em class="mx">dV</em> &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den"><em class="mx">V</em></span></span> <em class="mx">dV</em></span>
 
-  <p><strong>左图</strong>——体积轴上的压强 <em class="m">P = 1/V</em>。
-  <em class="m">N</em> 个彩色方块，每个高 <em class="m">1/V</em>，宽 <em class="m">dV</em>，
+  <p><strong>左图</strong>——体积轴上的压强 <em class="mg">P</em> <em class="m">= 1/</em><em class="mx">V</em>。
+  <em class="mx">N</em> 个彩色方块，每个高 <em class="m">1/</em><em class="mx">V</em>，宽 <em class="mx">dV</em>，
   面积为：</p>
 
-  <span class="eq"><span class="frac"><span class="num">1</span><span class="den">V</span></span> · dV &ensp;=&ensp; P · dV &ensp;=&ensp; dW</span>
+  <span class="eq"><span class="frac"><span class="num">1</span><span class="den"><em class="mx">V</em></span></span> <em class="m">·</em> <em class="mx">dV</em> &ensp;=&ensp; <em class="mg">P</em> <em class="m">·</em> <em class="mx">dV</em> &ensp;=&ensp; <em class="my">dW</em></span>
 
-  <p><strong>右图</strong>——体积轴上的功 <em class="m">W</em>。右图上每段刻度长度
-  对应左图一个方块的面积，在大 <em class="m">N</em> 极限下逐渐堆叠成
-  <em class="m">W = log V</em>。拖动 <em class="m">N</em> 精化；拖动 <em class="m">V</em>
+  <p><strong>右图</strong>——体积轴上的功 <em class="my">W</em>。右图上每段刻度长度
+  对应左图一个方块的面积，在大 <em class="mx">N</em> 极限下逐渐堆叠成
+  <em class="my">W</em> <em class="m">=</em> <em class="my">log</em> <em class="mx">V</em>。拖动 <em class="mx">N</em> 精化；拖动 <em class="mx">V</em>
   延伸——或点击播放：</p>
 
   <div class="controls">
@@ -527,14 +641,14 @@
     </div>
   </div>
 
-  <p>当 <em class="m">N → ∞</em> 时，阶梯填满那条光滑的金色曲线。这条曲线
-  ——<em class="m">1/V</em> 下方累积的面积——就是<strong>对数函数</strong>。
+  <p>当 <em class="mx">N</em><em class="m"> → ∞</em> 时，阶梯填满那条光滑的金色曲线。这条曲线
+  ——<em class="m">1/</em><em class="mx">V</em> 下方累积的面积——就是<strong>对数函数</strong>。
   它是数学与科学中最重要的函数之一：是按比例增长或衰减（而非固定数量增减）的自然语言。</p>
 
-  <h3 class="subhead">第二部分 — 相等比值，相等面积</h3>
+  <h3 class="subhead">第二部分 — 相等比例，相等面积</h3>
 
-  <p>在上面的图中将 <em class="m">V</em> 拖过 2，再拖过 4。每次翻倍都给右图增加
-  完全相同的高度——区间 1→2、2→4、4→8 都贡献相同的功，<em class="mg">log 2 ≈ 0.693</em>，
+  <p>在上面的图中将 <em class="mx">V</em> 拖过 2，再拖过 4。每次翻倍都给右图增加
+  完全相同的高度——区间 1→2、2→4、4→8 都贡献相同的功，<em class="my">log</em> <em class="m">2</em> <em class="m">≈ 0.693</em>，
   无论位于坐标轴的哪个位置：</p>
 
   <div class="graphs">
@@ -544,17 +658,17 @@
     </div>
   </div>
 
-    <p>原因如下：<em class="m">dV/V</em> 度量的是<em>相对</em>变化，而相对变化对缩放不敏感。
-  在各处把 <em class="m">V</em> 替换为 <em class="m">c · V</em>——条带变宽为
-  <em class="m">d(c·V) = c · dV</em>，高度变为 <em class="m">1/(c·V)</em>，而
+    <p>原因如下：<em class="mx">dV</em><em class="m">/</em><em class="mx">V</em> 度量的是<em>相对</em>变化，而相对变化对缩放不敏感。
+  在各处把 <em class="mx">V</em> 替换为 <em class="m">c ·</em> <em class="mx">V</em>——条带变宽为
+  <em class="m">d(c·</em><em class="mx">V</em><em class="m">) = c ·</em> <em class="mx">dV</em>，高度变为 <em class="m">1/(c·</em><em class="mx">V</em><em class="m">)</em>，而
   <em class="m">c</em> 相互抵消：</p>
 
   <span class="eq">
-    <span class="frac"><span class="num">d(c · V)</span><span class="den">c · V</span></span>
+    <span class="frac"><span class="num">d(c · <em class="mx">V</em>)</span><span class="den">c · <em class="mx">V</em></span></span>
     &ensp;=&ensp;
-    <span class="frac"><span class="num">c · dV</span><span class="den">c · V</span></span>
+    <span class="frac"><span class="num">c · <em class="mx">dV</em></span><span class="den">c · <em class="mx">V</em></span></span>
     &ensp;=&ensp;
-    <span class="frac"><span class="num">dV</span><span class="den">V</span></span>
+    <span class="frac"><span class="num"><em class="mx">dV</em></span><span class="den"><em class="mx">V</em></span></span>
   </span>
 
   <div class="graphs">
@@ -575,19 +689,19 @@
     <em class="m">1/f</em> 权重让被积函数具有尺度不变性，因此只有起点与终点之间的比值才被听到。</p>
   </div>
 
-  <h3 class="subhead">第三部分 — log：将乘法转化为加法</h3>
+  <h3 class="subhead">第三部分 — <em class="my">log</em>：将乘法转化为加法</h3>
 
   <p>按常数 <em class="m">c</em> 缩放区间不改变被积函数——结果只依赖于比值
-  <em class="m">V<sub>e</sub>/V<sub>s</sub></em>，无论区间位于何处。</p>
+  <em class="mx">V<sub>e</sub></em><em class="m">/</em><em class="mx">V<sub>s</sub></em>，无论区间位于何处。</p>
 
   <p>现在问：当两个变量被<em>相乘</em>时，相对变化会发生什么？
-  乘积 <em class="m">x · y</em> 的相对变化是 <em class="m">d(xy)</em>，其倒数为
-  <em class="m">1/(xy)</em>。</p>
+  乘积 <em class="mx">x</em><em class="m"> · </em><em class="my">y</em> 的相对变化是 <em class="m">d(</em><em class="mx">x</em><em class="my">y</em><em class="m">)</em>，其倒数为
+  <em class="m">1/(</em><em class="mx">x</em><em class="my">y</em><em class="m">)</em>。</p>
 
-  <p>我们先看 <em class="m">d(xy)</em>。下图展示了它的含义。展开新矩形得到四块：
-  原始 <em class="m">xy</em>、两条细条带 <em class="mo">y·dx</em> 与
-  <em class="m">x·dy</em>，以及一个微小角块 <em class="m">dx·dy</em>。
-  最后一项是两个小量的乘积——当 <em class="m">dx, dy → 0</em> 时，它消失，
+  <p>我们先看 <em class="m">d(</em><em class="mx">x</em><em class="my">y</em><em class="m">)</em>。下图展示了它的含义。展开新矩形得到四块：
+  原始 <em class="mx">x</em><em class="my">y</em>、两条细条带 <em class="my">y</em><em class="m">·</em><em class="mx">dx</em> 与
+  <em class="mx">x</em><em class="m">·</em><em class="my">dy</em>，以及一个微小角块 <em class="mx">dx</em><em class="m">·</em><em class="my">dy</em>。
+  最后一项是两个小量的乘积——当 <em class="mx">dx</em><em class="m">, </em><em class="my">dy</em><em class="m"> → 0</em> 时，它消失，
   留下上面的精确关系。</p>
 
   <div class="graphs">
@@ -602,48 +716,48 @@
   </div>
 
 
-  <p><em class="m">d(xy) = y&thinsp;dx + x&thinsp;dy</em>，两边除以
-  <em class="m">xy</em>：</p>
+  <p><em class="m">d(</em><em class="mx">x</em><em class="my">y</em><em class="m">) = </em><em class="my">y</em><em class="m">&thinsp;</em><em class="mx">dx</em><em class="m"> + </em><em class="mx">x</em><em class="m">&thinsp;</em><em class="my">dy</em>，两边除以
+  <em class="mx">x</em><em class="my">y</em>：</p>
 
 
-  <span class="eq"><span class="frac"><span class="num">d(xy)</span><span class="den">xy</span></span> &ensp;=&ensp; <span class="frac"><span class="num">dx</span><span class="den">x</span></span> &ensp;+&ensp; <span class="frac"><span class="num">dy</span><span class="den">y</span></span></span>
+  <span class="eq"><span class="frac"><span class="num">d(<em class="mx">x</em><em class="my">y</em>)</span><span class="den"><em class="mx">x</em><em class="my">y</em></span></span> &ensp;=&ensp; <span class="frac"><span class="num"><em class="mx">dx</em></span><span class="den"><em class="mx">x</em></span></span> &ensp;+&ensp; <span class="frac"><span class="num"><em class="my">dy</em></span><span class="den"><em class="my">y</em></span></span></span>
 
 
-  <p>相对变化近似相加。设 <em class="m">x = 100</em>，<em class="m">dx = 3</em>，
-  <em class="m">y = 80</em>，<em class="m">dy = 1.6</em>。
-  那么 <em class="m">dx/x</em> 与 <em class="m">dy/y</em> 在常识意义上代表各自的相对变化：
-  <em class="m">dx/x = 3%</em>，<em class="m">dy/y = 2%</em>。
-  <em class="m">x</em> 增加 3% 与 <em class="m">y</em> 增加 2%，使 <em class="m">xy</em>
+  <p>相对变化近似相加。设 <em class="mx">x</em><em class="m"> = 100</em>，<em class="mx">dx</em><em class="m"> = 3</em>，
+  <em class="my">y</em><em class="m"> = 80</em>，<em class="my">dy</em><em class="m"> = 1.6</em>。
+  那么 <em class="mx">dx</em><em class="m">/</em><em class="mx">x</em> 与 <em class="my">dy</em><em class="m">/</em><em class="my">y</em> 在常识意义上代表各自的相对变化：
+  <em class="mx">dx</em><em class="m">/</em><em class="mx">x</em><em class="m"> = 3%</em>，<em class="my">dy</em><em class="m">/</em><em class="my">y</em><em class="m"> = 2%</em>。
+  <em class="mx">x</em> 增加 3% 与 <em class="my">y</em> 增加 2%，使 <em class="mx">x</em><em class="my">y</em>
   增加 <em>5.06%</em>——不是恰好 5%，因为角块
-  <em class="m">dx · dy = 0.03 × 0.02 = 0.06%</em> 虽小但非零。
+  <em class="mx">dx</em><em class="m"> · </em><em class="my">dy</em><em class="m"> = 0.03 × 0.02 = 0.06%</em> 虽小但非零。
   当步长趋近于零时，角块消失，近似变为精确。</p>
 
-  <p>第一部分中我们看到 log 用于表示 <em class="m">dt/t</em> 这种无穷小相对步长的累积。
-  因此 <em class="m">log(xy)</em> 就是 <em class="m">xy</em> 从 1 增长到终值时所有
-  小变化 <em class="m">d(log(xy))</em> 的总和，每一步为
-  <em class="m">d(log(xy)) = d(xy)/(xy)</em>。</p>
+  <p>第一部分中我们看到 log 用于表示 <em class="mx">dt</em><em class="m">/</em><em class="mx">t</em> 这种无穷小相对步长的累积。
+  因此 <em class="my">log</em><em class="m">(</em><em class="mx">x</em><em class="my">y</em><em class="m">)</em> 就是 <em class="mx">x</em><em class="my">y</em> 从 1 增长到终值时所有
+  小变化 <em class="m">d(</em><em class="my">log</em><em class="m">(</em><em class="mx">x</em><em class="my">y</em><em class="m">))</em> 的总和，每一步为
+  <em class="m">d(</em><em class="my">log</em><em class="m">(</em><em class="mx">x</em><em class="my">y</em><em class="m">)) = d(</em><em class="mx">x</em><em class="my">y</em><em class="m">)/(</em><em class="mx">x</em><em class="my">y</em><em class="m">)</em>。</p>
 
-  <p>同理逐项成立：<em class="m">log(x)</em> 是所有
-  <em class="m">d(log x) = dx/x</em> 之和，<em class="m">log(y)</em> 是所有
-  <em class="m">d(log y) = dy/y</em> 之和。由于每组无穷小满足
-  <em class="m">d(xy)/(xy) = dx/x + dy/y</em>，它们的总和也满足——
+  <p>同理逐项成立：<em class="my">log</em><em class="m">(</em><em class="mx">x</em><em class="m">)</em> 是所有
+  <em class="m">d(</em><em class="my">log</em><em class="m"> </em><em class="mx">x</em><em class="m">) = </em><em class="mx">dx</em><em class="m">/</em><em class="mx">x</em> 之和，<em class="my">log</em><em class="m">(</em><em class="my">y</em><em class="m">)</em> 是所有
+  <em class="m">d(</em><em class="my">log</em><em class="m"> </em><em class="my">y</em><em class="m">) = </em><em class="my">dy</em><em class="m">/</em><em class="my">y</em> 之和。由于每组无穷小满足
+  <em class="m">d(</em><em class="mx">x</em><em class="my">y</em><em class="m">)/(</em><em class="mx">x</em><em class="my">y</em><em class="m">) = </em><em class="mx">dx</em><em class="m">/</em><em class="mx">x</em><em class="m"> + </em><em class="my">dy</em><em class="m">/</em><em class="my">y</em>，它们的总和也满足——
   得到一个聚合形式的等式：</p>
 
-  <span class="eq">log(a · b) &ensp;=&ensp; log(a) + log(b)</span>
+  <span class="eq"><em class="my">log</em>(<em class="mx">a</em> · <em class="my">b</em>) &ensp;=&ensp; <em class="my">log</em>(<em class="mx">a</em>) + <em class="my">log</em>(<em class="my">b</em>)</span>
 
   <p>这不是定义——而是推论。对数将乘法转化为加法，因为
-  <em class="m">1/x</em> 度量相对变化，而相对变化可加。</p>
+  <em class="m">1/</em><em class="mx">x</em> 度量相对变化，而相对变化可加。</p>
 
-  <h3 class="subhead">第四部分 — exp：将加法转化为乘法</h3>
+  <h3 class="subhead">第四部分 — <em class="mg">exp</em>：将加法转化为乘法</h3>
 
-  <p><em class="mo">exp</em> 是 log 的反函数。log 把乘法变加法，
+  <p><em class="mg">exp</em> 是 log 的反函数。log 把乘法变加法，
   exp 则相反——把加法变回乘法：</p>
 
-  <span class="eq">exp(a + b) &ensp;=&ensp; exp(a) · exp(b)</span>
+  <span class="eq"><em class="mg">exp</em>(<em class="mx">a</em> + <em class="my">b</em>) &ensp;=&ensp; <em class="mg">exp</em>(<em class="mx">a</em>) · <em class="mg">exp</em>(<em class="my">b</em>)</span>
 
-  <p>图形上，这两个函数关于对角线 <em class="m">y = x</em> 互为镜像。
-  log 曲线上每个点 <em class="m">(x,&thinsp;log x)</em> 在 exp 曲线上都有镜像
-  <em class="mo">(log x,&thinsp;x)</em>——坐标互换。图中标出两对镜像点：</p>
+  <p>图形上，这两个函数关于对角线 <em class="my">y</em><em class="m"> = </em><em class="mx">x</em> 互为镜像。
+  log 曲线上每个点 <em class="m">(</em><em class="mx">x</em><em class="m">,&thinsp;</em><em class="my">log</em><em class="m"> </em><em class="mx">x</em><em class="m">)</em> 在 exp 曲线上都有镜像
+  <em class="m">(</em><em class="my">log</em><em class="m"> </em><em class="mx">x</em><em class="m">,&thinsp;</em><em class="mx">x</em><em class="m">)</em>——坐标互换。图中标出两对镜像点：</p>
 
   <div class="graphs">
     <div class="graph-card" style="flex: 1 1 380px; max-width: 480px;">
@@ -652,31 +766,31 @@
     </div>
   </div>
 
-  <p><em class="mo">exp</em> 的一个著名性质几乎是这幅镜像图的免费推论：
-  <em class="mo">exp</em> 是它自己的导数。论证纯粹几何——直接回到
-  <em class="m">1/x</em>。</p>
+  <p><em class="mg">exp</em> 的一个著名性质几乎是这幅镜像图的免费推论：
+  <em class="mg">exp</em> 是它自己的导数。论证纯粹几何——直接回到
+  <em class="m">1/</em><em class="mx">x</em>。</p>
 
   <p><strong>首先看 log 的斜率。</strong>&ensp;由第一部分，
-  <em class="m">log x = ∫₁ˣ dt/t</em>——从 1 到 <em class="m">x</em> 的
-  <em class="m">1/t</em> 下方累积面积。当 <em class="m">x</em> 增加时，这个面积增长多快？
-  当右边界从 <em class="m">x</em> 前进到 <em class="m">x + dx</em> 时，
-  面积新增一条宽 <em class="m">dx</em>、高 <em class="m">1/x</em> 的薄条带
-  ——即该边界处被积函数的值。所以新增面积为 <em class="m">(1/x) · dx</em>，
-  增长速率恰好是高度 <em class="m">1/x</em>：</p>
+  <em class="my">log</em><em class="m"> </em><em class="mx">x</em><em class="m"> = ∫₁ˣ </em><em class="mx">dt</em><em class="m">/</em><em class="mx">t</em>——从 1 到 <em class="mx">x</em> 的
+  <em class="m">1/</em><em class="mx">t</em> 下方累积面积。当 <em class="mx">x</em> 增加时，这个面积增长多快？
+  当右边界从 <em class="mx">x</em> 前进到 <em class="mx">x</em><em class="m"> + </em><em class="mx">dx</em> 时，
+  面积新增一条宽 <em class="mx">dx</em>、高 <em class="m">1/</em><em class="mx">x</em> 的薄条带
+  ——即该边界处被积函数的值。所以新增面积为 <em class="m">(1/</em><em class="mx">x</em><em class="m">) · </em><em class="mx">dx</em>，
+  增长速率恰好是高度 <em class="m">1/</em><em class="mx">x</em>：</p>
 
-  <span class="eq"><span class="frac"><span class="num">d</span><span class="den">dx</span></span>&thinsp;log(x) &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den">x</span></span></span>
+  <span class="eq"><span class="frac"><span class="num">d</span><span class="den"><em class="mx">dx</em></span></span>&thinsp;<em class="my">log</em>(<em class="mx">x</em>) &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den"><em class="mx">x</em></span></span></span>
 
   <p>这是微积分基本定理最具几何意味的形式：累积的导数就是被累积者的高度。</p>
 
-  <p><strong>现在沿 <em class="m">y = x</em> 反射。</strong>&ensp;任何直线沿对角线
-  <em class="m">y = x</em> 反射，其升与跑互换，所以斜率 <em class="m">m</em>
+  <p><strong>现在沿 <em class="my">y</em><em class="m"> = </em><em class="mx">x</em> 反射。</strong>&ensp;任何直线沿对角线
+  <em class="my">y</em><em class="m"> = </em><em class="mx">x</em> 反射，其升与跑互换，所以斜率 <em class="m">m</em>
   的直线变为斜率 <em class="m">1/m</em> 的直线。这意味着 log 与 exp 在镜像点处，
   切线斜率互为倒数。</p>
 
-  <p>举具体例子。在 <em class="m">x = 2</em> 处，log 曲线经过点
-  <em class="m">P = (2,&thinsp;log 2)</em>，刚才已算出 log 在那里斜率为
+  <p>举具体例子。在 <em class="mx">x</em><em class="m"> = 2</em> 处，log 曲线经过点
+  <em class="m">P = (2,&thinsp;</em><em class="my">log</em><em class="m"> 2)</em>，刚才已算出 log 在那里斜率为
   <em class="m">1/2</em>。在 exp 上的镜像点是
-  <em class="m">Q = (log 2,&thinsp;2)</em>，此处切线斜率为 <em class="m">2</em>
+  <em class="m">Q = (</em><em class="my">log</em><em class="m"> 2,&thinsp;2)</em>，此处切线斜率为 <em class="m">2</em>
   ——<em class="m">1/2</em> 的倒数。再看 <em class="m">Q</em> 的坐标：
   其 <em>y</em> 坐标也是 <em class="m">2</em>。
   <em class="m">Q</em> 点的斜率等于 <em class="m">Q</em> 点的 <em>y</em> 值。</p>
@@ -692,108 +806,108 @@
 
   <p>这在 exp 上的<em>每一点</em>都成立，因为 exp 上每一点都是 log 上某点的镜像。
   exp 在任一点的斜率等于该点的 <em>y</em> 值。由于 <em>y</em> 值就是
-  <em class="mo">exp(x)</em> 本身：</p>
+  <em class="mg">exp</em><em class="m">(</em><em class="mx">x</em><em class="m">)</em> 本身：</p>
 
-  <span class="eq" style="color:var(--orange);"><span class="frac"><span class="num">d</span><span class="den">dx</span></span>&thinsp;exp(x) &ensp;=&ensp; exp(x)</span>
+  <span class="eq"><span class="frac"><span class="num">d</span><span class="den"><em class="mx">dx</em></span></span>&thinsp;<em class="mg">exp</em>(<em class="mx">x</em>) &ensp;=&ensp; <em class="mg">exp</em>(<em class="mx">x</em>)</span>
 
-  <p>推理链很短：log 被定义为 <em class="m">1/t</em> 的累积，所以 log 的斜率为
-  <em class="m">1/x</em>；关于 <em class="m">y = x</em> 的反射使斜率取倒数；
-  在镜像点 <em class="m">1/(1/x) = x</em>——恰是该处 exp 的值。
-  exp 的自导性是为 log 选择 <em class="m">1/t</em> 作被积函数的几何投影。</p>
+  <p>推理链很短：log 被定义为 <em class="m">1/</em><em class="mx">t</em> 的累积，所以 log 的斜率为
+  <em class="m">1/</em><em class="mx">x</em>；关于 <em class="my">y</em><em class="m"> = </em><em class="mx">x</em> 的反射使斜率取倒数；
+  在镜像点 <em class="m">1/(1/</em><em class="mx">x</em><em class="m">) = </em><em class="mx">x</em>——恰是该处 exp 的值。
+  exp 的自导性是为 log 选择 <em class="m">1/</em><em class="mx">t</em> 作被积函数的几何投影。</p>
 
   <div class="callout">
-    <p><strong>关键洞察。</strong>&ensp;<em class="mo">exp</em> 即函数
-    <em class="mo">e<sup>x</sup></em>，具有许多卓越性质——自身为导数、在复合增长中的作用、
+    <p><strong>关键洞察。</strong>&ensp;<em class="mg">exp</em> 即函数
+    <em class="mg">e<sup>x</sup></em>，具有许多卓越性质——自身为导数、在复合增长中的作用、
     欧拉公式中的出现。但最根本地，它就是 log 的反函数。
-    而 log 不过是 <em class="m">∫ dt/t</em>——<em class="m">1/t</em> 的累积。
-    自导性 <em class="m">(exp)' = exp</em> 是 <em class="m">(log)' = 1/x</em> 的镜像。
-    一旦为 log 选定 <em class="m">1/x</em> 作被积函数，关于 exp 的一切都被决定了。</p>
+    而 log 不过是 <em class="m">∫ </em><em class="mx">dt</em><em class="m">/</em><em class="mx">t</em>——<em class="m">1/</em><em class="mx">t</em> 的累积。
+    自导性 <em class="m">(</em><em class="mg">exp</em><em class="m">)' = </em><em class="mg">exp</em> 是 <em class="m">(</em><em class="my">log</em><em class="m">)' = 1/</em><em class="mx">x</em> 的镜像。
+    一旦为 log 选定 <em class="m">1/</em><em class="mx">x</em> 作被积函数，关于 exp 的一切都被决定了。</p>
   </div>
 
   <div class="callout callout-cyan">
-    <p>所有部件就位了。§1 给我们 <em class="m">x²/2</em>——线性变化的自然累积。
-    §2 给我们 <em class="mo">exp</em>——把加性事物变为乘性事物的转换器。
-    在 §3 中，我们通过 <em class="m">exp(−x²/2)</em> 来研究它们的组合。</p>
+    <p>所有部件就位了。§1 给我们 <em class="mx">x</em><em class="m">²/2</em>——线性变化的自然累积。
+    §2 给我们 <em class="mg">exp</em>——把加性事物变为乘性事物的转换器。
+    在 §3 中，我们通过 <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em> 来研究它们的组合。</p>
   </div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════
-     第三节 — exp(−x²/2)
+     第三节 — <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em>
 ═══════════════════════════════════════════════════════════════ -->
 <div class="section" id="s3">
   <div class="sec-head">
     <span class="sec-num">§ 3</span>
-    <h2>exp(−x²/2) 是什么？</h2>
+    <h2><em class="mg">exp</em>(−<em class="mx">x</em>²/2) 是什么？</h2>
   </div>
 
   <!-- ── 第一部分：一维设定——能量已知，概率未知 ── -->
   <h3 class="subhead">第一部分 — 直线上的粒子：能量已知，概率未知</h3>
 
-  <p>想象一个气体分子沿单一方向以速度 <em class="m">x</em> 运动。
-  由 §1，它的动能为 <em class="m">x²/2</em>。分子运动越快，携带的能量越多。</p>
+  <p>想象一个气体分子沿单一方向以速度 <em class="mx">x</em> 运动。
+  由 §1，它的动能为 <em class="mx">x</em><em class="m">²/2</em>。分子运动越快，携带的能量越多。</p>
 
   <p>在热平衡时，自然并不对所有速度赋予相同概率。能量较高的态需要更多热预算才能填充，
-  因此出现的概率较小。把速度 <em class="m">x</em> 处的概率密度记为
-  <em class="m">P(x)</em>。基于物理直觉，我们预期：</p>
+  因此出现的概率较小。把速度 <em class="mx">x</em> 处的概率密度记为
+  <em class="m">P(</em><em class="mx">x</em><em class="m">)</em>。基于物理直觉，我们预期：</p>
 
   <ul style="color: var(--text); margin-left: 1.5em;">
-    <li><em class="m">P(x)</em> 仅通过能量 <em class="m">x²/2</em> 依赖于分子
+    <li><em class="m">P(</em><em class="mx">x</em><em class="m">)</em> 仅通过能量 <em class="mx">x</em><em class="m">²/2</em> 依赖于分子
         ——具有相同能量的两个态等可能。</li>
-    <li><em class="m">P(x)</em> 随能量 <em class="m">x²/2</em> 增大而减小
+    <li><em class="m">P(</em><em class="mx">x</em><em class="m">)</em> 随能量 <em class="mx">x</em><em class="m">²/2</em> 增大而减小
         ——分子最有可能接近静止，极端速度则越来越罕见。</li>
   </ul>
 
-  <p>这就是目前所知的全部。我们尚不知道 <em class="m">P(x)</em> 的具体<em>形式</em>。
-  是 <em class="m">1/(1 + x²/2)</em> 吗？是分段线性的凸起？
-  <em class="m">2<sup>−x²/2</sup></em>？许多候选都符合上面两个要点。
+  <p>这就是目前所知的全部。我们尚不知道 <em class="m">P(</em><em class="mx">x</em><em class="m">)</em> 的具体<em>形式</em>。
+  是 <em class="m">1/(1 + </em><em class="mx">x</em><em class="m">²/2)</em> 吗？是分段线性的凸起？
+  <em class="m">2<sup>−</sup></em><em class="mx"><sup>x</sup></em><em class="m"><sup>²/2</sup></em>？许多候选都符合上面两个要点。
   要确定形式，我们需要更强的约束——而通过观察二维情形可以得到它。</p>
 
   <!-- ── 第二部分：二维 + 标量加法 + 乘法规则 → exp ────── -->
-  <h3 class="subhead">第二部分 — 二维：约束组合迫使 exp 出现</h3>
+  <h3 class="subhead">第二部分 — 二维：约束组合迫使 <em class="mg">exp</em> 出现</h3>
 
   <p>真实粒子不在一条直线上运动。气体分子在每个空间方向上都有速度分量。
-  添加第二个垂直方向 <em class="m">y</em>。粒子现在每个轴上各有一份动能：</p>
+  添加第二个垂直方向 <em class="my">y</em>。粒子现在每个轴上各有一份动能：</p>
 
-  <span class="eq">x 方向：&ensp;能量 = x²/2 &emsp;&emsp; y 方向：&ensp;能量 = y²/2</span>
+  <span class="eq"><em class="mx">x</em> 方向：&ensp;能量 = <em class="mx">x</em>²/2 &emsp;&emsp; <em class="my">y</em> 方向：&ensp;能量 = <em class="my">y</em>²/2</span>
 
-  <p>两个方向相互独立——沿 <em class="m">x</em> 的力对 <em class="m">y</em>
-  方向的速度无影响，分子的 <em class="m">x</em> 速度也无法告知其
-  <em class="m">y</em> 速度。两个新事实现在登场，二者共同确定了 <em class="m">P</em>
+  <p>两个方向相互独立——沿 <em class="mx">x</em> 的力对 <em class="my">y</em>
+  方向的速度无影响，分子的 <em class="mx">x</em> 速度也无法告知其
+  <em class="my">y</em> 速度。两个新事实现在登场，二者共同确定了 <em class="m">P</em>
   的形式。</p>
 
   <p><strong>能量是标量。</strong>&ensp;速度是矢量——带方向，按平行四边形法则相加；
   能量不是。能量是没有方向的单一数；它是<em>标量</em>。
   两个同维度标量只能以一种方式组合：算术加法。
-  速度 <em class="m">(x, y)</em> 处的总动能就是和：</p>
+  速度 <em class="m">(</em><em class="mx">x</em><em class="m">, </em><em class="my">y</em><em class="m">)</em> 处的总动能就是和：</p>
 
-  <span class="eq">总能量 &ensp;=&ensp; x²/2 &thinsp;+&thinsp; y²/2</span>
+  <span class="eq">总能量 &ensp;=&ensp; <em class="mx">x</em>²/2 &thinsp;+&thinsp; <em class="my">y</em>²/2</span>
 
   <p>没有因子，没有交叉项。两份能量算术堆叠。</p>
 
   <p><strong>概率相乘。</strong>&ensp;独立事件的概率<em>不</em>相加——它们相乘。
-  在速度 <em class="m">(x, y)</em> 处找到分子的联合概率密度，
+  在速度 <em class="m">(</em><em class="mx">x</em><em class="m">, </em><em class="my">y</em><em class="m">)</em> 处找到分子的联合概率密度，
   是一维密度的乘积：</p>
 
-  <span class="eq">P(x, y) &ensp;=&ensp; P(x) &thinsp;·&thinsp; P(y) &emsp;&emsp; (独立性)</span>
+  <span class="eq">P(<em class="mx">x</em>, <em class="my">y</em>) &ensp;=&ensp; P(<em class="mx">x</em>) &thinsp;·&thinsp; P(<em class="my">y</em>) &emsp;&emsp; (独立性)</span>
 
   <p>这不是约定也不是近似——这是统计独立性的数学定义。</p>
 
   <p>现在把已收集的事实合并：</p>
 
   <ol style="color: var(--text); margin-left: 1.5em;">
-    <li><em class="m">P(x)</em> 仅依赖于能量 <em class="m">x²/2</em>（第一部分）。
-        记 <em class="m">P(x) = f(x²/2)</em>，其中 <em class="m">f</em> 是某未知的能量函数。</li>
-    <li>二维情形下，总能量为 <em class="m">x²/2 + y²/2</em>。同理，二维密度只依赖于该和：
-        <em class="m">P(x, y) = f(x²/2 + y²/2)</em>。</li>
-    <li>由独立性，<em class="m">P(x, y) = P(x) · P(y)
-        = f(x²/2) · f(y²/2)</em>。</li>
+    <li><em class="m">P(</em><em class="mx">x</em><em class="m">)</em> 仅依赖于能量 <em class="mx">x</em><em class="m">²/2</em>（第一部分）。
+        记 <em class="m">P(</em><em class="mx">x</em><em class="m">) = f(</em><em class="mx">x</em><em class="m">²/2)</em>，其中 <em class="m">f</em> 是某未知的能量函数。</li>
+    <li>二维情形下，总能量为 <em class="mx">x</em><em class="m">²/2 + </em><em class="my">y</em><em class="m">²/2</em>。同理，二维密度只依赖于该和：
+        <em class="m">P(</em><em class="mx">x</em><em class="m">, </em><em class="my">y</em><em class="m">) = f(</em><em class="mx">x</em><em class="m">²/2 + </em><em class="my">y</em><em class="m">²/2)</em>。</li>
+    <li>由独立性，<em class="m">P(</em><em class="mx">x</em><em class="m">, </em><em class="my">y</em><em class="m">) = P(</em><em class="mx">x</em><em class="m">) · P(</em><em class="my">y</em><em class="m">)
+        = f(</em><em class="mx">x</em><em class="m">²/2) · f(</em><em class="my">y</em><em class="m">²/2)</em>。</li>
   </ol>
 
   <p>结合 (1)–(3)：</p>
 
-  <span class="eq">f(x²/2 + y²/2) &ensp;=&ensp; f(x²/2) &thinsp;·&thinsp; f(y²/2)</span>
+  <span class="eq">f(<em class="mx">x</em>²/2 + <em class="my">y</em>²/2) &ensp;=&ensp; f(<em class="mx">x</em>²/2) &thinsp;·&thinsp; f(<em class="my">y</em>²/2)</span>
 
-  <p>设 <em class="m">a = x²/2</em>，<em class="m">b = y²/2</em>。
+  <p>设 <em class="mx">a</em><em class="m"> = </em><em class="mx">x</em><em class="m">²/2</em>，<em class="my">b</em><em class="m"> = </em><em class="my">y</em><em class="m">²/2</em>。
   从能量到相对概率的未知函数 <em class="m">f</em> 必须满足：</p>
 
   <span class="eq">f(a &thinsp;+&thinsp; b) &ensp;=&ensp; f(a) &thinsp;·&thinsp; f(b)</span>
@@ -808,21 +922,21 @@
 
   <p>在所有指数中，我们选 <em class="m">e</em> 为底，只为一个实用原因：
   如 §2 第四部分所示，它是唯一一个导数等于自身的底数——
-  <em class="m">d/dx exp(x) = exp(x)</em>。
+  <em class="m">d/</em><em class="mx">dx</em> <em class="mg">exp</em><em class="m">(</em><em class="mx">x</em><em class="m">) =</em> <em class="mg">exp</em><em class="m">(</em><em class="mx">x</em><em class="m">)</em>。
   其他每个底数在每一次求导、每一次积分、每一步链式法则中都会带上一个额外的
   <em class="m">ln(c)</em> 因子。选 <em class="m">e</em> 让微积分变得干净。
-  于是 <em class="m">f(E) = exp(±E)</em>，并且</p>
+  于是 <em class="m">f(E) =</em> <em class="mg">exp</em><em class="m">(±E)</em>，并且</p>
 
-  <span class="eq">P(x) &ensp;∝&ensp; exp(±x²/2)</span>
+  <span class="eq">P(<em class="mx">x</em>) &ensp;∝&ensp; <em class="mg">exp</em><em class="m">(±</em><em class="mx">x</em><em class="m">²/2)</em></span>
 
   <p>剩下唯一的选择是符号。回顾第一部分的要求：
-  <em class="m">P(x)</em> 必须随能量增长而<em>减小</em>。两个候选行为迥异：</p>
+  <em class="m">P(</em><em class="mx">x</em><em class="m">)</em> 必须随能量增长而<em>减小</em>。两个候选行为迥异：</p>
 
-  <p><strong>左图</strong>——两个候选指数：<em class="m">x²/2</em>（金色）对称上升，
-  <em class="m">−x²/2</em>（粉色）对称下降。
+  <p><strong>左图</strong>——两个候选指数：<em class="mx">x</em><em class="m">²/2</em>（金色）对称上升，
+  <em class="m">−</em><em class="mx">x</em><em class="m">²/2</em>（粉色）对称下降。
   <strong>右图</strong>——exp 对它们各自的作用。
-  <em class="mo">exp(+x²/2)</em> 飙升至无穷——无界，总权重无穷，不可能作为概率密度。
-  <em class="mo">exp(−x²/2)</em> 衰减至零——有界，峰值为 1，关于原点对称。
+  <em class="mg">exp</em><em class="m">(+</em><em class="mx">x</em><em class="m">²/2)</em> 飙升至无穷——无界，总权重无穷，不可能作为概率密度。
+  <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em> 衰减至零——有界，峰值为 1，关于原点对称。
   <strong>钟形曲线。</strong></p>
 
   <div class="graphs">
@@ -832,7 +946,7 @@
     </div>
     <div class="graph-card">
       <canvas id="c3b" width="700" height="980"></canvas>
-      <p class="graph-caption">输出：exp(+x²/2) 爆炸（金色），exp(−x²/2) 衰减为钟形
+      <p class="graph-caption">输出：<em class="mg">exp</em><em class="m">(+</em><em class="mx">x</em><em class="m">²/2)</em> 爆炸（金色），<em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em> 衰减为钟形
       （粉色）——同一坐标系</p>
     </div>
   </div>
@@ -840,10 +954,10 @@
   <p>负号是被强制的——既由概率随能量减小的要求强制，也由总概率必须有限的要求强制。
   我们到达了：</p>
 
-  <span class="eq" style="font-size:1.3rem; color:var(--pink);">P(x) &ensp;∝&ensp; exp(−x²/2)</span>
+  <span class="eq" style="font-size:1.3rem; color:var(--pink);">P(<em class="mx">x</em>) &ensp;∝&ensp; <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em></span>
 
-  <p>这种结构出现在任何具有偏好静止位置的系统中。一根被拉伸距离 <em class="m">x</em>
-  的弹簧储存势能 <em class="m">kx²/2</em>；接近平衡的钟摆储存同种形式。
+  <p>这种结构出现在任何具有偏好静止位置的系统中。一根被拉伸距离 <em class="mx">x</em>
+  的弹簧储存势能 <em class="m">k</em><em class="mx">x</em><em class="m">²/2</em>；接近平衡的钟摆储存同种形式。
   弹簧、钟摆、分子速度——都是同一个钟形，因为它们共享同样的底层结构：
   二次代价、概率独立性的乘法规则，以及 exp 作为二者之间的唯一桥梁。</p>
 
@@ -861,36 +975,36 @@
     <h2>为什么积分中藏着一个圆？</h2>
   </div>
 
-  <p>§3 留下一个问题：<em class="mo">exp(−x²/2)</em> 下方的总面积是多少？
-  把这个积分记为 <em class="m">I</em>：</p>
+  <p>§3 留下一个问题：<em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em> 下方的总面积是多少？
+  把这个积分记为 <em class="my">I</em>：</p>
 
-  <span class="eq">I &ensp;=&ensp; ∫<sub>−∞</sub><sup>+∞</sup> exp(−x²/2) dx &ensp;=&ensp; ?</span>
+  <span class="eq"><em class="my">I</em> &ensp;=&ensp; ∫<sub>−∞</sub><sup>+∞</sup> <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em> <em class="mx">dx</em> &ensp;=&ensp; ?</span>
 
-  <p>这个积分没有初等原函数。你无法通过寻找一个导数为 <em class="mo">exp(−x²/2)</em>
+  <p>这个积分没有初等原函数。你无法通过寻找一个导数为 <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em>
   的函数来求值；这样的闭式函数不存在。直接进攻失败了。我们需要一个技巧。</p>
 
   <!-- ── 第一部分：二维平方技巧 ─────────────────────── -->
   <h3 class="subhead">第一部分 — 二维技巧：积分自乘</h3>
 
-  <p>计算 <em class="m">I²</em> 而不是 <em class="m">I</em>。
-  既然 <em class="m">I</em> 只是一个数：</p>
+  <p>计算 <em class="my">I</em><em class="m">²</em> 而不是 <em class="my">I</em>。
+  既然 <em class="my">I</em> 只是一个数：</p>
 
-  <span class="eq">I² &ensp;=&ensp; <span style="white-space:nowrap;">(∫ exp(−x²/2) dx)</span> &thinsp;·&thinsp; <span style="white-space:nowrap;">(∫ exp(−y²/2) dy)</span></span>
+  <span class="eq"><em class="my">I</em><em class="m">²</em> &ensp;=&ensp; <span style="white-space:nowrap;">(∫ <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em> <em class="mx">dx</em>)</span> &thinsp;·&thinsp; <span style="white-space:nowrap;">(∫ <em class="mg">exp</em><em class="m">(−</em><em class="my">y</em><em class="m">²/2)</em> <em class="my">dy</em>)</span></span>
 
   <p>两个独立的一维积分相乘。每个积分对自己的变量。
-  因为两部分完全独立（<em class="m">x</em> 积分看不见 <em class="m">y</em>，
+  因为两部分完全独立（<em class="mx">x</em> 积分看不见 <em class="my">y</em>，
   反之亦然），乘积可以写成整个平面上的单一二重积分：</p>
 
-  <span class="eq">I² &ensp;=&ensp; ∫∫ exp(−x²/2) &thinsp;·&thinsp; exp(−y²/2) &thinsp;dx&thinsp;dy</span>
+  <span class="eq"><em class="my">I</em><em class="m">²</em> &ensp;=&ensp; ∫∫ <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em> &thinsp;·&thinsp; <em class="mg">exp</em><em class="m">(−</em><em class="my">y</em><em class="m">²/2)</em> &thinsp;<em class="mx">dx</em>&thinsp;<em class="my">dy</em></span>
 
   <p>现在使用 §3 中确立的 exp 的乘积性质：</p>
 
-  <span class="eq">exp(−x²/2) &thinsp;·&thinsp; exp(−y²/2) &ensp;=&ensp; exp(−(x²/2 + y²/2))</span>
+  <span class="eq"><em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em> &thinsp;·&thinsp; <em class="mg">exp</em><em class="m">(−</em><em class="my">y</em><em class="m">²/2)</em> &ensp;=&ensp; <em class="mg">exp</em><em class="m">(−(</em><em class="mx">x</em><em class="m">²/2 +</em> <em class="my">y</em><em class="m">²/2))</em></span>
 
-  <p>并辨识内部的勾股结构：<em class="m">x²/2 + y²/2 = r²/2</em>，其中
-  <em class="m">r² = x² + y²</em>。二维被积函数只依赖于到原点的径向距离：</p>
+  <p>并辨识内部的勾股结构：<em class="mx">x</em><em class="m">²/2 +</em> <em class="my">y</em><em class="m">²/2 =</em> <em class="mr">r</em><em class="m">²/2</em>，其中
+  <em class="mr">r</em><em class="m">² =</em> <em class="mx">x</em><em class="m">² +</em> <em class="my">y</em><em class="m">²</em>。二维被积函数只依赖于到原点的径向距离：</p>
 
-  <span class="eq">I² &ensp;=&ensp; ∫∫ exp(−r²/2) &thinsp;dx&thinsp;dy</span>
+  <span class="eq"><em class="my">I</em><em class="m">²</em> &ensp;=&ensp; ∫∫ <em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2)</em> &thinsp;<em class="mx">dx</em>&thinsp;<em class="my">dy</em></span>
 
   <p>平方技巧把不可能的一维积分变成了具有<strong>完美圆对称性</strong>的二维积分。
   我们从未引入旋转，也未引入角度——勾股定理与 exp 的乘积性质独立地产生了对称性。</p>
@@ -907,18 +1021,18 @@
   <!-- ── 第二部分：极坐标积分，τ 出现，结果 √τ ───── -->
   <h3 class="subhead">第二部分 — 让对称性来完成积分</h3>
 
-  <p>首先，从几何上读解这个积分。平面被分成面积为 <em class="m">dx · dy</em>
-  的小正方形。在每个小方形上，被积函数 <em class="mo">exp(−r²/2)</em> 给出一个高度
+  <p>首先，从几何上读解这个积分。平面被分成面积为 <em class="mx">dx</em> <em class="m">·</em> <em class="my">dy</em>
+  的小正方形。在每个小方形上，被积函数 <em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2)</em> 给出一个高度
   （0 到 1 之间的数，由该方形离原点的距离决定）。将高度乘以方形面积，
-  我们得到体积为 <em class="m">exp(−r²/2) · dx · dy</em> 的薄柱。
-  二重积分 <em class="m">I²</em> 就是整个平面上<strong>所有这些薄柱的体积之和</strong>
+  我们得到体积为 <em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2) ·</em> <em class="mx">dx</em> <em class="m">·</em> <em class="my">dy</em> 的薄柱。
+  二重积分 <em class="my">I</em><em class="m">²</em> 就是整个平面上<strong>所有这些薄柱的体积之和</strong>
   ——二维钟面下方的总体积。</p>
 
-  <span class="eq">I² &ensp;=&ensp; <span style="color:var(--gold)">∑</span><sub>方格</sub> &ensp;<span style="color:var(--gold)">exp(−r²/2)</span> &thinsp;·&thinsp; <span style="color:var(--green)">dx&thinsp;·&thinsp;dy</span></span>
+  <span class="eq"><em class="my">I</em><em class="m">²</em> &ensp;=&ensp; <span style="color:var(--gold)">∑</span><sub>方格</sub> &ensp;<em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2)</em> &thinsp;·&thinsp; <em class="mx">dx</em><em class="m">&thinsp;·&thinsp;</em><em class="my">dy</em></span>
 
   <p>现在，我们可以以任意方式做这个和，把平面切成任意形状。
   正方形分割是一种选项，但这里不是最佳。
-  因为被积函数只依赖于 <em class="m">r</em>——同一半径上每个点贡献相同的高度
+  因为被积函数只依赖于 <em class="mr">r</em>——同一半径上每个点贡献相同的高度
   ——还有一种更自然的切分方式：<strong>薄薄的同心圆环</strong>，每个半径一环。
   在单个圆环内，高度从不改变，整个圆环就成为求和的一个构件，
   替换掉许多带有相同值的独立方形。</p>
@@ -926,105 +1040,134 @@
   <div class="graphs">
     <div class="graph-card">
       <canvas id="c4grid" width="700" height="700"></canvas>
-      <p class="graph-caption">正方形分割：每片面积 dx · dy，高度 exp(−r²/2)
+      <p class="graph-caption">正方形分割：每片面积 dx · dy，高度 <em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2)</em>
       在片与片之间变化。</p>
     </div>
     <div class="graph-card">
       <canvas id="c4rings" width="700" height="700"></canvas>
-      <p class="graph-caption">圆环分割：每个圆环上各处高度 exp(−r²/2) 相同。
+      <p class="graph-caption">圆环分割：每个圆环上各处高度 <em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2)</em> 相同。
       总体积不变，按半径计数。</p>
     </div>
   </div>
 
-  <p><strong>步骤 1 — 一个圆环的面积。</strong>&ensp;半径为 <em class="m">r</em>、
-  厚度为 <em class="m">dr</em> 的圆环面积等于其周长乘以厚度：</p>
+  <p><strong>步骤 1 — 一个圆环的面积。</strong>&ensp;半径为 <em class="mr">r</em>、
+  厚度为 <em class="mr">dr</em> 的圆环面积等于其周长乘以厚度：</p>
 
-  <span class="eq">圆环面积 &ensp;=&ensp; <span style="color:var(--gold)">τ · r</span> &ensp;·&ensp; <span style="color:var(--green)">dr</span></span>
+  <span class="eq">圆环面积 &ensp;=&ensp; <em class="mtau">τ</em> <em class="m">·</em> <em class="mr">r</em> &ensp;·&ensp; <em class="mr">dr</em></span>
 
-  <p>这就是 <em class="m">τ</em> 进入的地方——不是作为抽象常数，
+  <p>这就是 <em class="mtau">τ</em> 进入的地方——不是作为抽象常数，
   而是作为每个圆环都继承的单位圆周长。</p>
 
   <p><strong>步骤 2 — 对所有圆环求和。</strong>&ensp;把每个圆环的面积乘以其
-  （恒定的）高度 <em class="mo">exp(−r²/2)</em> 并相加。
-  因为每个圆环都共享同一个 <em class="m">τ</em>，它可以从求和中提出：</p>
+  （恒定的）高度 <em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2)</em> 并相加。
+  因为每个圆环都共享同一个 <em class="mtau">τ</em>，它可以从求和中提出：</p>
 
-  <span class="eq">I² &ensp;=&ensp; <span style="color:var(--gold)">∑</span><sub>圆环</sub> &ensp;<span style="color:var(--gold)">exp(−r²/2)</span> &thinsp;·&thinsp; <span style="color:var(--green)">τ · r · dr</span> &ensp;=&ensp; τ &ensp;·&ensp; ∫<sub>0</sub><sup>∞</sup> r · exp(−r²/2) dr</span>
+  <span class="eq"><em class="my">I</em><em class="m">²</em> &ensp;=&ensp; <span style="color:var(--gold)">∑</span><sub>圆环</sub> &ensp;<em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2)</em> &thinsp;·&thinsp; <em class="mtau">τ</em> <em class="m">·</em> <em class="mr">r</em> <em class="m">·</em> <em class="mr">dr</em> &ensp;=&ensp; <em class="mtau">τ</em> &ensp;·&ensp; ∫<sub>0</sub><sup>∞</sup> <em class="mr">r</em> <em class="m">·</em> <em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2)</em> <em class="mr">dr</em></span>
 
   <p><strong>步骤 3 — 内部剩下什么。</strong>&ensp;积分号内是
-  <em class="m">r · exp(−r²/2)</em>——半径 <em class="m">r</em> 处的高度乘以
-  线性周长因子 <em class="m">r</em>。
+  <em class="mr">r</em> <em class="m">·</em> <em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2)</em>——半径 <em class="mr">r</em> 处的高度乘以
+  线性周长因子 <em class="mr">r</em>。
   这个乘积具有独特的形状：靠近原点高度充裕但周长很短，因此贡献很小；
-  远离原点周长充足但高度已衰减为零。两个效应平衡，曲线在 <em class="m">r = 1</em>
+  远离原点周长充足但高度已衰减为零。两个效应平衡，曲线在 <em class="mr">r</em><em class="m"> = 1</em>
   处达到峰值。</p>
 
   <div class="graphs">
     <div class="graph-card" style="max-width:520px;">
       <canvas id="c4c" width="700" height="700"></canvas>
-      <p class="graph-caption">径向被积函数 r·exp(−r²/2)：靠近零升起（小圆环），
+      <p class="graph-caption">径向被积函数 r·<em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2)</em>：靠近零升起（小圆环），
       在 r = 1 处达峰，尾部衰减。其下方面积恰为 1。</p>
     </div>
   </div>
 
   <p><strong>步骤 4 — 径向积分塌缩为 1。</strong>&ensp;为何那个总面积恰为 1？
-  代入 <em class="m">u = r²/2</em>，故 <em class="m">du = r · dr</em>。
+  代入 <em class="m">u =</em> <em class="mr">r</em><em class="m">²/2</em>，故 <em class="m">du =</em> <em class="mr">r</em> <em class="m">·</em> <em class="mr">dr</em>。
   径向积分变成普通的指数衰减：</p>
 
-  <span class="eq">∫<sub>0</sub><sup>∞</sup> r · exp(−r²/2) dr &ensp;=&ensp; ∫<sub>0</sub><sup>∞</sup> exp(−u) du &ensp;=&ensp; −exp(−u)&thinsp;|<sub>0</sub><sup>∞</sup> &ensp;=&ensp; 0 − (−1) &ensp;=&ensp; 1</span>
+  <span class="eq">∫<sub>0</sub><sup>∞</sup> <em class="mr">r</em> <em class="m">·</em> <em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2)</em> <em class="mr">dr</em> &ensp;=&ensp; ∫<sub>0</sub><sup>∞</sup> <em class="mg">exp</em>(−u) du &ensp;=&ensp; −<em class="mg">exp</em>(−u)&thinsp;|<sub>0</sub><sup>∞</sup> &ensp;=&ensp; 0 − (−1) &ensp;=&ensp; 1</span>
 
   <div class="callout callout-cyan">
-    <p><strong>熟悉的形状再现。</strong>&ensp;代换 <em class="m">u = r²/2</em>
-    恰好就是 §1 的自然距离，其中 <em class="m">r</em> 扮演了时间的角色。
-    <em class="m">r · dr</em> 中的因子 <em class="m">r</em> 就像随
-    <em class="m">r</em> 线性增长的速度；<em class="m">u</em> 是它的三角形累积
+    <p><strong>熟悉的形状再现。</strong>&ensp;代换 <em class="m">u =</em> <em class="mr">r</em><em class="m">²/2</em>
+    恰好就是 §1 的自然距离，其中 <em class="mr">r</em> 扮演了时间的角色。
+    <em class="mr">r</em> <em class="m">·</em> <em class="mr">dr</em> 中的因子 <em class="mr">r</em> 就像随
+    <em class="mr">r</em> 线性增长的速度；<em class="m">u</em> 是它的三角形累积
     ——正是 §1 中的同一个三角形。所以这个代换不是微积分的技巧：
     它是 §1 的几何在径向积分中重现，最终交付了
-    <em class="m">exp(−r²/2)</em> 一直在等待的那个线性因子。</p>
+    <em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2)</em> 一直在等待的那个线性因子。</p>
   </div>
 
-  <p>把步骤 2 与步骤 4 合在一起：<em class="m">I² = τ · 1 = τ</em>。
+  <p>把步骤 2 与步骤 4 合在一起：<em class="my">I</em><em class="m">² =</em> <em class="mtau">τ</em> <em class="m">· 1 =</em> <em class="mtau">τ</em>。
   取平方根，原始一维积分浮现：</p>
 
-  <span class="eq" style="font-size:1.45rem; color:var(--gold);">∫ exp(−x²/2) dx &ensp;=&ensp; √τ &ensp;≈&ensp; 2.507</span>
+  <span class="eq" style="font-size:1.45rem; color:var(--gold);">∫ <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em> <em class="mx">dx</em> &ensp;=&ensp; √τ &ensp;≈&ensp; 2.507</span>
 
   <div class="graphs">
     <div class="graph-card" style="max-width:520px;">
       <canvas id="c4d" width="700" height="700"></canvas>
-      <p class="graph-caption">exp(−x²/2) 下方的总面积为 √τ ≈ 2.507。
-      标准正态概率密度是 exp(−x²/2) / √τ——不是 1/√(2π)——
-      因为 τ 而非 π 才是这里的自然常数。</p>
+      <p class="graph-caption">exp(−x²/2) 下方的总面积为 √<em class="mtau">τ</em> ≈ 2.507。
+      标准正态概率密度是 <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em> / √<em class="mtau">τ</em>——不是 1/√(2π)——
+      因为 <em class="mtau">τ</em> 而非 π 才是这里的自然常数。</p>
     </div>
   </div>
 
   <!-- ── 第三部分：所得 ──────────────────────────────────── -->
   <h3 class="subhead">第三部分 — 我们学到了什么</h3>
 
-  <p>回顾这条路径。我们从最普通的一维事物开始——<em class="m">x²/2</em>，
+  <p>回顾这条路径。我们从最普通的一维事物开始——<em class="mx">x</em><em class="m">²/2</em>，
   线性量的自然累积（§1）。我们找到了将加性代价桥接到乘性概率的唯一函数
-  ——<em class="mo">exp</em>，它是 <em class="m">1/x</em> 积分的反函数（§2）。
-  我们把它们组合成钟形 <em class="mo">exp(−x²/2)</em>（§3）。
-  而就在我们尝试积分这个钟形的那一刻，一个带着周长 <em class="m">τ</em>
+  ——<em class="mg">exp</em>，它是 <em class="m">1/</em><em class="mx">x</em> 积分的反函数（§2）。
+  我们把它们组合成钟形 <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em>（§3）。
+  而就在我们尝试积分这个钟形的那一刻，一个带着周长 <em class="mtau">τ</em>
   的圆从天而降。</p>
 
-  <p><strong><em class="m">τ</em> 从未从外部引入。</strong>
-  它一直藏在"<em class="m">x</em> 的积分"与"<em class="m">1/x</em>
+  <p><strong><em class="mtau">τ</em> 从未从外部引入。</strong>
+  它一直藏在"<em class="mx">x</em> 的积分"与"<em class="m">1/</em><em class="mx">x</em>
   积分的反函数"里，在一维时蛰伏不动。
   当添加第二个垂直方向——能量与概率必须在其间和解时——
-  exp 的乘积性质揭示了隐藏的径向对称性；圆把它的周长 <em class="m">τ</em>
-  带入积分；<em class="m">τ</em> 浮现为自然钟形下方的精确面积。
+  exp 的乘积性质揭示了隐藏的径向对称性；圆把它的周长 <em class="mtau">τ</em>
+  带入积分；<em class="mtau">τ</em> 浮现为自然钟形下方的精确面积。
   没有 2 的因子，没有簿记调整。</p>
 
   <p>高斯函数不是被丢进物理的特殊函数。它是被三件事一起强加于世界的形状：
   二次代价、独立概率的乘法规则，以及作为二者间唯一桥梁的 exp。
-  常数 <em class="m">τ</em> 不是装饰
+  常数 <em class="mtau">τ</em> 不是装饰
   ——它是当能量相加、概率相乘时，垂直坐标轴如何组合的几何记录。</p>
 
-  <p>用物理尺度 <em class="m">K</em> 做同样计算——把 <em class="m">x</em>
-  替换为 <em class="m">x/√K</em>——给出一般结果
-  <em class="mg">∫ exp(−x²/(2K)) dx = √(τK)</em>。
+  <p>用物理尺度 <em class="m">K</em> 做同样计算——把 <em class="mx">x</em>
+  替换为 <em class="mx">x</em><em class="m">/√K</em>——给出一般结果
+  <em class="m">∫</em> <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/(2K))</em> <em class="mx">dx</em> <em class="m">= √(</em><em class="mtau">τ</em><em class="m">K)</em>。
   当 <em class="m">K = k<sub>B</sub>T</em> 时，这是麦克斯韦—玻尔兹曼归一化；
   当 <em class="m">K = 1</em> 时，这是统计学的标准正态。
   一个公式、一个常数、一种形状——它们都是累积、独立性，
   以及两个垂直方向几何的推论。</p>
+
+  <p style="text-align:center; font-style:italic; margin:2rem 0 0; color:var(--muted);">若 <em class="m">√(2π)</em> 配得上一本统计教科书，它也该收进附录，作为一条历史注记。正面属于 <em class="m">√</em><em class="mtau">τ</em>：一个完整的圆周，正是 <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em> 下方的面积。</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     尾声 —— τ 定律
+═══════════════════════════════════════════════════════════════ -->
+<div class="section" id="epilogue" style="margin-top: 64px;">
+  <p style="text-align:center; font-style:italic; color: var(--cyan); font-size:1.1rem; max-width: 720px; margin: 0 auto 18px;">
+    那个圆圈本来就一直在，藏在极坐标的
+    <em class="mr">r</em> <em class="m">·</em> <em class="mr">dr</em> <em class="m">·</em> <em class="mt">dθ</em> 里。我们之所以找到了它，
+    是因为我们去找了那个 <em class="mtau">τ</em>。
+  </p>
+  <p style="text-align:center; color: var(--muted); font-size: .95rem; max-width: 720px; margin: 0 auto;">
+    <span style="color: var(--gold); font-style: italic; display:block; margin-bottom:0.5em;">
+      法则一：凡见到 <em class="m">π</em>，<em class="mtau">τ</em> 都更自然——<em class="m">π</em> 永远只是半个圆。
+    </span>
+    <span style="color: var(--gold); font-style: italic; display:block; margin-bottom:0.9em;">
+      法则二：凡等式中出现 <em style="font-weight: 600;" class="mtau">τ</em>，必有圆形浮现。
+    </span>
+    <span style="display:block; margin-bottom:0.7em;">
+      接下来，这个隐藏的圆将成为方法本身。把一个函数在一个完整的圆周 <em class="mtau">τ</em> 上求平均，正是三个看似毫不相关的定理背后的同一招：泰勒、柯西与傅里叶。
+    </span>
+    <span style="font-style:italic;">敬请期待 —— <span style="color: var(--gold); font-weight:600;">一整圈 · One Full Turn</span></span>
+  </p>
+</div>
+
+<div class="home-btn-wrap">
+  <a href="/index_zh.html" class="home-btn">← 返回 MathTau</a>
 </div>
 
 </main>
@@ -1038,11 +1181,11 @@
     本页面的正文、插图与源代码均为作品的一部分，遵循同一许可。</p>
 
   <p><strong>欢迎转载与翻译。</strong>请保留本署名信息，并链接回原始网址 ——
-    <a href="https://mathtau.com/">mathtau.com</a> —— 以便读者获取最新版本。
+    <a href="https://mathtau.com/gaussian/">mathtau.com/gaussian</a> —— 以便读者获取最新版本。
     CC BY 4.0 允许商业再利用（书籍、付费课程、课堂资料等），仅需注明作者；如能提前告知作者将不胜感激，但并非强制要求。</p>
 
   <p class="cite"><strong>引用方式：</strong>MathTau (2026)。
-    《高斯积分的自然推导》。https://mathtau.com/index_zh.html</p>
+    《高斯积分的自然推导》。https://mathtau.com/gaussian/index_zh.html</p>
 
   <p class="footer-meta">
     <a href="https://github.com/mathtau/NatPhil">在 GitHub 查看源码</a> &nbsp;·&nbsp;
@@ -1065,15 +1208,15 @@ const C = {
   axis:     '#38385a',
   border:   '#22224a',
   text:     '#8888a8',
-  gold:     '#f0c040',
+  gold:     '#f4c830',
   cyan:     '#40c8f0',
   green:    '#50d890',
   orange:   '#f08840',
-  pink:     '#e06080',
-  red:      '#e05050',
+  pink:     '#d040a0',
+  red:      '#e84040',
   muted:    '#60607a',
   amber:    'rgba(240,160,50,',   // open paren — close with opacity + ')'
-  goldFill: 'rgba(240,192,64,',
+  goldFill: 'rgba(244,200,48,',
 };
 
 // ── Plot class ────────────────────────────────────────────────────
@@ -1221,6 +1364,15 @@ class Plot {
     ctx.fillStyle = color; ctx.font = font; ctx.textAlign = align;
     ctx.fillText(text, px, py + dy);
   }
+
+  labelRuns(x, y, runs, font = 'italic 13px Georgia', align = 'left', dy = 0) {
+    const [px, py] = this.px(x, y);
+    const ctx = this.ctx;
+    ctx.font = font; ctx.textAlign = 'left';
+    let total = 0; const w = runs.map(r => { const t = ctx.measureText(r[0]).width; total += t; return t; });
+    let sx = align === 'right' ? px - total : align === 'center' ? px - total / 2 : px;
+    for (let i = 0; i < runs.length; i++) { ctx.fillStyle = runs[i][1]; ctx.fillText(runs[i][0], sx, py + dy); sx += w[i]; }
+  }
 }
 
 Plot.prototype.xlabel = function(text, color = C.text) {
@@ -1238,15 +1390,26 @@ Plot.prototype.ylabel = function(text, color = C.text) {
   ctx.restore();
 };
 
+function ctxRuns(ctx, segs, x, y, align = 'left') {
+  let total = 0; const w = segs.map(s => { const t = ctx.measureText(s[0]).width; total += t; return t; });
+  let sx = align === 'center' ? x - total / 2 : align === 'right' ? x - total : x;
+  const sv = ctx.textAlign; ctx.textAlign = 'left';
+  for (let i = 0; i < segs.length; i++) { ctx.fillStyle = segs[i][1]; ctx.fillText(segs[i][0], sx, y); sx += w[i]; }
+  ctx.textAlign = sv;
+}
+
 // ── Section 1 ─────────────────────────────────────────────────────
 
 const T_MAX = 3.3;
 
+// Riemann blocks — g/v pair shares T_MAX
 const p1g = new Plot('c1g', 0, T_MAX, 0, T_MAX);
 const p1v = new Plot('c1v', 0, T_MAX, 0, T_MAX);
 
-const p1a = new Plot('c1a', 0, T_MAX, 0, T_MAX);
-const p1b = new Plot('c1b', 0, T_MAX, 0, 6.0);
+// Area / parabola — unified y: max(v=T_MAX, x=T_MAX²/2) → 5.5
+const Y1AB = 5.5;
+const p1a = new Plot('c1a', 0, T_MAX, 0, Y1AB);
+const p1b = new Plot('c1b', 0, T_MAX, 0, Y1AB);
 
 function draw1(t, N) {
   const dt  = t / N;
@@ -1268,7 +1431,7 @@ function draw1(t, N) {
     }
   }
 
-  p1a.curve(x => x, C.cyan, 2.5);
+  p1a.curve(x => x, C.green, 2.5);
 
   p1a.dot(t, t, C.gold, 5);
 
@@ -1281,10 +1444,10 @@ function draw1(t, N) {
     p1a.ctx.fillText('dx = v · dt', ax, ay + 4);
   }
 
-  p1a.label(3.1, 3.3, 'v = x', C.cyan, 'italic 14px Georgia', 'left');
+  p1a.labelRuns(3.1, 3.3, [['v = ', C.green],['x', C.cyan]], 'italic 14px Georgia', 'left');
   { const [px, py] = p1a.px(t, 0); p1a.ctx.fillStyle = C.gold; p1a.ctx.font = 'italic 13px Georgia'; p1a.ctx.textAlign = 'center'; p1a.ctx.fillText('t', px, py + 20); }
-  p1a.xlabel('时间  t', C.text);
-  p1a.ylabel('速度  v', C.text);
+  p1a.xlabel('时间  t', C.red);
+  p1a.ylabel('速度  v', C.green);
 
   p1b.clear();
   const ctx1b = p1b.ctx;
@@ -1339,14 +1502,14 @@ function draw1(t, N) {
     ctx1b.fillText('dx', ax, ay + 4);
   }
 
-  p1b.curve(x => x * x / 2, C.gold, 2.5);
+  p1b.curve(x => x * x / 2, C.cyan, 2.5);
 
   p1b.dot(t, t2h, C.gold, 6, C.goldFill + '.4)');
 
-  p1b.label(2.3, 5.6, 'x(t) = t²/2', C.gold, 'italic 14px Georgia');
+  p1b.labelRuns(2.3, 5.6, [['x(', C.cyan],['t', C.red],[') = ', C.cyan],['t', C.red],['²/2', C.cyan]], 'italic 14px Georgia');
   { const [px, py] = p1b.px(t, 0); p1b.ctx.fillStyle = C.gold; p1b.ctx.font = 'italic 13px Georgia'; p1b.ctx.textAlign = 'center'; p1b.ctx.fillText('t', px, py + 20); }
-  p1b.xlabel('时间  t', C.text);
-  p1b.ylabel('位移  x', C.text);
+  p1b.xlabel('时间  t', C.red);
+  p1b.ylabel('位移  x', C.cyan);
 }
 
 function blockColor(k, N, a) {
@@ -1374,8 +1537,8 @@ function draw1riemann(N) {
     p1g.ctx.beginPath(); p1g.ctx.moveTo(px1, py0); p1g.ctx.lineTo(px1, pyT); p1g.ctx.stroke();
   }
 
-  p1g.curve(_ => 1, 'rgba(255,255,255,0.45)', 1.5);
-  p1g.label(0.12, 1.18, 'g = 1', 'rgba(255,255,255,0.55)', 'italic 13px Georgia');
+  p1g.curve(_ => 1, C.green, 1.5);
+  p1g.label(0.12, 1.18, 'a = 1', C.green, 'italic 13px Georgia');
 
   if (dt > 0.14) {
     const k0 = Math.floor(N / 2);
@@ -1386,11 +1549,11 @@ function draw1riemann(N) {
     p1g.ctx.font = `${fs}px Georgia`;
     p1g.ctx.textAlign = 'center';
     p1g.ctx.fillText('dv =', ax, ay - 1);
-    p1g.ctx.fillText('g·dt', ax, ay + fs + 1);
+    p1g.ctx.fillText('a·dt', ax, ay + fs + 1);
   }
 
-  p1g.xlabel('时间  t', C.text);
-  p1g.ylabel('加速度  g', C.text);
+  p1g.xlabel('时间  t', C.red);
+  p1g.ylabel('加速度  a', C.green);
 
   p1v.clear();
   const ctx1v = p1v.ctx;
@@ -1441,14 +1604,14 @@ function draw1riemann(N) {
     ctx1v.fillStyle = 'rgba(255,255,255,0.65)';
     ctx1v.font = `${Math.min(12, Math.max(8, Math.floor(dt * 50)))}px Georgia`;
     ctx1v.textAlign = 'left';
-    ctx1v.fillText('dv = g·dt', ax, ay + 4);
+    ctx1v.fillText('dv = a·dt', ax, ay + 4);
   }
 
-  p1v.curve(x => x, C.gold, 2);
-  p1v.label(2.45, 2.72, 'v = t', C.gold, 'italic 13px Georgia');
+  p1v.curve(x => x, C.green, 2);
+  p1v.labelRuns(2.45, 2.72, [['v = ', C.green],['t', C.red]], 'italic 13px Georgia');
 
-  p1v.xlabel('时间  t', C.text);
-  p1v.ylabel('速度  v', C.text);
+  p1v.xlabel('时间  t', C.red);
+  p1v.ylabel('速度  v', C.green);
 }
 
 const sl1n = document.getElementById('sl1n');
@@ -1514,8 +1677,10 @@ draw1(+sl1.value, +sl1an.value);
 // ── Section 2 ─────────────────────────────────────────────────────
 
 const V_END_MAX = 7.5;
-const p2a  = new Plot('c2a',  1, V_END_MAX, 0, 2.3);
-const p2ar = new Plot('c2ar', 1, V_END_MAX, 0, 2.3);
+// P/W pair — unified y: max(P=1/V at V=1, W=log(V_END_MAX)) → 2.3
+const Y2AB = 2.3;
+const p2a  = new Plot('c2a',  1, V_END_MAX, 0, Y2AB);
+const p2ar = new Plot('c2ar', 1, V_END_MAX, 0, Y2AB);
 const p2b  = new Plot('c2b', 0.5, 10, 0, 2);
 const p2c  = new Plot('c2c', -2, 3, -2, 3);
 const p2d  = new Plot('c2d', -0.5, 4, -0.5, 4);
@@ -1556,7 +1721,7 @@ function draw2riemann(N, vEnd) {
     p2a.ctx.strokeRect(x0, yPk, x1 - x0, y0 - yPk);
   }
 
-  p2a.curve(v => 1 / v, C.cyan, 2.5, 1.0, V_END_MAX);
+  p2a.curve(v => 1 / v, C.green, 2.5, 1.0, V_END_MAX);
 
   if (dV > 0.35) {
     const k0 = Math.floor(N / 3);
@@ -1571,9 +1736,9 @@ function draw2riemann(N, vEnd) {
   p2a.dash(vEnd, 0, vEnd, 1 / vEnd, C.gold, 0.6);
   p2a.dot(vEnd, 1 / vEnd, C.gold, 4);
   { const [px, py] = p2a.px(1, 0); p2a.ctx.fillStyle = C.text; p2a.ctx.font = '12px monospace'; p2a.ctx.textAlign = 'center'; p2a.ctx.fillText('1', px, py + 17); }
-  p2a.label(V_END_MAX - 0.3, 0.42, 'P = 1/V', C.cyan, 'italic 13px Georgia', 'right');
-  p2a.xlabel('V  (体积)', C.text);
-  p2a.ylabel('P  (压强)', C.text);
+  p2a.labelRuns(V_END_MAX - 0.3, 0.42, [['P = 1/', C.green],['V', C.red]], 'italic 13px Georgia', 'right');
+  p2a.xlabel('V  (体积)', C.red);
+  p2a.ylabel('P  (压强)', C.green);
 
   p2ar.clear();
   const ctx2ar = p2ar.ctx;
@@ -1634,7 +1799,7 @@ function draw2riemann(N, vEnd) {
     ctx2ar.fillText('dW', ax, ay + 4);
   }
 
-  p2ar.curve(v => Math.log(v), C.gold, 2.5, 1.01, V_END_MAX);
+  p2ar.curve(v => Math.log(v), C.cyan, 2.5, 1.01, V_END_MAX);
 
   [2, 4].filter(v => v <= vEnd + 0.05).forEach(v => {
     const lv = Math.log(v);
@@ -1657,9 +1822,9 @@ function draw2riemann(N, vEnd) {
     p2ar.ctx.fillText(Math.log(vEnd).toFixed(3), px - 8, py + 4);
   }
   { const [px, py] = p2ar.px(1, 0); p2ar.ctx.fillStyle = C.text; p2ar.ctx.font = '12px monospace'; p2ar.ctx.textAlign = 'center'; p2ar.ctx.fillText('1', px, py + 17); }
-  p2ar.label(V_END_MAX - 0.3, 2.1, 'W = log V', C.gold, 'italic 13px Georgia', 'right');
-  p2ar.xlabel('V  (体积)', C.text);
-  p2ar.ylabel('W  (功)', C.text);
+  p2ar.labelRuns(V_END_MAX - 0.3, 2.1, [['W = log ', C.cyan],['V', C.red]], 'italic 13px Georgia', 'right');
+  p2ar.xlabel('V  (体积)', C.red);
+  p2ar.ylabel('W  (功)', C.cyan);
 }
 
 function draw2b() {
@@ -1681,7 +1846,7 @@ function draw2b() {
     p2b.poly(pts, fill);
   });
 
-  p2b.curve(t => 1 / t, C.cyan, 2.5, 0.5, 10);
+  p2b.curve(t => 1 / t, C.green, 2.5, 0.5, 10);
 
   [1, 2, 4, 8].forEach(v => p2b.dash(v, 0, v, 1 / v, C.text, 0.3));
 
@@ -1700,8 +1865,8 @@ function draw2b() {
     p2b.ctx.fillText('1', px, py + 17);
   }
 
-  p2b.label(9.2, 1.75, 'P = 1/V', C.cyan, 'italic 13px Georgia', 'right');
-  p2b.xlabel('V  (体积)', C.text);
+  p2b.labelRuns(9.2, 1.75, [['P = 1/', C.green],['V', C.red]], 'italic 13px Georgia', 'right');
+  p2b.xlabel('V  (体积)', C.red);
 }
 
 function draw2c() {
@@ -1711,7 +1876,7 @@ function draw2c() {
 
   p2c.curve(x => Math.log(x), C.cyan, 2.5, 0.04, 3);
 
-  p2c.curve(x => Math.exp(x), C.orange, 2.5, -2, Math.log(3));
+  p2c.curve(x => Math.exp(x), C.green, 2.5, -2, Math.log(3));
 
   p2c.dot(1, 0, C.cyan,   4);
   p2c.dot(0, 1, C.orange, 4);
@@ -1722,8 +1887,8 @@ function draw2c() {
   p2c.dot(my, mx, C.orange, 4, 'rgba(240,136,64,0.3)');
   p2c.dash(mx, my, my, mx, 'rgba(200,200,220,0.4)', 0.65);
 
-  p2c.label(2.7,  1.05, 'log x', C.cyan,                    'italic 13px Georgia', 'left');
-  p2c.label(0.9,  2.85, 'exp x', C.orange,                  'italic 13px Georgia', 'center');
+  p2c.labelRuns(2.7,  1.05, [['log ', C.cyan],['x', C.red]],                    'italic 13px Georgia', 'left');
+  p2c.labelRuns(0.9,  2.85, [['exp ', C.green],['x', C.red]],                  'italic 13px Georgia', 'center');
   p2c.label(2.4,  2.62, 'y = x', 'rgba(150,150,180,0.45)',  'italic 12px Georgia', 'left');
 
   p2c.xlabel('x', C.text);
@@ -1736,7 +1901,7 @@ function draw2d() {
   p2d.curve(x => x, 'rgba(150,150,180,0.3)', 1.5);
 
   p2d.curve(x => Math.log(x), C.cyan, 2.5, 0.04, 4);
-  p2d.curve(x => Math.exp(x), C.orange, 2.5, -0.5, Math.log(4));
+  p2d.curve(x => Math.exp(x), C.green, 2.5, -0.5, Math.log(4));
 
   const a = 2;
   const la = Math.log(a);
@@ -1747,7 +1912,7 @@ function draw2d() {
 
   const slopeExp = a;
   const texp = x => a + slopeExp * (x - la);
-  p2d.curve(texp, 'rgba(240,136,64,0.55)', 1.5, -0.3, 1.5);
+  p2d.curve(texp, 'rgba(80,216,144,0.55)', 1.5, -0.3, 1.5);
 
   p2d.dash(a, la, la, a, 'rgba(200,200,220,0.45)', 0.7);
 
@@ -1778,8 +1943,8 @@ function draw2d() {
     ctx.fillText('斜率 = 2', sx2, sy2);
   }
 
-  p2d.label(3.7,  0.95, 'log x', C.cyan,                    'italic 13px Georgia', 'left');
-  p2d.label(0.35, 3.55, 'exp x', C.orange,                  'italic 13px Georgia', 'left');
+  p2d.labelRuns(3.7,  0.95, [['log ', C.cyan],['x', C.red]],                    'italic 13px Georgia', 'left');
+  p2d.labelRuns(0.35, 3.55, [['exp ', C.green],['x', C.red]],                  'italic 13px Georgia', 'left');
   p2d.label(3.45, 3.65, 'y = x', 'rgba(150,150,180,0.5)',   'italic 12px Georgia', 'left');
 
   p2d.xlabel('x', C.text);
@@ -1850,7 +2015,14 @@ function drawProductRule(scale = 1) {
   ctx.fillStyle = '#0a0a1c';
   ctx.fillRect(0, 0, W, H);
 
-  const Cg = '#f0c040', Co = '#f08840', Cc = '#40c8f0', Cm = '#8888a8', Ct = '#c4c4dc';
+  const Cg = '#f4c830', Co = '#f08840', Cc = '#40c8f0', Cm = '#8888a8', Ct = '#c4c4dc';
+  const Cx = '#e84040', Cy = '#40c8f0';
+  const runs = (segs, cx, cy, align = 'center') => {
+    let total = 0; const w = segs.map(s => { const t = ctx.measureText(s[0]).width; total += t; return t; });
+    let sx = align === 'center' ? cx - total / 2 : cx; const sv = ctx.textAlign; ctx.textAlign = 'left';
+    for (let i = 0; i < segs.length; i++) { ctx.fillStyle = segs[i][1]; ctx.fillText(segs[i][0], sx, cy); sx += w[i]; }
+    ctx.textAlign = sv;
+  };
 
   const ox = 82, oy = 278;
   const RW = 162, RH = 130;
@@ -1864,7 +2036,7 @@ function drawProductRule(scale = 1) {
     ctx.fillRect(ox + RW, oy - RH, DW, RH);
   }
   if (DH > 0) {
-    ctx.fillStyle = 'rgba(240,192,64,0.30)';
+    ctx.fillStyle = 'rgba(244,200,48,0.30)';
     ctx.fillRect(ox, oy - RH - DH, RW, DH);
   }
   if (DW > 0 && DH > 0) {
@@ -1882,21 +2054,21 @@ function drawProductRule(scale = 1) {
 
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
 
-  ctx.fillStyle = Cc; ctx.font = 'italic 22px Georgia';
-  ctx.fillText('xy', ox + RW / 2, oy - RH / 2);
+  ctx.font = 'italic 22px Georgia';
+  runs([['x', Cx],['y', Cy]], ox + RW / 2, oy - RH / 2);
 
   if (DW > 25) {
-    ctx.fillStyle = Co; ctx.font = 'italic 13px Georgia';
+    ctx.font = 'italic 13px Georgia';
     ctx.save();
     ctx.translate(ox + RW + DW / 2, oy - RH / 2);
     ctx.rotate(-Math.PI / 2);
-    ctx.fillText('y · dx', 0, 0);
+    runs([['y', Cy],[' · ', Ct],['dx', Cx]], 0, 0);
     ctx.restore();
   }
 
   if (DH > 18) {
-    ctx.fillStyle = Cg; ctx.font = 'italic 13px Georgia';
-    ctx.fillText('x · dy', ox + RW / 2, oy - RH - DH / 2);
+    ctx.font = 'italic 13px Georgia';
+    runs([['x', Cx],[' · ', Ct],['dy', Cy]], ox + RW / 2, oy - RH - DH / 2);
   }
 
   if (DW > 25 && DH > 18) {
@@ -1907,11 +2079,11 @@ function drawProductRule(scale = 1) {
   ctx.font = 'italic 14px Georgia';
   ctx.textBaseline = 'top';
 
-  ctx.fillStyle = Cc; ctx.textAlign = 'center';
+  ctx.fillStyle = Cx; ctx.textAlign = 'center';
   ctx.fillText('x', ox + RW / 2, oy + 9);
 
   if (DW > 12) {
-    ctx.fillStyle = Co;
+    ctx.fillStyle = Cx;
     ctx.fillText('dx', ox + RW + DW / 2, oy + 9);
   }
 
@@ -1926,7 +2098,7 @@ function drawProductRule(scale = 1) {
     ctx.save();
     ctx.translate(ox - 16, oy - RH - DH / 2);
     ctx.rotate(-Math.PI / 2);
-    ctx.textBaseline = 'middle'; ctx.fillStyle = Cg;
+    ctx.textBaseline = 'middle'; ctx.fillStyle = Cy;
     ctx.fillText('dy', 0, 0);
     ctx.restore();
   }
@@ -1942,14 +2114,13 @@ function drawProductRule(scale = 1) {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    ctx.fillStyle = '#50d890'; ctx.font = 'italic 13px Georgia';
+    ctx.font = 'italic 13px Georgia';
     ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-    ctx.fillText('d(xy)', ox + RW + DW + 10, oy - (RH + DH) / 2);
+    runs([['d(', Ct],['x', Cx],['y', Cy],[')', Ct]], ox + RW + DW + 10, oy - (RH + DH) / 2, 'left');
   }
 
-  ctx.fillStyle = Ct; ctx.font = '12px Georgia';
-  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-  ctx.fillText('(x + dx)(y + dy)  =  xy  +  y·dx  +  x·dy  +  dx·dy', W / 2, 14);
+  ctx.font = '12px Georgia'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  runs([['(', Ct],['x', Cx],[' + ', Ct],['dx', Cx],[')(', Ct],['y', Cy],[' + ', Ct],['dy', Cy],[')', Ct],['  =  ', Ct],['x', Cx],['y', Cy],['  +  ', Ct],['y', Cy],['·', Ct],['dx', Cx],['  +  ', Ct],['x', Cx],['·', Ct],['dy', Cy],['  +  ', Ct],['dx', Cx],['·', Ct],['dy', Cy]], W / 2, 14);
 }
 
 drawProductRule();
@@ -1992,7 +2163,7 @@ function drawScaleInvariance(dV1 = 0.5) {
   p.ylabel('1/V', C.muted);
 
   p.poly([[V1,0],[V1,h1],[V1+dV1,h1],[V1+dV1,0]], 'rgba(240,136,64,0.32)');
-  p.poly([[V2,0],[V2,h2],[V2+dV2,h2],[V2+dV2,0]], 'rgba(240,192,64,0.28)');
+  p.poly([[V2,0],[V2,h2],[V2+dV2,h2],[V2+dV2,0]], 'rgba(244,200,48,0.28)');
 
   p.curve(x => 1/x, C.cyan, 2);
 
@@ -2216,9 +2387,9 @@ function draw4b() {
   const cx=toX(0), cy=toY(0), rPx=pw/(xMax-xMin);
 
   const grd = ctx.createRadialGradient(cx,cy,0, cx,cy,3*rPx);
-  grd.addColorStop(0,    'rgba(240,192,64,0.42)');
-  grd.addColorStop(0.28, 'rgba(240,192,64,0.12)');
-  grd.addColorStop(0.7,  'rgba(240,192,64,0.03)');
+  grd.addColorStop(0,    'rgba(244,200,48,0.42)');
+  grd.addColorStop(0.28, 'rgba(244,200,48,0.12)');
+  grd.addColorStop(0.7,  'rgba(244,200,48,0.03)');
   grd.addColorStop(1,    'rgba(10,10,28,0)');
   ctx.fillStyle=grd; ctx.fillRect(pL,pT,pw,ph);
 
@@ -2259,10 +2430,10 @@ function draw4b() {
   const topRing = cy - rOut*rPx;
   ctx.fillStyle=C.gold; ctx.font='italic 11px Georgia';
   ctx.textAlign='center'; ctx.textBaseline='bottom';
-  ctx.fillText('周长 = τ · r', cx, topRing-5);
+  ctxRuns(ctx, [['周长 = ', C.gold],['τ', C.gold],[' · ', C.gold],['r', C.orange]], cx, topRing-5, 'center');
   ctx.fillStyle=C.green; ctx.font='11px Georgia';
   ctx.textAlign='left'; ctx.textBaseline='middle';
-  ctx.fillText('面积 = τ · r · dr', dx2+6, cy);
+  ctxRuns(ctx, [['面积 = ', C.green],['τ', C.gold],[' · ', C.green],['r', C.orange],[' · ', C.green],['dr', C.orange]], dx2+6, cy, 'left');
 
   ctx.strokeStyle=C.axis; ctx.lineWidth=0.8;
   ctx.beginPath(); ctx.moveTo(pL,cy); ctx.lineTo(pL+pw,cy); ctx.stroke();
@@ -2431,7 +2602,7 @@ function drawRings4() {
   ctx.beginPath(); ctx.moveTo(lx0, ly0); ctx.lineTo(lx1, ly1); ctx.stroke();
   ctx.fillStyle = C.cyan; ctx.font = 'italic 15px Georgia';
   ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-  ctx.fillText('τ · r · dr', lx1 + 4, ly1);
+  ctxRuns(ctx, [['τ', C.gold],[' · ', C.cyan],['r', C.orange],[' · ', C.cyan],['dr', C.orange]], lx1 + 4, ly1, 'left');
 
   ctx.strokeStyle=C.axis; ctx.lineWidth=1;
   ctx.beginPath(); ctx.moveTo(pL,cy); ctx.lineTo(pL+pw,cy); ctx.stroke();

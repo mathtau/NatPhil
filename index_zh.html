@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MathTau —— 从第一性原理出发的数学可视化推导</title>
+
+  <meta name="description" content="MathTau 致力于从第一性原理出发、可视化地推导数学对象的本质。配有交互式图表，无需死记硬背，不绕弯子。">
+  <meta name="author" content="MathTau">
+
+  <link rel="canonical" href="https://mathtau.com/index_zh.html">
+  <link rel="alternate" hreflang="en" href="https://mathtau.com/">
+  <link rel="alternate" hreflang="zh" href="https://mathtau.com/index_zh.html">
+  <link rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.zh">
+
+  <meta property="og:title" content="MathTau">
+  <meta property="og:description" content="从第一性原理出发的数学可视化推导。">
+  <meta property="og:url" content="https://mathtau.com/index_zh.html">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://mathtau.com/og-card.png">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:locale:alternate" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" type="image/svg+xml" href="/logo-minimal.svg">
+  <link rel="apple-touch-icon" href="/logo-minimal.svg">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0c0c1e;
+      --surface:   #111128;
+      --surface-2: #16163a;
+      --border:    #22224a;
+      --text:      #c4c4dc;
+      --muted:     #8888a8;
+      --gold:      #f4c830;
+      --cyan:      #40c8f0;
+      --green:     #50d890;
+      --orange:    #f08840;
+      --pink:      #d040a0;
+      --red:       #e84040;
+      --blue:      #6080f0;
+      --purple:    #b070f0;
+    }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+
+    /* ── Header ─────────────────────────────────────────────────── */
+    header.site-head {
+      text-align: center;
+      padding: 90px 24px 64px;
+      border-bottom: 1px solid var(--border);
+    }
+    header.site-head .brand-mark {
+      display: block;
+      width: 220px;
+      height: 220px;
+      margin: 0 auto 22px;
+      filter: drop-shadow(0 0 40px rgba(244,200,48,.20));
+    }
+    header.site-head h1 {
+      font-size: 3rem;
+      font-style: italic;
+      color: var(--gold);
+      letter-spacing: 0.03em;
+      text-shadow: 0 0 50px rgba(244,200,48,.25);
+    }
+    header.site-head p.tagline {
+      margin-top: 16px;
+      color: #6090c0;
+      font-style: italic;
+      font-size: 1.1rem;
+    }
+    header.site-head p.zh-name {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: .88rem;
+      letter-spacing: .06em;
+    }
+    header.site-head p.zh-name em {
+      font-style: normal;
+      color: var(--gold);
+      font-weight: 600;
+    }
+    header.site-head p.thesis {
+      margin-top: 22px;
+      color: var(--gold);
+      font-style: italic;
+      font-size: .98rem;
+      letter-spacing: .015em;
+      opacity: .92;
+      max-width: 640px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    header.site-head p.thesis em {
+      font-style: italic;
+      font-weight: 600;
+    }
+
+    /* ── Language toggle ─────────────────────────────────────────── */
+    .lang-toggle {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 100;
+      display: flex;
+      gap: 2px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 3px;
+      font-family: 'Georgia', serif;
+    }
+    .lang-toggle a {
+      padding: 6px 14px;
+      border-radius: 6px;
+      text-decoration: none;
+      color: var(--text);
+      font-size: .9rem;
+      transition: color .2s, background .2s;
+    }
+    .lang-toggle a:hover { color: var(--gold); }
+    .lang-toggle a.active {
+      background: rgba(244,200,48,.15);
+      color: var(--gold);
+    }
+
+    /* ── Layout ─────────────────────────────────────────────────── */
+    main {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 28px 100px;
+    }
+
+    /* ── Intro section ──────────────────────────────────────────── */
+    .intro {
+      margin-top: 64px;
+      max-width: 740px;
+    }
+    .intro p {
+      font-size: 1.08rem;
+      margin-bottom: 18px;
+    }
+    em.m     { font-style: italic; color: var(--cyan);   }
+    em.mx    { font-style: italic; color: var(--red);    }
+    em.my    { font-style: italic; color: var(--blue);   }
+    em.mt    { font-style: italic; color: var(--purple); }
+    em.mr    { font-style: italic; color: var(--orange); }
+    em.mtau  { font-style: italic; color: var(--gold);   }
+    em.mg    { font-style: italic; color: var(--green);  }
+    em.mp    { font-style: italic; color: var(--pink);   }
+
+    /* ── Laws block ─────────────────────────────────────────────── */
+    .laws {
+      margin-top: 52px;
+      border-left: 2px solid rgba(244,200,48,.22);
+      padding-left: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .law {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      white-space: nowrap;
+    }
+    .law-num {
+      font-family: monospace;
+      font-size: .75rem;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+    .law-text {
+      font-size: 1.05rem;
+      font-style: italic;
+      color: var(--text);
+      line-height: 1.65;
+      white-space: nowrap;
+    }
+
+    /* ── Articles section ───────────────────────────────────────── */
+    .articles {
+      margin-top: 80px;
+    }
+    .section-label {
+      font-size: .78rem;
+      color: var(--muted);
+      font-family: monospace;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 36px;
+    }
+
+    .article-card {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 36px;
+      transition: border-color .25s, transform .25s, box-shadow .25s;
+    }
+    .article-card:hover {
+      border-color: rgba(244,200,48,.35);
+      transform: translateY(-2px);
+      box-shadow: 0 18px 48px -20px rgba(244,200,48,.18);
+    }
+    .article-card .card-image {
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .article-card .card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .article-card .card-body {
+      padding: 38px 40px 36px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .article-card .card-num {
+      font-family: monospace;
+      font-size: .78rem;
+      color: var(--muted);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .article-card h3 {
+      font-size: 1.55rem;
+      color: var(--gold);
+      font-weight: normal;
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+    .article-card .subtitle {
+      font-style: italic;
+      color: var(--cyan);
+      font-size: 1.02rem;
+      margin-bottom: 18px;
+      line-height: 1.6;
+    }
+    .article-card .description {
+      color: var(--text);
+      font-size: .98rem;
+      line-height: 1.85;
+      margin-bottom: 24px;
+    }
+    .article-card .article-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      align-items: center;
+    }
+    .article-card .read-link {
+      font-family: 'Georgia', serif;
+      color: var(--gold);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(244,200,48,.35);
+      padding-bottom: 2px;
+      font-size: 1rem;
+      transition: border-color .2s, color .2s;
+    }
+    .article-card .read-link:hover {
+      color: var(--gold);
+      border-bottom-color: var(--gold);
+    }
+    .article-card .read-link.secondary {
+      color: var(--muted);
+      border-bottom-color: rgba(96,96,122,.35);
+    }
+    .article-card .read-link.secondary:hover {
+      color: var(--cyan);
+      border-bottom-color: var(--cyan);
+    }
+
+    .article-card.placeholder {
+      grid-template-columns: 1fr;
+      border-style: dashed;
+      background: transparent;
+    }
+    .article-card.placeholder .card-body {
+      text-align: center;
+      padding: 56px 40px;
+      color: var(--muted);
+      font-style: italic;
+    }
+    .article-card.placeholder:hover {
+      transform: none;
+      box-shadow: none;
+      border-color: var(--border);
+    }
+
+    @media (max-width: 760px) {
+      header.site-head { padding: 60px 24px 44px; }
+      header.site-head .brand-mark { width: 150px; height: 150px; }
+      header.site-head h1 { font-size: 2.2rem; }
+      .article-card { grid-template-columns: 1fr; }
+      .article-card .card-image { aspect-ratio: 1200 / 630; }
+      .article-card .card-body { padding: 28px 26px; }
+      .article-card h3 { font-size: 1.3rem; }
+    }
+
+    /* ── Footer ───────────────────────────────────────────────── */
+    footer {
+      max-width: 1080px;
+      margin: 60px auto 0;
+      padding: 36px 28px 60px;
+      border-top: 1px solid var(--border);
+      font-size: .9rem;
+      color: var(--muted);
+      line-height: 1.85;
+    }
+    footer p { margin-bottom: 14px; max-width: 760px; }
+    footer p:last-child { margin-bottom: 0; }
+    footer a {
+      color: var(--cyan);
+      text-decoration: none;
+      border-bottom: 1px dotted rgba(64,200,240,.5);
+      transition: color .2s, border-color .2s;
+    }
+    footer a:hover { color: var(--gold); border-bottom-color: var(--gold); }
+    footer .footer-meta {
+      font-family: monospace;
+      font-size: .82rem;
+      letter-spacing: .02em;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+<div class="lang-toggle">
+  <a href="index.html">English</a>
+  <a href="index_zh.html" class="active">中文</a>
+</div>
+
+<header class="site-head">
+  <img src="/logo.svg" alt="" class="brand-mark">
+  <h1>MathTau</h1>
+  <p class="tagline">从第一性原理出发的数学可视化推导</p>
+  <p class="zh-name">数学韬 <em>τ</em></p>
+  <p class="thesis">凡等式中出现 <em>τ</em>，必有圆形浮现</p>
+</header>
+
+<main>
+
+  <!-- ── Intro ──────────────────────────────────────────────────── -->
+  <section class="intro">
+    <p>MathTau 致力于从第一性原理出发，以可视化的方式推导数学对象的本质 ——
+    不是把它们当作定义去记忆，而是看见它们作为更基本结构的必然结果如何浮现。</p>
+
+    <p>每一篇文章都配有交互式图表。拖动滑块、点击 <em class="m">play</em>，
+    看着几何从零构建起来。</p>
+  </section>
+
+  <!-- ── Laws ─────────────────────────────────────────────────────── -->
+  <section class="laws" aria-label="MathTau 定律">
+    <div class="law">
+      <span class="law-num">MathTau 定律一</span>
+      <p class="law-text">凡等式中出现 <em class="m">π</em>，皆应换为 <em class="mtau">τ</em> 。</p>
+    </div>
+    <div class="law">
+      <span class="law-num">MathTau 定律二</span>
+      <p class="law-text">凡等式中出现 <em class="mtau">τ</em>，必有圆形浮现。</p>
+    </div>
+  </section>
+
+  <!-- ── Articles ───────────────────────────────────────────────── -->
+  <section class="articles">
+    <div class="section-label">文章</div>
+
+    <!-- 欧拉公式文章 -->
+    <a href="/euler/index_zh.html" style="text-decoration:none; color:inherit; display:block;">
+      <article class="article-card">
+        <div class="card-image">
+          <img src="/euler/og-card.png" alt="复平面单位圆的半周与全周遍历">
+        </div>
+        <div class="card-body">
+          <div class="card-num">§ 01 &nbsp;·&nbsp; 2026</div>
+          <h3>欧拉公式的真正优雅</h3>
+          <p class="subtitle">为什么 <em>e<sup>iπ</sup> + 1 = 0</em> 不是最优雅的形式 —— <em>e<sup>iτ</sup> = 1</em> 才是</p>
+          <p class="description">
+            从一个观察出发推导 <em>e<sup>iθ</sup> = cos θ + i sin θ</em>：乘以
+            <em>i</em> 就是旋转 90°。单位圆藏在导数里。然后看清楚 —— 那个著名的恒等式，
+            只是真正影片里被定格的半帧。
+          </p>
+          <p class="article-links">
+            <span class="read-link">阅读中文版 →</span>
+            <a href="/euler/" class="read-link secondary"
+               onclick="event.stopPropagation()">Read in English</a>
+          </p>
+        </div>
+      </article>
+    </a>
+
+    <!-- 高斯文章 -->
+    <a href="/gaussian/index_zh.html" style="text-decoration:none; color:inherit; display:block;">
+      <article class="article-card">
+        <div class="card-image">
+          <img src="/gaussian/og-card.png" alt="高斯钟形曲线的方格剖分与同心圆环剖分">
+        </div>
+        <div class="card-body">
+          <div class="card-num">§ 02 &nbsp;·&nbsp; 2026</div>
+          <h3>高斯积分的自然推导</h3>
+          <p class="subtitle">从线性变化到隐藏圆周的可视化之旅</p>
+          <p class="description">
+            为什么 <em>∫ exp(−x²/2) dx = √τ</em>？四个章节，从最平凡的观察
+            （匀加速运动）出发，一步步走向出人意料的结论 —— 一个圆周从一维的
+            积分里浮现而出。每一步都可以拖动、播放、亲眼看见。
+          </p>
+          <p class="article-links">
+            <span class="read-link">阅读中文版 →</span>
+            <a href="/gaussian/" class="read-link secondary"
+               onclick="event.stopPropagation()">Read in English</a>
+          </p>
+        </div>
+      </article>
+    </a>
+
+    <!-- 占位卡片 -->
+    <div class="article-card placeholder">
+      <div class="card-body">
+        更多文章筹备中<br>
+        <span style="font-size:.85rem; opacity:.7;">
+          （单位球占据多大空间？敬请期待。）
+        </span>
+      </div>
+    </div>
+
+  </section>
+
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     页脚 —— 许可、引用、联系、源码
+═══════════════════════════════════════════════════════════════ -->
+<footer>
+  <p>© 2026 MathTau。本站所有文章采用
+    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="license">CC BY 4.0</a> 许可。
+    各篇文章的正文、插图与源代码均遵循同一许可。
+    欢迎转载与翻译 —— 请保留署名并链接回
+    <a href="https://mathtau.com/">mathtau.com</a>。</p>
+
+  <p class="footer-meta">
+    <a href="https://github.com/mathtau/NatPhil">在 GitHub 查看源码</a> &nbsp;·&nbsp;
+    <a href="https://github.com/mathtau/NatPhil/issues">报告错误或提问</a> &nbsp;·&nbsp;
+    联系 <a href="mailto:tau@mathtau.com">tau@mathtau.com</a> &nbsp;·&nbsp;
+    最后更新于 2026-05-25
+  </p>
+</footer>
+
+</body>
+</html>

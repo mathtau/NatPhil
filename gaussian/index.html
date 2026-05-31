@@ -5,27 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Natural Derivation of Gaussian Integral</title>
 
-  <meta name="description" content="A visual derivation of the Gaussian integral — from x²/2 to the hidden circle, with interactive plots.">
+  <meta name="description" content="A visual derivation of the Gaussian integral, from linear change to the hidden circle, with interactive plots.">
   <meta name="author" content="MathTau">
 
-  <link rel="canonical" href="https://mathtau.com/">
-  <link rel="alternate" hreflang="en" href="https://mathtau.com/">
-  <link rel="alternate" hreflang="zh" href="https://mathtau.com/index_zh.html">
+  <link rel="canonical" href="https://mathtau.com/gaussian/">
+  <link rel="alternate" hreflang="en" href="https://mathtau.com/gaussian/">
+  <link rel="alternate" hreflang="zh" href="https://mathtau.com/gaussian/index_zh.html">
   <link rel="license" href="https://creativecommons.org/licenses/by/4.0/">
 
   <meta property="og:title" content="Natural Derivation of Gaussian Integral">
   <meta property="og:description" content="A visual journey from linear change to the hidden circle.">
-  <meta property="og:url" content="https://mathtau.com/">
+  <meta property="og:url" content="https://mathtau.com/gaussian/">
   <meta property="og:type" content="article">
-  <meta property="og:image" content="https://mathtau.com/og-card.png">
+  <meta property="og:image" content="https://mathtau.com/gaussian/og-card.png">
   <meta property="og:locale" content="en_US">
   <meta property="og:locale:alternate" content="zh_CN">
   <meta name="twitter:card" content="summary_large_image">
 
-  <link rel="icon" type="image/svg+xml" href="logo-minimal.svg">
-  <link rel="apple-touch-icon" href="logo-minimal.svg">
+  <link rel="icon" type="image/svg+xml" href="/logo-minimal.svg">
+  <link rel="apple-touch-icon" href="/logo-minimal.svg">
 
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap');
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
@@ -33,12 +35,15 @@
       --surface:   #111128;
       --border:    #22224a;
       --text:      #c4c4dc;
-      --muted:     #60607a;
-      --gold:      #f0c040;
+      --muted:     #8888a8;
+      --gold:      #f4c830;
       --cyan:      #40c8f0;
       --green:     #50d890;
       --orange:    #f08840;
-      --pink:      #e06080;
+      --pink:      #d040a0;
+      --red:       #e84040;
+      --blue:      #7ab0ff;
+      --purple:    #b070f0;
     }
 
     body {
@@ -59,17 +64,18 @@
       width: 200px;
       height: 200px;
       margin: 0 auto 18px;
-      filter: drop-shadow(0 0 30px rgba(240,192,64,.18));
+      filter: drop-shadow(0 0 30px rgba(244,200,48,.18));
     }
     header h1 {
+      font-family: 'Playfair Display', Georgia, serif;
       font-size: 2.6rem;
       color: var(--gold);
-      letter-spacing: 0.05em;
-      text-shadow: 0 0 50px rgba(240,192,64,.25);
+      letter-spacing: 0.03em;
+      text-shadow: 0 0 50px rgba(244,200,48,.25);
     }
     header p {
       margin-top: 14px;
-      color: var(--muted);
+      color: #6090c0;
       font-style: italic;
       font-size: 1.05rem;
       max-width: none;
@@ -94,15 +100,21 @@
       border-bottom: 1px solid var(--border);
       margin-bottom: 28px;
     }
-    .sec-num  { font-size: .78rem; color: var(--muted); font-family: monospace; letter-spacing: .08em; }
-    h2        { font-size: 1.5rem; font-weight: normal; color: var(--gold); }
+    .sec-num  { font-size: .78rem; color: #6090c0; font-family: 'IBM Plex Mono', monospace; letter-spacing: .08em; }
+    h2        { font-family: 'Playfair Display', Georgia, serif; font-size: 1.5rem; font-weight: 500; color: var(--gold); }
 
     p         { margin-bottom: 18px; max-width: 740px; }
 
     /* inline math highlight */
-    em.m      { font-style: italic; color: var(--cyan); }
-    em.mg     { font-style: italic; color: var(--green); }
-    em.mo     { font-style: italic; color: var(--orange); }
+    em.m     { font-style: italic; color: #c8c8e0;       }
+    em.mx    { font-style: italic; color: var(--red);    }
+    em.my    { font-style: italic; color: var(--cyan);   }
+    em.mt    { font-style: italic; color: var(--purple); }
+    em.mr    { font-style: italic; color: var(--orange); }
+    em.mtau  { font-style: italic; color: var(--gold);   }
+    em.mg    { font-style: italic; color: var(--green);  }
+    em.mp    { font-style: italic; color: var(--pink);   }
+    em.mo    { font-style: italic; color: var(--orange); }
 
     /* centred equation display */
     .eq {
@@ -110,14 +122,14 @@
       text-align: center;
       font-style: italic;
       font-size: 1.25rem;
-      color: var(--green);
+      color: #c8c8e0;
       margin: 30px auto;
       letter-spacing: .02em;
     }
 
     /* callout box */
     .callout {
-      background: rgba(240,192,64,.05);
+      background: rgba(244,200,48,.05);
       border-left: 3px solid var(--gold);
       border-radius: 0 8px 8px 0;
       padding: 16px 20px;
@@ -212,9 +224,10 @@
       width: 18px; height: 18px;
       background: var(--gold);
       border-radius: 50%;
-      box-shadow: 0 0 10px rgba(240,192,64,.45);
+      box-shadow: 0 0 10px rgba(244,200,48,.45);
     }
-    .val { font-family: monospace; color: var(--gold); min-width: 48px; }
+    .val { font-family: 'IBM Plex Mono', monospace; color: var(--gold); min-width: 36px; }
+    #chart-tip { display:none; position:fixed; pointer-events:none; background:rgba(10,10,30,0.93); border:1px solid #22224a; font:12px 'IBM Plex Mono',monospace; padding:7px 12px; border-radius:6px; line-height:1.8; z-index:9999; }
 
     /* play button */
     .btn {
@@ -223,7 +236,7 @@
       color: var(--muted);
       border-radius: 6px;
       padding: 5px 16px;
-      font-family: monospace;
+      font-family: 'IBM Plex Mono', monospace;
       font-size: .85rem;
       cursor: pointer;
       transition: border-color .2s, color .2s;
@@ -260,15 +273,48 @@
       padding: 6px 14px;
       border-radius: 6px;
       text-decoration: none;
-      color: var(--muted);
+      color: var(--text);
       font-size: .9rem;
       transition: color .2s, background .2s;
     }
     .lang-toggle a:hover { color: var(--gold); }
     .lang-toggle a.active {
-      background: rgba(240,192,64,.15);
+      background: rgba(244,200,48,.15);
       color: var(--gold);
     }
+
+    /* ── Home link ───────────────────────────────────────────────── */
+    .home-link {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 100;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-family: 'Georgia', serif;
+      font-size: .9rem;
+      color: #6090c0;
+      text-decoration: none;
+      transition: color .2s, border-color .2s;
+    }
+    .home-link:hover { color: var(--gold); border-color: rgba(244,200,48,.4); }
+    .home-btn {
+      display: inline-block;
+      margin: 56px auto 0;
+      padding: 12px 32px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: #6090c0;
+      font-family: 'Georgia', serif;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: color .2s, border-color .2s;
+    }
+    .home-btn:hover { color: var(--gold); border-color: rgba(244,200,48,.4); }
+    .home-btn-wrap { text-align: center; padding-bottom: 20px; }
 
     /* ── Footer ───────────────────────────────────────────────── */
     footer {
@@ -291,14 +337,47 @@
     footer a:hover { color: var(--gold); border-bottom-color: var(--gold); }
     footer .cite { color: var(--text); font-family: 'Georgia', serif; }
     footer .footer-meta {
-      font-family: monospace;
+      font-family: 'IBM Plex Mono', monospace;
       font-size: .82rem;
       letter-spacing: .02em;
       color: var(--muted);
     }
+    /* inline thesis tooltip */
+    .tip {
+      position: relative;
+      border-bottom: 1px dotted var(--gold);
+      cursor: help;
+    }
+    .tip::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: max-content;
+      max-width: 260px;
+      padding: 6px 10px;
+      background: var(--surface);
+      border: 1px solid var(--gold);
+      border-radius: 5px;
+      color: var(--gold);
+      font-size: .82rem;
+      font-style: normal;
+      font-family: 'Georgia', serif;
+      line-height: 1.4;
+      white-space: normal;
+      text-align: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .18s;
+      z-index: 20;
+    }
+    .tip:hover::after { opacity: 1; }
   </style>
 </head>
 <body>
+
+<a href="/" class="home-link">← MathTau</a>
 
 <div class="lang-toggle">
   <a href="index.html" class="active">English</a>
@@ -306,7 +385,7 @@
 </div>
 
 <header>
-  <img src="logo.svg" alt="" class="brand-mark">
+  <img src="/logo.svg" alt="" class="brand-mark">
   <h1>Natural Derivation of Gaussian Integral</h1>
   <p>A visual journey from linear change to the hidden circle</p>
 </header>
@@ -314,42 +393,88 @@
 <main>
 
 <!-- ═══════════════════════════════════════════════════════════════
+     PRELUDE — two sides hiding the same circle
+═══════════════════════════════════════════════════════════════ -->
+<div class="section" id="prelude">
+  <div class="sec-head">
+    <span class="sec-num">prelude</span>
+    <h2>Two Sides Hiding the Same Circle</h2>
+  </div>
+
+  <p>The Gaussian integral is most often quoted as</p>
+
+  <span class="eq">∫ <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²)</em> <em class="mx">dx</em> &ensp;=&ensp; √π</span>
+
+  <p>Beautiful at first read: a function with no closed-form antiderivative
+  yields, when integrated over the entire real line, a finite value involving
+  the most famous constant in mathematics. People put it on T-shirts.</p>
+
+  <p>But neither side of this equation is <em>naturally</em> elegant.</p>
+
+  <p><strong>On the right</strong>, <em class="m">√π</em> is not the natural
+  choice of circle constant. A more natural version of the right-hand side is
+  <em class="m">√(</em><em class="mtau">τ</em><em class="m">/2)</em>, which still hides the <em class="mtau">τ</em>
+  behind a <em class="m">/2</em>. Here <em class="mtau">τ</em> (tau)
+  is the ratio of a circle's circumference to its radius — wrap a thread
+  around any circle and the thread is <em class="mtau">τ</em> ≈ 6.283
+  radii long, one full rotation. (The companion
+  <a href="../euler/" style="color: var(--gold);">Euler's Formula</a>
+  article shows how <em class="mtau">τ</em> emerges naturally from
+  the circle.)</p>
+
+  <p><strong>On the left</strong>, the use of <em class="mx">x</em><em class="m">²</em> on a
+  glance seems more natural than its half. But as you will see in this article,
+  the more natural version is actually <em class="mx">x</em><em class="m">²/2</em>.</p>
+
+  <p>If we <em>naturalize</em> both sides, we get the <em>fundamental</em>
+  version of the equation, which is</p>
+
+  <span class="eq">∫ <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em> <em class="mx">dx</em> &ensp;=&ensp; √<em class="mtau">τ</em></span>
+
+  <p>The <em class="m">/2</em> in the exponent on the left, and the
+  <em class="mtau">τ</em> on the right, are not randomly chosen — they share
+  a more fundamental relationship with each other. The rest of this article
+  is the story of where they both come from, and where
+  <span class="tip" data-tip="The Second Law of MathTau: whenever τ appears in an equation, a circle will always emerge somewhere.">a circle has been hiding</span>.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
      SECTION 1 — x²/2
 ═══════════════════════════════════════════════════════════════ -->
 <div class="section" id="s1">
   <div class="sec-head">
     <span class="sec-num">§ 1</span>
-    <h2>The Natural Occurrence of <span class="frac"><span class="num">x²</span><span class="den">2</span></span></h2>
+    <h2>The Natural Occurrence of <span class="frac"><span class="num"><em class="mx">x</em>²</span><span class="den">2</span></span></h2>
   </div>
 
   <!-- ── Part 1: why v = t ──────────────────────────────── -->
-  <h3 class="subhead">Part 1 — Why is v = t the natural velocity?</h3>
+  <h3 class="subhead">Part 1 — Why is <em class="mg">v</em> = <em class="mx">t</em> the natural velocity?</h3>
 
   <p>Gravity is a familiar example of constant acceleration — near Earth's surface it
   accelerates falling objects at ≈ 9.8 m/s² downward, almost perfectly constant over
   human scales. Acceleration is the rate at which velocity changes:</p>
 
-  <span class="eq">a &ensp;=&ensp; <span class="frac"><span class="num">dv</span><span class="den">dt</span></span></span>
+  <span class="eq"><em class="mg">a</em> &ensp;=&ensp; <span class="frac"><span class="num"><em class="mg">dv</em></span><span class="den"><em class="mx">dt</em></span></span></span>
 
-  <p>Rearranging: each tiny slice of time <em class="m">dt</em> delivers a velocity
-  push <em class="m">dv = a · dt</em>. Setting <em class="m">a = 1</em> normalises the
-  numbers without changing the structure. With <em class="m">a = 1</em>:
-  <em class="mg">dv = dt</em>.</p>
+  <p>Rearranging: each tiny slice of time <em class="mx">dt</em> delivers a velocity
+  push <em class="mg">dv</em> <em class="m">=</em> <em class="mg">a</em> <em class="m">·</em> <em class="mx">dt</em>. Setting <em class="mg">a</em> <em class="m">= 1</em> normalises the
+  numbers without changing the structure. With <em class="mg">a</em> <em class="m">= 1</em>:
+  <em class="mg">dv</em> <em class="m">=</em> <em class="mx">dt</em>.</p>
 
-  <p>Now see how a constant <em class="m">a</em> builds <em class="m">v</em> across
+  <p>Now see how a constant <em class="mg">a</em> builds <em class="mg">v</em> across
   the same time horizon:</p>
 
-  <p><strong>Left</strong> — constant <em class="m">a = 1</em> across time.
-  <em class="m">N</em> colored blocks, each with height 1 and width
-  <em class="m">dt</em>, and therefore area:</p>
+  <p><strong>Left</strong> — constant <em class="mg">a</em> <em class="m">= 1</em> across time.
+  <em class="mx">N</em> colored blocks, each with height 1 and width
+  <em class="mx">dt</em>, and therefore area:</p>
 
-  <span class="eq">1 · dt &ensp;=&ensp; a · dt &ensp;=&ensp; dt &ensp;=&ensp; dv</span>
+  <span class="eq"><em class="m">1 ·</em> <em class="mx">dt</em> &ensp;=&ensp; <em class="mg">a</em> <em class="m">·</em> <em class="mx">dt</em> &ensp;=&ensp; <em class="mx">dt</em> &ensp;=&ensp; <em class="mg">dv</em></span>
 
-  <p><strong>Right</strong> — <em class="m">v</em> across time. Across each time
-  interval, <em class="m">v</em> grows by <em class="mg">dv</em> by definition: each
+  <p><strong>Right</strong> — <em class="mg">v</em> across time. Across each time
+  interval, <em class="mg">v</em> grows by <em class="mg">dv</em> by definition: each
   tick length on the right corresponds to the area of a block on the left, fitting
-  well to <em class="m">v = t</em> at large <em class="m">N</em>. Drag
-  <em class="m">N</em>:</p>
+  well to <em class="mg">v</em> <em class="m">=</em> <em class="mx">t</em> at large <em class="mx">N</em>. Drag
+  <em class="mx">N</em>:</p>
 
   <div class="controls">
     <label>N =</label>
@@ -361,8 +486,8 @@
     <div class="graph-card">
       <canvas id="c1g" width="700" height="700"></canvas>
       <p class="graph-caption">
-        Constant acceleration g = 1 — each colored block is one velocity increment
-        <em>dv = g · dt</em>
+        Constant acceleration a = 1 — each colored block is one velocity increment
+        <em>dv = a · dt</em>
       </p>
     </div>
     <div class="graph-card">
@@ -374,30 +499,30 @@
   </div>
 
   <p>As <em class="m">N → ∞</em>, each slice gets thinner and the staircase becomes the
-  smooth line <em class="m">v = t</em>. That line is not chosen — it is forced on us by
+  smooth line <em class="mg">v</em> <em class="m">=</em> <em class="mx">t</em>. That line is not chosen — it is forced on us by
   the constancy of gravity: equal pushes accumulate into linear growth.</p>
 
   <!-- ── Part 2: natural distance ────────────────────────── -->
-  <h3 class="subhead">Part 2 — Why is x = t²/2 the natural distance?</h3>
+  <h3 class="subhead">Part 2 — Why is <em class="my">x</em> = <em class="mx">t</em>²/2 the natural distance?</h3>
 
   <p>Distance is velocity times time. Each instant contributes a thin strip of area
-  <em class="m">v · dt = t · dt</em>, and total distance is the sum of all strips —
-  the area under <em class="m">v = t</em>.</p>
+  <em class="mg">v</em> <em class="m">·</em> <em class="mx">dt</em> <em class="m">=</em> <em class="mx">t</em> <em class="m">·</em> <em class="mx">dt</em>, and total distance is the sum of all strips —
+  the area under <em class="mg">v</em> <em class="m">=</em> <em class="mx">t</em>.</p>
 
-  <p>That region is a right triangle with base <em class="m">t</em> and height
-  <em class="m">t</em>. Its area is exactly half the enclosing square:</p>
+  <p>That region is a right triangle with base <em class="mx">t</em> and height
+  <em class="mx">t</em>. Its area is exactly half the enclosing square:</p>
 
-  <span class="eq">x &ensp;=&ensp; ½ · t · t &ensp;=&ensp; <span class="frac"><span class="num">t²</span><span class="den">2</span></span></span>
+  <span class="eq"><em class="my">x</em> &ensp;=&ensp; <em class="m">½ ·</em> <em class="mx">t</em> <em class="m">·</em> <em class="mx">t</em> &ensp;=&ensp; <span class="frac"><span class="num"><em class="mx">t</em>²</span><span class="den">2</span></span></span>
 
-  <p><strong>Left</strong> — <em class="m">v = t</em> across time. Each colored strip
-  has height <em class="m">v</em> and width <em class="m">dt</em>, and therefore area:</p>
+  <p><strong>Left</strong> — <em class="mg">v</em> <em class="m">=</em> <em class="mx">t</em> across time. Each colored strip
+  has height <em class="mg">v</em> and width <em class="mx">dt</em>, and therefore area:</p>
 
-  <span class="eq">v · dt &ensp;=&ensp; t · dt &ensp;=&ensp; dx</span>
+  <span class="eq"><em class="mg">v</em> <em class="m">·</em> <em class="mx">dt</em> &ensp;=&ensp; <em class="mx">t</em> <em class="m">·</em> <em class="mx">dt</em> &ensp;=&ensp; <em class="my">dx</em></span>
 
-  <p><strong>Right</strong> — distance <em class="m">x(t)</em> across time. At each
+  <p><strong>Right</strong> — distance <em class="my">x</em><em class="m">(</em><em class="mx">t</em><em class="m">)</em> across time. At each
   moment the distance grows by the area of the strip on the left: each tick length on
-  the right equals one strip's area, tracing out <em class="m">x(t) = t²/2</em> at large
-  <em class="m">N</em>. Drag <em class="m">t</em> — or play to animate:</p>
+  the right equals one strip's area, tracing out <em class="my">x</em><em class="m">(</em><em class="mx">t</em><em class="m">) =</em> <em class="mx">t</em><em class="m">²/2</em> at large
+  <em class="mx">N</em>. Drag <em class="mx">t</em> — or play to animate:</p>
 
   <div class="controls">
     <label>N =</label>
@@ -426,52 +551,52 @@
     </div>
   </div>
 
-  <p>The parabola <em class="m">t²/2</em> on the right is the growing triangle on the left.
+  <p>The parabola <em class="mx">t</em><em class="m">²/2</em> on the right is the growing triangle on the left.
   Its slope at any point recovers the velocity:
-  <em class="mg">d/dt (t²/2) = t</em>. The line and the parabola are each other's mirrors.</p>
+  <em class="m">d/</em><em class="mx">dt</em> <em class="m">(</em><em class="mx">t</em><em class="m">²/2) =</em> <em class="mx">t</em>. The line and the parabola are each other's mirrors.</p>
 
   <div class="callout">
-    <p><strong>Key insight.</strong>&ensp;<em class="m">t²/2</em> is the natural distance because
+    <p><strong>Key insight.</strong>&ensp;<em class="mx">t</em><em class="m">²/2</em> is the natural distance because
     it is the area of the triangle formed by linear velocity — and the area of any triangle
     is half its enclosing square. The ½ comes from geometry, not convention.</p>
   </div>
 
   <!-- ── Part 3: natural occurrence ──────────────────────────── -->
-  <h3 class="subhead">Part 3 — x²/2 appears wherever something grows linearly</h3>
+  <h3 class="subhead">Part 3 — <em class="mx">x</em>²/2 appears wherever something grows linearly</h3>
 
-  <p>Part 2 showed that distance under constant acceleration is <em class="m">t²/2</em>.
+  <p>Part 2 showed that distance under constant acceleration is <em class="mx">t</em><em class="m">²/2</em>.
   That result is an instance of a deeper pattern. The reason it appeared is simple:</p>
 
-  <span class="eq"><span class="frac"><span class="num">d</span><span class="den">dx</span></span><span style="font-style:italic"> (</span><span class="frac"><span class="num">x²</span><span class="den">2</span></span><span style="font-style:italic">)</span> &ensp;=&ensp; x</span>
+  <span class="eq"><span class="frac"><span class="num">d</span><span class="den"><em class="mx">dx</em></span></span><span style="font-style:italic"> (</span><span class="frac"><span class="num"><em class="mx">x</em>²</span><span class="den">2</span></span><span style="font-style:italic">)</span> &ensp;=&ensp; <em class="mx">x</em></span>
 
-  <p><em class="m">x²/2</em> is the integral of <em class="m">x</em> — the natural
-  accumulation of anything that grows proportionally to <em class="m">x</em> itself.
+  <p><em class="mx">x</em><em class="m">²/2</em> is the integral of <em class="mx">x</em> — the natural
+  accumulation of anything that grows proportionally to <em class="mx">x</em> itself.
   Whenever physics gives you a quantity that increases linearly, integrating it produces
-  <em class="m">x²/2</em>. The ½ is not inserted by hand; it is the area of the triangle
+  <em class="mx">x</em><em class="m">²/2</em>. The ½ is not inserted by hand; it is the area of the triangle
   between the line and the axis.</p>
 
   <p>Two more examples from physics — both familiar, both the same triangle:</p>
 
-  <p><strong>Kinetic energy.</strong> A force <em class="m">F = ma</em> accelerates a
-  mass. Velocity grows linearly in time: <em class="m">v = at</em>. Work = force ×
-  distance, and distance = <em class="m">t²/2</em> from Part 2. So:</p>
+  <p><strong>Kinetic energy.</strong> A force <em class="m">F = m</em><em class="mg">a</em> accelerates a
+  mass. Velocity grows linearly in time: <em class="mg">v</em> <em class="m">=</em> <em class="mg">a</em><em class="mx">t</em>. Work = force ×
+  distance, and distance = <em class="mx">t</em><em class="m">²/2</em> from Part 2. So:</p>
 
-  <span class="eq">KE &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den">2</span></span>mv²</span>
+  <span class="eq">KE &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den">2</span></span>m<em class="mg">v</em>²</span>
 
   <p>The ½ is the same triangle from Part 2 — velocity built linearly from 0, so the
   average is half the final value.</p>
 
   <p><strong>Spring energy.</strong> Hooke's law says the restoring force grows
-  proportionally to displacement: <em class="m">F = kx</em>. The work to compress the
-  spring by <em class="m">x</em> is the area under that line — another triangle:</p>
+  proportionally to displacement: <em class="m">F = k</em><em class="mx">x</em>. The work to compress the
+  spring by <em class="mx">x</em> is the area under that line — another triangle:</p>
 
-  <span class="eq">PE &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den">2</span></span>kx²</span>
+  <span class="eq">PE &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den">2</span></span>k<em class="mx">x</em>²</span>
 
   <div class="callout callout-cyan">
-    <p><strong>Key insight.</strong>&ensp;<em class="m">½mv²</em> and
-    <em class="m">½kx²</em> both carry a ½ for the same reason: the physical quantity
+    <p><strong>Key insight.</strong>&ensp;<em class="m">½m</em><em class="mg">v</em><em class="m">²</em> and
+    <em class="m">½k</em><em class="mx">x</em><em class="m">²</em> both carry a ½ for the same reason: the physical quantity
     (velocity, force) grows linearly, so its accumulated effect is the area of a triangle
-    — exactly half the enclosing rectangle. <em class="m">x²/2</em> is the universal
+    — exactly half the enclosing rectangle. <em class="mx">x</em><em class="m">²/2</em> is the universal
     signature of linear growth integrated once.</p>
   </div>
 </div>
@@ -482,36 +607,36 @@
 <div class="section" id="s2">
   <div class="sec-head">
     <span class="sec-num">§ 2</span>
-    <h2>The Natural Occurrence of 1/x, log(x) and exp(y)</h2>
+    <h2>The Natural Occurrence of 1/<em class="mx">x</em>, <em class="my">log</em>(<em class="mx">x</em>) and <em class="mg">exp</em>(<em class="my">y</em>)</h2>
   </div>
 
-  <h3 class="subhead">Part 1 — Why does 1/x arise naturally?</h3>
+  <h3 class="subhead">Part 1 — Why does 1/<em class="mx">x</em> arise naturally?</h3>
 
   <p>Boyle's law is a familiar example of an inverse relationship — hold temperature
   fixed, and pressure and volume are inversely linked. Setting the proportionality
   constant to 1:</p>
 
-  <span class="eq">PV &ensp;=&ensp; 1 &ensp;⟹&ensp; P &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den">V</span></span></span>
+  <span class="eq"><em class="mg">P</em><em class="mx">V</em> &ensp;=&ensp; <em class="m">1</em> &ensp;⟹&ensp; <em class="mg">P</em> &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den"><em class="mx">V</em></span></span></span>
 
   <p>Halve the volume: pressure doubles. Compress to a third: pressure triples.
-  Plotted against volume, this is the curve <em class="m">y = 1/x</em>.</p>
+  Plotted against volume, this is the curve <em class="my">y</em><em class="m"> = 1/</em><em class="mx">x</em>.</p>
 
   <p>Now ask: <em>how much work does expanding the gas from volume 1 to volume
-  <em class="m">V</em> release?</em> Work is pressure times volume change. Each tiny
-  expansion <em class="m">dV</em> contributes:</p>
+  </em><em class="mx">V</em><em> release?</em> Work is pressure times volume change. Each tiny
+  expansion <em class="mx">dV</em> contributes:</p>
 
-  <span class="eq">dW &ensp;=&ensp; P &thinsp;·&thinsp; dV &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den">V</span></span> dV</span>
+  <span class="eq"><em class="my">dW</em> &ensp;=&ensp; <em class="mg">P</em> &thinsp;·&thinsp; <em class="mx">dV</em> &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den"><em class="mx">V</em></span></span> <em class="mx">dV</em></span>
 
-  <p><strong>Left</strong> — pressure <em class="m">P = 1/V</em> across volume.
-  <em class="m">N</em> colored blocks, each with height <em class="m">1/V</em> and
-  width <em class="m">dV</em>, and therefore area:</p>
+  <p><strong>Left</strong> — pressure <em class="mg">P</em> <em class="m">= 1/</em><em class="mx">V</em> across volume.
+  <em class="mx">N</em> colored blocks, each with height <em class="m">1/</em><em class="mx">V</em> and
+  width <em class="mx">dV</em>, and therefore area:</p>
 
-  <span class="eq"><span class="frac"><span class="num">1</span><span class="den">V</span></span> · dV &ensp;=&ensp; P · dV &ensp;=&ensp; dW</span>
+  <span class="eq"><span class="frac"><span class="num">1</span><span class="den"><em class="mx">V</em></span></span> <em class="m">·</em> <em class="mx">dV</em> &ensp;=&ensp; <em class="mg">P</em> <em class="m">·</em> <em class="mx">dV</em> &ensp;=&ensp; <em class="my">dW</em></span>
 
-  <p><strong>Right</strong> — work <em class="m">W</em> across volume. Each tick length
+  <p><strong>Right</strong> — work <em class="my">W</em> across volume. Each tick length
   on the right corresponds to the area of a block on the left, stacking toward
-  <em class="m">W = log V</em> at large <em class="m">N</em>. Drag
-  <em class="m">N</em> to refine; drag <em class="m">V</em> to extend — or
+  <em class="my">W</em> <em class="m">=</em> <em class="my">log</em> <em class="mx">V</em> at large <em class="mx">N</em>. Drag
+  <em class="mx">N</em> to refine; drag <em class="mx">V</em> to extend — or
   play:</p>
 
   <div class="controls">
@@ -539,17 +664,17 @@
     </div>
   </div>
 
-  <p>As <em class="m">N → ∞</em> the staircase fills the smooth gold curve. That curve
-  — the accumulated area under <em class="m">1/V</em> — is the
-  <strong>logarithm</strong>. It is one of the most important functions in mathematics
+  <p>As <em class="mx">N</em><em class="m"> → ∞</em> the staircase fills the smooth gold curve. That curve
+  — the accumulated area under <em class="m">1/</em><em class="mx">V</em> — is the
+  <strong style="color:var(--cyan)">logarithm</strong>. It is one of the most important functions in mathematics
   and science: the natural language of anything that grows or shrinks by ratios rather
   than by fixed amounts.</p>
 
   <h3 class="subhead">Part 2 — Equal ratios, equal areas</h3>
 
-  <p>Drag <em class="m">V</em> past 2, then past 4 in the charts above. Each doubling
+  <p>Drag <em class="mx">V</em> past 2, then past 4 in the charts above. Each doubling
   adds exactly the same height to the right chart — the intervals 1→2, 2→4, and 4→8
-  all contribute identical work, <em class="mg">log 2 ≈ 0.693</em>, regardless of
+  all contribute identical work, <em class="my">log</em> <em class="m">2</em> <em class="m">≈ 0.693</em>, regardless of
   where on the axis they sit:</p>
 
   <div class="graphs">
@@ -560,17 +685,17 @@
     </div>
   </div>
 
-    <p>Here is why: <em class="m">dV/V</em> measures <em>relative</em> change, and relative
-  change is blind to scaling. Replace <em class="m">V</em> with <em class="m">c · V</em>
-  everywhere — the strip becomes <em class="m">d(c·V) = c · dV</em> wide, the height
-  becomes <em class="m">1/(c·V)</em>, and the <em class="m">c</em> cancels:</p>
+    <p>Here is why: <em class="mx">dV</em><em class="m">/</em><em class="mx">V</em> measures <em>relative</em> change, and relative
+  change is blind to scaling. Replace <em class="mx">V</em> with <em class="m">c ·</em> <em class="mx">V</em>
+  everywhere — the strip becomes <em class="m">d(c·</em><em class="mx">V</em><em class="m">) = c ·</em> <em class="mx">dV</em> wide, the height
+  becomes <em class="m">1/(c·</em><em class="mx">V</em><em class="m">)</em>, and the <em class="m">c</em> cancels:</p>
 
   <span class="eq">
-    <span class="frac"><span class="num">d(c · V)</span><span class="den">c · V</span></span>
+    <span class="frac"><span class="num">d(c · <em class="mx">V</em>)</span><span class="den">c · <em class="mx">V</em></span></span>
     &ensp;=&ensp;
-    <span class="frac"><span class="num">c · dV</span><span class="den">c · V</span></span>
+    <span class="frac"><span class="num">c · <em class="mx">dV</em></span><span class="den">c · <em class="mx">V</em></span></span>
     &ensp;=&ensp;
-    <span class="frac"><span class="num">dV</span><span class="den">V</span></span>
+    <span class="frac"><span class="num"><em class="mx">dV</em></span><span class="den"><em class="mx">V</em></span></span>
   </span>
 
   <div class="graphs">
@@ -593,20 +718,20 @@
     the ratio between the startpoint and endpoint is heard.</p>
   </div>
 
-  <h3 class="subhead">Part 3 — log: converting multiplication to addition</h3>
+  <h3 class="subhead">Part 3 — <em class="my">log</em>: converting multiplication to addition</h3>
 
   <p>Scaling the interval by a constant <em class="m">c</em> leaves the integrand unchanged — the
-  result depends only on the ratio <em class="m">V<sub>e</sub>/V<sub>s</sub></em>,
+  result depends only on the ratio <em class="mx">V<sub>e</sub></em><em class="m">/</em><em class="mx">V<sub>s</sub></em>,
   wherever the interval sits.</p>
 
   <p>Now ask: what happens to relative change when two varying quantities are
-  <em>multiplied</em>? The relative change in a product <em class="m">x · y</em>
-  is <em class="m">d(xy)</em> and its inverse is <em class="m">1/(xy)</em>.</p>
+  <em>multiplied</em>? The relative change in a product <em class="mx">x</em><em class="m"> · </em><em class="my">y</em>
+  is <em class="m">d(</em><em class="mx">x</em><em class="my">y</em><em class="m">)</em> and its inverse is <em class="m">1/(</em><em class="mx">x</em><em class="my">y</em><em class="m">)</em>.</p>
   
-  <p> Let's first look at <em class="m">d(xy)</em>. The diagram shows what it is. Expanding the new rectangle gives four pieces: the
-  original <em class="m">xy</em>, two thin strips <em class="mo">y·dx</em> and
-  <em class="m">x·dy</em>, and a tiny corner <em class="m">dx·dy</em>. The last term is the product
-  of two small quantities — as <em class="m">dx, dy → 0</em>, it vanishes, leaving the
+  <p> Let's first look at <em class="m">d(</em><em class="mx">x</em><em class="my">y</em><em class="m">)</em>. The diagram shows what it is. Expanding the new rectangle gives four pieces: the
+  original <em class="mx">x</em><em class="my">y</em>, two thin strips <em class="my">y</em><em class="m">·</em><em class="mx">dx</em> and
+  <em class="mx">x</em><em class="m">·</em><em class="my">dy</em>, and a tiny corner <em class="mx">dx</em><em class="m">·</em><em class="my">dy</em>. The last term is the product
+  of two small quantities — as <em class="mx">dx</em><em class="m">, </em><em class="my">dy</em><em class="m"> → 0</em>, it vanishes, leaving the
   exact relation above.</p>
 
   <div class="graphs">
@@ -621,52 +746,52 @@
   </div>
   
     
-  <p><em class="m">d(xy) = y&thinsp;dx + x&thinsp;dy</em> and divide by
-  <em class="m">xy</em>:</p>
+  <p><em class="m">d(</em><em class="mx">x</em><em class="my">y</em><em class="m">) = </em><em class="my">y</em><em class="m">&thinsp;</em><em class="mx">dx</em><em class="m"> + </em><em class="mx">x</em><em class="m">&thinsp;</em><em class="my">dy</em> and divide by
+  <em class="mx">x</em><em class="my">y</em>:</p>
 
 
-  <span class="eq"><span class="frac"><span class="num">d(xy)</span><span class="den">xy</span></span> &ensp;=&ensp; <span class="frac"><span class="num">dx</span><span class="den">x</span></span> &ensp;+&ensp; <span class="frac"><span class="num">dy</span><span class="den">y</span></span></span>
+  <span class="eq"><span class="frac"><span class="num">d(<em class="mx">x</em><em class="my">y</em>)</span><span class="den"><em class="mx">x</em><em class="my">y</em></span></span> &ensp;=&ensp; <span class="frac"><span class="num"><em class="mx">dx</em></span><span class="den"><em class="mx">x</em></span></span> &ensp;+&ensp; <span class="frac"><span class="num"><em class="my">dy</em></span><span class="den"><em class="my">y</em></span></span></span>
 
 
-  <p>Relative changes approximately add. Say <em class="m">x = 100</em>,
-  <em class="m">dx = 3</em>, <em class="m">y = 80</em>, <em class="m">dy = 1.6</em>.
-  Then <em class="m">dx/x</em> and <em class="m">dy/y</em> represent their respective
-  relative changes in the familiar sense: <em class="m">dx/x = 3%</em> and
-  <em class="m">dy/y = 2%</em>. A 3% rise in <em class="m">x</em> and a 2% rise in
-  <em class="m">y</em> produce a <em>5.06%</em> rise in <em class="m">xy</em> — not
-  exactly 5%, because the corner <em class="m">dx · dy = 0.03 × 0.02 = 0.06%</em>
+  <p>Relative changes approximately add. Say <em class="mx">x</em><em class="m"> = 100</em>,
+  <em class="mx">dx</em><em class="m"> = 3</em>, <em class="my">y</em><em class="m"> = 80</em>, <em class="my">dy</em><em class="m"> = 1.6</em>.
+  Then <em class="mx">dx</em><em class="m">/</em><em class="mx">x</em> and <em class="my">dy</em><em class="m">/</em><em class="my">y</em> represent their respective
+  relative changes in the familiar sense: <em class="mx">dx</em><em class="m">/</em><em class="mx">x</em><em class="m"> = 3%</em> and
+  <em class="my">dy</em><em class="m">/</em><em class="my">y</em><em class="m"> = 2%</em>. A 3% rise in <em class="mx">x</em> and a 2% rise in
+  <em class="my">y</em> produce a <em>5.06%</em> rise in <em class="mx">x</em><em class="my">y</em> — not
+  exactly 5%, because the corner <em class="mx">dx</em><em class="m"> · </em><em class="my">dy</em><em class="m"> = 0.03 × 0.02 = 0.06%</em>
   is small but nonzero. As the steps shrink toward zero the corner vanishes, and the
   approximation becomes exact.</p>
 
   <p>We saw earlier in Part 1 that log is used to show the accumulation of infinitesimal
-  relative steps of <em class="m">dt/t</em>. So <em class="m">log(xy)</em> is simply
-  the total of all the small changes <em class="m">d(log(xy))</em> as
-  <em class="m">xy</em> grows from 1 to its final value, and each such step is
-  <em class="m">d(log(xy)) = d(xy)/(xy)</em>.</p>
+  relative steps of <em class="mx">dt</em><em class="m">/</em><em class="mx">t</em>. So <em class="my">log</em><em class="m">(</em><em class="mx">x</em><em class="my">y</em><em class="m">)</em> is simply
+  the total of all the small changes <em class="m">d(</em><em class="my">log</em><em class="m">(</em><em class="mx">x</em><em class="my">y</em><em class="m">))</em> as
+  <em class="mx">x</em><em class="my">y</em> grows from 1 to its final value, and each such step is
+  <em class="m">d(</em><em class="my">log</em><em class="m">(</em><em class="mx">x</em><em class="my">y</em><em class="m">)) = d(</em><em class="mx">x</em><em class="my">y</em><em class="m">)/(</em><em class="mx">x</em><em class="my">y</em><em class="m">)</em>.</p>
 
-  <p>Exactly the same is true term by term: <em class="m">log(x)</em> is the sum of
-  all <em class="m">d(log x) = dx/x</em>, and <em class="m">log(y)</em> is the sum of
-  all <em class="m">d(log y) = dy/y</em>. Since each set of infinitesimal pieces
-  satisfies <em class="m">d(xy)/(xy) = dx/x + dy/y</em> exactly, so does their
+  <p>Exactly the same is true term by term: <em class="my">log</em><em class="m">(</em><em class="mx">x</em><em class="m">)</em> is the sum of
+  all <em class="m">d(</em><em class="my">log</em><em class="m"> </em><em class="mx">x</em><em class="m">) = </em><em class="mx">dx</em><em class="m">/</em><em class="mx">x</em>, and <em class="my">log</em><em class="m">(</em><em class="my">y</em><em class="m">)</em> is the sum of
+  all <em class="m">d(</em><em class="my">log</em><em class="m"> </em><em class="my">y</em><em class="m">) = </em><em class="my">dy</em><em class="m">/</em><em class="my">y</em>. Since each set of infinitesimal pieces
+  satisfies <em class="m">d(</em><em class="mx">x</em><em class="my">y</em><em class="m">)/(</em><em class="mx">x</em><em class="my">y</em><em class="m">) = </em><em class="mx">dx</em><em class="m">/</em><em class="mx">x</em><em class="m"> + </em><em class="my">dy</em><em class="m">/</em><em class="my">y</em> exactly, so does their
   total — we get an equation in aggregation:</p>
 
-  <span class="eq">log(a · b) &ensp;=&ensp; log(a) + log(b)</span>
+  <span class="eq"><em class="my">log</em>(<em class="mx">a</em> · <em class="my">b</em>) &ensp;=&ensp; <em class="my">log</em>(<em class="mx">a</em>) + <em class="my">log</em>(<em class="my">b</em>)</span>
 
   <p>Not a definition — a consequence. The logarithm converts multiplication into
-  addition because <em class="m">1/x</em> measures relative change, and relative
+  addition because <em class="m">1/</em><em class="mx">x</em> measures relative change, and relative
   changes add.</p>
 
-  <h3 class="subhead">Part 4 — exp: converting addition to multiplication</h3>
+  <h3 class="subhead">Part 4 — <em class="mg">exp</em>: converting addition to multiplication</h3>
 
-  <p><em class="mo">exp</em> is the inverse of log. Where log converts multiplication
+  <p><em class="mg">exp</em> is the inverse of log. Where log converts multiplication
   into addition, exp goes the other direction — it converts addition back into
   multiplication:</p>
 
-  <span class="eq">exp(a + b) &ensp;=&ensp; exp(a) · exp(b)</span>
+  <span class="eq"><em class="mg">exp</em>(<em class="mx">a</em> + <em class="my">b</em>) &ensp;=&ensp; <em class="mg">exp</em>(<em class="mx">a</em>) · <em class="mg">exp</em>(<em class="my">b</em>)</span>
 
   <p>Graphically, the two functions are exact reflections of each other across the
-  diagonal <em class="m">y = x</em>. Every point <em class="m">(x,&thinsp;log x)</em>
-  on the log curve has a mirror <em class="mo">(log x,&thinsp;x)</em> on the exp curve
+  diagonal <em class="my">y</em><em class="m"> = </em><em class="mx">x</em>. Every point <em class="m">(</em><em class="mx">x</em><em class="m">,&thinsp;</em><em class="my">log</em><em class="m"> </em><em class="mx">x</em><em class="m">)</em>
+  on the log curve has a mirror <em class="m">(</em><em class="my">log</em><em class="m"> </em><em class="mx">x</em><em class="m">,&thinsp;</em><em class="mx">x</em><em class="m">)</em> on the exp curve
   — coordinates swapped. Two sample mirror pairs are marked:</p>
 
   <div class="graphs">
@@ -676,35 +801,35 @@
     </div>
   </div>
 
-  <p>One famous property of <em class="mo">exp</em> falls out of this mirror picture
-  almost for free: <em class="mo">exp</em> is its own derivative. The argument is
-  purely geometric — and traces straight back to <em class="m">1/x</em>.</p>
+  <p>One famous property of <em class="mg">exp</em> falls out of this mirror picture
+  almost for free: <em class="mg">exp</em> is its own derivative. The argument is
+  purely geometric — and traces straight back to <em class="m">1/</em><em class="mx">x</em>.</p>
 
   <p><strong>First, the slope of log.</strong>&ensp;By Part 1,
-  <em class="m">log x = ∫₁ˣ dt/t</em> — the accumulated area under
-  <em class="m">1/t</em> from 1 to <em class="m">x</em>. How fast does this area
-  grow as <em class="m">x</em> increases? When the right edge advances from
-  <em class="m">x</em> to <em class="m">x + dx</em>, the area gains a thin
-  vertical strip of width <em class="m">dx</em> and height <em class="m">1/x</em>
+  <em class="my">log</em><em class="m"> </em><em class="mx">x</em><em class="m"> = ∫₁ˣ </em><em class="mx">dt</em><em class="m">/</em><em class="mx">t</em> — the accumulated area under
+  <em class="m">1/</em><em class="mx">t</em> from 1 to <em class="mx">x</em>. How fast does this area
+  grow as <em class="mx">x</em> increases? When the right edge advances from
+  <em class="mx">x</em> to <em class="mx">x</em><em class="m"> + </em><em class="mx">dx</em>, the area gains a thin
+  vertical strip of width <em class="mx">dx</em> and height <em class="m">1/</em><em class="mx">x</em>
   — the value of the integrand at that edge. So the added area is
-  <em class="m">(1/x) · dx</em>, and the rate of growth is simply the height
-  <em class="m">1/x</em>:</p>
+  <em class="m">(1/</em><em class="mx">x</em><em class="m">) · </em><em class="mx">dx</em>, and the rate of growth is simply the height
+  <em class="m">1/</em><em class="mx">x</em>:</p>
 
-  <span class="eq"><span class="frac"><span class="num">d</span><span class="den">dx</span></span>&thinsp;log(x) &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den">x</span></span></span>
+  <span class="eq"><span class="frac"><span class="num">d</span><span class="den"><em class="mx">dx</em></span></span>&thinsp;<em class="my">log</em>(<em class="mx">x</em>) &ensp;=&ensp; <span class="frac"><span class="num">1</span><span class="den"><em class="mx">x</em></span></span></span>
 
   <p>This is the fundamental theorem of calculus in its most geometric form: the
   derivative of an accumulation is the height of what is being accumulated.</p>
 
-  <p><strong>Now reflect across <em class="m">y = x</em>.</strong>&ensp;Reflecting
-  any line across the diagonal <em class="m">y = x</em> swaps its rise and run, so
+  <p><strong>Now reflect across <em class="my">y</em><em class="m"> = </em><em class="mx">x</em>.</strong>&ensp;Reflecting
+  any line across the diagonal <em class="my">y</em><em class="m"> = </em><em class="mx">x</em> swaps its rise and run, so
   a line of slope <em class="m">m</em> becomes a line of slope <em class="m">1/m</em>.
   This means that wherever log and exp meet as mirror points, the tangent slopes at
   those points are reciprocals of each other.</p>
 
-  <p>Pick a concrete example. At <em class="m">x = 2</em>, the log curve passes
-  through the point <em class="m">P = (2,&thinsp;log 2)</em>, and we just computed
+  <p>Pick a concrete example. At <em class="mx">x</em><em class="m"> = 2</em>, the log curve passes
+  through the point <em class="m">P = (2,&thinsp;</em><em class="my">log</em><em class="m"> 2)</em>, and we just computed
   that log has slope <em class="m">1/2</em> there. The mirror point on exp is
-  <em class="m">Q = (log 2,&thinsp;2)</em>, and the tangent there has slope
+  <em class="m">Q = (</em><em class="my">log</em><em class="m"> 2,&thinsp;2)</em>, and the tangent there has slope
   <em class="m">2</em> — the reciprocal of <em class="m">1/2</em>. Now look at the
   coordinates of <em class="m">Q</em>: its <em>y</em>-coordinate is also
   <em class="m">2</em>. The slope at <em class="m">Q</em> equals the
@@ -722,86 +847,86 @@
   <p>This happens at <em>every</em> point on exp, because every point on exp is
   the mirror of some point on log. The slope of exp at any point equals the
   <em>y</em>-value at that point. Since the <em>y</em>-value is just
-  <em class="mo">exp(x)</em> itself:</p>
+  <em class="mg">exp</em><em class="m">(</em><em class="mx">x</em><em class="m">)</em> itself:</p>
 
-  <span class="eq" style="color:var(--orange);"><span class="frac"><span class="num">d</span><span class="den">dx</span></span>&thinsp;exp(x) &ensp;=&ensp; exp(x)</span>
+  <span class="eq"><span class="frac"><span class="num">d</span><span class="den"><em class="mx">dx</em></span></span>&thinsp;<em class="mg">exp</em>(<em class="mx">x</em>) &ensp;=&ensp; <em class="mg">exp</em>(<em class="mx">x</em>)</span>
 
   <p>The chain of reasoning is short: log was defined as the accumulation of
-  <em class="m">1/t</em>, so log has slope <em class="m">1/x</em>; reflection across
-  <em class="m">y = x</em> inverts slopes; <em class="m">1/(1/x) = x</em> at the
+  <em class="m">1/</em><em class="mx">t</em>, so log has slope <em class="m">1/</em><em class="mx">x</em>; reflection across
+  <em class="my">y</em><em class="m"> = </em><em class="mx">x</em> inverts slopes; <em class="m">1/(1/</em><em class="mx">x</em><em class="m">) = </em><em class="mx">x</em> at the
   mirror point — which is the value of exp there. The self-derivative property of
-  exp is the geometric shadow of choosing <em class="m">1/t</em> as the integrand
+  exp is the geometric shadow of choosing <em class="m">1/</em><em class="mx">t</em> as the integrand
   for log.</p>
 
   <div class="callout">
-    <p><strong>Key insight.</strong>&ensp;<em class="mo">exp</em> is the function
-    <em class="mo">e<sup>x</sup></em>, with many remarkable properties — its own
+    <p><strong>Key insight.</strong>&ensp;<em class="mg">exp</em> is the function
+    <em class="mg">e<sup>x</sup></em>, with many remarkable properties — its own
     derivative, its role in compound growth, its appearance in Euler's formula. But
     most fundamentally, it is simply the inverse of log. And log is simply
-    <em class="m">∫ dt/t</em> — the accumulation of <em class="m">1/t</em>. The
-    self-derivative property <em class="m">(exp)' = exp</em> is the mirror image of
-    <em class="m">(log)' = 1/x</em>. Once that <em class="m">1/x</em> is chosen as
+    <em class="m">∫ </em><em class="mx">dt</em><em class="m">/</em><em class="mx">t</em> — the accumulation of <em class="m">1/</em><em class="mx">t</em>. The
+    self-derivative property <em class="m">(</em><em class="mg">exp</em><em class="m">)' = </em><em class="mg">exp</em> is the mirror image of
+    <em class="m">(</em><em class="my">log</em><em class="m">)' = 1/</em><em class="mx">x</em>. Once that <em class="m">1/</em><em class="mx">x</em> is chosen as
     the integrand for log, everything else about exp is determined.</p>
   </div>
 
   <div class="callout callout-cyan">
-    <p>The pieces are now in place. §1 gave us <em class="m">x²/2</em> — the natural
-    accumulation of linear change. §2 gives us <em class="mo">exp</em> — the converter
-    that turns additive things into multiplicative things. In §3 we study the combination of them through: <em class="m">exp(−x²/2)</em>.</p>
+    <p>The pieces are now in place. §1 gave us <em class="mx">x</em><em class="m">²/2</em> — the natural
+    accumulation of linear change. §2 gives us <em class="mg">exp</em> — the converter
+    that turns additive things into multiplicative things. In §3 we study the combination of them through: <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em>.</p>
   </div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════
-     SECTION 3 — exp(−x²/2)
+     SECTION 3 — <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em>
 ═══════════════════════════════════════════════════════════════ -->
 <div class="section" id="s3">
   <div class="sec-head">
     <span class="sec-num">§ 3</span>
-    <h2>What is exp(−x²/2)?</h2>
+    <h2>What is <em class="mg">exp</em>(−<em class="mx">x</em>²/2)?</h2>
   </div>
 
   <!-- ── Part 1: 1D setup — energy and an unknown probability ── -->
   <h3 class="subhead">Part 1 — A particle on a line: energy known, probability unknown</h3>
 
   <p>Picture a gas molecule moving along a single direction with speed
-  <em class="m">x</em>. Its kinetic energy, by §1, is <em class="m">x²/2</em>. The
+  <em class="mx">x</em>. Its kinetic energy, by §1, is <em class="mx">x</em><em class="m">²/2</em>. The
   faster the molecule moves, the more energy it carries.</p>
 
   <p>In thermal equilibrium, nature does not give equal probability to every speed.
   Higher-energy states demand more thermal budget to populate, so they are less
-  likely to be found. Call the probability density at speed <em class="m">x</em>
-  the function <em class="m">P(x)</em>. We expect, on physical grounds, that:</p>
+  likely to be found. Call the probability density at speed <em class="mx">x</em>
+  the function <em class="m">P(</em><em class="mx">x</em><em class="m">)</em>. We expect, on physical grounds, that:</p>
 
   <ul style="color: var(--text); margin-left: 1.5em;">
-    <li><em class="m">P(x)</em> depends on the molecule through its energy
-        <em class="m">x²/2</em> alone — two states with the same energy are
+    <li><em class="m">P(</em><em class="mx">x</em><em class="m">)</em> depends on the molecule through its energy
+        <em class="mx">x</em><em class="m">²/2</em> alone — two states with the same energy are
         equally likely.</li>
-    <li><em class="m">P(x)</em> decreases as the energy
-        <em class="m">x²/2</em> grows — the molecule is most likely near rest
+    <li><em class="m">P(</em><em class="mx">x</em><em class="m">)</em> decreases as the energy
+        <em class="mx">x</em><em class="m">²/2</em> grows — the molecule is most likely near rest
         and increasingly unlikely at extreme speeds.</li>
   </ul>
 
   <p>That is everything we know so far. We do not yet know the <em>form</em> of
-  <em class="m">P(x)</em>. Is it <em class="m">1/(1 + x²/2)</em>? A piecewise
+  <em class="m">P(</em><em class="mx">x</em><em class="m">)</em>. Is it <em class="m">1/(1 + </em><em class="mx">x</em><em class="m">²/2)</em>? A piecewise
   linear bump?
-  <em class="m">2<sup>−x²/2</sup></em>?
+  <em class="m">2<sup>−</sup></em><em class="mx"><sup>x</sup></em><em class="m"><sup>²/2</sup></em>?
   Many candidates fit the two bullets above. To pin down the form we need a
   stronger constraint — and we get it by looking at what happens in two
   dimensions.</p>
 
   <!-- ── Part 2: 2D + scalar addition + product rule → exp ────── -->
-  <h3 class="subhead">Part 2 — Two dimensions: combining the constraints forces exp</h3>
+  <h3 class="subhead">Part 2 — Two dimensions: combining the constraints forces <em class="mg">exp</em></h3>
 
   <p>Real particles do not move on a line. A gas molecule has velocity components
   in every spatial direction. Add a second perpendicular direction,
-  <em class="m">y</em>. The particle now has two kinetic energies, one for each
+  <em class="my">y</em>. The particle now has two kinetic energies, one for each
   axis:</p>
 
-  <span class="eq">x-direction:&ensp; energy = x²/2 &emsp;&emsp; y-direction:&ensp; energy = y²/2</span>
+  <span class="eq"><em class="mx">x</em>-direction:&ensp; energy = <em class="mx">x</em>²/2 &emsp;&emsp; <em class="my">y</em>-direction:&ensp; energy = <em class="my">y</em>²/2</span>
 
-  <p>The directions are independent — a force along <em class="m">x</em> has no
-  effect on the <em class="m">y</em>-velocity, and the molecule's
-  <em class="m">x</em>-speed tells you nothing about its <em class="m">y</em>-speed.
+  <p>The directions are independent — a force along <em class="mx">x</em> has no
+  effect on the <em class="my">y</em>-velocity, and the molecule's
+  <em class="mx">x</em>-speed tells you nothing about its <em class="my">y</em>-speed.
   Two new facts now enter, and together they pin down the form of
   <em class="m">P</em>.</p>
 
@@ -809,18 +934,18 @@
   carry direction, and combine by the parallelogram rule. Energies are not. An
   energy is a single number with no direction attached; it is a <em>scalar</em>.
   Two scalars of the same dimension combine in only one way: by arithmetic addition. The total kinetic
-  energy at velocity <em class="m">(x, y)</em> is just the sum:</p>
+  energy at velocity <em class="m">(</em><em class="mx">x</em><em class="m">, </em><em class="my">y</em><em class="m">)</em> is just the sum:</p>
 
-  <span class="eq">total energy &ensp;=&ensp; x²/2 &thinsp;+&thinsp; y²/2</span>
+  <span class="eq">total energy &ensp;=&ensp; <em class="mx">x</em>²/2 &thinsp;+&thinsp; <em class="my">y</em>²/2</span>
 
   <p>No factors. No cross-terms. The two energies stack arithmetically.</p>
 
   <p><strong>Probabilities multiply.</strong>&ensp;Probabilities for independent
   events do <em>not</em> add — they multiply. The joint probability density of
-  finding the molecule at velocity <em class="m">(x, y)</em> is the product of
+  finding the molecule at velocity <em class="m">(</em><em class="mx">x</em><em class="m">, </em><em class="my">y</em><em class="m">)</em> is the product of
   the one-dimensional densities:</p>
 
-  <span class="eq">P(x, y) &ensp;=&ensp; P(x) &thinsp;·&thinsp; P(y) &emsp;&emsp; (independence)</span>
+  <span class="eq">P(<em class="mx">x</em>, <em class="my">y</em>) &ensp;=&ensp; P(<em class="mx">x</em>) &thinsp;·&thinsp; P(<em class="my">y</em>) &emsp;&emsp; (independence)</span>
 
   <p>This is not a convention or an approximation — it is the mathematical
   definition of statistical independence.</p>
@@ -828,21 +953,21 @@
   <p>Now combine the facts collected so far:</p>
 
   <ol style="color: var(--text); margin-left: 1.5em;">
-    <li><em class="m">P(x)</em> depends only on energy <em class="m">x²/2</em>
-        (Part 1). Write <em class="m">P(x) = f(x²/2)</em> for some unknown
+    <li><em class="m">P(</em><em class="mx">x</em><em class="m">)</em> depends only on energy <em class="mx">x</em><em class="m">²/2</em>
+        (Part 1). Write <em class="m">P(</em><em class="mx">x</em><em class="m">) = f(</em><em class="mx">x</em><em class="m">²/2)</em> for some unknown
         function <em class="m">f</em> of energy.</li>
-    <li>In two dimensions, total energy is <em class="m">x²/2 + y²/2</em>. By
+    <li>In two dimensions, total energy is <em class="mx">x</em><em class="m">²/2 + </em><em class="my">y</em><em class="m">²/2</em>. By
         the same reasoning, the 2D density depends only on this total:
-        <em class="m">P(x, y) = f(x²/2 + y²/2)</em>.</li>
-    <li>By independence, <em class="m">P(x, y) = P(x) · P(y)
-        = f(x²/2) · f(y²/2)</em>.</li>
+        <em class="m">P(</em><em class="mx">x</em><em class="m">, </em><em class="my">y</em><em class="m">) = f(</em><em class="mx">x</em><em class="m">²/2 + </em><em class="my">y</em><em class="m">²/2)</em>.</li>
+    <li>By independence, <em class="m">P(</em><em class="mx">x</em><em class="m">, </em><em class="my">y</em><em class="m">) = P(</em><em class="mx">x</em><em class="m">) · P(</em><em class="my">y</em><em class="m">)
+        = f(</em><em class="mx">x</em><em class="m">²/2) · f(</em><em class="my">y</em><em class="m">²/2)</em>.</li>
   </ol>
 
   <p>Combining (1)–(3):</p>
 
-  <span class="eq">f(x²/2 + y²/2) &ensp;=&ensp; f(x²/2) &thinsp;·&thinsp; f(y²/2)</span>
+  <span class="eq">f(<em class="mx">x</em>²/2 + <em class="my">y</em>²/2) &ensp;=&ensp; f(<em class="mx">x</em>²/2) &thinsp;·&thinsp; f(<em class="my">y</em>²/2)</span>
 
-  <p>Let <em class="m">a = x²/2</em> and <em class="m">b = y²/2</em>. The
+  <p>Let <em class="mx">a</em><em class="m"> = </em><em class="mx">x</em><em class="m">²/2</em> and <em class="my">b</em><em class="m"> = </em><em class="my">y</em><em class="m">²/2</em>. The
   unknown function <em class="m">f</em> from energy to relative probability must
   satisfy:</p>
 
@@ -859,22 +984,22 @@
 
   <p>Among all exponentials we pick base <em class="m">e</em> for a single,
   practical reason: as shown in §2 Part 4, it is the unique base whose derivative
-  is itself — <em class="m">d/dx exp(x) = exp(x)</em>. Every other base carries
+  is itself — <em class="m">d/</em><em class="mx">dx</em> <em class="mg">exp</em><em class="m">(</em><em class="mx">x</em><em class="m">) =</em> <em class="mg">exp</em><em class="m">(</em><em class="mx">x</em><em class="m">)</em>. Every other base carries
   an extra <em class="m">ln(c)</em> factor at every derivative, every integral,
   every chain-rule step. Choosing <em class="m">e</em> simply makes the calculus
-  clean. So <em class="m">f(E) = exp(±E)</em>, and</p>
+  clean. So <em class="m">f(E) =</em> <em class="mg">exp</em><em class="m">(±E)</em>, and</p>
 
-  <span class="eq">P(x) &ensp;∝&ensp; exp(±x²/2)</span>
+  <span class="eq">P(<em class="mx">x</em>) &ensp;∝&ensp; <em class="mg">exp</em><em class="m">(±</em><em class="mx">x</em><em class="m">²/2)</em></span>
 
   <p>The sign is the only remaining choice. Recall Part 1's requirement:
-  <em class="m">P(x)</em> must <em>decrease</em> as energy grows. The two
+  <em class="m">P(</em><em class="mx">x</em><em class="m">)</em> must <em>decrease</em> as energy grows. The two
   candidates behave very differently:</p>
 
-  <p><strong>Left</strong> — the two candidate exponents: <em class="m">x²/2</em>
-  in gold rises symmetrically, <em class="m">−x²/2</em> in pink falls
+  <p><strong>Left</strong> — the two candidate exponents: <em class="mx">x</em><em class="m">²/2</em>
+  in gold rises symmetrically, <em class="m">−</em><em class="mx">x</em><em class="m">²/2</em> in pink falls
   symmetrically. <strong>Right</strong> — what exp does to each.
-  <em class="mo">exp(+x²/2)</em> rockets upward to infinity — unbounded, infinite
-  total weight, cannot be a probability density. <em class="mo">exp(−x²/2)</em>
+  <em class="mg">exp</em><em class="m">(+</em><em class="mx">x</em><em class="m">²/2)</em> rockets upward to infinity — unbounded, infinite
+  total weight, cannot be a probability density. <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em>
   decays toward zero — bounded, peaked at 1, symmetric about the origin.
   <strong>The bell curve.</strong></p>
 
@@ -885,7 +1010,7 @@
     </div>
     <div class="graph-card">
       <canvas id="c3b" width="700" height="980"></canvas>
-      <p class="graph-caption">Outputs: exp(+x²/2) explodes (gold), exp(−x²/2) decays
+      <p class="graph-caption">Outputs: <em class="mg">exp</em><em class="m">(+</em><em class="mx">x</em><em class="m">²/2)</em> explodes (gold), <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em> decays
       into the bell (pink) — same axes</p>
     </div>
   </div>
@@ -894,11 +1019,11 @@
   with energy, and by the requirement that total probability remain finite. We
   have arrived:</p>
 
-  <span class="eq" style="font-size:1.3rem; color:var(--pink);">P(x) &ensp;∝&ensp; exp(−x²/2)</span>
+  <span class="eq" style="font-size:1.3rem; color:var(--pink);">P(<em class="mx">x</em>) &ensp;∝&ensp; <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em></span>
 
   <p>This same structure appears wherever a system has a preferred resting
-  position. A spring stretched by distance <em class="m">x</em> stores potential
-  energy <em class="m">kx²/2</em>; a pendulum near equilibrium stores the same
+  position. A spring stretched by distance <em class="mx">x</em> stores potential
+  energy <em class="m">k</em><em class="mx">x</em><em class="m">²/2</em>; a pendulum near equilibrium stores the same
   form. Spring, pendulum, molecular speed — all the same bell, because they all
   share the same underlying structure: a quadratic cost, the multiplicative
   product rule, and exp as the unique bridge between them.</p>
@@ -918,38 +1043,38 @@
   </div>
 
   <p>§3 ended with a question: what is the total area under
-  <em class="mo">exp(−x²/2)</em>? Call that integral <em class="m">I</em>:</p>
+  <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em>? Call that integral <em class="my">I</em>:</p>
 
-  <span class="eq">I &ensp;=&ensp; ∫<sub>−∞</sub><sup>+∞</sup> exp(−x²/2) dx &ensp;=&ensp; ?</span>
+  <span class="eq"><em class="my">I</em> &ensp;=&ensp; ∫<sub>−∞</sub><sup>+∞</sup> <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em> <em class="mx">dx</em> &ensp;=&ensp; ?</span>
 
   <p>This integral has no elementary antiderivative. You cannot evaluate it by
-  finding a function whose derivative is <em class="mo">exp(−x²/2)</em>; no such
+  finding a function whose derivative is <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em>; no such
   function exists in closed form. A direct attack fails. We need a trick.</p>
 
   <!-- ── Part 1: the 2D squaring trick ─────────────────────── -->
   <h3 class="subhead">Part 1 — The 2D trick: multiply the integral by itself</h3>
 
-  <p>Compute <em class="m">I²</em> instead of <em class="m">I</em>. Since
-  <em class="m">I</em> is just a number,</p>
+  <p>Compute <em class="my">I</em><em class="m">²</em> instead of <em class="my">I</em>. Since
+  <em class="my">I</em> is just a number,</p>
 
-  <span class="eq">I² &ensp;=&ensp; <span style="white-space:nowrap;">(∫ exp(−x²/2) dx)</span> &thinsp;·&thinsp; <span style="white-space:nowrap;">(∫ exp(−y²/2) dy)</span></span>
+  <span class="eq"><em class="my">I</em><em class="m">²</em> &ensp;=&ensp; <span style="white-space:nowrap;">(∫ <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em> <em class="mx">dx</em>)</span> &thinsp;·&thinsp; <span style="white-space:nowrap;">(∫ <em class="mg">exp</em><em class="m">(−</em><em class="my">y</em><em class="m">²/2)</em> <em class="my">dy</em>)</span></span>
 
   <p>Two independent 1D integrals multiplied together. Each runs over its own
   variable. Because the two pieces are completely independent (the
-  <em class="m">x</em>-integral does not see <em class="m">y</em>, and vice versa),
+  <em class="mx">x</em>-integral does not see <em class="my">y</em>, and vice versa),
   the product can be written as a single double integral over the entire plane:</p>
 
-  <span class="eq">I² &ensp;=&ensp; ∫∫ exp(−x²/2) &thinsp;·&thinsp; exp(−y²/2) &thinsp;dx&thinsp;dy</span>
+  <span class="eq"><em class="my">I</em><em class="m">²</em> &ensp;=&ensp; ∫∫ <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em> &thinsp;·&thinsp; <em class="mg">exp</em><em class="m">(−</em><em class="my">y</em><em class="m">²/2)</em> &thinsp;<em class="mx">dx</em>&thinsp;<em class="my">dy</em></span>
 
   <p>Now use the product property of exp — the very thing established in §3:</p>
 
-  <span class="eq">exp(−x²/2) &thinsp;·&thinsp; exp(−y²/2) &ensp;=&ensp; exp(−(x²/2 + y²/2))</span>
+  <span class="eq"><em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em> &thinsp;·&thinsp; <em class="mg">exp</em><em class="m">(−</em><em class="my">y</em><em class="m">²/2)</em> &ensp;=&ensp; <em class="mg">exp</em><em class="m">(−(</em><em class="mx">x</em><em class="m">²/2 +</em> <em class="my">y</em><em class="m">²/2))</em></span>
 
-  <p>And recognise the Pythagorean structure inside: <em class="m">x²/2 + y²/2 = r²/2</em>,
-  where <em class="m">r² = x² + y²</em>. The two-dimensional integrand depends only
+  <p>And recognise the Pythagorean structure inside: <em class="mx">x</em><em class="m">²/2 +</em> <em class="my">y</em><em class="m">²/2 =</em> <em class="mr">r</em><em class="m">²/2</em>,
+  where <em class="mr">r</em><em class="m">² =</em> <em class="mx">x</em><em class="m">² +</em> <em class="my">y</em><em class="m">²</em>. The two-dimensional integrand depends only
   on the radial distance from the origin:</p>
 
-  <span class="eq">I² &ensp;=&ensp; ∫∫ exp(−r²/2) &thinsp;dx&thinsp;dy</span>
+  <span class="eq"><em class="my">I</em><em class="m">²</em> &ensp;=&ensp; ∫∫ <em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2)</em> &thinsp;<em class="mx">dx</em>&thinsp;<em class="my">dy</em></span>
 
   <p>The squaring trick has turned the impossible 1D integral into a 2D integral
   with <strong>perfect circular symmetry</strong>. We never invoked rotation, never
@@ -970,19 +1095,19 @@
   <h3 class="subhead">Part 2 — Let the symmetry do the integration</h3>
 
   <p>First, read the integral geometrically. The plane is tiled by tiny squares
-  of area <em class="m">dx · dy</em>. At each square, the integrand
-  <em class="mo">exp(−r²/2)</em> gives a height (a number between 0 and 1, decided
+  of area <em class="mx">dx</em> <em class="m">·</em> <em class="my">dy</em>. At each square, the integrand
+  <em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2)</em> gives a height (a number between 0 and 1, decided
   by how far that square sits from the origin). Multiply that height by the
   square's area, and we have a thin column of volume
-  <em class="m">exp(−r²/2) · dx · dy</em>. The double integral <em class="m">I²</em>
+  <em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2) ·</em> <em class="mx">dx</em> <em class="m">·</em> <em class="my">dy</em>. The double integral <em class="my">I</em><em class="m">²</em>
   is the <strong>sum of all those tiny columns</strong> over the entire plane —
   the total volume under the 2D bell surface.</p>
 
-  <span class="eq">I² &ensp;=&ensp; <span style="color:var(--gold)">∑</span><sub>squares</sub> &ensp;<span style="color:var(--gold)">exp(−r²/2)</span> &thinsp;·&thinsp; <span style="color:var(--green)">dx&thinsp;·&thinsp;dy</span></span>
+  <span class="eq"><em class="my">I</em><em class="m">²</em> &ensp;=&ensp; <span style="color:var(--gold)">∑</span><sub>squares</sub> &ensp;<em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2)</em> &thinsp;·&thinsp; <em class="mx">dx</em><em class="m">&thinsp;·&thinsp;</em><em class="my">dy</em></span>
 
   <p>Now we can do that sum any way we like, by carving the plane into whatever
   shapes we choose. The square tiling is one option, but it is not the best one
-  here. Because the integrand depends only on <em class="m">r</em> — every point
+  here. Because the integrand depends only on <em class="mr">r</em> — every point
   at the same radius contributes the same height — there is a much more natural
   carving: <strong>thin concentric donuts</strong>, one for each radius. Within
   a single donut the height never varies, so an entire donut becomes a single
@@ -993,79 +1118,79 @@
     <div class="graph-card">
       <canvas id="c4grid" width="700" height="700"></canvas>
       <p class="graph-caption">Square tiling: each tile has area dx · dy and a
-      height exp(−r²/2) that varies from tile to tile.</p>
+      height <em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2)</em> that varies from tile to tile.</p>
     </div>
     <div class="graph-card">
       <canvas id="c4rings" width="700" height="700"></canvas>
       <p class="graph-caption">Donut tiling: each donut has the same height
-      exp(−r²/2) everywhere on it. Same total volume, counted by radius.</p>
+      <em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2)</em> everywhere on it. Same total volume, counted by radius.</p>
     </div>
   </div>
 
   <p><strong>Step 1 — the area of one donut.</strong>&ensp;A donut at radius
-  <em class="m">r</em> with thickness <em class="m">dr</em> has area equal to
+  <em class="mr">r</em> with thickness <em class="mr">dr</em> has area equal to
   its circumference times its thickness:</p>
 
-  <span class="eq">area of donut &ensp;=&ensp; <span style="color:var(--gold)">τ · r</span> &ensp;·&ensp; <span style="color:var(--green)">dr</span></span>
+  <span class="eq">area of donut &ensp;=&ensp; <em class="mtau">τ</em> <em class="m">·</em> <em class="mr">r</em> &ensp;·&ensp; <em class="mr">dr</em></span>
 
-  <p>This is where <em class="m">τ</em> enters — not as an abstract constant,
+  <p>This is where <em class="mtau">τ</em> enters — not as an abstract constant,
   but as the circumference of the unit circle that every donut inherits.</p>
 
   <p><strong>Step 2 — sum over all donuts.</strong>&ensp;Multiply each donut's
-  area by its (constant) height <em class="mo">exp(−r²/2)</em> and add up the
-  contributions. Because every donut shares the same <em class="m">τ</em>, it
+  area by its (constant) height <em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2)</em> and add up the
+  contributions. Because every donut shares the same <em class="mtau">τ</em>, it
   factors out of the sum:</p>
 
-  <span class="eq">I² &ensp;=&ensp; <span style="color:var(--gold)">∑</span><sub>donuts</sub> &ensp;<span style="color:var(--gold)">exp(−r²/2)</span> &thinsp;·&thinsp; <span style="color:var(--green)">τ · r · dr</span> &ensp;=&ensp; τ &ensp;·&ensp; ∫<sub>0</sub><sup>∞</sup> r · exp(−r²/2) dr</span>
+  <span class="eq"><em class="my">I</em><em class="m">²</em> &ensp;=&ensp; <span style="color:var(--gold)">∑</span><sub>donuts</sub> &ensp;<em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2)</em> &thinsp;·&thinsp; <em class="mtau">τ</em> <em class="m">·</em> <em class="mr">r</em> <em class="m">·</em> <em class="mr">dr</em> &ensp;=&ensp; <em class="mtau">τ</em> &ensp;·&ensp; ∫<sub>0</sub><sup>∞</sup> <em class="mr">r</em> <em class="m">·</em> <em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2)</em> <em class="mr">dr</em></span>
 
   <p><strong>Step 3 — what is left inside.</strong>&ensp;Inside the integral
-  sits the function <em class="m">r · exp(−r²/2)</em> — the height at radius
-  <em class="m">r</em> multiplied by the linear circumference factor
-  <em class="m">r</em>. This product has a distinctive shape: near the origin
+  sits the function <em class="mr">r</em> <em class="m">·</em> <em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2)</em> — the height at radius
+  <em class="mr">r</em> multiplied by the linear circumference factor
+  <em class="mr">r</em>. This product has a distinctive shape: near the origin
   there is plenty of height but very little circumference, so the contribution
   is small; far from the origin there is plenty of circumference but the height
   has decayed to nothing. The two effects balance and the curve peaks at
-  <em class="m">r = 1</em>.</p>
+  <em class="mr">r</em><em class="m"> = 1</em>.</p>
 
   <div class="graphs">
     <div class="graph-card" style="max-width:520px;">
       <canvas id="c4c" width="700" height="700"></canvas>
-      <p class="graph-caption">The radial integrand r·exp(−r²/2): rises near
+      <p class="graph-caption">The radial integrand r·<em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2)</em>: rises near
       zero (small donuts), peaks at r = 1, decays in the tail. Total area
       under it is exactly 1.</p>
     </div>
   </div>
 
   <p><strong>Step 4 — the radial integral collapses to 1.</strong>&ensp;Why is
-  that total area exactly 1? Substitute <em class="m">u = r²/2</em>, so
-  <em class="m">du = r · dr</em>. The radial integral becomes a plain
+  that total area exactly 1? Substitute <em class="m">u =</em> <em class="mr">r</em><em class="m">²/2</em>, so
+  <em class="m">du =</em> <em class="mr">r</em> <em class="m">·</em> <em class="mr">dr</em>. The radial integral becomes a plain
   exponential decay:</p>
 
-  <span class="eq">∫<sub>0</sub><sup>∞</sup> r · exp(−r²/2) dr &ensp;=&ensp; ∫<sub>0</sub><sup>∞</sup> exp(−u) du &ensp;=&ensp; −exp(−u)&thinsp;|<sub>0</sub><sup>∞</sup> &ensp;=&ensp; 0 − (−1) &ensp;=&ensp; 1</span>
+  <span class="eq">∫<sub>0</sub><sup>∞</sup> <em class="mr">r</em> <em class="m">·</em> <em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2)</em> <em class="mr">dr</em> &ensp;=&ensp; ∫<sub>0</sub><sup>∞</sup> <em class="mg">exp</em>(−u) du &ensp;=&ensp; −<em class="mg">exp</em>(−u)&thinsp;|<sub>0</sub><sup>∞</sup> &ensp;=&ensp; 0 − (−1) &ensp;=&ensp; 1</span>
 
   <div class="callout callout-cyan">
     <p><strong>A familiar shape returns.</strong>&ensp;The substitution
-    <em class="m">u = r²/2</em> is exactly §1's natural distance, with
-    <em class="m">r</em> playing the role of time. The factor <em class="m">r</em>
-    in <em class="m">r · dr</em> behaves like a velocity growing linearly with
-    <em class="m">r</em>; <em class="m">u</em> is its triangular accumulation
+    <em class="m">u =</em> <em class="mr">r</em><em class="m">²/2</em> is exactly §1's natural distance, with
+    <em class="mr">r</em> playing the role of time. The factor <em class="mr">r</em>
+    in <em class="mr">r</em> <em class="m">·</em> <em class="mr">dr</em> behaves like a velocity growing linearly with
+    <em class="mr">r</em>; <em class="m">u</em> is its triangular accumulation
     — the very same triangle from §1. So the substitution is not a calculus
     trick: it is §1's geometry reappearing inside the radial integral, finally
-    delivering the linear factor that <em class="m">exp(−r²/2)</em> has been
+    delivering the linear factor that <em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2)</em> has been
     waiting for.</p>
   </div>
 
-  <p>Putting Steps 2 and 4 together: <em class="m">I² = τ · 1 = τ</em>. Take the
+  <p>Putting Steps 2 and 4 together: <em class="my">I</em><em class="m">² =</em> <em class="mtau">τ</em> <em class="m">· 1 =</em> <em class="mtau">τ</em>. Take the
   square root and the original 1D integral emerges:</p>
 
-  <span class="eq" style="font-size:1.45rem; color:var(--gold);">∫ exp(−x²/2) dx &ensp;=&ensp; √τ &ensp;≈&ensp; 2.507</span>
+  <span class="eq" style="font-size:1.45rem; color:var(--gold);">∫ <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em> <em class="mx">dx</em> &ensp;=&ensp; √τ &ensp;≈&ensp; 2.507</span>
 
   <div class="graphs">
     <div class="graph-card" style="max-width:520px;">
       <canvas id="c4d" width="700" height="700"></canvas>
-      <p class="graph-caption">Total area under exp(−x²/2) is √τ ≈ 2.507. The
-      standard normal probability density is exp(−x²/2) / √τ — not 1/√(2π) —
-      because τ, not π, is the natural constant here.</p>
+      <p class="graph-caption">Total area under <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em> is √<em class="mtau">τ</em> ≈ 2.507. The
+      standard normal probability density is <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em> / √<em class="mtau">τ</em> — not 1/√(2π) —
+      because <em class="mtau">τ</em>, not π, is the natural constant here.</p>
     </div>
   </div>
 
@@ -1073,38 +1198,67 @@
   <h3 class="subhead">Part 3 — What we have learned</h3>
 
   <p>Look back at the path. We started with the most ordinary one-dimensional
-  thing — <em class="m">x²/2</em>, the natural accumulation of a linear quantity
+  thing — <em class="mx">x</em><em class="m">²/2</em>, the natural accumulation of a linear quantity
   (§1). We found the unique function that bridges additive cost to multiplicative
-  probability — <em class="mo">exp</em>, the inverse of the integral of
-  <em class="m">1/x</em> (§2). We combined them into the bell
-  <em class="mo">exp(−x²/2)</em> (§3). And the moment we tried to integrate that
+  probability — <em class="mg">exp</em>, the inverse of the integral of
+  <em class="m">1/</em><em class="mx">x</em> (§2). We combined them into the bell
+  <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em> (§3). And the moment we tried to integrate that
   bell, a circle dropped out of the sky with its circumference
-  <em class="m">τ</em> attached.</p>
+  <em class="mtau">τ</em> attached.</p>
 
-  <p><strong><em class="m">τ</em> was never introduced from outside.</strong> It
-  was sitting inside "the integral of <em class="m">x</em>" and "the inverse of the
-  integral of <em class="m">1/x</em>" all along, dormant in one dimension. The
+  <p><strong><em class="mtau">τ</em> was never introduced from outside.</strong> It
+  was sitting inside "the integral of <em class="mx">x</em>" and "the inverse of the
+  integral of <em class="m">1/</em><em class="mx">x</em>" all along, dormant in one dimension. The
   moment a second perpendicular direction was added — and energies and
   probabilities had to reconcile across it — exp's product property revealed the
   hidden radial symmetry; the circle carried its circumference
-  <em class="m">τ</em> into the integration; and <em class="m">τ</em> emerged as
+  <em class="mtau">τ</em> into the integration; and <em class="mtau">τ</em> emerged as
   the exact area under the natural bell. No factors of 2, no bookkeeping, no
   adjustments.</p>
 
   <p>The Gaussian is not a special function dropped into physics. It is the shape
   forced on the world by three things at once: a quadratic cost, the
   multiplicative product rule for independent probabilities, and exp's role as the
-  unique bridge between the two. The constant <em class="m">τ</em> is not a
+  unique bridge between the two. The constant <em class="mtau">τ</em> is not a
   decoration — it is the geometric record of how perpendicular axes combine when
   energies add and probabilities multiply.</p>
 
   <p>The same calculation with a physical scale <em class="m">K</em> — replacing
-  <em class="m">x</em> with <em class="m">x/√K</em> — gives the general result
-  <em class="mg">∫ exp(−x²/(2K)) dx = √(τK)</em>. With
+  <em class="mx">x</em> with <em class="mx">x</em><em class="m">/√K</em> — gives the general result
+  <em class="m">∫</em> <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/(2K))</em> <em class="mx">dx</em> <em class="m">= √(</em><em class="mtau">τ</em><em class="m">K)</em>. With
   <em class="m">K = k<sub>B</sub>T</em> this is the Maxwell-Boltzmann
   normalisation; with <em class="m">K = 1</em> it is the standard normal of
   statistics. One formula, one constant, one shape — all of them consequences of
   accumulation, independence, and the geometry of two perpendicular directions.</p>
+
+  <p style="text-align:center; font-style:italic; margin:2rem 0 0; color:var(--muted);">If <em class="m">√(2π)</em> deserves its place in a statistics textbook, it belongs in an appendix, as a historical note. The front belongs to <em class="m">√</em><em class="mtau">τ</em>: one whole turn, the area under <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em>.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     EPILOGUE — the τ-law
+═══════════════════════════════════════════════════════════════ -->
+<div class="section" id="epilogue" style="margin-top: 64px;">
+  <p style="text-align:center; font-style:italic; color: var(--cyan); font-size:1.1rem; max-width: 720px; margin: 0 auto 18px;">
+    The circle was there all along, in the polar
+    <em class="mr">r</em> <em class="m">·</em> <em class="mr">dr</em> <em class="m">·</em> <em class="mt">dθ</em>. We found it because we looked for the
+    <em class="mtau">τ</em>.
+  </p>
+  <p style="text-align:center; color: var(--muted); font-size: .95rem; max-width: 720px; margin: 0 auto;">
+    <span style="color: var(--gold); font-style: italic; display:block; margin-bottom:0.5em;">
+      Law 1: wherever you see <em class="m">π</em>, <em class="mtau">τ</em> fits more naturally — <em class="m">π</em> is always half a circle.
+    </span>
+    <span style="color: var(--gold); font-style: italic; display:block; margin-bottom:0.9em;">
+      Law 2: whenever <em style="font-weight: 600;" class="mtau">τ</em> appears in an equation, a circle will always emerge somewhere.
+    </span>
+    <span style="display:block; margin-bottom:0.7em;">
+      Next, the hidden circle becomes the method itself. Averaging a function over a single full turn — <em class="mtau">τ</em> — is the one move behind three theorems that look nothing alike: Taylor, Cauchy, and Fourier.
+    </span>
+    <span style="font-style:italic;">Coming soon — <span style="color: var(--gold); font-weight:600;">One Full Turn</span></span>
+  </p>
+</div>
+
+<div class="home-btn-wrap">
+  <a href="/" class="home-btn">← Return to MathTau</a>
 </div>
 
 </main>
@@ -1118,11 +1272,11 @@
     The text, figures, and source code on this page are all part of the work and carry the same license.</p>
 
   <p><strong>Mirrors and translations are welcome.</strong> Please preserve this attribution and link back to the canonical URL —
-    <a href="https://mathtau.com/">mathtau.com</a> — so readers can find the latest version.
+    <a href="https://mathtau.com/gaussian/">mathtau.com/gaussian</a> — so readers can find the latest version.
     CC BY 4.0 permits commercial reuse (books, paid courses, classroom packets) with attribution; a courtesy note to the author is appreciated but not required.</p>
 
   <p class="cite"><strong>Cite as:</strong> MathTau (2026).
-    <em>Natural Derivation of Gaussian Integral</em>. https://mathtau.com/</p>
+    <em>Natural Derivation of Gaussian Integral</em>. https://mathtau.com/gaussian/</p>
 
   <p class="footer-meta">
     <a href="https://github.com/mathtau/NatPhil">View source on GitHub</a> &nbsp;·&nbsp;
@@ -1145,15 +1299,16 @@ const C = {
   axis:     '#38385a',
   border:   '#22224a',
   text:     '#8888a8',
-  gold:     '#f0c040',
+  gold:     '#f4c830',
   cyan:     '#40c8f0',
+  blue:     '#40c8f0',   // x / accumulated quantity (same as cyan, matches Euler scheme)
   green:    '#50d890',
   orange:   '#f08840',
-  pink:     '#e06080',
-  red:      '#e05050',
+  pink:     '#d040a0',
+  red:      '#e84040',
   muted:    '#60607a',
   amber:    'rgba(240,160,50,',   // open paren — close with opacity + ')'
-  goldFill: 'rgba(240,192,64,',
+  goldFill: 'rgba(244,200,48,',
 };
 
 // ── Plot class ────────────────────────────────────────────────────
@@ -1232,7 +1387,7 @@ class Plot {
     ctx.strokeRect(pad.l, pad.t, pw, ph);
 
     // tick labels
-    ctx.fillStyle = C.text; ctx.font = '12px monospace';
+    ctx.fillStyle = C.text; ctx.font = '11px "IBM Plex Mono", monospace';
     ctx.textAlign = 'center';
     for (let x = Math.ceil(xMin / xs - EPS) * xs; x <= xMax + EPS; x += xs) {
       if (Math.abs(x) < xs * 0.1) continue;
@@ -1309,6 +1464,15 @@ class Plot {
     ctx.fillStyle = color; ctx.font = font; ctx.textAlign = align;
     ctx.fillText(text, px, py + dy);
   }
+
+  labelRuns(x, y, runs, font = 'italic 13px Georgia', align = 'left', dy = 0) {
+    const [px, py] = this.px(x, y);
+    const ctx = this.ctx;
+    ctx.font = font; ctx.textAlign = 'left';
+    let total = 0; const w = runs.map(r => { const t = ctx.measureText(r[0]).width; total += t; return t; });
+    let sx = align === 'right' ? px - total : align === 'center' ? px - total / 2 : px;
+    for (let i = 0; i < runs.length; i++) { ctx.fillStyle = runs[i][1]; ctx.fillText(runs[i][0], sx, py + dy); sx += w[i]; }
+  }
 }
 
 // ── Plot helpers ─────────────────────────────────────────────────
@@ -1328,19 +1492,32 @@ Plot.prototype.ylabel = function(text, color = C.text) {
   ctx.restore();
 };
 
+function ctxRuns(ctx, segs, x, y, align = 'left') {
+  let total = 0; const w = segs.map(s => { const t = ctx.measureText(s[0]).width; total += t; return t; });
+  let sx = align === 'center' ? x - total / 2 : align === 'right' ? x - total : x;
+  const sv = ctx.textAlign; ctx.textAlign = 'left';
+  for (let i = 0; i < segs.length; i++) { ctx.fillStyle = segs[i][1]; ctx.fillText(segs[i][0], sx, y); sx += w[i]; }
+  ctx.textAlign = sv;
+}
+
 // ── Section 1 ─────────────────────────────────────────────────────
 
 const T_MAX = 3.3;   // shared endpoint for all section-1 graphs
 
-// Riemann blocks
-const p1g = new Plot('c1g', 0, T_MAX, 0, T_MAX);  // same y-range as p1v
-const p1v = new Plot('c1v', 0, T_MAX, 0, T_MAX); // v=t staircase
+// Riemann blocks — g/v pair shares T_MAX
+const p1g = new Plot('c1g', 0, T_MAX, 0, T_MAX);
+const p1v = new Plot('c1v', 0, T_MAX, 0, T_MAX);
 
-// Area / parabola
-const p1a = new Plot('c1a', 0, T_MAX, 0, T_MAX);
-const p1b = new Plot('c1b', 0, T_MAX, 0, 6.0);
+// Area / parabola — unified y: max(v=T_MAX, x=T_MAX²/2) → 5.5
+const Y1AB = 5.5;
+const p1a = new Plot('c1a', 0, T_MAX, 0, Y1AB);
+const p1b = new Plot('c1b', 0, T_MAX, 0, Y1AB);
+
+let _s1 = { dt: 0, N: 0 };
+let _sr = { dt: 0, N: 0 };
 
 function draw1(t, N) {
+  _s1 = { dt: t / N, N };
   const dt  = t / N;
   const t2h = t * t / 2;
 
@@ -1361,26 +1538,54 @@ function draw1(t, N) {
     }
   }
 
-  // Smooth v = x reference line
-  p1a.curve(x => x, C.cyan, 2.5);
+  // Smooth v = x reference line (v = green)
+  p1a.curve(x => x, C.green, 2.5);
 
   // Gold dot at current endpoint
   p1a.dot(t, t, C.gold, 5);
 
-  // "dx" annotation when strips are wide enough
+  // dimension brackets on one block when strips are wide enough
   if (dt > 0.14 && N > 2) {
     const k0 = Math.floor(N * 0.55);
-    const [ax, ay] = p1a.px(k0 * dt + dt * 0.5, k0 * dt * 0.45);
-    p1a.ctx.fillStyle = 'rgba(0,0,0,0.75)';
-    p1a.ctx.font = `${Math.min(12, Math.max(8, Math.floor(dt * 55)))}px Georgia`;
-    p1a.ctx.textAlign = 'center';
-    p1a.ctx.fillText('dx = v · dt', ax, ay + 4);
+    const vk0 = k0 * dt;
+    if (vk0 > 0.1) {
+      const ctx = p1a.ctx;
+      const [pxL, pyBot] = p1a.px(k0 * dt, 0);
+      const [pxR]        = p1a.px((k0 + 1) * dt, 0);
+      const [pxMid]      = p1a.px(k0 * dt + dt * 0.5, 0);
+      const [, pyTop]    = p1a.px(0, vk0);
+      const [, pyMid]    = p1a.px(0, vk0 * 0.5);
+      const serif = 3, inset = 5;
+      ctx.strokeStyle = C.red;
+      ctx.lineWidth   = 1;
+      ctx.font        = 'italic 10px Georgia';
+      const yDt = pyBot - inset;
+      ctx.beginPath();
+      ctx.moveTo(pxL + 2, yDt - serif); ctx.lineTo(pxL + 2, yDt + serif);
+      ctx.moveTo(pxL + 2, yDt);         ctx.lineTo(pxR - 2, yDt);
+      ctx.moveTo(pxR - 2, yDt - serif); ctx.lineTo(pxR - 2, yDt + serif);
+      ctx.stroke();
+      ctx.textAlign = 'center';
+      ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 3;
+      ctx.fillStyle = '#e84040';
+      ctx.fillText('dt', pxMid, yDt - 3);
+      const xV = pxR - inset;
+      ctx.beginPath();
+      ctx.moveTo(xV - serif, pyTop + 2); ctx.lineTo(xV + serif, pyTop + 2);
+      ctx.moveTo(xV,         pyTop + 2); ctx.lineTo(xV,         pyBot - 2);
+      ctx.moveTo(xV - serif, pyBot - 2); ctx.lineTo(xV + serif, pyBot - 2);
+      ctx.stroke();
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('v', xV - 4, pyMid + 4);
+      ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0;
+    }
   }
 
-  p1a.label(3.1, 3.3, 'v = x', C.cyan, 'italic 14px Georgia', 'left');
-  { const [px, py] = p1a.px(t, 0); p1a.ctx.fillStyle = C.gold; p1a.ctx.font = 'italic 13px Georgia'; p1a.ctx.textAlign = 'center'; p1a.ctx.fillText('t', px, py + 20); }
-  p1a.xlabel('time  t', C.text);
-  p1a.ylabel('velocity  v', C.text);
+  p1a.labelRuns(3.1, 3.3, [['v = ', C.green],['x', C.cyan]], 'italic 14px Georgia', 'left');
+  { const [px, py] = p1a.px(t, 0); p1a.ctx.fillStyle = C.red; p1a.ctx.font = 'italic 13px Georgia'; p1a.ctx.textAlign = 'center'; p1a.ctx.fillText('t', px, py + 20); }
+  p1a.xlabel('time  t', C.red);
+  p1a.ylabel('velocity  v', C.green);
 
   /* ── Right: colored tick lengths stacking up A(t) ── */
   p1b.clear();
@@ -1419,7 +1624,7 @@ function draw1(t, N) {
     if (dA > 0) {
       const [px0, py0] = p1b.px(k * dt, aAcc);
       const [,    py1] = p1b.px(k * dt, aAcc + dA);
-      ctx1b.strokeStyle = posColor(k * dt, 0.92);
+      ctx1b.strokeStyle = blockColor(k, N, 0.92);
       ctx1b.lineWidth = 4;
       ctx1b.beginPath(); ctx1b.moveTo(px0, py0); ctx1b.lineTo(px0, py1); ctx1b.stroke();
     }
@@ -1434,22 +1639,27 @@ function draw1(t, N) {
     for (let i = 0; i < k0; i++) a0 += (i * dt) * dt;
     const dA0 = (k0 * dt) * dt;
     const [ax, ay] = p1b.px(k0 * dt + 0.08, a0 + dA0 * 0.5);
-    ctx1b.fillStyle = 'rgba(255,255,255,0.65)';
-    ctx1b.font = `${Math.min(12, Math.max(8, Math.floor(dt * 50)))}px Georgia`;
-    ctx1b.textAlign = 'left';
-    ctx1b.fillText('dx', ax, ay + 4);
+    ctx1b.font = 'italic 10px Georgia'; ctx1b.textAlign = 'left';
+    const _segs = [['dx', C.blue], ['=', C.text], ['v', C.green], ['\xB7', C.text], ['dt', C.red]];
+    let _w = 0; for (const [s] of _segs) _w += ctx1b.measureText(s).width;
+    ctx1b.fillStyle = 'rgba(10,10,28,0.82)';
+    ctx1b.fillRect(ax - 2, ay - 8, _w + 4, 13);
+    ctx1b.shadowColor = 'rgba(0,0,0,0.9)'; ctx1b.shadowBlur = 3;
+    let cx = ax;
+    for (const [s, c] of _segs) { ctx1b.fillStyle = c; ctx1b.fillText(s, cx, ay + 4); cx += ctx1b.measureText(s).width; }
+    ctx1b.shadowColor = 'transparent'; ctx1b.shadowBlur = 0;
   }
 
   // Smooth parabola — exact integral limit
-  p1b.curve(x => x * x / 2, C.gold, 2.5);
+  p1b.curve(x => x * x / 2, C.cyan, 2.5);
 
   // Gold dot at (t, t²/2)
   p1b.dot(t, t2h, C.gold, 6, C.goldFill + '.4)');
 
-  p1b.label(2.3, 5.6, 'x(t) = t²/2', C.gold, 'italic 14px Georgia');
-  { const [px, py] = p1b.px(t, 0); p1b.ctx.fillStyle = C.gold; p1b.ctx.font = 'italic 13px Georgia'; p1b.ctx.textAlign = 'center'; p1b.ctx.fillText('t', px, py + 20); }
-  p1b.xlabel('time  t', C.text);
-  p1b.ylabel('distance  x', C.text);
+  p1b.labelRuns(2.3, 5.6, [['x(', C.cyan],['t', C.red],[') = ', C.cyan],['t', C.red],['²/2', C.cyan]], 'italic 14px Georgia');
+  { const [px, py] = p1b.px(t, 0); p1b.ctx.fillStyle = C.red; p1b.ctx.font = 'italic 13px Georgia'; p1b.ctx.textAlign = 'center'; p1b.ctx.fillText('t', px, py + 20); }
+  p1b.xlabel('time  t', C.red);
+  p1b.ylabel('distance  x', C.blue);
 }
 
 // ── draw1riemann: g=1 blocks (left) + v staircase (right) ────────
@@ -1464,6 +1674,7 @@ function posColor(x, a) {
 }
 
 function draw1riemann(N) {
+  _sr = { dt: T_MAX / N, N };
   const dt = T_MAX / N;
 
   /* ── Left: constant g=1 with N colored bars ── */
@@ -1481,25 +1692,47 @@ function draw1riemann(N) {
     p1g.ctx.beginPath(); p1g.ctx.moveTo(px1, py0); p1g.ctx.lineTo(px1, pyT); p1g.ctx.stroke();
   }
 
-  // g=1 reference line on top
-  p1g.curve(_ => 1, 'rgba(255,255,255,0.45)', 1.5);
-  p1g.label(0.12, 1.18, 'g = 1', 'rgba(255,255,255,0.55)', 'italic 13px Georgia');
+  // a=1 reference line on top
+  p1g.curve(_ => 1, C.green, 1.5);
+  p1g.label(0.12, 1.18, 'a = 1', C.green, 'italic 13px Georgia');
 
-  // Annotate one block with label when blocks are wide enough
+  // dimension brackets on one block when blocks are wide enough
   if (dt > 0.14) {
     const k0 = Math.floor(N / 2);
-    const cx = (k0 + 0.5) * dt;
-    const [ax, ay] = p1g.px(cx, 0.5);
-    const fs = Math.min(12, Math.max(8, Math.floor(dt * 55)));
-    p1g.ctx.fillStyle = 'rgba(0,0,0,0.75)';
-    p1g.ctx.font = `${fs}px Georgia`;
-    p1g.ctx.textAlign = 'center';
-    p1g.ctx.fillText('dv =', ax, ay - 1);
-    p1g.ctx.fillText('g·dt', ax, ay + fs + 1);
+    const ctx = p1g.ctx;
+    const [pxL, pyBot] = p1g.px(k0 * dt, 0);
+    const [pxR]        = p1g.px((k0 + 1) * dt, 0);
+    const [pxMid]      = p1g.px(k0 * dt + dt * 0.5, 0);
+    const [, pyTop]    = p1g.px(0, 1);
+    const [, pyMid]    = p1g.px(0, 0.5);
+    const serif = 3, inset = 5;
+    ctx.strokeStyle = 'rgba(0,0,0,0.6)';
+    ctx.lineWidth   = 1;
+    ctx.font        = 'italic 10px Georgia';
+    const yDt = pyBot - inset;
+    ctx.beginPath();
+    ctx.moveTo(pxL + 2, yDt - serif); ctx.lineTo(pxL + 2, yDt + serif);
+    ctx.moveTo(pxL + 2, yDt);         ctx.lineTo(pxR - 2, yDt);
+    ctx.moveTo(pxR - 2, yDt - serif); ctx.lineTo(pxR - 2, yDt + serif);
+    ctx.stroke();
+    ctx.textAlign = 'center';
+    ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 3;
+    ctx.fillStyle = '#e84040';
+    ctx.fillText('dt', pxMid, yDt - 3);
+    const xV = pxR - inset;
+    ctx.beginPath();
+    ctx.moveTo(xV - serif, pyTop + 2); ctx.lineTo(xV + serif, pyTop + 2);
+    ctx.moveTo(xV,         pyTop + 2); ctx.lineTo(xV,         pyBot - 2);
+    ctx.moveTo(xV - serif, pyBot - 2); ctx.lineTo(xV + serif, pyBot - 2);
+    ctx.stroke();
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('a', xV - 4, pyMid + 4);
+    ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0;
   }
 
-  p1g.xlabel('time  t', C.text);
-  p1g.ylabel('acceleration  g', C.text);
+  p1g.xlabel('time  t', C.red);
+  p1g.ylabel('acceleration  a', C.green);
 
   /* ── Right: staircase with colored RISER lines — dv as a length ── */
   p1v.clear();
@@ -1555,15 +1788,15 @@ function draw1riemann(N) {
     ctx1v.fillStyle = 'rgba(255,255,255,0.65)';
     ctx1v.font = `${Math.min(12, Math.max(8, Math.floor(dt * 50)))}px Georgia`;
     ctx1v.textAlign = 'left';
-    ctx1v.fillText('dv = g·dt', ax, ay + 4);
+    ctx1v.fillText('dv = a·dt', ax, ay + 4);
   }
 
   // Smooth v = t curve (gold — exact integral limit)
-  p1v.curve(x => x, C.gold, 2);
-  p1v.label(2.45, 2.72, 'v = t', C.gold, 'italic 13px Georgia');
+  p1v.curve(x => x, C.green, 2);
+  p1v.labelRuns(2.45, 2.72, [['v = ', C.green],['t', C.red]], 'italic 13px Georgia');
 
-  p1v.xlabel('time  t', C.text);
-  p1v.ylabel('velocity  v', C.text);
+  p1v.xlabel('time  t', C.red);
+  p1v.ylabel('velocity  v', C.green);
 }
 
 // ── Riemann slider ────────────────────────────────────────────────
@@ -1633,8 +1866,10 @@ draw1(+sl1.value, +sl1an.value);
 // ── Section 2 ─────────────────────────────────────────────────────
 
 const V_END_MAX = 7.5;
-const p2a  = new Plot('c2a',  1, V_END_MAX, 0, 2.3);
-const p2ar = new Plot('c2ar', 1, V_END_MAX, 0, 2.3);
+// P/W pair — unified y: max(P=1/V at V=1, W=log(V_END_MAX)) → 2.3
+const Y2AB = 2.3;
+const p2a  = new Plot('c2a',  1, V_END_MAX, 0, Y2AB);
+const p2ar = new Plot('c2ar', 1, V_END_MAX, 0, Y2AB);
 const p2b  = new Plot('c2b', 0.5, 10, 0, 2);
 const p2c  = new Plot('c2c', -2, 3, -2, 3);
 const p2d  = new Plot('c2d', -0.5, 4, -0.5, 4);
@@ -1678,7 +1913,7 @@ function draw2riemann(N, vEnd) {
     p2a.ctx.strokeRect(x0, yPk, x1 - x0, y0 - yPk);
   }
 
-  p2a.curve(v => 1 / v, C.cyan, 2.5, 1.0, V_END_MAX);
+  p2a.curve(v => 1 / v, C.green, 2.5, 1.0, V_END_MAX);
 
   if (dV > 0.35) {
     const k0 = Math.floor(N / 3);
@@ -1692,10 +1927,10 @@ function draw2riemann(N, vEnd) {
 
   p2a.dash(vEnd, 0, vEnd, 1 / vEnd, C.gold, 0.6);
   p2a.dot(vEnd, 1 / vEnd, C.gold, 4);
-  { const [px, py] = p2a.px(1, 0); p2a.ctx.fillStyle = C.text; p2a.ctx.font = '12px monospace'; p2a.ctx.textAlign = 'center'; p2a.ctx.fillText('1', px, py + 17); }
-  p2a.label(V_END_MAX - 0.3, 0.42, 'P = 1/V', C.cyan, 'italic 13px Georgia', 'right');
-  p2a.xlabel('V  (volume)', C.text);
-  p2a.ylabel('P  (pressure)', C.text);
+  { const [px, py] = p2a.px(1, 0); p2a.ctx.fillStyle = C.text; p2a.ctx.font = '11px "IBM Plex Mono", monospace'; p2a.ctx.textAlign = 'center'; p2a.ctx.fillText('1', px, py + 17); }
+  p2a.labelRuns(V_END_MAX - 0.3, 0.42, [['P = 1/', C.green],['V', C.red]], 'italic 13px Georgia', 'right');
+  p2a.xlabel('V  (volume)', C.red);
+  p2a.ylabel('P  (pressure)', C.green);
 
   /* ── Right: accumulated work staircase — colored RISER lines ── */
   p2ar.clear();
@@ -1762,7 +1997,7 @@ function draw2riemann(N, vEnd) {
   }
 
   // Gold smooth curve — exact integral limit W = log V
-  p2ar.curve(v => Math.log(v), C.gold, 2.5, 1.01, V_END_MAX);
+  p2ar.curve(v => Math.log(v), C.cyan, 2.5, 1.01, V_END_MAX);
 
   [2, 4].filter(v => v <= vEnd + 0.05).forEach(v => {
     const lv = Math.log(v);
@@ -1784,10 +2019,10 @@ function draw2riemann(N, vEnd) {
     p2ar.ctx.textAlign = 'right';
     p2ar.ctx.fillText(Math.log(vEnd).toFixed(3), px - 8, py + 4);
   }
-  { const [px, py] = p2ar.px(1, 0); p2ar.ctx.fillStyle = C.text; p2ar.ctx.font = '12px monospace'; p2ar.ctx.textAlign = 'center'; p2ar.ctx.fillText('1', px, py + 17); }
-  p2ar.label(V_END_MAX - 0.3, 2.1, 'W = log V', C.gold, 'italic 13px Georgia', 'right');
-  p2ar.xlabel('V  (volume)', C.text);
-  p2ar.ylabel('W  (work)', C.text);
+  { const [px, py] = p2ar.px(1, 0); p2ar.ctx.fillStyle = C.text; p2ar.ctx.font = '11px "IBM Plex Mono", monospace'; p2ar.ctx.textAlign = 'center'; p2ar.ctx.fillText('1', px, py + 17); }
+  p2ar.labelRuns(V_END_MAX - 0.3, 2.1, [['W = log ', C.cyan],['V', C.red]], 'italic 13px Georgia', 'right');
+  p2ar.xlabel('V  (volume)', C.red);
+  p2ar.ylabel('W  (work)', C.cyan);
 }
 
 function draw2b() {
@@ -1810,7 +2045,7 @@ function draw2b() {
   });
 
   // 1/t curve
-  p2b.curve(t => 1 / t, C.cyan, 2.5, 0.5, 10);
+  p2b.curve(t => 1 / t, C.green, 2.5, 0.5, 10);
 
   // Dividers at band boundaries
   [1, 2, 4, 8].forEach(v => p2b.dash(v, 0, v, 1 / v, C.text, 0.3));
@@ -1827,13 +2062,13 @@ function draw2b() {
   {
     const [px, py] = p2b.px(1, 0);
     p2b.ctx.fillStyle = C.text;
-    p2b.ctx.font = '12px monospace';
+    p2b.ctx.font = '11px "IBM Plex Mono", monospace';
     p2b.ctx.textAlign = 'center';
     p2b.ctx.fillText('1', px, py + 17);
   }
 
-  p2b.label(9.2, 1.75, 'P = 1/V', C.cyan, 'italic 13px Georgia', 'right');
-  p2b.xlabel('V  (volume)', C.text);
+  p2b.labelRuns(9.2, 1.75, [['P = 1/', C.green],['V', C.red]], 'italic 13px Georgia', 'right');
+  p2b.xlabel('V  (volume)', C.red);
 }
 
 function draw2c() {
@@ -1846,7 +2081,7 @@ function draw2c() {
   p2c.curve(x => Math.log(x), C.cyan, 2.5, 0.04, 3);
 
   // exp(x) only where y ≤ 3
-  p2c.curve(x => Math.exp(x), C.orange, 2.5, -2, Math.log(3));
+  p2c.curve(x => Math.exp(x), C.green, 2.5, -2, Math.log(3));
 
   // Anchor dots: (1, log1)=(1,0) on log; (0, exp0)=(0,1) on exp
   p2c.dot(1, 0, C.cyan,   4);
@@ -1860,8 +2095,8 @@ function draw2c() {
   p2c.dash(mx, my, my, mx, 'rgba(200,200,220,0.4)', 0.65);
 
   // Labels
-  p2c.label(2.7,  1.05, 'log x', C.cyan,                    'italic 13px Georgia', 'left');
-  p2c.label(0.9,  2.85, 'exp x', C.orange,                  'italic 13px Georgia', 'center');
+  p2c.labelRuns(2.7,  1.05, [['log ', C.cyan],['x', C.red]],                    'italic 13px Georgia', 'left');
+  p2c.labelRuns(0.9,  2.85, [['exp ', C.green],['x', C.red]],                  'italic 13px Georgia', 'center');
   p2c.label(2.4,  2.62, 'y = x', 'rgba(150,150,180,0.45)',  'italic 12px Georgia', 'left');
 
   p2c.xlabel('x', C.text);
@@ -1878,7 +2113,7 @@ function draw2d() {
   // log(x) cyan
   p2d.curve(x => Math.log(x), C.cyan, 2.5, 0.04, 4);
   // exp(x) orange (only where y ≤ 4)
-  p2d.curve(x => Math.exp(x), C.orange, 2.5, -0.5, Math.log(4));
+  p2d.curve(x => Math.exp(x), C.green, 2.5, -0.5, Math.log(4));
 
   // Mirror pair: P = (2, log 2),  Q = (log 2, 2)
   const a = 2;
@@ -1894,7 +2129,7 @@ function draw2d() {
   //   line: y = a + a (x - la)
   const slopeExp = a;
   const texp = x => a + slopeExp * (x - la);
-  p2d.curve(texp, 'rgba(240,136,64,0.55)', 1.5, -0.3, 1.5);
+  p2d.curve(texp, 'rgba(80,216,144,0.55)', 1.5, -0.3, 1.5);
 
   // Mirror dashed line connecting P and Q
   p2d.dash(a, la, la, a, 'rgba(200,200,220,0.45)', 0.7);
@@ -1930,8 +2165,8 @@ function draw2d() {
   }
 
   // Curve labels — placed clear of tangent lines
-  p2d.label(3.7,  0.95, 'log x', C.cyan,                    'italic 13px Georgia', 'left');
-  p2d.label(0.35, 3.55, 'exp x', C.orange,                  'italic 13px Georgia', 'left');
+  p2d.labelRuns(3.7,  0.95, [['log ', C.cyan],['x', C.red]],                    'italic 13px Georgia', 'left');
+  p2d.labelRuns(0.35, 3.55, [['exp ', C.green],['x', C.red]],                  'italic 13px Georgia', 'left');
   p2d.label(3.45, 3.65, 'y = x', 'rgba(150,150,180,0.5)',   'italic 12px Georgia', 'left');
 
   p2d.xlabel('x', C.text);
@@ -2005,7 +2240,14 @@ function drawProductRule(scale = 1) {
   ctx.fillStyle = '#0a0a1c';
   ctx.fillRect(0, 0, W, H);
 
-  const Cg = '#f0c040', Co = '#f08840', Cc = '#40c8f0', Cm = '#8888a8', Ct = '#c4c4dc';
+  const Cg = '#f4c830', Co = '#f08840', Cc = '#40c8f0', Cm = '#8888a8', Ct = '#c4c4dc';
+  const Cx = '#e84040', Cy = '#40c8f0';
+  const runs = (segs, cx, cy, align = 'center') => {
+    let total = 0; const w = segs.map(s => { const t = ctx.measureText(s[0]).width; total += t; return t; });
+    let sx = align === 'center' ? cx - total / 2 : cx; const sv = ctx.textAlign; ctx.textAlign = 'left';
+    for (let i = 0; i < segs.length; i++) { ctx.fillStyle = segs[i][1]; ctx.fillText(segs[i][0], sx, cy); sx += w[i]; }
+    ctx.textAlign = sv;
+  };
 
   // Layout
   const ox = 82, oy = 278;
@@ -2021,7 +2263,7 @@ function drawProductRule(scale = 1) {
     ctx.fillRect(ox + RW, oy - RH, DW, RH);
   }
   if (DH > 0) {
-    ctx.fillStyle = 'rgba(240,192,64,0.30)';
+    ctx.fillStyle = 'rgba(244,200,48,0.30)';
     ctx.fillRect(ox, oy - RH - DH, RW, DH);
   }
   if (DW > 0 && DH > 0) {
@@ -2041,21 +2283,21 @@ function drawProductRule(scale = 1) {
   // Interior labels
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
 
-  ctx.fillStyle = Cc; ctx.font = 'italic 22px Georgia';
-  ctx.fillText('xy', ox + RW / 2, oy - RH / 2);
+  ctx.font = 'italic 22px Georgia';
+  runs([['x', Cx],['y', Cy]], ox + RW / 2, oy - RH / 2);
 
   if (DW > 25) {
-    ctx.fillStyle = Co; ctx.font = 'italic 13px Georgia';
+    ctx.font = 'italic 13px Georgia';
     ctx.save();
     ctx.translate(ox + RW + DW / 2, oy - RH / 2);
     ctx.rotate(-Math.PI / 2);
-    ctx.fillText('y · dx', 0, 0);
+    runs([['y', Cy],[' · ', Ct],['dx', Cx]], 0, 0);
     ctx.restore();
   }
 
   if (DH > 18) {
-    ctx.fillStyle = Cg; ctx.font = 'italic 13px Georgia';
-    ctx.fillText('x · dy', ox + RW / 2, oy - RH - DH / 2);
+    ctx.font = 'italic 13px Georgia';
+    runs([['x', Cx],[' · ', Ct],['dy', Cy]], ox + RW / 2, oy - RH - DH / 2);
   }
 
   if (DW > 25 && DH > 18) {
@@ -2067,11 +2309,11 @@ function drawProductRule(scale = 1) {
   ctx.font = 'italic 14px Georgia';
   ctx.textBaseline = 'top';
 
-  ctx.fillStyle = Cc; ctx.textAlign = 'center';
+  ctx.fillStyle = Cx; ctx.textAlign = 'center';
   ctx.fillText('x', ox + RW / 2, oy + 9);
 
   if (DW > 12) {
-    ctx.fillStyle = Co;
+    ctx.fillStyle = Cx;
     ctx.fillText('dx', ox + RW + DW / 2, oy + 9);
   }
 
@@ -2086,7 +2328,7 @@ function drawProductRule(scale = 1) {
     ctx.save();
     ctx.translate(ox - 16, oy - RH - DH / 2);
     ctx.rotate(-Math.PI / 2);
-    ctx.textBaseline = 'middle'; ctx.fillStyle = Cg;
+    ctx.textBaseline = 'middle'; ctx.fillStyle = Cy;
     ctx.fillText('dy', 0, 0);
     ctx.restore();
   }
@@ -2103,15 +2345,14 @@ function drawProductRule(scale = 1) {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    ctx.fillStyle = '#50d890'; ctx.font = 'italic 13px Georgia';
+    ctx.font = 'italic 13px Georgia';
     ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-    ctx.fillText('d(xy)', ox + RW + DW + 10, oy - (RH + DH) / 2);
+    runs([['d(', Ct],['x', Cx],['y', Cy],[')', Ct]], ox + RW + DW + 10, oy - (RH + DH) / 2, 'left');
   }
 
   // Title
-  ctx.fillStyle = Ct; ctx.font = '12px Georgia';
-  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-  ctx.fillText('(x + dx)(y + dy)  =  xy  +  y·dx  +  x·dy  +  dx·dy', W / 2, 14);
+  ctx.font = '12px Georgia'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  runs([['(', Ct],['x', Cx],[' + ', Ct],['dx', Cx],[')(', Ct],['y', Cy],[' + ', Ct],['dy', Cy],[')', Ct],['  =  ', Ct],['x', Cx],['y', Cy],['  +  ', Ct],['y', Cy],['·', Ct],['dx', Cx],['  +  ', Ct],['x', Cx],['·', Ct],['dy', Cy],['  +  ', Ct],['dx', Cx],['·', Ct],['dy', Cy]], W / 2, 14);
 }
 
 drawProductRule();
@@ -2156,7 +2397,7 @@ function drawScaleInvariance(dV1 = 0.5) {
 
   // Strip fills
   p.poly([[V1,0],[V1,h1],[V1+dV1,h1],[V1+dV1,0]], 'rgba(240,136,64,0.32)');
-  p.poly([[V2,0],[V2,h2],[V2+dV2,h2],[V2+dV2,0]], 'rgba(240,192,64,0.28)');
+  p.poly([[V2,0],[V2,h2],[V2+dV2,h2],[V2+dV2,0]], 'rgba(244,200,48,0.28)');
 
   // 1/V curve on top
   p.curve(x => 1/x, C.cyan, 2);
@@ -2342,7 +2583,7 @@ function drawHeatmap4a() {
   const toY = yd => pT + (yMax-yd)/(yMax-yMin)*ph;
   const cx=toX(0), cy=toY(0), rPx=pw/(xMax-xMin);  // ≈ 76 px/unit
 
-  // Pixel-by-pixel heatmap: bg #0a0a1c → gold #f0c040
+  // Pixel-by-pixel heatmap: bg #0a0a1c → gold #f4c830
   const imgData = ctx.createImageData(pw, ph);
   for (let j=0; j<ph; j++) {
     for (let i=0; i<pw; i++) {
@@ -2376,7 +2617,7 @@ function drawHeatmap4a() {
   ctx.beginPath(); ctx.moveTo(cx,pT); ctx.lineTo(cx,pT+ph); ctx.stroke();
 
   // Tick labels
-  ctx.fillStyle=C.text; ctx.font='12px monospace';
+  ctx.fillStyle=C.text; ctx.font='11px "IBM Plex Mono", monospace';
   ctx.textAlign='center'; ctx.textBaseline='top';
   for (const v of [-3,-2,-1,1,2,3]) ctx.fillText(v, toX(v), cy+5);
   ctx.textAlign='right'; ctx.textBaseline='middle';
@@ -2405,9 +2646,9 @@ function draw4b() {
 
   // Radial gradient background suggesting the 2D Gaussian
   const grd = ctx.createRadialGradient(cx,cy,0, cx,cy,3*rPx);
-  grd.addColorStop(0,    'rgba(240,192,64,0.42)');
-  grd.addColorStop(0.28, 'rgba(240,192,64,0.12)');
-  grd.addColorStop(0.7,  'rgba(240,192,64,0.03)');
+  grd.addColorStop(0,    'rgba(244,200,48,0.42)');
+  grd.addColorStop(0.28, 'rgba(244,200,48,0.12)');
+  grd.addColorStop(0.7,  'rgba(244,200,48,0.03)');
   grd.addColorStop(1,    'rgba(10,10,28,0)');
   ctx.fillStyle=grd; ctx.fillRect(pL,pT,pw,ph);
 
@@ -2453,10 +2694,10 @@ function draw4b() {
   const topRing = cy - rOut*rPx;
   ctx.fillStyle=C.gold; ctx.font='italic 11px Georgia';
   ctx.textAlign='center'; ctx.textBaseline='bottom';
-  ctx.fillText('circumference = τ · r', cx, topRing-5);
+  ctxRuns(ctx, [['circumference = ', C.gold],['τ', C.gold],[' · ', C.gold],['r', C.orange]], cx, topRing-5, 'center');
   ctx.fillStyle=C.green; ctx.font='11px Georgia';
   ctx.textAlign='left'; ctx.textBaseline='middle';
-  ctx.fillText('area = τ · r · dr', dx2+6, cy);
+  ctxRuns(ctx, [['area = ', C.green],['τ', C.gold],[' · ', C.green],['r', C.orange],[' · ', C.green],['dr', C.orange]], dx2+6, cy, 'left');
 
   // Axes
   ctx.strokeStyle=C.axis; ctx.lineWidth=0.8;
@@ -2493,7 +2734,7 @@ function draw4c() {
   p4c.label(2.0, 0.27, 'area = 1', C.green, 'italic 13px Georgia', 'left');
   // Manual r=1 tick (auto-grid zero-suppression may hide it)
   { const [lx, ly] = p4c.px(1, 0);
-    p4c.ctx.fillStyle=C.text; p4c.ctx.font='12px monospace';
+    p4c.ctx.fillStyle=C.text; p4c.ctx.font='11px "IBM Plex Mono", monospace';
     p4c.ctx.textAlign='center'; p4c.ctx.textBaseline='top';
     p4c.ctx.fillText('1', lx, ly+5);
   }
@@ -2584,7 +2825,7 @@ function drawGrid4() {
   ctx.beginPath(); ctx.moveTo(cx,pT); ctx.lineTo(cx,pT+ph); ctx.stroke();
 
   // Tick labels
-  ctx.fillStyle=C.text; ctx.font='12px monospace';
+  ctx.fillStyle=C.text; ctx.font='11px "IBM Plex Mono", monospace';
   ctx.textAlign='center'; ctx.textBaseline='top';
   for (const v of [-3,-2,-1,1,2,3]) ctx.fillText(v, toX(v), cy+5);
   ctx.textAlign='right'; ctx.textBaseline='middle';
@@ -2648,7 +2889,7 @@ function drawRings4() {
   ctx.beginPath(); ctx.moveTo(lx0, ly0); ctx.lineTo(lx1, ly1); ctx.stroke();
   ctx.fillStyle = C.cyan; ctx.font = 'italic 15px Georgia';
   ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-  ctx.fillText('τ · r · dr', lx1 + 4, ly1);
+  ctxRuns(ctx, [['τ', C.gold],[' · ', C.cyan],['r', C.orange],[' · ', C.cyan],['dr', C.orange]], lx1 + 4, ly1, 'left');
 
   // Axes
   ctx.strokeStyle=C.axis; ctx.lineWidth=1;
@@ -2656,7 +2897,7 @@ function drawRings4() {
   ctx.beginPath(); ctx.moveTo(cx,pT); ctx.lineTo(cx,pT+ph); ctx.stroke();
 
   // Tick labels
-  ctx.fillStyle=C.text; ctx.font='12px monospace';
+  ctx.fillStyle=C.text; ctx.font='11px "IBM Plex Mono", monospace';
   ctx.textAlign='center'; ctx.textBaseline='top';
   for (const v of [-3,-2,-1,1,2,3]) ctx.fillText(v, toX(v), cy+5);
   ctx.textAlign='right'; ctx.textBaseline='middle';
@@ -2677,6 +2918,49 @@ function draw4() {
 }
 
 draw4();
+
+// ── Block / riser tooltips ─────────────────────────────────────────
+function tipSetup(canvas, side, xMax, getDtN, getV, rateLabel, areaLabel, getColor) {
+  const PAD = { l: 56, r: 28, t: 28, b: 48 };
+  canvas.addEventListener('mousemove', e => {
+    const tip = document.getElementById('chart-tip');
+    if (!tip) return;
+    const rect = canvas.getBoundingClientRect();
+    const lw = canvas.width / 2;
+    const pw = lw - PAD.l - PAD.r;
+    const lx = (e.clientX - rect.left) * (lw / rect.width);
+    if (lx < PAD.l || lx > PAD.l + pw) { tip.style.display = 'none'; return; }
+    const { dt, N } = getDtN();
+    if (!dt || !N) { tip.style.display = 'none'; return; }
+    const dataX = (lx - PAD.l) / pw * xMax;
+    const k = side === 'rhs'
+      ? Math.max(0, Math.min(N - 1, Math.round(dataX / dt)))
+      : Math.max(0, Math.floor(dataX / dt));
+    if (k >= N) { tip.style.display = 'none'; return; }
+    const v = getV(k * dt);
+    const area = v * dt;
+    const col = getColor ? getColor(k, N, dt) : '#c4c4dc';
+    const dim = '#5a5a80';
+    tip.innerHTML = side === 'lhs'
+      ? `<div style="color:${dim}">dt = ${dt.toFixed(3)}</div>` +
+        `<div style="color:${col}">${rateLabel} = ${v.toFixed(3)}</div>` +
+        `<div style="color:${col}">${areaLabel} = ${rateLabel}·dt = ${area.toFixed(3)}</div>`
+      : `<div style="color:${col}">${areaLabel} = ${rateLabel}·dt = ${area.toFixed(3)}</div>`;
+    tip.style.display = 'block';
+    tip.style.left = (e.clientX + 14) + 'px';
+    tip.style.top  = (e.clientY - 14) + 'px';
+  });
+  canvas.addEventListener('mouseleave', () => {
+    const tip = document.getElementById('chart-tip');
+    if (tip) tip.style.display = 'none';
+  });
+}
+
+tipSetup(p1a.canvas, 'lhs', T_MAX, () => _s1, xk => xk, 'v', 'dx', (k, _N, dt) => posColor(k * dt, 1));
+tipSetup(p1b.canvas, 'rhs', T_MAX, () => _s1, xk => xk, 'v', 'dx', (k, _N, dt) => posColor(k * dt, 1));
+tipSetup(p1g.canvas, 'lhs', T_MAX, () => _sr, _xk => 1,  'a', 'dv', (k, N)      => blockColor(k, N, 1));
+tipSetup(p1v.canvas, 'rhs', T_MAX, () => _sr, _xk => 1,  'a', 'dv', (k, N)      => blockColor(k, N, 1));
 </script>
+<div id="chart-tip"></div>
 </body>
 </html>

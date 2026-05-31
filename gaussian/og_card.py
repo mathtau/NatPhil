@@ -15,9 +15,10 @@ SURFACE  = "#111128"
 BORDER   = "#22224a"
 TEXT     = "#c4c4dc"
 MUTED    = "#60607a"
-GOLD     = "#f0c040"
+GOLD     = "#f4c830"
 CYAN     = "#40c8f0"
-PINK     = "#e06080"
+ORANGE   = "#f08840"
+PINK     = "#d040a0"
 AXIS     = "#38385a"
 
 # Gold-on-dark colormap that matches the on-page heatmap
@@ -152,7 +153,7 @@ lx1 = (r_out + 0.9) * np.cos(angle)
 ly1 = (r_out + 0.9) * np.sin(angle)
 ax_right.plot([lx0, lx1], [ly0, ly1], color=CYAN, lw=1.0, zorder=7)
 ax_right.text(
-    lx1 + 0.06, ly1, r"$\tau \cdot r \cdot dr$", color=CYAN, fontsize=14,
+    lx1 + 0.06, ly1, r"$\tau \cdot r \cdot dr$", color=ORANGE, fontsize=14,
     style="italic", va="center", ha="left", zorder=8,
 )
 
