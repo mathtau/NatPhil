@@ -7,9 +7,8 @@
     </radialGradient>
   </defs>
 
-  <!-- Medallion surface + thin gold-tinted frame -->
+  <!-- Medallion surface (borderless disc — no frame ring) -->
   <circle cx="100" cy="100" r="95" fill="url(#disc)"/>
-  <circle cx="100" cy="100" r="95" fill="none" stroke="#f0c040" stroke-width="1.6" opacity="0.28"/>
 
   <!-- Concentric gold rings: the donut decomposition from §4
        (opacity rises inward, suggesting the Gaussian bell peak;
