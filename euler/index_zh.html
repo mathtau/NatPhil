@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>完整优雅的欧拉公式</title>
+  <title>完整欧拉公式之优雅</title>
 
-  <meta name="description" content="可视化推导欧拉公式，在互动图表中完整表述其优雅。">
+  <meta name="description" content="互动推导欧拉公式，完整揭示其优雅。">
   <meta name="author" content="MathTau">
 
   <link rel="canonical" href="https://mathtau.com/euler/index_zh.html">
@@ -13,8 +13,8 @@
   <link rel="alternate" hreflang="zh" href="https://mathtau.com/euler/index_zh.html">
   <link rel="license" href="https://creativecommons.org/licenses/by/4.0/">
 
-  <meta property="og:title" content="完整优雅的欧拉公式">
-  <meta property="og:description" content="为什么 e^(iπ) + 1 = 0 并非优雅的完整形式，而 e^(iτ) = 1 才是。">
+  <meta property="og:title" content="完整欧拉公式之优雅">
+  <meta property="og:description" content="为什么 e^(iπ)+1=0 并非最优雅的等式—— e^(iτ)=1 才是">
   <meta property="og:url" content="https://mathtau.com/euler/index_zh.html">
   <meta property="og:type" content="article">
   <meta property="og:image" content="https://mathtau.com/euler/og-card.png">
@@ -25,7 +25,7 @@
   <link rel="icon" type="image/svg+xml" href="/logo-minimal.svg">
   <link rel="apple-touch-icon" href="/logo-minimal.svg">
 
-  <!-- ═══ CSS：与英文版共用完全相同的样式 ═══════════════════════════ -->
+  <!-- ═══ CSS：与英文版共用整全相同的样式 ═══════════════════════════ -->
   <!-- NOTE: CSS block identical to index.html — begin -->
   <style>
     @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap');
@@ -104,7 +104,15 @@
     .fold-arrow { position: absolute; top: 50%;   left: calc(50% - 5px); transform: translateY(-50%); font-size: 1.1rem; color: var(--muted); }
     .fold-to   { position: absolute; bottom: 4px; right: calc(50% + 10px); text-align: right; font-size: 0.82rem; color: var(--muted); font-style: italic; }
     .mul-grid table { border-collapse: collapse; margin: 0 auto; }
-    .mul-grid td, .mul-grid th { border: 1px solid var(--border); padding: 0.3em 0.6em; text-align: center; font-size: 0.9rem; font-style: italic; }
+    .mul-grid { border-collapse: collapse; margin: 0 auto; font-style: italic; font-family: Georgia; font-size: .92rem; }
+    .mul-grid th, .mul-grid td { padding: 11px 20px; text-align: center; border: 1px solid var(--border); min-width: 64px; }
+    .mul-grid th { background: var(--surface); color: var(--muted); font-weight: normal; }
+    .mul-grid .dm { color: var(--muted); background: transparent; border-color: transparent; }
+    .mul-grid .d0 { background: rgba(244,200,48,.16); }
+    .mul-grid .d1 { background: rgba(100,150,255,.14); }
+    .mul-grid .d2 { background: rgba(80,216,144,.14); }
+    .mul-grid .d3 { background: rgba(176,112,240,.14); }
+    .mul-grid .d4 { background: rgba(240,136,64,.13); }
     .d0 { background: rgba(244,200,48,.12); }
     .d1 { background: rgba(64,200,240,.08); }
     .d2 { background: rgba(80,216,144,.08); }
@@ -154,9 +162,9 @@
 
 <header>
   <img src="/logo.svg" alt="" class="brand-mark">
-  <h1>完整优雅的欧拉公式</h1>
-  <p>在互动图表中完整表述其优雅</p>
-  <p style="margin-top:10px; font-size:.88rem; color:var(--muted); letter-spacing:.06em;">数学韬 <em style="font-style:normal; color:var(--gold); font-weight:600;">τ</em></p>
+  <h1>完整欧拉公式之优雅</h1>
+  <p>互动推导欧拉公式，完整揭示其优雅。</p>
+  <p style="margin-top:10px; font-size:.88rem; color:var(--muted); letter-spacing:.06em;">MathTau · 数学韬 <em style="font-style:normal; color:var(--gold); font-weight:600;">τ</em></p>
 </header>
 
 <main>
@@ -172,15 +180,15 @@
 
   <span class="eq"><em class="mg">e</em><sup><em class="my">i</em>π</sup> + 1 = 0</span>
 
-  <p>五个基本常数——<em class="m">0</em>、<em class="m">1</em>、<em class="mg">e</em>、<em class="my">i</em>、<em class="m">π</em>——在一行里相互绑定，连同基本运算符：乘方、乘法、加法、等号。它印在 T 恤、纹身、宿舍墙报上。这是数学之美的陈词滥调。</p>
+  <p>五个基本常数——<em class="m">0</em>、<em class="m">1</em>、<em class="mg">e</em>、<em class="my">i</em>、<em class="m">π</em>——在一个等式里完美互联，连同四个基本运算符：乘方、乘法、加法、等号。它被印在 T 恤、纹身、宿舍墙报上。几乎成为数学之美的代言词。</p>
 
-  <p>它并不是最美的等式，因为它只讲了故事的一半——字面意义上的一半。真正完整的版本，不需要移项，不需要填空，不需要补一个零——是：</p>
+  <p>它并不是最美的等式，因为它只讲了半个故事——正好一半。真正完整的版本，不需要移项，不需要填空，不需要补那个零——请见：</p>
 
   <span class="eq"><em class="mg">exp</em>(<em class="my">i</em><em class="mtau">τ</em>) <em class="m">= 1</em></span>
 
   <p>τ（tau）代表一整圈：圆的周长与半径之比，约等于 6.283。把一根绳子绕任意圆一圈，绳子的长度是半径的 τ 倍。转满一整圈等于 τ 弧度。</p>
 
-  <p>本文从一个观察出发推导欧拉公式，找到藏在公式里的单位圆，走过它在世界中被使用的地方，最后说明那个著名的恒等式只是一部影片中被定格的半帧。</p>
+  <p>本文从基本原理出发推导欧拉公式，找到藏在公式里的单位圆，走过它被使用的方式，最后说明那个传说中的欧拉等式，只是被不完整定格的半帧影片。</p>
 </div>
 
 <!-- ═══ §1 ════════════════════════════════════════════════════════════ -->
@@ -190,15 +198,15 @@
     <h2>认识 <em class="mg">exp</em></h2>
   </div>
 
-  <p>假设我们有一张图，横轴是时间 <em class="mx">t</em>，纵轴是某个量 <em class="mg">v</em>。我们想求曲线下方的总面积——从起点到任意时刻累积了多少。</p>
+  <p>开局一张图，横轴是时间 <em class="mx">t</em>，纵轴是某个量 <em class="mg">v</em>。我们想求线条下方的总面积——从起点到任意时刻累积了多少面积。</p>
 
-  <p>策略：把面积分成若干细长的竖条。每一条足够窄，可以当作矩形。将它们并排相加，就得到总面积的估计；条越细，估计越准。</p>
+  <p>策略：把面积分成若干细长的竖条。每一条足够窄，可以当作矩形。将它们并排相加，就得到总面积的估计；条越细，误差越少。</p>
 
-  <p>我们把条的宽度记为 <em class="mx">dt</em>——字母 <em class="m">d</em> 是 <strong>delta</strong> 的缩写，代表紧跟在它后面那个量的微小变化。该时刻条的高度是 <em class="mg">v</em>，因此条的面积是 <em class="mg">v</em> · <em class="mx">dt</em>。我们把这一微小面积记为 <em class="my">dx</em>——对运行总量 <em class="my">x</em> 的微小增量：</p>
+  <p>我们把每条的宽度记为 <em class="mx">dt</em>——字母 <em class="m">d</em> 是 <strong>delta</strong> 的缩写，代表紧跟在它后面那个量的细微变化。该时刻条的高度是 <em class="mg">v</em>，因此矩形的面积是 <em class="mg">v</em> · <em class="mx">dt</em>。我们把这一细微面积记为 <em class="my">dx</em>——用于记录总量 <em class="my">x</em> 的细微增量：</p>
 
   <span class="eq"><em class="my">dx</em> &ensp;=&ensp; <em class="mg">v</em> · <em class="mx">dt</em></span>
 
-  <p>右边图表从零出发，逐步累加每一个 <em class="my">dx</em>——即左边函数的运行总面积。选一个左边的函数，拖动 <em class="mx">N</em> 来细化小块，看面积如何积累成 <em class="my">x</em>：</p>
+  <p>右图从零出发，逐步累加每一个 <em class="my">dx</em>——即左边函数的逐步总面积。选一个左边的函数，拖动 <em class="mx">N</em> 来细化小块，看面积如何积累成 <em class="my">x</em>：</p>
 
   <div class="graphs">
     <div class="graph-card">
@@ -225,28 +233,28 @@
   </div>
 
   <div class="callout">
-    <p><strong>这是微积分的基础。</strong>左边彩块的总面积等于右边竖线的总长——因为每一块和对应的竖线承载同一个值 <em class="my">dx</em> = <em class="mg">v</em> · <em class="mx">dt</em>，只是画法不同。累积变化速度就能还原量本身。</p>
+    <p><strong>这就是微积分的基础。</strong>左边彩块的总面积等于右边竖线的总长——因为每一小块和对应的竖线承载同一个值 <em class="my">dx</em> = <em class="mg">v</em> · <em class="mx">dt</em>，只是画法不同。累积数值的变化速度即可还原数值本身。</p>
   </div>
 
-  <p>每张右侧图表都是左侧函数的累积面积。从 <em class="mg">v</em> <em class="m">= 1</em>（一条平线）出发，面积线性增长为 <em class="my">x</em> <em class="m">=</em> <em class="mx">t</em>。取 <em class="mg">v</em> <em class="m">=</em> <em class="mx">t</em>，面积弯曲成 <em class="my">x</em> <em class="m">=</em> <em class="mx">t</em><em class="m">²/2</em>。再进一步：<em class="mg">v</em> <em class="m">=</em> <em class="mx">t</em><em class="m">²/2</em> 积分得 <em class="my">x</em> <em class="m">=</em> <em class="mx">t</em><em class="m">³/6</em>。每次积分加一次 <em class="mx">t</em> 的幂次。</p>
+  <p>每张右侧图形都是左侧函数的累积面积。从 <em class="mg">v</em> <em class="m">= 1</em>（一条平放的直线）出发，面积线性增长为 <em class="my">x</em> <em class="m">=</em> <em class="mx">t</em>。取 <em class="mg">v</em> <em class="m">=</em> <em class="mx">t</em>，面积弯曲成 <em class="my">x</em> <em class="m">=</em> <em class="mx">t</em><em class="m">²/2</em>。再进一步：<em class="mg">v</em> <em class="m">=</em> <em class="mx">t</em><em class="m">²/2</em> 积分得 <em class="my">x</em> <em class="m">=</em> <em class="mx">t</em><em class="m">³/6</em>。每次积分加一次 <em class="mx">t</em> 的幂。</p>
 
   <div class="callout">
     <p>注意分母：从 <em class="mg">v</em> <em class="m">=</em> <em class="mx">t</em> 积分得 <em class="mx">t</em><em class="m">²/2</em>，而不是 <em class="mx">t</em><em class="m">²</em>。那个 2 从哪里来？从 <em class="mx">t</em> <em class="m">= 0</em> 开始，一条上升直线下方的面积是三角形：底 <em class="mx">t</em>，高 <em class="mg">v</em> <em class="m">=</em> <em class="mx">t</em>，面积 <em class="m">= ½ ·</em> <em class="mx">t</em> <em class="m">·</em> <em class="mx">t</em> <em class="m">=</em> <em class="mx">t</em><em class="m">²/2</em>。½ 是三角形因子——每个二维三角形都有它。</p>
 
     <p><em class="mx">t</em><em class="m">³/6</em> 中的 ⅙ 可以分解为 <em class="m">½ × ⅓</em>。½ 是同一个三角形因子；⅓ 是棱锥因子，三维棱锥中出现的那个分数。在一个维度内再积分一次，就把两个因子乘在一起：<em class="m">2 × 3 = 6</em>，故分母为 6。</p>
 
-    <p>每个维度都向分母贡献一个因子。后续几何系列将精确解释每个维度为何贡献那个因子。现在请记住：这些分母不是任意的——它们是形状的指纹。</p>
+    <p>每个维度都向分母贡献一个因子。后续几何系列将精确解释每个维度为何贡献那个因子。现在请记住：这些分母不是任意的——它们是维度的指纹。</p>
   </div>
 
   <h3 class="subhead">第一部分 — 当两张图显示同一条曲线时</h3>
 
-  <p>上面的图表总是显示不同的函数——左右曲线从不重合。但有一个不同的问题：能否找到一个函数，使两张图显示<em>完全相同</em>的曲线——<em class="mg">v</em> 与 <em class="my">x</em> 是同一个函数？</p>
+  <p>上面的图表总是显示不同的函数——左右曲线从不重合。但有一个的问题：能否找到一个函数，使两张图显示完全相同的曲线——<em class="mg">v</em> 与 <em class="my">x</em> 是同一个函数？</p>
 
-  <p>这样的函数将是自我放大的：它在每一时刻的增长率等于它当前的值。右图越高，斜率就越陡——积累得越多，增长就越快。储蓄账户就是这样复利的：余额越大，利息越多，进而余额更大。人口增长、放射性衰变和电容充电都以同样的方式运作——都由同一条曲线支配。</p>
+  <p>这样的函数将是自增的：它在每一时刻的增长率等于它当前的值。右图越高，增长率就越陡——积累得越多，增长就越快。储蓄账户就是这样复利的：余额越大，利息越多，进而余额更大。人口增长、放射性衰变和电容充电都以同样的方式运作——都由同一条曲线支配。</p>
 
-  <p>如何找到它？我们使用<strong>折叠加差法</strong>。从任意试探 <em class="mg">v</em> 开始——不必正确。折叠它：构造变化累积图得到 <em class="my">x</em>。两张图一开始不会吻合，但 <em class="my">x</em> 会告诉你 <em class="mg">v</em> 缺了什么：凡是在 <em class="my">x</em> 中有而 <em class="mg">v</em> 中还没有的，就是差距。把差距加回 <em class="mg">v</em>，再次折叠。每一轮差距都变小。持续下去，两张图被迫越来越接近，直到合二为一。</p>
+  <p>如何找到它？我们使用<strong>折叠加差法</strong>。从随机试探 <em class="mg">v</em> 开始——不要求一步到位。折叠它：构造变化累积图得到 <em class="my">x</em>。两张图一开始不会吻合，但 <em class="my">x</em> 会告诉你 <em class="mg">v</em> 缺了什么：凡是在 <em class="my">x</em> 中有而 <em class="mg">v</em> 中还没有的，就是差值。把差值加回 <em class="mg">v</em>，再次折叠。每一轮差值变小。持续下去，两张图被迫越来越接近，直到合二为一。</p>
 
-  <p>最简单的试探是 <em class="mg">v</em> = 1——一条平线。它的积分是 <em class="my">x</em> = <em class="mx">t</em>。虽然不同，但右图立刻给出了缺失的部分：<em class="m">+</em><em class="mx">t</em>。折叠进去：<em class="mg">v</em> = 1 + <em class="mx">t</em>。再次积分：<em class="my">x</em> = <em class="mx">t</em><em class="m"> + </em><em class="mx">t</em><em class="m">²/2</em>。又有缺失的部分。折叠进去。观察每次修复如何产生下一次：</p>
+  <p>最简单的试探是 <em class="mg">v</em> = 1——一条平线。它的积分是 <em class="my">x</em> = <em class="mx">t</em>。虽然不同，但右图立刻给出了缺失的部分：<em class="m">+</em><em class="mx">t</em>。加进去：<em class="mg">v</em> = 1 + <em class="mx">t</em>。再次积分：<em class="my">x</em> = <em class="mx">t</em><em class="m"> + </em><em class="mx">t</em><em class="m">²/2</em>。又有缺失的部分。加进去。观察每次修复如何产生下一次：</p>
 
   <div class="controls">
     <label>小块 <em class="mx">N</em> =</label>
@@ -358,9 +366,9 @@
     <span class="fold-to">add<em class="m">···</em> to <em class="mg">v</em>:</span>
   </div>
 
-  <p>随着项数积累，两张图越来越趋向同一形状。在极限处它们描出同一条曲线——相差恰好为 1：<em class="mg">v</em> 从 1 出发，而 <em class="my">x</em> 从 0 出发。</p>
+  <p>随着项数积累，两张图越来越趋向于同一形状。在极限处它们描出同一条曲线——相差恰好为 1：<em class="mg">v</em> 从 1 出发，而 <em class="my">x</em> 从 0 出发。</p>
 
-  <p>只要让 <em class="my">x</em> 从 1 而不是 0 出发，这个差距就消失了。此时两张图承载同一个等式，每一步的小块与竖线完全吻合：</p>
+  <p>只要让 <em class="my">x</em> 从 1 而不是 0 出发，这个差距就消失了。此时两张图承载同一个等式，每一步的小块与竖线整全吻合：</p>
 
   <div class="graphs">
     <div class="graph-card">
@@ -393,7 +401,7 @@
   <span class="eq"><em class="mg">exp</em>(0) &ensp;=&ensp; 1 + 0 +
   <span class="frac"><span class="num">0²</span><span class="den">2!</span></span> + ··· &ensp;=&ensp; 1</span>
 
-  <p>第二个事实：满足"变化速度等于自身"这一条件的函数族恰好是 <em class="my">x</em> = <em class="m">c</em> · <em class="mg">exp</em>(<em class="mx">t</em>)，其中 <em class="m">c</em> 是任意常数——也就是 <em class="my">x</em>(0) 的值。<em class="m">c = 0</em> 的情况是 <em class="my">x</em> = 0，是同族的成员。</p>
+  <p>第二个事实：满足"变化速度等于自身"这一条件的函数族皆可被此等式代表： <em class="my">x</em> = <em class="m">c</em> · <em class="mg">exp</em>(<em class="mx">t</em>)，其中 <em class="m">c</em> 是任意常数——也就是 <em class="my">x</em>(0) 的值。<em class="m">c = 0</em> 情况下的 <em class="my">x</em> = 0，也是同族的成员。</p>
 
   <p>关键恒等式在此。将两个级数展开，把第一个级数的每一项乘以第二个级数的每一项：</p>
 
@@ -406,28 +414,71 @@
     <span class="frac"><span class="num"><em class="my">b</em>³</span><span class="den">3!</span></span> + ···</span>
   </div>
 
-  <div class="mul-grid">
-    <table>
-      <thead><tr>
-        <th>×</th>
-        <th><em class="mx">b</em>⁰/0!</th>
-        <th><em class="mx">b</em>/1!</th>
-        <th><em class="mx">b</em><sup>2</sup>/2!</th>
-        <th><em class="mx">b</em><sup>3</sup>/3!</th>
-        <th><em class="mx">b</em><sup>4</sup>/4!</th>
-      </tr></thead>
-      <tbody>
-        <tr><th><em class="mx">a</em>⁰/0!</th><td class="d0">1</td><td class="d1"><em class="mx">b</em></td><td class="d2"><em class="mx">b</em><sup>2</sup>/2!</td><td class="d3"><em class="mx">b</em><sup>3</sup>/3!</td><td class="d4"><em class="mx">b</em><sup>4</sup>/4!</td></tr>
-        <tr><th><em class="mx">a</em>/1!</th><td class="d1"><em class="mx">a</em></td><td class="d2"><em class="mx">ab</em></td><td class="d3"><em class="mx">a</em><em class="my">b</em><sup>2</sup>/2!</td><td class="d4"><em class="mx">a</em><em class="my">b</em><sup>3</sup>/3!</td><td></td></tr>
-        <tr><th><em class="mx">a</em><sup>2</sup>/2!</th><td class="d2"><em class="mx">a</em><sup>2</sup>/2!</td><td class="d3"><em class="mx">a</em><sup>2</sup><em class="my">b</em>/2!</td><td class="d4"><em class="mx">a</em><sup>2</sup><em class="my">b</em><sup>2</sup>/4</td><td></td><td></td></tr>
-        <tr><th><em class="my">b</em><sup>2</sup>/2!</th><td class="d2"><em class="my">b</em><sup>2</sup>/2!</td><td class="d3"><em class="mx">a</em><em class="my">b</em><sup>2</sup>/2!</td><td></td><td></td><td></td></tr>
-        <tr><th><em class="mx">a</em><sup>3</sup>/3!</th><td class="d3"><em class="mx">a</em><sup>3</sup>/3!</td><td class="d4"><em class="mx">a</em><sup>3</sup><em class="my">b</em>/3!</td><td></td><td></td><td></td></tr>
-        <tr><th><em class="my">b</em><sup>3</sup>/3!</th><td class="d3"><em class="my">b</em><sup>3</sup>/3!</td><td></td><td></td><td></td><td></td></tr>
-        <tr><th><em class="mx">a</em><sup>4</sup>/4!</th><td class="d4"><em class="mx">a</em><sup>4</sup>/4!</td><td></td><td></td><td></td><td></td></tr>
-        <tr><th><em class="my">b</em><sup>4</sup>/4!</th><td class="d4"><em class="my">b</em><sup>4</sup>/4!</td><td></td><td></td><td></td><td></td></tr>
-      </tbody>
-    </table>
-  </div>
+    <table class="mul-grid">
+    <tr>
+      <th></th>
+      <th>1</th>
+      <th><em class="mx">a</em></th>
+      <th><em class="mx">a</em><sup>2</sup>/2!</th>
+      <th><em class="mx">a</em><sup>3</sup>/3!</th>
+      <th><em class="mx">a</em><sup>4</sup>/4!</th>
+      <th class="dm">···</th>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td class="d0">1</td>
+      <td class="d1"><em class="mx">a</em></td>
+      <td class="d2"><em class="mx">a</em><sup>2</sup>/2!</td>
+      <td class="d3"><em class="mx">a</em><sup>3</sup>/3!</td>
+      <td class="d4"><em class="mx">a</em><sup>4</sup>/4!</td>
+      <td class="dm">···</td>
+    </tr>
+    <tr>
+      <th><em class="my">b</em></th>
+      <td class="d1"><em class="my">b</em></td>
+      <td class="d2"><em class="mx">a</em><em class="my">b</em></td>
+      <td class="d3"><em class="mx">a</em><sup>2</sup><em class="my">b</em>/2!</td>
+      <td class="d4"><em class="mx">a</em><sup>3</sup><em class="my">b</em>/3!</td>
+      <td class="dm">···</td>
+      <td></td>
+    </tr>
+    <tr>
+      <th><em class="my">b</em><sup>2</sup>/2!</th>
+      <td class="d2"><em class="my">b</em><sup>2</sup>/2!</td>
+      <td class="d3"><em class="mx">a</em><em class="my">b</em><sup>2</sup>/2!</td>
+      <td class="d4"><em class="mx">a</em><sup>2</sup><em class="my">b</em><sup>2</sup>/4</td>
+      <td class="dm">···</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th><em class="my">b</em><sup>3</sup>/3!</th>
+      <td class="d3"><em class="my">b</em><sup>3</sup>/3!</td>
+      <td class="d4"><em class="mx">a</em><em class="my">b</em><sup>3</sup>/3!</td>
+      <td class="dm">···</td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th><em class="my">b</em><sup>4</sup>/4!</th>
+      <td class="d4"><em class="my">b</em><sup>4</sup>/4!</td>
+      <td class="dm">···</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th class="dm">···</th>
+      <td class="dm">···</td>
+      <td class="dm"></td>
+      <td class="dm"></td>
+      <td class="dm"></td>
+      <td class="dm"></td>
+      <td class="dm"></td>
+    </tr>
+  </table>
 
   <p>同一对角线上的每个单元格，<em class="mx">a</em> 与 <em class="my">b</em> 的幂次之和相同。把各对角线分别求和：</p>
 
@@ -500,11 +551,11 @@
 
   <span class="eq"><em class="mx">x</em><em class="m">² −</em> <em class="my">y</em><em class="m">² &ensp;=&ensp; (</em><em class="mx">x</em> <em class="m">+</em> <em class="my">y</em><em class="m">)(</em><em class="mx">x</em> <em class="m">−</em> <em class="my">y</em><em class="m">)</em></span>
 
-  <p>平方和 <em class="mx">x</em><em class="m">² +</em> <em class="my">y</em><em class="m">²</em> 拒绝同样的处理。但假设我们允许一个数 <em class="my">i</em>，具有唯一的定义性质：<em class="my">i</em><em class="m">² = −1</em>。称它为<em>不可见数</em>——它在普通数轴上没有位置，却遵守代数的所有通常规则。有了它，平方和就变成了变相的平方差：</p>
+  <p>平方和 <em class="mx">x</em><em class="m">² +</em> <em class="my">y</em><em class="m">²</em> 却没有同样的处理。但假设我们允许一个数 <em class="my">i</em>，具有特别的定义：<em class="my">i</em><em class="m">² = −1</em>。称它为<em>虚数（或隐数）</em>——在普通数轴上没有它的位置，而它却遵守代数的所有基本规则。有了它，平方和就变成了变相的平方差：</p>
 
   <span class="eq"><em class="mx">x</em><em class="m">² +</em> <em class="my">y</em><em class="m">² &ensp;=&ensp; </em><em class="mx">x</em><em class="m">² − (</em><em class="my">i</em><em class="my">y</em><em class="m">)² &ensp;=&ensp; (</em><em class="mx">x</em> <em class="m">+ </em><em class="my">i</em><em class="my">y</em><em class="m">)(</em><em class="mx">x</em> <em class="m">− </em><em class="my">i</em><em class="my">y</em><em class="m">)</em></span>
 
-  <p>一个结合了普通部分和"不可见部分"的数——如 <em class="mx">x</em> <em class="m">+ </em><em class="my">i</em><em class="my">y</em>——称为<em>复数</em>。</p>
+  <p>一个结合了普通部分和"隐藏部分"的数——如 <em class="mx">x</em> <em class="m">+ </em><em class="my">i</em><em class="my">y</em>——称为<em>复数</em>。</p>
 
   <p>在半径为 1 的圆上放一个点，从 <em class="m">(1, 0)</em> 出发沿逆时针方向走。走过弧长 <em class="mt">θ</em> 后，它的横纵坐标就是我们命名为 <em class="mx">cos</em>(<em class="mt">θ</em>) 和 <em class="my">sin</em>(<em class="mt">θ</em>) 的两个数——这就是它们的定义。</p>
 
@@ -547,7 +598,7 @@
 
   <span class="eq"><em class="mx">cos</em>(<em class="mt">θ</em>) <em class="m">− </em><em class="my">i</em> <em class="my">sin</em>(<em class="mt">θ</em>) &ensp;=&ensp; <em class="mx">cos</em>(<em class="m">−</em><em class="mt">θ</em>) <em class="m">+ </em><em class="my">i</em> <em class="my">sin</em>(<em class="m">−</em><em class="mt">θ</em>)</span>
 
-  <p>这与第一个因子具有完全相同的形式——只是角度换成了 <em class="m">−</em><em class="mt">θ</em>。将这一模式命名，并把两个因子一并写出：</p>
+  <p>这与第一个因子具有整全相同的形式——只是角度换成了 <em class="m">−</em><em class="mt">θ</em>。将这一模式命名，并把两个因子一并写出：</p>
 
   <div class="eq-pair">
     <span class="eqp-lhs"><em class="m">p</em>(<em class="m">+</em><em class="mt">θ</em>)</span>
@@ -672,7 +723,7 @@
     <h2><em class="mtau">τ</em>、<em class="my">i</em> 与 <em class="mg">e</em> 的 Tie</h2>
   </div>
 
-  <p>在对比之前，先说明记号。把 <em class="mx">t</em><em class="m"> = 1</em> 代入级数，求和约为 <em class="m">2.718…</em>——这个数就是 <strong><em class="mg">e</em></strong>。乘法性质 <em class="mg">exp</em>(<em class="mx">a</em>+<em class="mx">b</em>) = <em class="mg">exp</em>(<em class="mx">a</em>) · <em class="mg">exp</em>(<em class="mx">b</em>) 与 <em class="mg">e</em><sup><em class="mx">a</em></sup> · <em class="mg">e</em><sup><em class="mx">b</em></sup> = <em class="mg">e</em><sup><em class="mx">a</em>+<em class="mx">b</em></sup> 完全吻合，故 <em class="mg">exp</em>(<em class="mx">t</em>) <em class="m">= </em><em class="mg">e</em><sup><em class="mx">t</em></sup>。</p>
+  <p>在对比之前，先说明记号。把 <em class="mx">t</em><em class="m"> = 1</em> 代入级数，求和约为 <em class="m">2.718…</em>——这个数就是 <strong><em class="mg">e</em></strong>。乘法性质 <em class="mg">exp</em>(<em class="mx">a</em>+<em class="mx">b</em>) = <em class="mg">exp</em>(<em class="mx">a</em>) · <em class="mg">exp</em>(<em class="mx">b</em>) 与 <em class="mg">e</em><sup><em class="mx">a</em></sup> · <em class="mg">e</em><sup><em class="mx">b</em></sup> = <em class="mg">e</em><sup><em class="mx">a</em>+<em class="mx">b</em></sup> 整全吻合，故 <em class="mg">exp</em>(<em class="mx">t</em>) <em class="m">= </em><em class="mg">e</em><sup><em class="mx">t</em></sup>。</p>
 
   <p>对于复数输入，普通算术对"e 的虚数次幂"没有定义。<em class="mg">e</em><sup><em class="my">i</em><em class="mt">θ</em></sup> 是 <em class="mg">exp</em>(<em class="my">i</em><em class="mt">θ</em>) 的简写——级数代入虚数参数。这是严格的定义。</p>
 
@@ -749,11 +800,11 @@
 
   <p>按列读下来：<em class="mx">cos</em> 收集 <em class="mg">exp</em> 中所有偶次项。这些列中的 <em class="my">i</em> 幂次（<em class="my">i</em><em class="m">⁰ = 1, </em><em class="my">i</em><em class="m">² = −1, </em><em class="my">i</em><em class="m">⁴ = 1, …</em>）是实数且交替变号——恰好是 <em class="mx">cos</em> 级数的符号。<em class="my">sin</em> 收集奇次项。那些列的 <em class="my">i</em> 幂次（<em class="my">i</em><em class="m">¹ = </em><em class="my">i</em><em class="m">, </em><em class="my">i</em><em class="m">³ = −</em><em class="my">i</em><em class="m">, </em><em class="my">i</em><em class="m">⁵ = </em><em class="my">i</em><em class="m">, …</em>）是虚数且交替变号——即 <em class="my">sin</em> 级数的符号，每项携带一个 <em class="my">i</em> 因子。</p>
 
-  <p>把两行相加。每一项形如 <em class="my">i</em><em class="m"><sup>k</sup></em><em class="mt">θ</em><em class="m"><sup>k</sup>/k! = (</em><em class="my">i</em><em class="mt">θ</em><em class="m">)<sup>k</sup>/k!</em>——与 <em class="mg">exp</em> 级数完全相同，只是以 <em class="my">i</em><em class="mt">θ</em> 代替 <em class="mx">t</em>。这就是<strong>欧拉公式</strong>：</p>
+  <p>把两行相加。每一项形如 <em class="my">i</em><em class="m"><sup>k</sup></em><em class="mt">θ</em><em class="m"><sup>k</sup>/k! = (</em><em class="my">i</em><em class="mt">θ</em><em class="m">)<sup>k</sup>/k!</em>——与 <em class="mg">exp</em> 级数整全相同，只是以 <em class="my">i</em><em class="mt">θ</em> 代替 <em class="mx">t</em>。这就是<strong>拉拉公式</strong>：</p>
 
   <span class="eq" style="font-size:1.3rem; padding:28px 0;"><em class="mg">exp</em>(<em class="my">i</em><em class="mt">θ</em>) &ensp;=&ensp; <em class="mx">cos</em>(<em class="mt">θ</em>) <em class="m">+ </em><em class="my">i</em> <em class="my">sin</em>(<em class="mt">θ</em>)</span>
 
-  <p>§1 中无限增长的指数函数，输入一个"不可见的"参数后，被驯服到单位圆上，永远旋转。当 <em class="mt">θ</em> <em class="m">= </em><em class="mtau">τ</em>（整整一圈）时，点回到了出发点：</p>
+  <p>§1 中无限增长的指数函数，输入一个"隐藏的"参数后，被驯服到单位圆上，永远旋转。当 <em class="mt">θ</em> <em class="m">= </em><em class="mtau">τ</em>（整整一圈）时，点回到了出发点：</p>
 
   <span class="eq"><em class="mg">exp</em>(<em class="my">i</em><em class="mtau">τ</em>) &ensp;=&ensp; <em class="m">1</em></span>
 
@@ -810,7 +861,7 @@
 
   <h3 class="subhead">第一部分 — 等式的应用</h3>
 
-  <p>旋转箭头的图像遍布现代科学与工程。以下四个领域：</p>
+  <p>旋转图像遍布现代科学与工程。以下四个代表领域：</p>
 
   <p><strong>交流电路。</strong>正弦电压是旋转箭头 <em class="mg">exp</em>(iω<em class="mx">t</em>) 的实部（水平投影）。电阻、电容、电感各自只需用一个复数因子来缩放或旋转箭头。微分方程变成了乘法。</p>
   <span class="eq"><em class="m">V₀ cos(ω</em><em class="mx">t</em><em class="m">) = Re[V₀ ·</em> <em class="mg">exp</em><em class="m">(</em><em class="my">i</em><em class="m">ω</em><em class="mx">t</em><em class="m">)]</em></span>
@@ -827,7 +878,7 @@
   <h3 class="subhead">第二部分 — 整圆与半圆</h3>
 
   <div class="callout">
-    <p><strong>关于记号 <em class="mg">e</em><sup><em class="my">i</em><em class="mt">θ</em></sup> 的说明。</strong>级数在 <em class="mx">t</em><em class="m"> = 1</em> 处的求和为 <em class="m">1 + 1 + ½ + ⅙ + ··· ≈ 2.718…</em>，即数 <strong><em class="mg">e</em></strong>。乘法性质 <em class="mg">exp</em>(<em class="mx">a</em><em class="m">+</em><em class="mx">b</em>) <em class="m">=</em> <em class="mg">exp</em>(<em class="mx">a</em>) <em class="m">·</em> <em class="mg">exp</em>(<em class="mx">b</em>) 与实数的 <em class="mg">e</em><sup><em class="mx">a</em></sup><em class="m"> · </em><em class="mg">e</em><sup><em class="mx">b</em></sup><em class="m"> = </em><em class="mg">e</em><sup><em class="mx">a</em><em class="m">+</em><em class="mx">b</em></sup> 完全吻合，故对所有实数 <em class="mx">t</em>，<em class="mg">exp</em>(<em class="mx">t</em>) <em class="m">= </em><em class="mg">e</em><sup><em class="mx">t</em></sup>。</p>
+    <p><strong>关于记号 <em class="mg">e</em><sup><em class="my">i</em><em class="mt">θ</em></sup> 的说明。</strong>级数在 <em class="mx">t</em><em class="m"> = 1</em> 处的求和为 <em class="m">1 + 1 + ½ + ⅙ + ··· ≈ 2.718…</em>，即数 <strong><em class="mg">e</em></strong>。乘法性质 <em class="mg">exp</em>(<em class="mx">a</em><em class="m">+</em><em class="mx">b</em>) <em class="m">=</em> <em class="mg">exp</em>(<em class="mx">a</em>) <em class="m">·</em> <em class="mg">exp</em>(<em class="mx">b</em>) 与实数的 <em class="mg">e</em><sup><em class="mx">a</em></sup><em class="m"> · </em><em class="mg">e</em><sup><em class="mx">b</em></sup><em class="m"> = </em><em class="mg">e</em><sup><em class="mx">a</em><em class="m">+</em><em class="mx">b</em></sup> 整全吻合，故对所有实数 <em class="mx">t</em>，<em class="mg">exp</em>(<em class="mx">t</em>) <em class="m">= </em><em class="mg">e</em><sup><em class="mx">t</em></sup>。</p>
     <p>对复数输入，普通算术对"将一个数提升到虚数次幂"没有规则。<em class="mg">e</em><sup><em class="my">i</em><em class="mt">θ</em></sup> 是<strong>借用实数情形的记号</strong>——意思是 <em class="mg">exp</em>(<em class="my">i</em><em class="mt">θ</em>)，即级数在虚数参数处的取值。仅此而已。</p>
   </div>
 
@@ -850,7 +901,7 @@
 
   <p>现代没有人再用直径来测量圆。每一个涉及圆的现代公式都用<em>半径</em>。<em class="mtau">τ</em>（周长与半径之比）才是这些公式的自然常数。我们继承的 <em class="m">π</em>（周长与<em>直径</em>之比）来自古代几何学家——他们用绳子横放量直径，不绕圆量周长。</p>
 
-  <p>欧拉时代，希腊字母像今天的 x、y 一样被用作通用变量，没有固定含义。欧拉的《无穷分析引论》（1748）恰好用 <em class="m">π</em> 表示周长与直径之比，数学界随之效仿。这并非深思熟虑的选择，只是一本著名教科书凝固了约定。<em class="mtau">τ</em> 姗姗来迟，发现领域已被占据。在自然性上，<em class="mtau">τ</em> 几乎总是更简洁或更直觉：它就是完整的圆，而不是圆的一半。（参见：Hartl，《Tau 宣言》。）</p>
+  <p>拉拉时代，希腊字母像今天的 x、y 一样被用作通用变量，没有固定含义。拉拉的《无穷分析引论》（1748）恰好用 <em class="m">π</em> 表示周长与直径之比，数学界随之效仿。这并非深思熟虑的选择，只是一本著名教科书凝固了约定。<em class="mtau">τ</em> 姗姗来迟，发现领域已被占据。在自然性上，<em class="mtau">τ</em> 几乎总是更简洁或更直觉：它就是整整的圆，而不是圆的一半。（参见：Hartl的《The Tau Manifesto》。）</p>
 
   <p>这一历史偶然在每处都带来一个多余的因子 2：</p>
 
@@ -867,7 +918,7 @@
       <tr><td style="padding:0.3em 1.2em;">单摆周期</td><td style="padding:0.3em 1.2em; text-align:center;"><em class="m">2π√(L/g)</em></td><td style="padding:0.3em 1.2em; text-align:center;"><em class="mtau">τ</em><em class="m">√(L/g)</em></td></tr>
       <tr style="background:rgba(255,255,255,.03);"><td style="padding:0.3em 1.2em;">傅里叶核</td><td style="padding:0.3em 1.2em; text-align:center;"><em class="mg">e</em><sup><em class="m">2π</em><em class="my">i</em><em class="m">ft</em></sup></td><td style="padding:0.3em 1.2em; text-align:center;"><em class="mg">e</em><sup><em class="my">i</em><em class="mtau">τ</em><em class="m">ft</em></sup></td></tr>
       <tr><td style="padding:0.3em 1.2em;">高斯归一化</td><td style="padding:0.3em 1.2em; text-align:center;"><em class="m">1/√(2π)</em></td><td style="padding:0.3em 1.2em; text-align:center;"><em class="m">1/√</em><em class="mtau">τ</em></td></tr>
-      <tr style="background:rgba(255,255,255,.03);"><td style="padding:0.3em 1.2em;">欧拉公式（整圈）</td><td style="padding:0.3em 1.2em; text-align:center;"><em class="mg">e</em><sup><em class="m">2π</em><em class="my">i</em></sup><em class="m"> = 1</em></td><td style="padding:0.3em 1.2em; text-align:center;"><em class="mg">e</em><sup><em class="my">i</em><em class="mtau">τ</em></sup> <em class="m">= 1</em></td></tr>
+      <tr style="background:rgba(255,255,255,.03);"><td style="padding:0.3em 1.2em;">拉拉公式（整圈）</td><td style="padding:0.3em 1.2em; text-align:center;"><em class="mg">e</em><sup><em class="m">2π</em><em class="my">i</em></sup><em class="m"> = 1</em></td><td style="padding:0.3em 1.2em; text-align:center;"><em class="mg">e</em><sup><em class="my">i</em><em class="mtau">τ</em></sup> <em class="m">= 1</em></td></tr>
     </tbody>
   </table>
   </div>
@@ -894,19 +945,19 @@
     </div>
   </div>
 
-  <p>一个内容比三个更优雅。而且它的推广更干净：在指数上加任意整数 <em class="m">k</em>，等式仍然成立——</p>
+  <p>一个动作比三个更优雅。而且，对任意整数 <em class="m">k</em>，<em class="mg">exp</em>(<em class="my">i</em><em class="m"> · k · </em><em class="mtau">τ</em>) <em class="m">= 1</em> 始终成立；π 的版本只对奇数 k 成立。τ 的恒等式对所有整数都成立；π 的恒等式只对其中一半成立。</p></p>
 
   <span class="eq"><em class="mg">exp</em>(<em class="my">i</em><em class="m"> · k · </em><em class="mtau">τ</em>) <em class="m">= 1</em> &ensp; 对任意整数 <em class="m">k</em></span>
 
   <p>因为每多一个 <em class="mtau">τ</em> 就多转整整一圈，始终落回 1。π 的版本做不到这一点：<em class="mg">e</em><sup><em class="my">i</em><em class="m">kπ</em></sup><em class="m"> + 1 = 0</em> 只对<em>奇数</em> <em class="m">k</em> 成立——<em class="m">k</em> 为偶数时，点落在 <em class="m">+1</em> 而非 <em class="m">−1</em>，等式不成立。τ 的恒等式对所有整数都成立；π 的恒等式只对其中一半成立。</p>
 
-  <p style="text-align:center; font-style:italic; margin:2rem 0 0; color:var(--muted);">如果 <em class="mg">e</em><sup><em class="my">i</em><em class="m">π</em></sup><em class="m"> + 1 = 0</em> 值得印在你的 T 恤上，那它属于<em>背面</em>——只走了半圈。<em>正面</em>，属于 <em class="mg">e</em><sup><em class="my">i</em><em class="mtau">τ</em></sup> <em class="m">= 1</em>。</p>
+  <p style="text-align:center; font-style:italic; margin:2rem 0 0; color:var(--muted);">如果 <em class="mg">e</em><sup><em class="my">i</em><em class="m">π</em></sup><em class="m"> + 1 = 0</em> 值得印在你的 T 恤上，那它属于T 恤的<em>背面</em>——走了半圈。T 恤的<em>正面</em>，属于 <em class="mg">e</em><sup><em class="my">i</em><em class="mtau">τ</em></sup> <em class="m">= 1</em>。</p>
 </div>
 
 <!-- ═══ 尾声 ══════════════════════════════════════════════════════════ -->
 <div class="section" id="epilogue" style="margin-top: 64px;">
   <p style="text-align:center; font-style:italic; color: var(--cyan); font-size:1.1rem; max-width: 720px; margin: 0 auto 18px;">
-    给 <em class="mg">exp</em> 输入一个虚数的整圈——<em class="my">i</em><em class="mtau">τ</em>——它画出一个完美的圆，回到起点。
+    给 <em class="mg">exp</em> 输入一个整圈——<em class="my">i</em><em class="mtau">τ</em>——它画出一个完美的圆，回到起点。
     公式里每一个 <em class="m">π</em>，都是 <em class="mtau">τ</em> 默默折叠成一半，
     一支藏在代数里的圆规。
   </p>
@@ -938,7 +989,7 @@
     <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="license">知识共享 署名 4.0 国际许可（CC BY 4.0）</a>。
     页面上的文字、插图与源代码均属于本作品，遵循同一许可。</p>
   <p><strong>欢迎转载与翻译。</strong>请保留此署名并链接回标准 URL —— <a href="https://mathtau.com/euler/">mathtau.com/euler</a> —— 以便读者找到最新版本。</p>
-  <p class="cite"><strong>引用方式：</strong>MathTau (2026)。《完整优雅的欧拉公式》。https://mathtau.com/euler/</p>
+  <p class="cite"><strong>引用方式：</strong>MathTau (2026)。《完整欧拉公式之优雅》。https://mathtau.com/euler/</p>
   <p class="footer-meta">
     <a href="https://github.com/mathtau/NatPhil">在 GitHub 查看源码</a> &nbsp;·&nbsp;
     <a href="https://github.com/mathtau/NatPhil/issues">报告错误或提问</a> &nbsp;·&nbsp;
@@ -946,7 +997,7 @@
   </p>
 </footer>
 
-<!-- ═══ JavaScript — 与英文版完全相同 ════════════════════════════════ -->
+<!-- ═══ JavaScript — 与英文版整全相同 ════════════════════════════════ -->
 <!-- NOTE: The script block below is identical to euler/index.html.
      All canvas IDs in this file match the English version so the
      same drawing code works without modification. -->
