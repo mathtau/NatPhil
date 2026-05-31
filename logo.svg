@@ -1,6 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
-  <!-- Background: dark navy rounded square -->
-  <rect width="200" height="200" rx="28" fill="#0c0c1e"/>
+  <!-- Circular medallion: τ ≡ a full circle (MathTau Law II) -->
+  <defs>
+    <radialGradient id="disc" cx="50%" cy="42%" r="68%">
+      <stop offset="0%"   stop-color="#1e1e48"/>
+      <stop offset="100%" stop-color="#121230"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Medallion surface + thin gold-tinted frame -->
+  <circle cx="100" cy="100" r="95" fill="url(#disc)"/>
+  <circle cx="100" cy="100" r="95" fill="none" stroke="#f0c040" stroke-width="1.6" opacity="0.45"/>
 
   <!-- Concentric gold rings: the donut decomposition from §4
        (opacity rises inward, suggesting the Gaussian bell peak;
