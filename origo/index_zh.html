@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ORIGO</title>
+<title>ORIGO · 源初</title>
 <meta name="robots" content="noindex">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
   :root{ --gold:#f4c830; --cyan:#40c8f0; --purple:#b070f0; --green:#50d890; }
   html{ min-height:100%; }
-  body{ background:#06060f; color:#dfe2f0; font-family:'Playfair Display',Georgia,serif; overflow-x:hidden;
+  body{ background:#06060f; color:#dfe2f0; font-family:'Playfair Display','PingFang SC','Microsoft YaHei',serif; overflow-x:hidden;
     min-height:100dvh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:48px 24px 80px; }
 
   .sky{ position:fixed; inset:0; z-index:0; background:
@@ -44,14 +44,14 @@
 
   .title{ font-size:clamp(2.6rem,12vw,5rem); letter-spacing:.14em; color:var(--gold); font-weight:500;
     text-shadow:0 0 60px rgba(244,200,48,.4); opacity:0; animation:rise 1.4s ease .6s forwards; }
-  .sub{ font-style:italic; color:#9fb4d8; font-size:clamp(.95rem,3.6vw,1.15rem); margin-top:6px;
+  .sub{ color:#9fb4d8; font-size:clamp(.95rem,3.6vw,1.15rem); margin-top:6px;
     opacity:0; animation:rise 1.4s ease 1.2s forwards; }
 
   .crawl{ margin-top:26px; display:flex; flex-direction:column; gap:14px; }
-  .pline{ font-style:italic; font-size:clamp(1.05rem,4.2vw,1.32rem); line-height:1.45; color:#e6e9f5;
+  .pline{ font-size:clamp(1.05rem,4.2vw,1.3rem); line-height:1.6; color:#e6e9f5;
     opacity:0; transform:translateY(10px); animation:rise 1.6s ease forwards; }
-  .pline b.o{ color:#fff; font-style:normal; } .pline b.f{ color:var(--purple); font-style:normal; }
-  .pline b.t{ color:var(--gold); font-style:normal; } .pline b.p{ color:var(--cyan); font-style:normal; }
+  .pline b.o{ color:#fff; } .pline b.f{ color:var(--purple); }
+  .pline b.t{ color:var(--gold); } .pline b.p{ color:var(--cyan); }
   .pline:nth-child(1){ animation-delay:2.2s; }
   .pline:nth-child(2){ animation-delay:4.4s; }
   .pline:nth-child(3){ animation-delay:6.6s; }
@@ -61,14 +61,14 @@
 
   .begin{ margin-top:30px; opacity:0; animation:rise 1.4s ease 13.2s forwards; }
   .begin a{ display:inline-block; padding:16px 34px; border-radius:13px; text-decoration:none; cursor:pointer;
-    font-family:'IBM Plex Mono',monospace; font-size:1.15rem; font-weight:600; letter-spacing:.03em;
+    font-family:'IBM Plex Mono','PingFang SC',monospace; font-size:1.15rem; font-weight:600; letter-spacing:.03em;
     background:linear-gradient(#f4c830,#c89a1e); color:#241a04; box-shadow:0 0 40px -6px rgba(244,200,48,.6); }
   .begin a:hover{ filter:brightness(1.08); }
-  .begin .map{ display:block; margin-top:14px; font-family:'IBM Plex Mono',monospace; font-size:.82rem;
+  .begin .map{ display:block; margin-top:14px; font-family:'IBM Plex Mono','PingFang SC',monospace; font-size:.82rem;
     color:var(--cyan); background:none; box-shadow:none; padding:0; }
 
-  .skip{ position:fixed; bottom:16px; right:18px; z-index:5; font-family:'IBM Plex Mono',monospace; font-size:.8rem;
-    color:#7a7a98; background:none; border:none; cursor:pointer; letter-spacing:.08em; }
+  .skip{ position:fixed; bottom:16px; right:18px; z-index:5; font-family:'IBM Plex Mono','PingFang SC',monospace; font-size:.8rem;
+    color:#7a7a98; background:none; border:none; cursor:pointer; letter-spacing:.04em; }
   .skip:hover{ color:var(--gold); }
 
   body.skip-all .pline,body.skip-all .begin,body.skip-all .title,body.skip-all .sub{ opacity:1 !important; transform:none !important; animation:none !important; }
@@ -79,7 +79,7 @@
   <div class="sky"></div>
   <div id="stars"></div>
   <div class="fog"></div>
-  <a class="lang" href="index_zh.html">中文</a>
+  <a class="lang" href="index.html">EN</a>
 
   <div class="wrap">
     <div class="hero">
@@ -92,23 +92,23 @@
     </div>
 
     <div class="title">ORIGO</div>
-    <div class="sub">a world built from a single point</div>
+    <div class="sub">由一个点开始的世界</div>
 
     <div class="crawl">
-      <p class="pline">Before all numbers… a single point. <b class="o">O</b>.</p>
-      <p class="pline">From O a whole world unfolded — step by step, circle by circle. They named it <b class="t">Origo</b>.</p>
-      <p class="pline">Then came the <b class="f">Unravelling</b> — a Fog that devours all we no longer understand. Forgotten lands… dissolve.</p>
-      <p class="pline">One path remains: rebuild Origo from <b class="o">O</b>, truth by truth, until you can draw the <b class="t">Great Circle (τ)</b> and seal the Rift.</p>
-      <p class="pline">You are a <b class="p">Pathfinder</b>. The first step waits.</p>
+      <p class="pline">在所有数字之前……只有一个点。<b class="o">O</b>。</p>
+      <p class="pline">从 O，一整个世界徐徐展开——一步一步，一圈一圈。人们称它 <b class="t">Origo</b>。</p>
+      <p class="pline">然后，<b class="f">解离之雾</b> 降临——它吞噬一切不再被理解之物。被遗忘的土地……正在消散。</p>
+      <p class="pline">只剩一条路：从 <b class="o">O</b> 重建 Origo，一条真理接一条真理，直到你画出 <b class="t">大圆 (τ)</b>，封印裂隙。</p>
+      <p class="pline">你是一位 <b class="p">开拓者</b>。第一步，就在眼前。</p>
     </div>
 
     <div class="begin">
-      <a href="01-addition.html">Begin your path ▶</a>
-      <a class="map" href="soon.html">…or survey the world map 🗺</a>
+      <a href="01-addition_zh.html">启程 ▶</a>
+      <a class="map" href="soon.html">……或先看看世界地图 🗺</a>
     </div>
   </div>
 
-  <button class="skip" id="skip">skip intro ⏭</button>
+  <button class="skip" id="skip">跳过 ⏭</button>
 
 <script>
 const sk=document.getElementById('stars');

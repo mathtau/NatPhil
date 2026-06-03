@@ -1,20 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Origo · Level 1 — Joining Steps</title>
+<title>Origo · 第一关 — 连步成桥</title>
 <meta name="robots" content="noindex">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,500;1,400&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
   :root{ --bg:#0c0c1e; --surface:#111128; --border:#22224a; --text:#c4c4dc; --muted:#8888a8;
     --gold:#f4c830; --cyan:#40c8f0; --green:#50d890; --blue:#2b7fff; --red:#e8482c; --purple:#b070f0; }
-  body{ background:var(--bg); color:var(--text); font-family:Georgia,serif; line-height:1.5;
+  body{ background:var(--bg); color:var(--text); font-family:'PingFang SC','Microsoft YaHei',Georgia,serif; line-height:1.5;
     -webkit-font-smoothing:antialiased; display:flex; flex-direction:column; align-items:center; padding:18px 14px 84px; }
   .top{ text-align:center; margin-bottom:6px; }
-  .kicker{ font-family:'IBM Plex Mono',monospace; font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
-  .top h1{ font-family:'Playfair Display',serif; font-weight:500; font-size:1.5rem; color:var(--gold); margin-top:2px; }
+  .kicker{ font-family:'IBM Plex Mono',monospace; font-size:.72rem; letter-spacing:.06em; color:var(--muted); }
+  .top h1{ font-family:'Playfair Display','PingFang SC',serif; font-weight:500; font-size:1.5rem; color:var(--gold); margin-top:2px; }
   .dots{ display:flex; gap:7px; justify-content:center; margin-top:6px; }
   .dots i{ width:9px;height:9px;border-radius:50%;background:var(--border);transition:.3s; } .dots i.on{ background:var(--gold);transform:scale(1.25); }
   .stage{ width:100%; max-width:620px; }
@@ -29,7 +29,7 @@
   .companion.oops .bot{ animation:shake .4s; }
   @keyframes shake{ 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
   .bubble{ position:relative; background:var(--surface); border:1px solid var(--border); border-radius:14px;
-    padding:13px 16px; font-size:1.15rem; line-height:1.4; flex:1 1 auto; min-height:58px; display:flex; align-items:center; }
+    padding:13px 16px; font-size:1.15rem; line-height:1.5; flex:1 1 auto; min-height:58px; display:flex; align-items:center; }
   .bubble::before{ content:''; position:absolute; left:-9px; top:18px; width:15px; height:15px; background:var(--surface);
     border-left:1px solid var(--border); border-bottom:1px solid var(--border); transform:rotate(45deg); }
   .bubble b.b{color:#6aa8ff} .bubble b.g{color:var(--green)} .bubble b.y{color:var(--gold)} .bubble b.r{color:#ff7a5c} .bubble b.p{color:#c79bff}
@@ -45,7 +45,7 @@
   .status b{ color:var(--gold); }
 
   .tray{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:12px; min-height:58px; }
-  .btn{ font-family:'IBM Plex Mono',monospace; font-size:1.1rem; padding:14px 20px; border-radius:12px; cursor:pointer; user-select:none;
+  .btn{ font-family:'IBM Plex Mono','PingFang SC',monospace; font-size:1.1rem; padding:14px 20px; border-radius:12px; cursor:pointer; user-select:none;
     background:var(--surface); color:var(--text); border:1.5px solid var(--border); transition:transform .1s,border-color .2s,color .2s,background .2s; }
   .btn:hover{ border-color:var(--gold); color:var(--gold); } .btn:active{ transform:scale(.94); }
   .btn.plank{ font-size:1.2rem; min-width:56px; }
@@ -59,7 +59,7 @@
     background:rgba(10,10,28,.85); border:1px solid var(--border); color:var(--gold); font-size:1.1rem; display:flex;align-items:center;justify-content:center; }
   .sound.off{ color:var(--muted); }
 
-  .placebanner{ text-align:center; font-family:'Playfair Display',serif; font-style:italic; color:var(--gold); font-size:1.05rem; opacity:0; height:0; margin:0; }
+  .placebanner{ text-align:center; font-family:'Playfair Display','PingFang SC',serif; color:var(--gold); font-size:1.05rem; opacity:0; height:0; margin:0; }
   .placebanner.show{ animation:placein 2.4s ease forwards; height:auto; margin:2px 0 6px; }
   @keyframes placein{ 0%{opacity:0;transform:translateY(-6px)} 15%,75%{opacity:1;transform:none} 100%{opacity:.55;transform:none} }
 
@@ -75,7 +75,7 @@
   @keyframes xpf{ 0%{opacity:0;transform:translate(-50%,10px) scale(.7)} 25%{opacity:1;transform:translate(-50%,-2px) scale(1.15)} 100%{opacity:0;transform:translate(-50%,-40px) scale(1)} }
   .lvlup{ position:fixed; inset:0; z-index:60; display:none; align-items:center; justify-content:center; pointer-events:none; }
   .lvlup.show{ display:flex; animation:lvlflash 1.8s ease forwards; }
-  .lvlup span{ font-family:'Playfair Display',serif; font-weight:600; font-size:clamp(1.6rem,7vw,2.8rem); color:#fff;
+  .lvlup span{ font-family:'Playfair Display','PingFang SC',serif; font-weight:600; font-size:clamp(1.6rem,7vw,2.8rem); color:#fff;
     text-shadow:0 0 30px rgba(244,200,48,.9),0 0 60px rgba(244,200,48,.6); background:rgba(8,8,20,.5); padding:14px 26px; border-radius:14px; border:1px solid rgba(244,200,48,.5); }
   @keyframes lvlflash{ 0%{opacity:0;transform:scale(.6)} 18%{opacity:1;transform:scale(1.12)} 30%{transform:scale(1)} 82%{opacity:1} 100%{opacity:0} }
 
@@ -85,15 +85,15 @@
     background:linear-gradient(#efe4ba,#dcc987); color:#3a2c12; box-shadow:0 24px 60px -16px #000,0 0 0 2px #b89a4a inset; }
   .page::before,.page::after{ content:''; position:absolute; left:-6px; right:-6px; height:14px; background:linear-gradient(#caa94e,#9c7e34); border-radius:6px; }
   .page::before{top:-7px} .page::after{bottom:-7px}
-  .page .tag{ text-align:center; font-family:'IBM Plex Mono',monospace; font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; color:#6a5320; }
-  .page h2{ text-align:center; font-family:'Playfair Display',serif; font-weight:500; font-size:1.4rem; color:#8a1f10; margin:3px 0 12px; }
+  .page .tag{ text-align:center; font-family:'IBM Plex Mono',monospace; font-size:.72rem; letter-spacing:.06em; color:#6a5320; }
+  .page h2{ text-align:center; font-family:'Playfair Display','PingFang SC',serif; font-weight:500; font-size:1.4rem; color:#8a1f10; margin:3px 0 12px; }
   .page .law{ font-size:1.08rem; margin:8px 0; } .page .law b{ color:#8a1f10; } .page .law .r{ color:#c0391f; }
-  .page .teaser{ font-style:italic; color:#7a5a16; font-size:.95rem; margin:12px 0 14px; }
+  .page .teaser{ color:#7a5a16; font-size:.95rem; margin:12px 0 14px; }
   .pxp{ height:12px; border:1px solid #9c7e34; border-radius:7px; overflow:hidden; background:rgba(0,0,0,.12); margin-bottom:6px; }
   .pxp i{ display:block; height:100%; width:0; background:linear-gradient(90deg,#f4c830,#c89a1e); transition:width 1s ease .2s; }
   .pxprow{ display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:#6a5320; margin-bottom:14px; }
   .go{ display:flex; gap:12px; } .go button,.go a{ flex:1; text-align:center; padding:13px; border-radius:8px; cursor:pointer; text-decoration:none;
-    font-family:'IBM Plex Mono',monospace; font-size:1rem; border:1px solid #b8995a; background:rgba(58,44,18,.06); color:#5a4310; }
+    font-family:'IBM Plex Mono','PingFang SC',monospace; font-size:1rem; border:1px solid #b8995a; background:rgba(58,44,18,.06); color:#5a4310; }
   .go .next{ background:linear-gradient(#f4c830,#c89a1e); color:#2a1f06; font-weight:600; border:none; }
 
   .scrim{ position:fixed; inset:0; z-index:50; background:rgba(6,6,16,.84); backdrop-filter:blur(3px); display:flex; align-items:center; justify-content:center; padding:22px; overflow-y:auto; }
@@ -103,17 +103,17 @@
   .scroll::before{top:-8px} .scroll::after{bottom:-8px}
   .scroll .seal{ width:88px;height:88px;margin:0 auto 10px;border-radius:50%;background:radial-gradient(circle at 50% 42%,#1e1e48,#121230);border:2px solid #b8860b;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.45); }
   .scroll .seal svg{ width:84%;height:84%; }
-  .scroll .qtitle{ text-align:center; font-family:'Playfair Display',serif; font-size:1.3rem; color:#8a1f10; margin-bottom:1px; }
-  .scroll .giver{ text-align:center; font-family:'IBM Plex Mono',monospace; font-size:.7rem; letter-spacing:.12em; text-transform:uppercase; color:#6a5320; margin-bottom:13px; }
-  .scroll .flavor{ font-style:italic; font-size:1.05rem; line-height:1.5; margin-bottom:13px; }
-  .scroll .flavor b{ color:#8a1f10; font-style:normal; }
+  .scroll .qtitle{ text-align:center; font-family:'Playfair Display','PingFang SC',serif; font-size:1.3rem; color:#8a1f10; margin-bottom:1px; }
+  .scroll .giver{ text-align:center; font-family:'IBM Plex Mono',monospace; font-size:.72rem; letter-spacing:.04em; color:#6a5320; margin-bottom:13px; }
+  .scroll .flavor{ font-size:1.05rem; line-height:1.6; margin-bottom:13px; }
+  .scroll .flavor b{ color:#8a1f10; }
   .scroll .objs{ list-style:none; border-top:1px solid rgba(90,70,20,.4); padding-top:11px; margin-bottom:16px; font-size:1rem; }
   .scroll .objs li{ margin:6px 0; }
-  .scroll .accept{ display:block; width:100%; padding:15px; border:none; border-radius:8px; cursor:pointer; background:linear-gradient(#f4c830,#c89a1e); color:#2a1f06; font-family:'IBM Plex Mono',monospace; font-size:1.1rem; font-weight:600; letter-spacing:.02em; }
+  .scroll .accept{ display:block; width:100%; padding:15px; border:none; border-radius:8px; cursor:pointer; background:linear-gradient(#f4c830,#c89a1e); color:#2a1f06; font-family:'IBM Plex Mono','PingFang SC',monospace; font-size:1.1rem; font-weight:600; }
   .scroll .accept:hover{ filter:brightness(1.08); }
-  .qtrack{ position:fixed; top:12px; right:12px; z-index:25; width:218px; display:none; background:rgba(10,10,28,.9); border:1px solid var(--border); border-left:3px solid var(--gold); border-radius:8px; padding:9px 11px; font-family:'IBM Plex Mono',monospace; font-size:.74rem; box-shadow:0 8px 24px -8px #000; }
+  .qtrack{ position:fixed; top:12px; right:12px; z-index:25; width:218px; display:none; background:rgba(10,10,28,.9); border:1px solid var(--border); border-left:3px solid var(--gold); border-radius:8px; padding:9px 11px; font-family:'IBM Plex Mono','PingFang SC',monospace; font-size:.78rem; box-shadow:0 8px 24px -8px #000; }
   .qtrack.show{ display:block; }
-  .qtrack h5{ color:var(--gold); font-size:.74rem; font-weight:500; margin-bottom:6px; }
+  .qtrack h5{ color:var(--gold); font-size:.78rem; font-weight:500; margin-bottom:6px; }
   .qtrack .o{ color:#9a9ab8; line-height:1.5; margin:2px 0; transition:.3s; } .qtrack .o.done{ color:var(--green); }
   @media(max-width:700px){ .qtrack{ position:static; width:100%; max-width:620px; margin:0 auto 10px; } }
   @media(max-width:520px){ .top h1{font-size:1.3rem} .bubble{font-size:1.05rem} .bot{width:52px;height:52px} }
@@ -121,33 +121,33 @@
 </head>
 <body>
 
-<button class="sound" id="soundBtn" aria-label="narration">🔇</button>
+<button class="sound" id="soundBtn" aria-label="旁白">🔇</button>
 
 <div class="scrim" id="scrim">
   <div class="scroll">
     <div class="seal"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g stroke="#f4c830" stroke-linecap="round" stroke-linejoin="round"><path d="M31 36 C 31 26 40 21 50 21 C 60 21 69 26 69 36 Z" fill="#f4c830"/><path d="M23 37 Q 50 31 77 37" fill="none" stroke-width="3"/><rect x="32" y="32" width="36" height="5.4" fill="#121230"/><polyline points="54,32.8 46,32.8 50,35 46,37.4 54,37.4" fill="none" stroke-width="1.4"/><path d="M37 43 L46 45 L45 47 L37 45 Z" fill="#f4c830"/><path d="M63 43 L54 45 L55 47 L63 45 Z" fill="#f4c830"/><path d="M40 49 q 2.5 1.6 5 0" fill="none" stroke-width="2.2"/><path d="M55 49 q 2.5 1.6 5 0" fill="none" stroke-width="2.2"/><path d="M50 49 L50 56 Q50 58.5 52.5 57.2" fill="none" stroke-width="2.2"/><path d="M38 54 C 34 60 35 70 40 77 L44 72 L48 79 L52 72 L56 79 L60 77 C 65 70 66 60 62 54 C 57 61 43 61 38 54 Z" fill="#f4c830"/></g></svg></div>
-    <div class="qtitle">❗ Feed the Starving Herd</div>
-    <div class="giver">Surveyor Sigma · The Origin Plains</div>
-    <p class="flavor">"Oh, <b>Pathfinder</b>, at last! The <b>Fog</b> has starved Origo's bulls — your mount <b>Tau</b> among them — too weak to carry you onward. Three broken crossings lie ahead, each with <b>🌿 grass</b> beyond. Bridge them, let the bulls feed, and they'll bear you to the Rift. Earn your strength, Pathfinder — go!"</p>
+    <div class="qtitle">❗ 喂饱挨饿的牛群</div>
+    <div class="giver">测量师 Sigma · 源初平原</div>
+    <p class="flavor">"<b>开拓者</b>，你终于来了！<b>迷雾</b>让 Origo 的牛群挨了饿——你的坐骑 <b>Tau</b> 也在其中，虚弱得驮不动你。前方有三处断裂的渡口，每处对岸都长着 <b>🌿 青草</b>。架起桥，让牛群吃到草，它们才有力气载你前往裂隙。去挣得你的力量吧，开拓者！"</p>
     <ul class="objs">
-      <li>◻ <b>The Cracked Causeway</b> — bridge the gap</li>
-      <li>◻ <b>The Twin Spans</b> — feed two bulls</li>
-      <li>◻ <b>The Pillar Pass</b> — brace the joins</li>
+      <li>◻ <b>裂痕堤道</b> — 架桥跨缺口</li>
+      <li>◻ <b>双子桥</b> — 喂饱两头牛</li>
+      <li>◻ <b>桥墩关</b> — 撑住接缝</li>
     </ul>
-    <button class="accept" id="acceptQ">Accept Quest ▶</button>
+    <button class="accept" id="acceptQ">接受任务 ▶</button>
   </div>
 </div>
 
 <div class="qtrack" id="qtrack">
-  <h5>❗ Feed the Starving Herd</h5>
-  <div class="o" id="q1">◻ The Cracked Causeway</div>
-  <div class="o" id="q2">◻ The Twin Spans</div>
-  <div class="o" id="q3">◻ The Pillar Pass</div>
+  <h5>❗ 喂饱挨饿的牛群</h5>
+  <div class="o" id="q1">◻ 裂痕堤道</div>
+  <div class="o" id="q2">◻ 双子桥</div>
+  <div class="o" id="q3">◻ 桥墩关</div>
 </div>
 
 <div class="top">
-  <div class="kicker" id="kicker">Origo · The Origin Plains · Level 1</div>
-  <h1>Joining Steps</h1>
+  <div class="kicker" id="kicker">Origo · 源初平原 · 第一关</div>
+  <h1>连步成桥</h1>
   <div class="dots" id="dots"><i></i><i></i><i></i></div>
 </div>
 
@@ -169,14 +169,14 @@
         <circle cx="50" cy="70.5" r="5" fill="none" stroke-width="2.4"/>
       </g></svg>
     </div>
-    <div class="bubble" id="bubble"><span class="bub-txt">Let's bridge it! 🐂</span></div>
+    <div class="bubble" id="bubble"><span class="bub-txt">来架桥吧！🐂</span></div>
   </div>
 
   <div class="card"><canvas id="cv" width="1180" height="560"></canvas></div>
   <div class="status" id="status"></div>
   <div class="tray" id="tray"></div>
 
-  <div class="foot"><a href="index.html">↩ prologue</a> · <a href="soon.html">🗺 map</a> · <a href="01-addition_zh.html">中文</a></div>
+  <div class="foot"><a href="index_zh.html">↩ 序章</a> · <a href="soon.html">🗺 地图</a> · <a href="01-addition.html">EN</a></div>
 </div>
 
 <div class="xpbar" id="xpbar">
@@ -187,15 +187,15 @@
 
 <div class="codex" id="codex">
   <div class="page">
-    <div class="tag" id="codexTag">Codex of O · Page 1</div>
-    <h2>Joining Steps</h2>
-    <div class="law"><b>Add</b> = join steps along the line.</div>
-    <div class="law"><b>Order is free</b> (commute): &nbsp; a + b = b + a</div>
-    <div class="law"><b>Regroup freely</b> (associate): &nbsp; a+(b+c) = (a+b)+c</div>
-    <div class="teaser">…yet some whisper <b>1 + 1 = 3</b>. 🤔 A riddle for a land far ahead.</div>
+    <div class="tag" id="codexTag">O 之典 · 第 1 页</div>
+    <h2>连步成桥</h2>
+    <div class="law"><b>加法</b> = 把一步步接在线上。</div>
+    <div class="law"><b>顺序随意</b>（交换律）： &nbsp; a + b = b + a</div>
+    <div class="law"><b>分组随意</b>（结合律）： &nbsp; a+(b+c) = (a+b)+c</div>
+    <div class="teaser">……可有人偷偷说 <b>1 + 1 = 3</b>。🤔 那是留给远方之地的谜题。</div>
     <div class="pxp"><i id="pxpfill"></i></div>
-    <div class="pxprow"><span id="pxpL">Pathfinder</span><span id="pxpR">Level 1 ✓</span></div>
-    <div class="go"><button onclick="restart()">↺ Replay</button><a class="next" href="soon.html">Continue → 🗺</a></div>
+    <div class="pxprow"><span id="pxpL">开拓者</span><span id="pxpR">等级 1 ✓</span></div>
+    <div class="go"><button onclick="restart()">↺ 重玩</button><a class="next" href="soon.html">继续 → 🗺</a></div>
   </div>
 </div>
 
@@ -224,8 +224,8 @@ function cheer(){ setMood('happy'); companion.classList.add('cheer'); setTimeout
 function oops(){ setMood('idle'); companion.classList.remove('oops'); void companion.offsetWidth; companion.classList.add('oops'); }
 function sad(){ setMood('sad'); companion.classList.remove('oops'); void companion.offsetWidth; companion.classList.add('oops'); }
 function pop(t){ const e=document.createElement('div'); e.className='pop'; e.textContent=t; companion.appendChild(e); setTimeout(()=>e.remove(),1000); }
-const synth=window.speechSynthesis||null; let soundOn=false;   // narration OFF by default
-function say(t){ if(!synth||!soundOn)return; synth.cancel(); const u=new SpeechSynthesisUtterance(t.replace(/<[^>]+>/g,'').replace(/[🐂🤔🎉🚩😅😏✓⚿💥😵🌿🛠🆙⚔✦]/g,'')); if(speaker==='sigma'){u.pitch=0.62;u.rate=0.9;}else{u.pitch=1.34;u.rate=1.04;} synth.speak(u); }
+const synth=window.speechSynthesis||null; let soundOn=false;   // 旁白默认关闭
+function say(t){ if(!synth||!soundOn)return; synth.cancel(); const u=new SpeechSynthesisUtterance(t.replace(/<[^>]+>/g,'').replace(/[🐂🤔🎉🚩😅😏✓⚿💥😵🌿🛠🆙⚔✦]/g,'')); u.lang='zh-CN'; if(speaker==='sigma'){u.pitch=0.62;u.rate=0.9;}else{u.pitch=1.2;u.rate=0.98;} synth.speak(u); }
 function updSound(){ soundBtn.textContent=soundOn?'🔊':'🔇'; soundBtn.classList.toggle('off',!soundOn); }
 soundBtn.onclick=()=>{ soundOn=!soundOn; updSound(); if(!soundOn&&synth)synth.cancel(); else say(bubble.textContent); };
 function tell(html){ bubble.innerHTML='<span class="bub-txt">'+html+'</span>'; say(bubble.textContent); }
@@ -239,8 +239,8 @@ let level=+(localStorage.getItem('mtLevel')||1), xp=+(localStorage.getItem('mtXp
 const lvlBadge=document.getElementById('lvlBadge'), xpfillBar=document.getElementById('xpfillBar'), xptxt=document.getElementById('xptxt');
 function renderXP(){ lvlBadge.textContent='Lv.'+level; xpfillBar.style.width=Math.min(100,xp/need*100)+'%'; xptxt.textContent=xp+' / '+need; }
 function saveXP(){ localStorage.setItem('mtLevel',level); localStorage.setItem('mtXp',xp); localStorage.setItem('mtNeed',need); }
-function ding(){ const f=document.getElementById('lvlup'); f.querySelector('span').textContent='⚔ LEVEL UP! · Pathfinder Lv.'+level+' ⚔'; f.classList.remove('show'); void f.offsetWidth; f.classList.add('show'); pop('DING! 🆙'); }
-function gainXP(n){ const e=document.createElement('div'); e.className='xpfloat'; e.textContent='+'+n+' EXP'; document.body.appendChild(e); setTimeout(()=>e.remove(),1300);
+function ding(){ const f=document.getElementById('lvlup'); f.querySelector('span').textContent='⚔ 升级！开拓者 Lv.'+level+' ⚔'; f.classList.remove('show'); void f.offsetWidth; f.classList.add('show'); pop('叮！🆙'); }
+function gainXP(n){ const e=document.createElement('div'); e.className='xpfloat'; e.textContent='+'+n+' 经验'; document.body.appendChild(e); setTimeout(()=>e.remove(),1300);
   xp+=n; if(xp>=need){ xp-=need; level++; need=Math.round(need*1.25); setTimeout(ding,300); } renderXP(); saveXP(); }
 
 let SPANS=[], SUPPORTS=[];
@@ -268,32 +268,32 @@ function runCrossing(planksByStart, segs, onWin){
   for(const s of segs){ if(s.have<s.need){ mode='short'; stopAt=s.from+s.have; break; } if(s.have>s.need){ mode='long'; stopAt=s.to; break; } }
   anim(Math.max(520, stopAt*200), p=>{ scene(SPANS, planksByStart, {xv:stopAt*p, dy:-2}); }, ()=>{
     if(mode==='win'){ const end=segs[segs.length-1].to;
-      anim(440, p=>{ scene(SPANS, planksByStart, {xv:end+GRASSOFF*p, dy:-2}); }, ()=>{ grassEaten=true; scene(SPANS, planksByStart, {xv:end+GRASSOFF, dy:-2}); pop('nom! 🌿'); cheer(); busy=false; onWin(); });
-    } else if(mode==='short'){ oops(); pop('💥'); tell('Too <b class="r">short</b> — I run off the end into the Fog! 🐂');
+      anim(440, p=>{ scene(SPANS, planksByStart, {xv:end+GRASSOFF*p, dy:-2}); }, ()=>{ grassEaten=true; scene(SPANS, planksByStart, {xv:end+GRASSOFF, dy:-2}); pop('吃！🌿'); cheer(); busy=false; onWin(); });
+    } else if(mode==='short'){ oops(); pop('💥'); tell('太<b class="r">短</b>了——我冲到桥头掉进迷雾里！🐂');
       anim(720, p=>{ scene(SPANS, planksByStart, {xv:stopAt, dy:p*160, rot:p*4}); }, ()=>{ busy=false; setTimeout(currentRound,1700); });
-    } else { sad(); tell('Too <b class="r">long</b> — the planks <b>buried the grass</b>, nothing to eat! Trim it. 🐂');
+    } else { sad(); tell('太<b class="r">长</b>了——木板<b>压住了青草</b>，没得吃！剪短点。🐂');
       busy=false; setTimeout(currentRound,2100); }
   });
 }
 
-// ════════ STEP 1 — The Cracked Causeway ════════
+// ════════ 第一步 — 裂痕堤道 ════════
 let GAP=5, planks=[];
 function sum(){ return planks.reduce((a,b)=>a+b,0); }
 function round1(){ round=1; currentRound=round1; busy=false; grassEaten=false; planks=[]; cv.onclick=null; setDots(0); setSpeaker('tau'); MOUNT='🐂'; setMood('idle');
   GAP=rnd(4,7); SUPPORTS=[]; for(let i=1;i<GAP;i++) SUPPORTS.push(i);
-  SPANS=[{from:0,to:GAP}]; setPlace('The Cracked Causeway'); scene(SPANS,[{from:0,arr:planks}],{xv:0});
-  tell('<b>The Cracked Causeway.</b> 🐂 Posts under every number, so any planks hold. Bridge the gap to the <b class="g">🌿</b> at <b class="g">'+GAP+'</b> — too short I fall, too long I bury the grass!'); refreshR1(); }
-function refreshR1(){ statusEl.innerHTML='bridge: <b>'+sum()+'</b> / '+GAP; clearTray();
+  SPANS=[{from:0,to:GAP}]; setPlace('裂痕堤道'); scene(SPANS,[{from:0,arr:planks}],{xv:0});
+  tell('<b>裂痕堤道。</b> 🐂 每个数字下都有桥墩，任意木板都稳。架桥到 <b class="g">🌿</b>（在 <b class="g">'+GAP+'</b> 处）——太短我掉下去，太长就压住青草！'); refreshR1(); }
+function refreshR1(){ statusEl.innerHTML='桥长：<b>'+sum()+'</b> / '+GAP; clearTray();
   addBtn('+1','plank p1',()=>lay(1)); addBtn('+2','plank p2',()=>lay(2)); addBtn('+3','plank p3',()=>lay(3));
   const undo=addBtn('↺','',()=>{ if(!planks.length) return; planks.pop(); scene(SPANS,[{from:0,arr:planks}],{xv:0}); refreshR1(); }); undo.disabled=!planks.length;
-  addBtn('Send me! ▶','primary',send1); }
+  addBtn('出发吧！▶','primary',send1); }
 function lay(v){ if(busy||sum()+v>MAXX) return; planks.push(v); pop('+'+v); scene(SPANS,[{from:0,arr:planks}],{xv:0}); refreshR1(); }
 function send1(){ if(busy) return;
   runCrossing([{from:0,arr:planks}], [{from:0,to:GAP,need:GAP,have:sum()}], ()=>{ setDots(1); tickQ('q1'); gainXP(40);
-    tell('Yum! <b class="y">'+planks.join(' + ')+' = '+GAP+'</b> — fed! 🐂'); statusEl.innerHTML='<b>'+planks.join(' + ')+' = '+GAP+'</b> ✓';
-    clearTray(); addBtn('On to the next crossing ▶','primary',round2); }); }
+    tell('好吃！<b class="y">'+planks.join(' + ')+' = '+GAP+'</b> — 吃到啦！🐂'); statusEl.innerHTML='<b>'+planks.join(' + ')+' = '+GAP+'</b> ✓';
+    clearTray(); addBtn('前往下一处渡口 ▶','primary',round2); }); }
 
-// ════════ STEP 2 — The Twin Spans (commutativity) ════════
+// ════════ 第二步 — 双子桥（交换律） ════════
 let A2=2, B2=3, TGT2=5, bTop=[], bBot=[], gTop=false, gBot=false;
 function r2sum(a){ return a.reduce((x,y)=>x+y,0); }
 function lane(by, arr, b, eaten){
@@ -310,33 +310,33 @@ function lane(by, arr, b, eaten){
 }
 function draw2(tB,bB){ ctx.clearRect(0,0,LW,LH); ctx.fillStyle=C.bg; ctx.fillRect(0,0,LW,LH); lane(LH*0.30,bTop,tB,gTop); lane(LH*0.72,bBot,bB,gBot); }
 function round2(){ round=2; currentRound=round2; busy=false; cv.onclick=null; setDots(1); setMood('idle'); setSpeaker('tau');
-  do{ A2=rnd(2,4); B2=rnd(2,4); }while(A2===B2); TGT2=A2+B2; bTop=[A2]; bBot=[B2]; gTop=gBot=false; setPlace('The Twin Spans'); draw2({xv:0},{xv:0});
-  tell('<b>The Twin Spans.</b> Two hungry bulls! One bridge starts with <b class="g">'+A2+'</b>, the other with <b class="y">'+B2+'</b>. Finish <b>both</b> to <b>'+TGT2+'</b>. Same total either way: <b class="g">'+A2+'+'+B2+' = '+B2+'+'+A2+'</b>.'); buildR2(); }
-function buildR2(){ clearTray(); statusEl.innerHTML='top <b>'+r2sum(bTop)+'</b>/'+TGT2+' · bottom <b>'+r2sum(bBot)+'</b>/'+TGT2;
+  do{ A2=rnd(2,4); B2=rnd(2,4); }while(A2===B2); TGT2=A2+B2; bTop=[A2]; bBot=[B2]; gTop=gBot=false; setPlace('双子桥'); draw2({xv:0},{xv:0});
+  tell('<b>双子桥。</b> 两头饿牛！一座桥起头是 <b class="g">'+A2+'</b>，另一座是 <b class="y">'+B2+'</b>。把<b>两座</b>都搭到 <b>'+TGT2+'</b>。顺序无所谓：<b class="g">'+A2+'+'+B2+' = '+B2+'+'+A2+'</b>。'); buildR2(); }
+function buildR2(){ clearTray(); statusEl.innerHTML='上 <b>'+r2sum(bTop)+'</b>/'+TGT2+' · 下 <b>'+r2sum(bBot)+'</b>/'+TGT2;
   const row=(label,arr)=>{ const r=document.createElement('div'); r.style.cssText='display:flex;gap:7px;align-items:center;flex-wrap:wrap;justify-content:center;width:100%';
-    const l=document.createElement('span'); l.style.cssText='font:.8rem "IBM Plex Mono",monospace;color:var(--muted);min-width:52px'; l.textContent=label; r.appendChild(l);
+    const l=document.createElement('span'); l.style.cssText='font:.85rem "IBM Plex Mono",monospace;color:var(--muted);min-width:42px'; l.textContent=label; r.appendChild(l);
     [A2,B2].forEach(v=>{ const b=document.createElement('button'); b.className='btn plank p'+v; b.textContent='+'+v; b.style.cssText='font-size:.95rem;padding:8px 12px;min-width:42px';
       b.onclick=()=>{ if(!busy&&r2sum(arr)+v<=MAXX){ arr.push(v); pop('+'+v); draw2({xv:0},{xv:0}); buildR2(); } }; r.appendChild(b); });
     const u=document.createElement('button'); u.className='btn'; u.textContent='↺'; u.style.cssText='font-size:.95rem;padding:8px 10px';
     u.onclick=()=>{ if(arr.length>1){ arr.pop(); draw2({xv:0},{xv:0}); buildR2(); } }; u.disabled=arr.length<=1; r.appendChild(u); tray.appendChild(r); };
-  row('top',bTop); row('bottom',bBot);
-  const s=document.createElement('button'); s.className='btn primary'; s.style.marginTop='3px'; s.textContent='Send both ▶'; s.onclick=send2; tray.appendChild(s); }
+  row('上',bTop); row('下',bBot);
+  const s=document.createElement('button'); s.className='btn primary'; s.style.marginTop='3px'; s.textContent='一起出发 ▶'; s.onclick=send2; tray.appendChild(s); }
 function send2(){ if(busy) return; busy=true; clearTray();
   const a=r2sum(bTop), b=r2sum(bBot);
   const mA=a<TGT2?'short':a>TGT2?'long':'win', mB=b<TGT2?'short':b>TGT2?'long':'win';
   const goA=mA==='short'?a:TGT2, goB=mB==='short'?b:TGT2;
   anim(1050, p=>{ draw2({xv:goA*p,dy:-2},{xv:goB*p,dy:-2}); }, ()=>{
     if(mA==='win'&&mB==='win'){
-      anim(420,p=>{ draw2({xv:TGT2+GRASSOFF*p,dy:-2},{xv:TGT2+GRASSOFF*p,dy:-2}); },()=>{ gTop=gBot=true; draw2({xv:TGT2+GRASSOFF,dy:-2},{xv:TGT2+GRASSOFF,dy:-2}); pop('nom! 🌿'); cheer(); setDots(2); tickQ('q2'); gainXP(40);
-        statusEl.innerHTML='<b>'+A2+' + '+B2+' = '+B2+' + '+A2+' = '+TGT2+'</b> ✓'; tell('Both fed! <b class="g">'+A2+' + '+B2+' = '+B2+' + '+A2+'</b> — swap the order, the bridge is the same length. That\'s <b>commuting</b>.');
-        busy=false; clearTray(); addBtn('On to the Pillar Pass ▶','primary',round3); }); }
-    else { const anyShort=(mA==='short'||mB==='short'); (anyShort?oops:sad)(); tell(anyShort?'A bridge was <b class="r">short</b> — tumble! Build BOTH to '+TGT2+'.':'Too <b class="r">long</b> — buried the grass! Build BOTH to exactly '+TGT2+'.');
+      anim(420,p=>{ draw2({xv:TGT2+GRASSOFF*p,dy:-2},{xv:TGT2+GRASSOFF*p,dy:-2}); },()=>{ gTop=gBot=true; draw2({xv:TGT2+GRASSOFF,dy:-2},{xv:TGT2+GRASSOFF,dy:-2}); pop('吃！🌿'); cheer(); setDots(2); tickQ('q2'); gainXP(40);
+        statusEl.innerHTML='<b>'+A2+' + '+B2+' = '+B2+' + '+A2+' = '+TGT2+'</b> ✓'; tell('都吃到了！<b class="g">'+A2+' + '+B2+' = '+B2+' + '+A2+'</b> — 换个顺序，桥一样长。这就是<b>交换律</b>。');
+        busy=false; clearTray(); addBtn('前往桥墩关 ▶','primary',round3); }); }
+    else { const anyShort=(mA==='short'||mB==='short'); (anyShort?oops:sad)(); tell(anyShort?'有座桥<b class="r">太短</b>了——摔啦！两座都要搭到 '+TGT2+'。':'太<b class="r">长</b>——压住青草了！两座都要正好 '+TGT2+'。');
       anim(700,p=>{ draw2(
         mA==='short'?{xv:a,dy:p*150,rot:p*4}:{xv:TGT2,dy:-2},
         mB==='short'?{xv:b,dy:p*150,rot:p*4}:{xv:TGT2,dy:-2}); }, ()=>{ busy=false; setTimeout(round2,1700); }); }
   }); }
 
-// ════════ STEP 3 — The Pillar Pass (associativity) ════════
+// ════════ 第三步 — 桥墩关（结合律） ════════
 let A3=1,B3=2,C3=3, END3=6, S1=1, S2=3;
 let p3=[ {sup:new Set(), brk:null}, {sup:new Set(), brk:null} ];
 let g3eat=[false,false];
@@ -362,32 +362,32 @@ function lane3(by, lane, b, eaten){
 function draw3v(bT,bB){ ctx.clearRect(0,0,LW,LH); ctx.fillStyle=C.bg; ctx.fillRect(0,0,LW,LH); lane3(LH*0.30,p3[0],bT,g3eat[0]); lane3(LH*0.72,p3[1],bB,g3eat[1]); }
 function round3(){ round=3; currentRound=round3; busy=false; cv.onclick=null; setSpeaker('tau'); MOUNT='🐂'; setMood('idle'); setDots(2);
   do{ A3=rnd(1,3); B3=rnd(1,3); C3=rnd(1,3); }while(A3+B3+C3<4||A3+B3+C3>8); END3=A3+B3+C3; S1=A3; S2=A3+B3;
-  p3=[ {sup:new Set([S1]), brk:null}, {sup:new Set([S2]), brk:null} ]; g3eat=[false,false]; setPlace('The Pillar Pass'); draw3v({xv:0},{xv:0});
-  tell('<b>The Pillar Pass.</b> 🛠 A <b>seam</b> needs a <b class="p">post</b> beneath — or a <b class="y">bracket</b> to strengthen it. Top has a post at <b>'+S1+'</b>, bottom at <b>'+S2+'</b>. Bracket each <b class="r">⚠ red seam</b> — the numbers stay <b>'+A3+' | '+B3+' | '+C3+'</b>.'); buildR3v(); }
-function buildR3v(){ clearTray(); statusEl.innerHTML='bracket each <b class="r">⚠ red seam</b>, then send both';
+  p3=[ {sup:new Set([S1]), brk:null}, {sup:new Set([S2]), brk:null} ]; g3eat=[false,false]; setPlace('桥墩关'); draw3v({xv:0},{xv:0});
+  tell('<b>桥墩关。</b> 🛠 接缝下要有<b class="p">桥墩</b>——或用<b class="y">括号</b>加固——否则会断！上桥在 <b>'+S1+'</b> 有墩，下桥在 <b>'+S2+'</b>。给每条<b class="r">⚠ 红缝</b>加括号——数字仍是 <b>'+A3+' | '+B3+' | '+C3+'</b>。'); buildR3v(); }
+function buildR3v(){ clearTray(); statusEl.innerHTML='给每条 <b class="r">⚠ 红缝</b> 加括号，然后一起出发';
   const row=(idx,label)=>{ const lane=p3[idx]; const r=document.createElement('div'); r.style.cssText='display:flex;gap:7px;align-items:center;flex-wrap:wrap;justify-content:center;width:100%';
-    const l=document.createElement('span'); l.style.cssText='font:.8rem "IBM Plex Mono",monospace;color:var(--muted);min-width:64px'; l.textContent=label+' (post '+[...lane.sup][0]+')'; r.appendChild(l);
+    const l=document.createElement('span'); l.style.cssText='font:.85rem "IBM Plex Mono",monospace;color:var(--muted);min-width:62px'; l.textContent=label+'（墩 '+[...lane.sup][0]+'）'; r.appendChild(l);
     const bf=document.createElement('button'); bf.className='btn'+(lane.brk==='first'?' on':''); bf.textContent='( '+A3+'+'+B3+' )'; bf.style.cssText='font-size:.92rem;padding:8px 13px'; bf.onclick=()=>setBrk(idx,'first');
     const bs=document.createElement('button'); bs.className='btn'+(lane.brk==='second'?' on':''); bs.textContent='( '+B3+'+'+C3+' )'; bs.style.cssText='font-size:.92rem;padding:8px 13px'; bs.onclick=()=>setBrk(idx,'second');
     r.appendChild(bf); r.appendChild(bs); tray.appendChild(r); };
-  row(0,'top'); row(1,'bottom');
-  const s=document.createElement('button'); s.className='btn primary'; s.style.marginTop='3px'; s.textContent='Send both ▶'; s.onclick=send3v; tray.appendChild(s); }
-function setBrk(idx,which){ if(busy)return; p3[idx].brk = (p3[idx].brk===which?null:which); pop('bracket!'); draw3v({xv:0},{xv:0}); buildR3v(); }
+  row(0,'上'); row(1,'下');
+  const s=document.createElement('button'); s.className='btn primary'; s.style.marginTop='3px'; s.textContent='一起出发 ▶'; s.onclick=send3v; tray.appendChild(s); }
+function setBrk(idx,which){ if(busy)return; p3[idx].brk = (p3[idx].brk===which?null:which); pop('括号！'); draw3v({xv:0},{xv:0}); buildR3v(); }
 function send3v(){ if(busy)return; busy=true; clearTray();
   const badT=badSeam(p3[0]), badB=badSeam(p3[1]);
   const goT=badT!=null?badT:END3, goB=badB!=null?badB:END3;
   anim(1100,p=>{ draw3v({xv:goT*p,dy:-2},{xv:goB*p,dy:-2}); },()=>{
     if(badT==null && badB==null){
-      anim(420,p=>{ draw3v({xv:END3+GRASSOFF*p,dy:-2},{xv:END3+GRASSOFF*p,dy:-2}); },()=>{ g3eat=[true,true]; draw3v({xv:END3+GRASSOFF,dy:-2},{xv:END3+GRASSOFF,dy:-2}); pop('nom! 🌿'); cheer(); setDots(3); tickQ('q3'); gainXP(55);
+      anim(420,p=>{ draw3v({xv:END3+GRASSOFF*p,dy:-2},{xv:END3+GRASSOFF*p,dy:-2}); },()=>{ g3eat=[true,true]; draw3v({xv:END3+GRASSOFF,dy:-2},{xv:END3+GRASSOFF,dy:-2}); pop('吃！🌿'); cheer(); setDots(3); tickQ('q3'); gainXP(55);
         statusEl.innerHTML='<b>'+A3+'+('+B3+'+'+C3+') = ('+A3+'+'+B3+')+'+C3+' = '+END3+'</b> ✓';
-        tell('Both across! Same planks <b>'+A3+', '+B3+', '+C3+'</b>, grouped two ways — <b class="g">'+A3+'+('+B3+'+'+C3+') = ('+A3+'+'+B3+')+'+C3+'</b>. That\'s <b>associating</b>!');
-        clearTray(); addBtn('Claim the Codex 📖','primary',openCodex); }); }
-    else { oops(); pop('💥'); tell('A <b class="r">seam over the Fog</b> snapped! Put a <b class="y">bracket</b> over the <b class="r">⚠</b> seam (a post holds it too).');
+        tell('都过去了！同样的木板 <b>'+A3+', '+B3+', '+C3+'</b>，两种分组—— <b class="g">'+A3+'+('+B3+'+'+C3+') = ('+A3+'+'+B3+')+'+C3+'</b>。这就是<b>结合律</b>！');
+        clearTray(); addBtn('领取典籍 📖','primary',openCodex); }); }
+    else { oops(); pop('💥'); tell('一条<b class="r">悬在迷雾上的接缝</b>断了！给 <b class="r">⚠</b> 接缝加<b class="y">括号</b>（桥墩也能撑住）。');
       anim(720,p=>{ draw3v( badT!=null?{xv:badT,dy:p*150,rot:p*4}:{xv:END3,dy:-2}, badB!=null?{xv:badB,dy:p*150,rot:p*4}:{xv:END3,dy:-2} ); },()=>{ busy=false; setTimeout(round3,1700); }); } }); }
 
 function openCodex(){ document.getElementById('codex').classList.add('show'); try{ localStorage.setItem('mtZone_origin1','done'); }catch(_){}
-  document.getElementById('pxpfill').style.width=Math.min(100,xp/need*100)+'%'; document.getElementById('pxpR').textContent='Pathfinder Lv.'+level;
-  say('Adding joins steps. Order is free, and grouping is free.'); }
+  document.getElementById('pxpfill').style.width=Math.min(100,xp/need*100)+'%'; document.getElementById('pxpR').textContent='开拓者 Lv.'+level;
+  say('加法就是把步子接起来。顺序随意，分组也随意。'); }
 function restart(){ document.getElementById('codex').classList.remove('show'); round1(); }
 
 const scrim=document.getElementById('scrim'), qtrack=document.getElementById('qtrack');
