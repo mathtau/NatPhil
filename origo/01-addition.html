@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Origo · Level 1 — Joining Steps</title>
+<meta name="robots" content="noindex">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,500;1,400&display=swap');
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  :root{ --bg:#0c0c1e; --surface:#111128; --border:#22224a; --text:#c4c4dc; --muted:#8888a8;
+    --gold:#f4c830; --cyan:#40c8f0; --green:#50d890; --blue:#2b7fff; --red:#e8482c; --purple:#b070f0; }
+  body{ background:var(--bg); color:var(--text); font-family:Georgia,serif; line-height:1.5;
+    -webkit-font-smoothing:antialiased; display:flex; flex-direction:column; align-items:center; padding:18px 14px 60px; }
+  .top{ text-align:center; margin-bottom:6px; }
+  .kicker{ font-family:'IBM Plex Mono',monospace; font-size:.7rem; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); }
+  .top h1{ font-family:'Playfair Display',serif; font-weight:500; font-size:1.5rem; color:var(--gold); margin-top:2px; }
+  .dots{ display:flex; gap:7px; justify-content:center; margin-top:6px; }
+  .dots i{ width:9px;height:9px;border-radius:50%;background:var(--border);transition:.3s; } .dots i.on{ background:var(--gold);transform:scale(1.25); }
+  .stage{ width:100%; max-width:620px; }
+
+  .companion{ position:relative; display:flex; align-items:flex-start; gap:12px; margin:8px 0 12px; }
+  .bot{ flex:0 0 auto; width:60px; height:60px; border-radius:50%;
+    background:radial-gradient(circle at 50% 42%,#1e1e48,#121230); display:flex; align-items:center; justify-content:center;
+    box-shadow:0 0 26px rgba(244,200,48,.16); border:1px solid rgba(244,200,48,.18); transition:transform .25s; }
+  .bot svg{ width:80%; height:80%; animation:breathe 3.4s ease-in-out infinite; }
+  @keyframes breathe{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-1.6px)} }
+  .companion.cheer .bot{ transform:scale(1.15) rotate(-8deg); }
+  .companion.oops .bot{ animation:shake .4s; }
+  @keyframes shake{ 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+  .bubble{ position:relative; background:var(--surface); border:1px solid var(--border); border-radius:14px;
+    padding:13px 16px; font-size:1.15rem; line-height:1.4; flex:1 1 auto; min-height:58px; display:flex; align-items:center; }
+  .bubble::before{ content:''; position:absolute; left:-9px; top:18px; width:15px; height:15px; background:var(--surface);
+    border-left:1px solid var(--border); border-bottom:1px solid var(--border); transform:rotate(45deg); }
+  .bubble b.b{color:#6aa8ff} .bubble b.g{color:var(--green)} .bubble b.y{color:var(--gold)} .bubble b.r{color:#ff7a5c} .bubble b.p{color:#c79bff}
+  .companion[data-mood="happy"] .eyes-open{display:none} .companion[data-mood="happy"] .eyes-happy{display:inline} .eyes-happy{display:none}
+  .companion[data-mood="sad"] .eyes-open{display:none} .companion[data-mood="sad"] .eyes-sad{display:inline} .eyes-sad{display:none}
+  .pop{ position:absolute; left:4px; top:-4px; z-index:5; pointer-events:none; font-family:'IBM Plex Mono',monospace;
+    font-weight:600; font-size:1.05rem; color:var(--gold); text-shadow:0 2px 9px #000; animation:popup 1s ease forwards; }
+  @keyframes popup{ 0%{opacity:0;transform:translate(0,8px) scale(.6)} 20%{opacity:1;transform:translate(0,-4px) scale(1.15)} 100%{opacity:0;transform:translate(4px,-34px) scale(1)} }
+
+  .card{ background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:8px; }
+  canvas{ width:100%; height:auto; display:block; border-radius:8px; cursor:pointer; }
+  .status{ text-align:center; font-family:'IBM Plex Mono',monospace; font-size:.98rem; color:var(--muted); margin:10px 0 2px; min-height:20px; }
+  .status b{ color:var(--gold); }
+
+  .tray{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:12px; min-height:58px; }
+  .btn{ font-family:'IBM Plex Mono',monospace; font-size:1.1rem; padding:14px 20px; border-radius:12px; cursor:pointer; user-select:none;
+    background:var(--surface); color:var(--text); border:1.5px solid var(--border); transition:transform .1s,border-color .2s,color .2s,background .2s; }
+  .btn:hover{ border-color:var(--gold); color:var(--gold); } .btn:active{ transform:scale(.94); }
+  .btn.plank{ font-size:1.2rem; min-width:56px; }
+  .btn.p1{ border-color:#2b7fff; color:#6aa8ff; } .btn.p2{ border-color:var(--green); color:var(--green); } .btn.p3{ border-color:var(--gold); color:var(--gold); }
+  .btn.primary{ border-color:rgba(244,200,48,.55); color:var(--gold); background:rgba(244,200,48,.08); }
+  .btn.on{ background:rgba(244,200,48,.16); border-color:var(--gold); color:var(--gold); }
+  .btn:disabled{ opacity:.35; cursor:not-allowed; }
+  .btn:disabled:hover{ border-color:var(--border); color:var(--text); transform:none; }
+
+  .foot{ margin-top:18px; font-family:'IBM Plex Mono',monospace; font-size:.78rem; color:var(--muted); text-align:center; }
+  .foot a{ color:var(--cyan); text-decoration:none; } .foot a:hover{ color:var(--gold); }
+  .sound{ position:fixed; top:12px; left:12px; z-index:30; width:42px;height:42px; border-radius:50%; cursor:pointer;
+    background:rgba(10,10,28,.85); border:1px solid var(--border); color:var(--gold); font-size:1.1rem; display:flex;align-items:center;justify-content:center; }
+  .sound.off{ color:var(--muted); }
+
+  .codex{ position:fixed; inset:0; z-index:40; background:rgba(6,6,16,.85); backdrop-filter:blur(3px); display:none; align-items:center; justify-content:center; padding:22px; overflow-y:auto; }
+  .codex.show{ display:flex; }
+  .page{ position:relative; width:100%; max-width:440px; margin:auto; padding:24px 26px 22px; border-radius:8px;
+    background:linear-gradient(#efe4ba,#dcc987); color:#3a2c12; box-shadow:0 24px 60px -16px #000,0 0 0 2px #b89a4a inset; }
+  .page::before,.page::after{ content:''; position:absolute; left:-6px; right:-6px; height:14px; background:linear-gradient(#caa94e,#9c7e34); border-radius:6px; }
+  .page::before{top:-7px} .page::after{bottom:-7px}
+  .page .tag{ text-align:center; font-family:'IBM Plex Mono',monospace; font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; color:#6a5320; }
+  .page h2{ text-align:center; font-family:'Playfair Display',serif; font-weight:500; font-size:1.4rem; color:#8a1f10; margin:3px 0 12px; }
+  .page .law{ font-size:1.1rem; margin:8px 0; } .page .law b{ color:#8a1f10; } .page .law .r{ color:#c0391f; }
+  .page .teaser{ font-style:italic; color:#7a5a16; font-size:.96rem; margin:12px 0 14px; }
+  .xp{ height:12px; border:1px solid #9c7e34; border-radius:7px; overflow:hidden; background:rgba(0,0,0,.12); margin-bottom:6px; }
+  .xp i{ display:block; height:100%; width:0; background:linear-gradient(90deg,#f4c830,#c89a1e); transition:width 1s ease .2s; }
+  .xprow{ display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:#6a5320; margin-bottom:14px; }
+  .go{ display:flex; gap:12px; } .go button,.go a{ flex:1; text-align:center; padding:13px; border-radius:8px; cursor:pointer; text-decoration:none;
+    font-family:'IBM Plex Mono',monospace; font-size:1rem; border:1px solid #b8995a; background:rgba(58,44,18,.06); color:#5a4310; }
+  .go .next{ background:linear-gradient(#f4c830,#c89a1e); color:#2a1f06; font-weight:600; border:none; }
+  @media(max-width:520px){ .top h1{font-size:1.3rem} .bubble{font-size:1.05rem} .bot{width:52px;height:52px} }
+</style>
+</head>
+<body>
+
+<button class="sound" id="soundBtn" aria-label="narration">🔊</button>
+
+<div class="top">
+  <div class="kicker">Origo · The Origin Plains · Level 1</div>
+  <h1>Joining Steps</h1>
+  <div class="dots" id="dots"><i></i><i></i><i></i></div>
+</div>
+
+<div class="stage">
+  <div class="companion" id="companion" data-mood="idle">
+    <div class="bot">
+      <svg class="bull" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g stroke="#f4c830" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M37 35 C 29 25 18 21 12 23 C 19 27 26 33 30 43 Z" fill="#f4c830" stroke="none"/>
+        <path d="M63 35 C 71 25 82 21 88 23 C 81 27 74 33 70 43 Z" fill="#f4c830" stroke="none"/>
+        <path d="M30 42 C 23 41 19 45 21 50 C 27 50 31 47 33 44 Z" fill="#f4c830" stroke="none"/>
+        <path d="M70 42 C 77 41 81 45 79 50 C 73 50 69 47 67 44 Z" fill="#f4c830" stroke="none"/>
+        <path d="M50 27 l -4 9 l 4 -3 l 4 3 Z" fill="#f4c830" stroke="none"/>
+        <path d="M35 34 C 38 30 44 28 50 28 C 56 28 62 30 65 34 C 66 44 64 52 60 60 C 57 67 54 72 50 74 C 46 72 43 67 40 60 C 36 52 34 44 35 34 Z" fill="none" stroke-width="3"/>
+        <g class="eyes-open"><ellipse cx="43" cy="48" rx="3" ry="4" fill="#f4c830"/><ellipse cx="57" cy="48" rx="3" ry="4" fill="#f4c830"/></g>
+        <g class="eyes-happy"><path d="M40 49 q 3 -4 6 0" fill="none" stroke-width="2.6"/><path d="M54 49 q 3 -4 6 0" fill="none" stroke-width="2.6"/></g>
+        <g class="eyes-sad"><path d="M40 51 q 3 4 6 0" fill="none" stroke-width="2.6"/><path d="M54 51 q 3 4 6 0" fill="none" stroke-width="2.6"/></g>
+        <circle cx="46.5" cy="63" r="1.7" fill="#f4c830"/><circle cx="53.5" cy="63" r="1.7" fill="#f4c830"/>
+        <circle cx="50" cy="70.5" r="5" fill="none" stroke-width="2.4"/>
+      </g></svg>
+    </div>
+    <div class="bubble" id="bubble"><span class="bub-txt">A chasm! 🐂 Lay plank-blocks to reach the grass — <b class="g">exactly 5</b>.</span></div>
+  </div>
+
+  <div class="card"><canvas id="cv" width="1180" height="480"></canvas></div>
+  <div class="status" id="status"></div>
+  <div class="tray" id="tray"></div>
+
+  <div class="foot"><a href="index.html">↩ prologue</a> · <a href="world.html">🗺 map</a></div>
+</div>
+
+<div class="codex" id="codex">
+  <div class="page">
+    <div class="tag">Codex of O · Page 1</div>
+    <h2>Joining Steps</h2>
+    <div class="law"><b>Add</b> = join steps along the line. &nbsp; 2 + 3 = <span class="r">5</span></div>
+    <div class="law"><b>Order is free</b> (commute): &nbsp; 2 + 3 = 3 + 2</div>
+    <div class="law"><b>Regroup freely</b> (associate): &nbsp; (1+2) = 3, so (1+2)+3 = 1+(2+3) = 6</div>
+    <div class="teaser">…yet some whisper <b>1 + 1 = 3</b>. 🤔 A riddle for a land far ahead.</div>
+    <div class="xp"><i id="xpfill"></i></div>
+    <div class="xprow"><span>+100 XP</span><span>Level 1 ✓</span></div>
+    <div class="go"><button onclick="restart()">↺ Replay</button><a class="next" href="world.html">Continue → 🗺</a></div>
+  </div>
+</div>
+
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d'); ctx.setTransform(2,0,0,2,0,0);
+const LW=cv.width/2, LH=cv.height/2;
+const C={ bg:'#0a0a1c', ledge:'#2f6d3a', grass:'#50d890', chasm:'#070712', line:'#ff7a5c',
+  p:{1:'#2b7fff',2:'#50d890',3:'#f4c830',6:'#c79bff'}, flag:'#f4c830', text:'#9a9ab8', pillar:'#5a4a72' };
+const MAXX=7, padL=30, padR=24, baseY=LH-78, BULLSZ=46, GRASSOFF=0.5;
+const PX=v=>padL+v/MAXX*(LW-padL-padR);
+function rr(x,y,w,h,r){ ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath(); }
+function bull(xpx,ypx,rot){ ctx.save(); ctx.translate(xpx,ypx); if(rot)ctx.rotate(rot); ctx.scale(-1,1); ctx.font=BULLSZ+'px serif'; ctx.textAlign='center'; ctx.fillText('🐂',0,0); ctx.restore(); }
+function grassAt(vx,by){ ctx.font='26px serif'; ctx.textAlign='center'; ctx.fillText('🌿', PX(vx), by-4); }
+function anim(dur,onF,onD){ const t0=performance.now(); (function f(now){ const p=Math.min(1,(now-t0)/dur); onF(p); if(p<1)requestAnimationFrame(f); else onD&&onD(); })(performance.now()); }
+
+const companion=document.getElementById('companion'), bubble=document.getElementById('bubble'),
+  tray=document.getElementById('tray'), statusEl=document.getElementById('status'), dotsEl=document.getElementById('dots'),
+  soundBtn=document.getElementById('soundBtn');
+function setMood(m){ companion.dataset.mood=m; }
+function cheer(){ setMood('happy'); companion.classList.add('cheer'); setTimeout(()=>companion.classList.remove('cheer'),320); }
+function oops(){ setMood('idle'); companion.classList.remove('oops'); void companion.offsetWidth; companion.classList.add('oops'); }
+function sad(){ setMood('sad'); companion.classList.remove('oops'); void companion.offsetWidth; companion.classList.add('oops'); }
+function pop(t){ const e=document.createElement('div'); e.className='pop'; e.textContent=t; companion.appendChild(e); setTimeout(()=>e.remove(),1000); }
+const synth=window.speechSynthesis||null; let soundOn=(localStorage.getItem('mtSound')!=='off');
+function say(t){ if(!synth||!soundOn)return; synth.cancel(); const u=new SpeechSynthesisUtterance(t.replace(/<[^>]+>/g,'').replace(/[🐂🤔🎉🚩😅😏✓⚿💥😵🌿]/g,'')); u.pitch=1.34;u.rate=1.04; synth.speak(u); }
+function updSound(){ soundBtn.textContent=soundOn?'🔊':'🔇'; soundBtn.classList.toggle('off',!soundOn); }
+soundBtn.onclick=()=>{ soundOn=!soundOn; localStorage.setItem('mtSound',soundOn?'on':'off'); updSound(); if(!soundOn&&synth)synth.cancel(); else say(bubble.textContent); };
+function tell(html){ bubble.innerHTML='<span class="bub-txt">'+html+'</span>'; say(bubble.textContent); }
+function setDots(n){ [...dotsEl.children].forEach((d,i)=>d.classList.toggle('on',i<n)); }
+function clearTray(){ tray.innerHTML=''; }
+function addBtn(label,cls,fn){ const b=document.createElement('button'); b.className='btn '+(cls||''); b.innerHTML=label; b.onclick=fn; tray.appendChild(b); return b; }
+let busy=false, round=1, grassEaten=false, currentRound=()=>round1();
+
+// ── scene with chasm, optional pillar, planks, grass on far ledge ──
+function scene(spans, planksByStart, b){
+  ctx.clearRect(0,0,LW,LH); ctx.fillStyle=C.bg; ctx.fillRect(0,0,LW,LH);
+  const end=spans[spans.length-1].to;
+  ctx.fillStyle=C.chasm; ctx.fillRect(PX(0),baseY+6,PX(end)-PX(0),LH-baseY);
+  ctx.fillStyle=C.ledge; ctx.fillRect(0,baseY+6,PX(0),LH-baseY); ctx.fillRect(PX(end),baseY+6,LW-PX(end),LH-baseY);
+  ctx.fillStyle=C.grass; ctx.fillRect(0,baseY+2,PX(0),5); ctx.fillRect(PX(end),baseY+2,LW-PX(end),5);
+  spans.forEach(sp=>{ if(sp.from>0){ ctx.fillStyle=C.pillar; ctx.fillRect(PX(sp.from)-6,baseY+4,12,LH-baseY-4); } });
+  // far flag
+  const fx=PX(end); ctx.strokeStyle=C.flag; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(fx,baseY); ctx.lineTo(fx,baseY-78); ctx.stroke();
+  ctx.fillStyle=C.flag; ctx.beginPath(); ctx.moveTo(fx,baseY-78); ctx.lineTo(fx+22,baseY-70); ctx.lineTo(fx,baseY-63); ctx.closePath(); ctx.fill();
+  // planks
+  let reach=0; planksByStart.forEach(({from,arr})=>{ let acc=from; arr.forEach(v=>{ const x0=PX(acc),x1=PX(acc+v); ctx.fillStyle=C.p[v]||'#888'; rr(x0+2,baseY-12,(x1-x0)-4,16,5); ctx.fill();
+    ctx.fillStyle='rgba(0,0,0,.6)'; ctx.font='bold 13px "IBM Plex Mono",monospace'; ctx.textAlign='center'; ctx.fillText(v,(x0+x1)/2,baseY+1); acc+=v; }); reach=Math.max(reach,acc); });
+  // ticks
+  for(let i=0;i<=MAXX;i++){ ctx.fillStyle='rgba(255,122,92,.7)'; ctx.beginPath(); ctx.arc(PX(i),baseY,3,0,7); ctx.fill(); ctx.fillStyle=C.text; ctx.font='12px "IBM Plex Mono",monospace'; ctx.textAlign='center'; ctx.fillText(i,PX(i),baseY+24); }
+  // grass on far ledge (buried if planks overshoot onto it)
+  const gx=end+GRASSOFF; if(!grassEaten && reach < gx-0.05) grassAt(gx, baseY);
+  if(b) bull(PX(b.xv), baseY-18+(b.dy||0), b.rot||0);
+}
+
+// ── run the bull across spans; short→fall off bridge end into gap; long→buries grass; exact→eats grass ──
+function runCrossing(planksByStart, segs, onWin){
+  busy=true; clearTray();
+  let mode='win', stopAt=segs[segs.length-1].to;
+  for(const s of segs){ if(s.have<s.need){ mode='short'; stopAt=s.from+s.have; break; } if(s.have>s.need){ mode='long'; stopAt=s.to; break; } }
+  anim(Math.max(520, stopAt*240), p=>{ scene(SPANS, planksByStart, {xv:stopAt*p, dy:-2}); }, ()=>{
+    if(mode==='win'){ const end=segs[segs.length-1].to;
+      anim(440, p=>{ scene(SPANS, planksByStart, {xv:end+GRASSOFF*p, dy:-2}); }, ()=>{ grassEaten=true; scene(SPANS, planksByStart, {xv:end+GRASSOFF, dy:-2}); pop('nom! 🌿'); cheer(); busy=false; onWin(); });
+    } else if(mode==='short'){ oops(); pop('💥'); tell('Too <b class="r">short</b> — I run off the end and into the Fog! 🐂');
+      anim(720, p=>{ scene(SPANS, planksByStart, {xv:stopAt, dy:p*160, rot:p*4}); }, ()=>{ busy=false; setTimeout(currentRound,1800); });
+    } else { sad(); tell('Too <b class="r">long</b> — the planks <b>buried the grass</b>, nothing to eat! Trim it. 🐂');
+      busy=false; setTimeout(currentRound,2200); }
+  });
+}
+let SPANS=[];
+
+// ════════ ROUND 1 — span a gap of 5 ════════
+const GAP=5; let planks=[];
+function sum(){ return planks.reduce((a,b)=>a+b,0); }
+function round1(){ round=1; currentRound=round1; busy=false; grassEaten=false; planks=[]; cv.onclick=null; setDots(0); setMood('idle');
+  SPANS=[{from:0,to:GAP}]; scene(SPANS,[{from:0,arr:planks}],{xv:0});
+  tell('A chasm! 🐂 Lay planks to reach the <b class="g">🌿 grass</b> at <b class="g">5</b>. Too short, I fall in; too long, the grass is buried!'); refreshR1(); }
+function refreshR1(){ statusEl.innerHTML='bridge: <b>'+sum()+'</b> / 5'; clearTray();
+  addBtn('+1','plank p1',()=>lay(1)); addBtn('+2','plank p2',()=>lay(2)); addBtn('+3','plank p3',()=>lay(3));
+  const undo=addBtn('↺','',()=>{ if(!planks.length) return; planks.pop(); scene(SPANS,[{from:0,arr:planks}],{xv:0}); refreshR1(); }); undo.disabled=!planks.length;
+  addBtn('Send me! ▶','primary',send1); }
+function lay(v){ if(busy||sum()+v>MAXX) return; planks.push(v); pop('+'+v); scene(SPANS,[{from:0,arr:planks}],{xv:0}); refreshR1(); }
+function send1(){ if(busy) return;
+  runCrossing([{from:0,arr:planks}], [{from:0,to:GAP,need:GAP,have:sum()}], ()=>{ setDots(1);
+    tell('Yum! <b class="y">'+planks.join(' + ')+' = 5</b> — reached the grass! 🐂'); statusEl.innerHTML='<b>'+planks.join(' + ')+' = 5</b> ✓';
+    setTimeout(round2,900); }); }
+
+// ════════ ROUND 2 — TWO bridges: 2+3 and 3+2 ════════
+const TGT2=5; let bTop=[2], bBot=[3], gTop=false, gBot=false;
+function r2sum(a){ return a.reduce((x,y)=>x+y,0); }
+function lane(by, arr, b, eaten){
+  ctx.fillStyle=C.chasm; ctx.fillRect(PX(0),by+5,PX(TGT2)-PX(0),LH*0.32); ctx.fillStyle=C.ledge; ctx.fillRect(0,by+5,PX(0),LH*0.32); ctx.fillRect(PX(TGT2),by+5,LW-PX(TGT2),LH*0.32);
+  ctx.strokeStyle=C.flag; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(PX(TGT2),by); ctx.lineTo(PX(TGT2),by-30); ctx.stroke();
+  ctx.fillStyle=C.flag; ctx.beginPath(); ctx.moveTo(PX(TGT2),by-30); ctx.lineTo(PX(TGT2)+15,by-25); ctx.lineTo(PX(TGT2),by-20); ctx.closePath(); ctx.fill();
+  let acc=0; arr.forEach(v=>{ const x0=PX(acc),x1=PX(acc+v); ctx.fillStyle=C.p[v]||'#888'; rr(x0+2,by-11,(x1-x0)-4,13,4); ctx.fill();
+    ctx.fillStyle='rgba(0,0,0,.6)'; ctx.font='bold 11px "IBM Plex Mono",monospace'; ctx.textAlign='center'; ctx.fillText(v,(x0+x1)/2,by-1); acc+=v; });
+  for(let i=0;i<=TGT2;i++){ ctx.fillStyle='rgba(255,122,92,.7)'; ctx.beginPath(); ctx.arc(PX(i),by,3,0,7); ctx.fill(); }
+  const gx=TGT2+GRASSOFF; if(!eaten && acc < gx-0.05){ ctx.font='22px serif'; ctx.textAlign='center'; ctx.fillText('🌿',PX(gx),by-3); }
+  if(b){ ctx.save(); ctx.translate(PX(b.xv),by-16+(b.dy||0)); if(b.rot)ctx.rotate(b.rot); ctx.scale(-1,1); ctx.font='40px serif'; ctx.textAlign='center'; ctx.fillText('🐂',0,0); ctx.restore(); }
+}
+function draw2(tB,bB){ ctx.clearRect(0,0,LW,LH); ctx.fillStyle=C.bg; ctx.fillRect(0,0,LW,LH); lane(LH*0.30,bTop,tB,gTop); lane(LH*0.72,bBot,bB,gBot); }
+function round2(){ round=2; currentRound=round2; busy=false; bTop=[2]; bBot=[3]; gTop=gBot=false; cv.onclick=null; setDots(1); setMood('idle'); draw2({xv:0},{xv:0});
+  tell('Two bulls! Top starts with a <b class="g">2</b>, bottom a <b class="y">3</b>. Only <b class="g">2</b>- and <b class="y">3</b>-planks remain. Build <b>both</b> bridges to the grass at <b>5</b>!'); buildR2(); }
+function buildR2(){ clearTray(); statusEl.innerHTML='top <b>'+r2sum(bTop)+'</b>/5 · bottom <b>'+r2sum(bBot)+'</b>/5';
+  const row=(label,arr)=>{ const r=document.createElement('div'); r.style.cssText='display:flex;gap:7px;align-items:center;flex-wrap:wrap;justify-content:center;width:100%';
+    const l=document.createElement('span'); l.style.cssText='font:.8rem "IBM Plex Mono",monospace;color:var(--muted);min-width:52px'; l.textContent=label; r.appendChild(l);
+    [2,3].forEach(v=>{ const b=document.createElement('button'); b.className='btn plank p'+v; b.textContent='+'+v; b.style.cssText='font-size:.95rem;padding:8px 12px;min-width:42px';
+      b.onclick=()=>{ if(!busy&&r2sum(arr)+v<=TGT2+2){ arr.push(v); pop('+'+v); draw2({xv:0},{xv:0}); buildR2(); } }; r.appendChild(b); });
+    const u=document.createElement('button'); u.className='btn'; u.textContent='↺'; u.style.cssText='font-size:.95rem;padding:8px 10px';
+    u.onclick=()=>{ if(arr.length>1){ arr.pop(); draw2({xv:0},{xv:0}); buildR2(); } }; u.disabled=arr.length<=1; r.appendChild(u); tray.appendChild(r); };
+  row('top',bTop); row('bottom',bBot);
+  const s=document.createElement('button'); s.className='btn primary'; s.style.marginTop='3px'; s.textContent='Send both ▶'; s.onclick=send2; tray.appendChild(s); }
+function send2(){ if(busy) return; busy=true; clearTray();
+  const a=r2sum(bTop), b=r2sum(bBot);
+  const mA=a<TGT2?'short':a>TGT2?'long':'win', mB=b<TGT2?'short':b>TGT2?'long':'win';
+  const goA=mA==='short'?a:TGT2, goB=mB==='short'?b:TGT2;
+  anim(1050, p=>{ draw2({xv:goA*p,dy:-2},{xv:goB*p,dy:-2}); }, ()=>{
+    if(mA==='win'&&mB==='win'){
+      anim(420,p=>{ draw2({xv:TGT2+GRASSOFF*p,dy:-2},{xv:TGT2+GRASSOFF*p,dy:-2}); },()=>{ gTop=gBot=true; draw2({xv:TGT2+GRASSOFF,dy:-2},{xv:TGT2+GRASSOFF,dy:-2}); pop('nom! 🌿'); cheer();
+        statusEl.innerHTML='<b>2 + 3 = 3 + 2 = 5</b> ✓'; tell('Both reached the grass! <b class="g">2 + 3 = 3 + 2</b> — order is free, that\'s <b>commuting</b>.');
+        busy=false; clearTray(); addBtn('Next ▶','primary',()=>{ setDots(2); round3(); }); });
+    } else { const anyShort=(mA==='short'||mB==='short'); (anyShort?oops:sad)(); tell(anyShort?'A bridge was <b class="r">short</b> — tumble! Build BOTH to 5.':'Too <b class="r">long</b> — buried the grass! Build BOTH to exactly 5.');
+      anim(700,p=>{ draw2(
+        mA==='short'?{xv:a,dy:p*150,rot:p*4}:{xv:TGT2,dy:-2},
+        mB==='short'?{xv:b,dy:p*150,rot:p*4}:{xv:TGT2,dy:-2}); }, ()=>{ busy=false; setTimeout(round2,1800); }); }
+  }); }
+
+// ════════ ROUND 3 — Associativity: same three planks, two groupings, both reach 6 ════════
+const END3=6;
+const GROUPS={ A:{pillar:3,left:[1,2],right:[3],label:'(1+2)+3'}, B:{pillar:1,left:[1],right:[2,3],label:'1+(2+3)'} };
+let cur3='A', grp3Done={A:false,B:false};
+const gsum=a=>a.reduce((x,y)=>x+y,0);
+function draw3(b){ const g=GROUPS[cur3]; SPANS=[{from:0,to:g.pillar},{from:g.pillar,to:END3}]; scene(SPANS,[{from:0,arr:g.left},{from:g.pillar,arr:g.right}], b||{xv:0}); }
+function round3(){ round=3; currentRound=round3; busy=false; grassEaten=false; cur3='A'; grp3Done={A:false,B:false}; cv.onclick=null; setDots(2); setMood('idle'); draw3();
+  tell('The <b>same</b> three planks <b class="b">1</b>, <b class="g">2</b>, <b class="y">3</b> reach the 🌿 at <b>6</b>. Does it matter how you <b>group</b> them? Try <b>both</b> ways!'); buildR3(); }
+function buildR3(){ clearTray(); grassEaten=false; draw3();
+  statusEl.innerHTML='reach <b>6</b> &nbsp; '+(grp3Done.A?'✓':'○')+' (1+2)+3 &nbsp; '+(grp3Done.B?'✓':'○')+' 1+(2+3)';
+  const mk=key=>{ const g=GROUPS[key], b=document.createElement('button'); b.className='btn'+(cur3===key?' on':''); b.innerHTML=(grp3Done[key]?'✓ ':'')+g.label; b.style.cssText='font-size:1.05rem;padding:12px 16px';
+    b.onclick=()=>{ if(busy)return; cur3=key; buildR3(); }; tray.appendChild(b); };
+  mk('A'); mk('B');
+  const s=document.createElement('button'); s.className='btn primary'; s.textContent='Send me ▶'; s.onclick=send3; tray.appendChild(s); }
+function send3(){ if(busy) return; const g=GROUPS[cur3];
+  runCrossing([{from:0,arr:g.left},{from:g.pillar,arr:g.right}],
+    [{from:0,to:g.pillar,need:g.pillar,have:gsum(g.left)},{from:g.pillar,to:END3,need:END3-g.pillar,have:gsum(g.right)}], ()=>{
+      grp3Done[cur3]=true;
+      if(grp3Done.A&&grp3Done.B){ setDots(3); statusEl.innerHTML='<b>(1+2)+3 = 1+(2+3) = 6</b> ✓';
+        tell('Both groupings land on the <b>same</b> grass at <b>6</b>! <b class="g">(1+2)+3 = 1+(2+3)</b>. The <b>grouping is free</b>: that is associativity.');
+        clearTray(); addBtn('Claim the Codex 📖','primary',openCodex); }
+      else { cur3=(cur3==='A'?'B':'A');
+        tell('Reached <b>6</b> with <b class="g">'+g.label+'</b>! Now try <b class="g">'+GROUPS[cur3].label+'</b>: same planks, same grass?'); buildR3(); } }); }
+
+function openCodex(){ setDots(3); document.getElementById('codex').classList.add('show');
+  document.getElementById('xpfill').style.width='100%'; try{ localStorage.setItem('mtZone_origin1','done'); }catch(_){}
+  say('Adding joins steps. Order is free, and grouping is free: group the planks either way, and you still reach six.'); }
+function restart(){ document.getElementById('codex').classList.remove('show'); round1(); }
+
+updSound(); round1();
+</script>
+</body>
+</html>
