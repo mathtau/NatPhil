@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ORIGO — 开拓者地图</title>
+<meta name="robots" content="noindex">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,500;1,400&display=swap');
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{ background:#070617; color:#e7e2cf; font-family:'Playfair Display','PingFang SC','Microsoft YaHei',serif;
+    display:flex; flex-direction:column; align-items:center; padding:16px 12px 40px; min-height:100dvh; }
+  .head{ text-align:center; margin-bottom:8px; }
+  .head h1{ font-weight:500; font-size:clamp(1.3rem,5.5vw,1.9rem); color:#f4c830; letter-spacing:.06em; text-shadow:0 0 30px rgba(244,200,48,.3); }
+  .head p{ font-family:'IBM Plex Mono','PingFang SC',monospace; font-size:.78rem; letter-spacing:.1em; color:#8a8a68; margin-top:3px; }
+  .lang{ position:fixed; top:12px; right:14px; z-index:9; font-family:'IBM Plex Mono',monospace; font-size:.82rem;
+    color:#40c8f0; text-decoration:none; background:rgba(10,10,28,.7); border:1px solid rgba(64,200,240,.3); border-radius:8px; padding:6px 11px; }
+  .mapwrap{ width:100%; max-width:560px; }
+  svg{ width:100%; height:auto; display:block; }
+  .foot{ margin-top:14px; font-family:'IBM Plex Mono','PingFang SC',monospace; font-size:.78rem; color:#8a8a68; text-align:center; }
+  .foot a{ color:#40c8f0; text-decoration:none; } .foot a:hover{ color:#f4c830; }
+  a.node{ cursor:pointer; } a.node:hover .card{ filter:brightness(1.12); }
+  .nm{ font-family:'Playfair Display','PingFang SC',serif; }
+  .mono{ font-family:'IBM Plex Mono','PingFang SC',monospace; }
+</style>
+</head>
+<body>
+  <a class="lang" href="world.html">EN</a>
+  <div class="head">
+    <h1>ORIGO</h1>
+    <p>开拓者地图</p>
+  </div>
+
+  <div class="mapwrap">
+  <svg id="map" viewBox="0 0 600 1180" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+      <radialGradient id="sea" cx="50%" cy="38%" r="80%">
+        <stop offset="0%" stop-color="#16203a"/><stop offset="60%" stop-color="#0d1430"/><stop offset="100%" stop-color="#0a0a20"/>
+      </radialGradient>
+      <linearGradient id="land" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#243b2c"/><stop offset="100%" stop-color="#16261d"/>
+      </linearGradient>
+      <radialGradient id="rift" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#1e1240"/><stop offset="100%" stop-color="#0a0820"/>
+      </radialGradient>
+      <linearGradient id="fog" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="rgba(150,120,185,.78)"/><stop offset="55%" stop-color="rgba(120,95,165,.5)"/><stop offset="100%" stop-color="rgba(120,95,165,0)"/>
+      </linearGradient>
+      <filter id="fogblur"><feGaussianBlur stdDeviation="14"/></filter>
+      <filter id="glow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+
+    <rect x="0" y="0" width="600" height="1180" fill="url(#sea)"/>
+    <rect x="10" y="10" width="580" height="1160" rx="10" fill="none" stroke="#5a4a2a" stroke-width="3"/>
+    <rect x="16" y="16" width="568" height="1148" rx="7" fill="none" stroke="#3a3050" stroke-width="1.2"/>
+
+    <path d="M70 1110 C 30 980 120 920 110 840 C 100 760 200 740 240 700 C 300 650 250 560 320 520 C 250 500 300 430 360 430 C 460 430 470 360 470 300 C 540 330 560 470 520 560 C 560 660 470 720 470 790 C 470 900 520 980 470 1060 C 360 1140 160 1150 70 1110 Z"
+          fill="url(#land)" stroke="#3c5a40" stroke-width="2" opacity=".96"/>
+
+    <path id="thread" d="M150 1080 C 250 1030 250 980 300 950 C 360 915 470 905 470 840 C 470 770 320 760 320 690 C 320 620 470 620 470 540 C 470 470 330 470 360 400 C 390 340 470 360 470 300"
+          fill="none" stroke="#f4c830" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 12" opacity=".85"/>
+
+    <g transform="translate(515,1085)" opacity=".8">
+      <circle r="26" fill="none" stroke="#7a6a3a" stroke-width="1.5"/>
+      <path d="M0 -24 L6 0 L0 24 L-6 0 Z" fill="#f4c830"/>
+      <path d="M-24 0 L0 6 L24 0 L0 -6 Z" fill="#9a8a5a"/>
+      <text x="0" y="-30" class="mono" font-size="11" fill="#caa94e" text-anchor="middle">北</text>
+    </g>
+
+    <g transform="translate(150,1080)">
+      <circle r="20" fill="#f4c830" filter="url(#glow)" opacity=".9"/>
+      <circle r="7" fill="#fffbe6"/>
+      <text x="0" y="40" class="nm" font-size="20" fill="#fff" text-anchor="middle" font-style="italic">O</text>
+      <text x="0" y="60" class="mono" font-size="11" fill="#b9b48a" text-anchor="middle">起点</text>
+    </g>
+
+    <a class="node" xlink:href="origo/index_zh.html">
+      <g transform="translate(300,950)">
+        <circle r="30" fill="#1b3a24" stroke="#f4c830" stroke-width="3" filter="url(#glow)"/>
+        <text x="0" y="11" font-size="30" text-anchor="middle">🐂</text>
+        <g class="card" transform="translate(44,-44)">
+          <rect width="232" height="92" rx="12" fill="rgba(20,30,20,.92)" stroke="#f4c830" stroke-width="1.5"/>
+          <text x="14" y="26" class="mono" font-size="11" fill="#f4c830">第一幕 · 开放</text>
+          <text x="14" y="50" class="nm" font-size="19" fill="#eef0e0">源初平原</text>
+          <text x="14" y="72" class="mono" font-size="11.5" fill="#9ab0a0" id="p1status">连步成桥 — 计数 · 加 · 分组</text>
+        </g>
+      </g>
+    </a>
+    <g class="mono" font-size="10.5" text-anchor="middle" fill="#bcd0c0">
+      <g transform="translate(232,1012)"><text font-size="15">🌉</text><text y="22">裂痕堤道</text></g>
+      <g transform="translate(392,1000)"><text font-size="15">🌉</text><text y="22">双子桥</text></g>
+      <g transform="translate(345,905)"><text font-size="15">🛠</text><text y="22">桥墩关</text></g>
+    </g>
+
+    <a class="node" xlink:href="origo/soon.html">
+      <g transform="translate(470,840)">
+        <circle r="27" fill="#15281c" stroke="#5a6a50" stroke-width="2"/>
+        <text x="0" y="10" font-size="26" text-anchor="middle">🌳</text>
+        <g class="card" transform="translate(-262,-40)">
+          <rect width="232" height="84" rx="12" fill="rgba(16,20,30,.9)" stroke="#46466a" stroke-width="1.3"/>
+          <text x="14" y="25" class="mono" font-size="11" fill="#8a8aac">第二幕 · 🔒 迷雾中</text>
+          <text x="14" y="49" class="nm" font-size="18" fill="#9aa0b8">自生林</text>
+          <text x="14" y="70" class="mono" font-size="11.5" fill="#6a6a8a">自我生长的曲线 · eˣ</text>
+        </g>
+      </g>
+    </a>
+
+    <a class="node" xlink:href="origo/soon.html">
+      <g transform="translate(320,690)">
+        <circle r="27" fill="#15243a" stroke="#5a6a50" stroke-width="2"/>
+        <text x="0" y="10" font-size="26" text-anchor="middle">🌊</text>
+        <g class="card" transform="translate(44,-40)">
+          <rect width="232" height="84" rx="12" fill="rgba(16,20,30,.9)" stroke="#46466a" stroke-width="1.3"/>
+          <text x="14" y="25" class="mono" font-size="11" fill="#8a8aac">第三幕 · 🔒 迷雾中</text>
+          <text x="14" y="49" class="nm" font-size="18" fill="#9aa0b8">旋转海岸</text>
+          <text x="14" y="70" class="mono" font-size="11.5" fill="#6a6a8a">学会旋转 · sin · cos</text>
+        </g>
+      </g>
+    </a>
+
+    <a class="node" xlink:href="origo/soon.html">
+      <g transform="translate(470,300)">
+        <circle r="62" fill="url(#rift)" stroke="#b070f0" stroke-width="2.5" filter="url(#glow)"/>
+        <circle r="46" fill="none" stroke="#f4c830" stroke-width="3" stroke-dasharray="3 6" opacity=".8"/>
+        <line x1="0" y1="0" x2="40" y2="0" stroke="#ff7a5c" stroke-width="2.5"/>
+        <circle r="4" fill="#fff"/>
+        <text x="0" y="-74" class="nm" font-size="17" fill="#d7b8ff" text-anchor="middle">大圆 (τ)</text>
+        <text x="0" y="86" class="mono" font-size="11" fill="#8a7aac" text-anchor="middle">封印裂隙 — 拯救世界</text>
+      </g>
+    </a>
+
+    <g id="foglayer" filter="url(#fogblur)">
+      <rect x="0" y="0" width="600" height="560" fill="url(#fog)"/>
+      <ellipse cx="300" cy="120" rx="360" ry="150" fill="rgba(150,120,185,.5)"/>
+      <text x="300" y="60" class="mono" font-size="13" fill="rgba(235,228,248,.85)" text-anchor="middle" letter-spacing="3">⚠ 迷雾 ⚠</text>
+    </g>
+  </svg>
+  </div>
+
+  <div class="foot" id="legend">✦ 已通关 &nbsp;·&nbsp; ▶ 开放 &nbsp;·&nbsp; 🔒 迷雾中 &nbsp;—&nbsp; <a href="index_zh.html">mathtau.com</a></div>
+
+<script>
+  try{
+    if(localStorage.getItem('mtZone_origin1')==='done'){
+      document.getElementById('p1status').textContent='✦ 已通关 — 从迷雾中夺回';
+      const fog=document.getElementById('foglayer'); fog.setAttribute('transform','translate(0,-120)'); fog.setAttribute('opacity','.82');
+    }
+  }catch(e){}
+</script>
+</body>
+</html>
