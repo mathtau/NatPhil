@@ -11,9 +11,9 @@
   :root{ --bg:#0c0c1e; --surface:#111128; --border:#22224a; --text:#c4c4dc; --muted:#8888a8;
     --gold:#f4c830; --cyan:#40c8f0; --green:#50d890; --blue:#2b7fff; --red:#e8482c; --purple:#b070f0; }
   body{ background:var(--bg); color:var(--text); font-family:Georgia,serif; line-height:1.5;
-    -webkit-font-smoothing:antialiased; display:flex; flex-direction:column; align-items:center; padding:18px 14px 60px; }
+    -webkit-font-smoothing:antialiased; display:flex; flex-direction:column; align-items:center; padding:18px 14px 84px; }
   .top{ text-align:center; margin-bottom:6px; }
-  .kicker{ font-family:'IBM Plex Mono',monospace; font-size:.7rem; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); }
+  .kicker{ font-family:'IBM Plex Mono',monospace; font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
   .top h1{ font-family:'Playfair Display',serif; font-weight:500; font-size:1.5rem; color:var(--gold); margin-top:2px; }
   .dots{ display:flex; gap:7px; justify-content:center; margin-top:6px; }
   .dots i{ width:9px;height:9px;border-radius:50%;background:var(--border);transition:.3s; } .dots i.on{ background:var(--gold);transform:scale(1.25); }
@@ -49,17 +49,37 @@
     background:var(--surface); color:var(--text); border:1.5px solid var(--border); transition:transform .1s,border-color .2s,color .2s,background .2s; }
   .btn:hover{ border-color:var(--gold); color:var(--gold); } .btn:active{ transform:scale(.94); }
   .btn.plank{ font-size:1.2rem; min-width:56px; }
-  .btn.p1{ border-color:#2b7fff; color:#6aa8ff; } .btn.p2{ border-color:var(--green); color:var(--green); } .btn.p3{ border-color:var(--gold); color:var(--gold); }
+  .btn.p1{ border-color:#2b7fff; color:#6aa8ff; } .btn.p2{ border-color:var(--green); color:var(--green); } .btn.p3{ border-color:var(--gold); color:var(--gold); } .btn.p4{ border-color:#e0843c; color:#e0843c; }
   .btn.primary{ border-color:rgba(244,200,48,.55); color:var(--gold); background:rgba(244,200,48,.08); }
   .btn.on{ background:rgba(244,200,48,.16); border-color:var(--gold); color:var(--gold); }
-  .btn:disabled{ opacity:.35; cursor:not-allowed; }
-  .btn:disabled:hover{ border-color:var(--border); color:var(--text); transform:none; }
 
-  .foot{ margin-top:18px; font-family:'IBM Plex Mono',monospace; font-size:.78rem; color:var(--muted); text-align:center; }
+  .foot{ margin-top:16px; font-family:'IBM Plex Mono',monospace; font-size:.78rem; color:var(--muted); text-align:center; }
   .foot a{ color:var(--cyan); text-decoration:none; } .foot a:hover{ color:var(--gold); }
   .sound{ position:fixed; top:12px; left:12px; z-index:30; width:42px;height:42px; border-radius:50%; cursor:pointer;
     background:rgba(10,10,28,.85); border:1px solid var(--border); color:var(--gold); font-size:1.1rem; display:flex;align-items:center;justify-content:center; }
   .sound.off{ color:var(--muted); }
+
+  /* place banner */
+  .placebanner{ text-align:center; font-family:'Playfair Display',serif; font-style:italic; color:var(--gold); font-size:1.05rem; opacity:0; height:0; margin:0; }
+  .placebanner.show{ animation:placein 2.4s ease forwards; height:auto; margin:2px 0 6px; }
+  @keyframes placein{ 0%{opacity:0;transform:translateY(-6px)} 15%,75%{opacity:1;transform:none} 100%{opacity:.55;transform:none} }
+
+  /* XP bar — WoW style, fixed bottom */
+  .xpbar{ position:fixed; left:0; right:0; bottom:0; z-index:35; display:flex; align-items:center; gap:10px; justify-content:center;
+    padding:8px 14px; background:linear-gradient(rgba(10,10,28,0),rgba(8,8,20,.92) 40%); }
+  .xpbar .lvl{ font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:.8rem; color:#2a1f06; background:linear-gradient(#ffe07a,#c89a1e);
+    border-radius:50%; width:42px;height:42px; display:flex;align-items:center;justify-content:center; box-shadow:0 0 16px rgba(244,200,48,.5); border:2px solid #8a6512; flex:0 0 auto; }
+  .xptrack{ position:relative; width:min(420px,70vw); height:18px; background:#0a0a1c; border:1px solid #4a3a18; border-radius:10px; overflow:hidden; box-shadow:inset 0 0 8px #000; }
+  .xptrack i{ display:block; height:100%; width:0; background:linear-gradient(#ffe07a,#e0a824 60%,#c89a1e); box-shadow:0 0 10px rgba(244,200,48,.7); transition:width .7s cubic-bezier(.3,.8,.3,1); }
+  .xptrack .xptxt{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font:600 .72rem 'IBM Plex Mono',monospace; color:#fff; text-shadow:0 1px 3px #000; }
+  .xpfloat{ position:fixed; left:50%; bottom:54px; transform:translateX(-50%); z-index:36; pointer-events:none;
+    font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:1.1rem; color:var(--gold); text-shadow:0 2px 10px #000; animation:xpf 1.3s ease forwards; }
+  @keyframes xpf{ 0%{opacity:0;transform:translate(-50%,10px) scale(.7)} 25%{opacity:1;transform:translate(-50%,-2px) scale(1.15)} 100%{opacity:0;transform:translate(-50%,-40px) scale(1)} }
+  .lvlup{ position:fixed; inset:0; z-index:60; display:none; align-items:center; justify-content:center; pointer-events:none; }
+  .lvlup.show{ display:flex; animation:lvlflash 1.8s ease forwards; }
+  .lvlup span{ font-family:'Playfair Display',serif; font-weight:600; font-size:clamp(1.6rem,7vw,2.8rem); color:#fff;
+    text-shadow:0 0 30px rgba(244,200,48,.9),0 0 60px rgba(244,200,48,.6); background:rgba(8,8,20,.5); padding:14px 26px; border-radius:14px; border:1px solid rgba(244,200,48,.5); }
+  @keyframes lvlflash{ 0%{opacity:0;transform:scale(.6)} 18%{opacity:1;transform:scale(1.12)} 30%{transform:scale(1)} 82%{opacity:1} 100%{opacity:0} }
 
   .codex{ position:fixed; inset:0; z-index:40; background:rgba(6,6,16,.85); backdrop-filter:blur(3px); display:none; align-items:center; justify-content:center; padding:22px; overflow-y:auto; }
   .codex.show{ display:flex; }
@@ -69,14 +89,36 @@
   .page::before{top:-7px} .page::after{bottom:-7px}
   .page .tag{ text-align:center; font-family:'IBM Plex Mono',monospace; font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; color:#6a5320; }
   .page h2{ text-align:center; font-family:'Playfair Display',serif; font-weight:500; font-size:1.4rem; color:#8a1f10; margin:3px 0 12px; }
-  .page .law{ font-size:1.1rem; margin:8px 0; } .page .law b{ color:#8a1f10; } .page .law .r{ color:#c0391f; }
-  .page .teaser{ font-style:italic; color:#7a5a16; font-size:.96rem; margin:12px 0 14px; }
-  .xp{ height:12px; border:1px solid #9c7e34; border-radius:7px; overflow:hidden; background:rgba(0,0,0,.12); margin-bottom:6px; }
-  .xp i{ display:block; height:100%; width:0; background:linear-gradient(90deg,#f4c830,#c89a1e); transition:width 1s ease .2s; }
-  .xprow{ display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:#6a5320; margin-bottom:14px; }
+  .page .law{ font-size:1.08rem; margin:8px 0; } .page .law b{ color:#8a1f10; } .page .law .r{ color:#c0391f; }
+  .page .teaser{ font-style:italic; color:#7a5a16; font-size:.95rem; margin:12px 0 14px; }
+  .pxp{ height:12px; border:1px solid #9c7e34; border-radius:7px; overflow:hidden; background:rgba(0,0,0,.12); margin-bottom:6px; }
+  .pxp i{ display:block; height:100%; width:0; background:linear-gradient(90deg,#f4c830,#c89a1e); transition:width 1s ease .2s; }
+  .pxprow{ display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:#6a5320; margin-bottom:14px; }
   .go{ display:flex; gap:12px; } .go button,.go a{ flex:1; text-align:center; padding:13px; border-radius:8px; cursor:pointer; text-decoration:none;
     font-family:'IBM Plex Mono',monospace; font-size:1rem; border:1px solid #b8995a; background:rgba(58,44,18,.06); color:#5a4310; }
   .go .next{ background:linear-gradient(#f4c830,#c89a1e); color:#2a1f06; font-weight:600; border:none; }
+
+  /* quest-giver scroll */
+  .scrim{ position:fixed; inset:0; z-index:50; background:rgba(6,6,16,.84); backdrop-filter:blur(3px); display:flex; align-items:center; justify-content:center; padding:22px; overflow-y:auto; }
+  .scrim.hide{ display:none; }
+  .scroll{ position:relative; width:100%; max-width:450px; margin:auto; padding:24px 26px 22px; background:linear-gradient(#efe4ba,#dcc987); color:#3a2c12; border-radius:7px; box-shadow:0 24px 60px -16px #000,0 0 0 2px #b89a4a inset; }
+  .scroll::before,.scroll::after{ content:''; position:absolute; left:-6px; right:-6px; height:15px; background:linear-gradient(#caa94e,#9c7e34); border-radius:6px; box-shadow:0 4px 10px rgba(0,0,0,.4); }
+  .scroll::before{top:-8px} .scroll::after{bottom:-8px}
+  .scroll .seal{ width:88px;height:88px;margin:0 auto 10px;border-radius:50%;background:radial-gradient(circle at 50% 42%,#1e1e48,#121230);border:2px solid #b8860b;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.45); }
+  .scroll .seal svg{ width:84%;height:84%; }
+  .scroll .qtitle{ text-align:center; font-family:'Playfair Display',serif; font-size:1.3rem; color:#8a1f10; margin-bottom:1px; }
+  .scroll .giver{ text-align:center; font-family:'IBM Plex Mono',monospace; font-size:.7rem; letter-spacing:.12em; text-transform:uppercase; color:#6a5320; margin-bottom:13px; }
+  .scroll .flavor{ font-style:italic; font-size:1.05rem; line-height:1.5; margin-bottom:13px; }
+  .scroll .flavor b{ color:#8a1f10; font-style:normal; }
+  .scroll .objs{ list-style:none; border-top:1px solid rgba(90,70,20,.4); padding-top:11px; margin-bottom:16px; font-size:1rem; }
+  .scroll .objs li{ margin:6px 0; }
+  .scroll .accept{ display:block; width:100%; padding:15px; border:none; border-radius:8px; cursor:pointer; background:linear-gradient(#f4c830,#c89a1e); color:#2a1f06; font-family:'IBM Plex Mono',monospace; font-size:1.1rem; font-weight:600; letter-spacing:.02em; }
+  .scroll .accept:hover{ filter:brightness(1.08); }
+  .qtrack{ position:fixed; top:12px; right:12px; z-index:25; width:218px; display:none; background:rgba(10,10,28,.9); border:1px solid var(--border); border-left:3px solid var(--gold); border-radius:8px; padding:9px 11px; font-family:'IBM Plex Mono',monospace; font-size:.74rem; box-shadow:0 8px 24px -8px #000; }
+  .qtrack.show{ display:block; }
+  .qtrack h5{ color:var(--gold); font-size:.74rem; font-weight:500; margin-bottom:6px; }
+  .qtrack .o{ color:#9a9ab8; line-height:1.5; margin:2px 0; transition:.3s; } .qtrack .o.done{ color:var(--green); }
+  @media(max-width:700px){ .qtrack{ position:static; width:100%; max-width:620px; margin:0 auto 10px; } }
   @media(max-width:520px){ .top h1{font-size:1.3rem} .bubble{font-size:1.05rem} .bot{width:52px;height:52px} }
 </style>
 </head>
@@ -84,13 +126,38 @@
 
 <button class="sound" id="soundBtn" aria-label="narration">🔊</button>
 
+<!-- ══ Quest-giver scroll ══ -->
+<div class="scrim" id="scrim">
+  <div class="scroll">
+    <div class="seal"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g stroke="#f4c830" stroke-linecap="round" stroke-linejoin="round"><path d="M31 36 C 31 26 40 21 50 21 C 60 21 69 26 69 36 Z" fill="#f4c830"/><path d="M23 37 Q 50 31 77 37" fill="none" stroke-width="3"/><rect x="32" y="32" width="36" height="5.4" fill="#121230"/><polyline points="54,32.8 46,32.8 50,35 46,37.4 54,37.4" fill="none" stroke-width="1.4"/><path d="M37 43 L46 45 L45 47 L37 45 Z" fill="#f4c830"/><path d="M63 43 L54 45 L55 47 L63 45 Z" fill="#f4c830"/><path d="M40 49 q 2.5 1.6 5 0" fill="none" stroke-width="2.2"/><path d="M55 49 q 2.5 1.6 5 0" fill="none" stroke-width="2.2"/><path d="M50 49 L50 56 Q50 58.5 52.5 57.2" fill="none" stroke-width="2.2"/><path d="M38 54 C 34 60 35 70 40 77 L44 72 L48 79 L52 72 L56 79 L60 77 C 65 70 66 60 62 54 C 57 61 43 61 38 54 Z" fill="#f4c830"/></g></svg></div>
+    <div class="qtitle">❗ Feed the Starving Herd</div>
+    <div class="giver">Surveyor Sigma · The Origin Plains</div>
+    <p class="flavor">"Oh, <b>Pathfinder</b>, at last! The <b>Fog</b> has starved Origo's bulls — your mount <b>Tau</b> among them — too weak to carry you onward. Three broken crossings lie ahead, each with <b>🌿 grass</b> beyond. Bridge them, let the bulls feed, and they'll bear you to the Rift. Earn your strength, Pathfinder — go!"</p>
+    <ul class="objs">
+      <li>◻ <b>The Cracked Causeway</b> — bridge the gap</li>
+      <li>◻ <b>The Twin Spans</b> — feed two bulls</li>
+      <li>◻ <b>The Pillar Pass</b> — brace the joins</li>
+    </ul>
+    <button class="accept" id="acceptQ">Accept Quest ▶</button>
+  </div>
+</div>
+
+<!-- ══ Quest tracker ══ -->
+<div class="qtrack" id="qtrack">
+  <h5>❗ Feed the Starving Herd</h5>
+  <div class="o" id="q1">◻ The Cracked Causeway</div>
+  <div class="o" id="q2">◻ The Twin Spans</div>
+  <div class="o" id="q3">◻ The Pillar Pass</div>
+</div>
+
 <div class="top">
-  <div class="kicker">Origo · The Origin Plains · Level 1</div>
+  <div class="kicker" id="kicker">Origo · The Origin Plains · Level 1</div>
   <h1>Joining Steps</h1>
   <div class="dots" id="dots"><i></i><i></i><i></i></div>
 </div>
 
 <div class="stage">
+  <div class="placebanner" id="placebanner"></div>
   <div class="companion" id="companion" data-mood="idle">
     <div class="bot">
       <svg class="bull" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g stroke="#f4c830" stroke-linecap="round" stroke-linejoin="round">
@@ -107,26 +174,33 @@
         <circle cx="50" cy="70.5" r="5" fill="none" stroke-width="2.4"/>
       </g></svg>
     </div>
-    <div class="bubble" id="bubble"><span class="bub-txt">A chasm! 🐂 Lay plank-blocks to reach the grass — <b class="g">exactly 5</b>.</span></div>
+    <div class="bubble" id="bubble"><span class="bub-txt">Let's bridge it! 🐂</span></div>
   </div>
 
-  <div class="card"><canvas id="cv" width="1180" height="480"></canvas></div>
+  <div class="card"><canvas id="cv" width="1180" height="560"></canvas></div>
   <div class="status" id="status"></div>
   <div class="tray" id="tray"></div>
 
   <div class="foot"><a href="index.html">↩ prologue</a> · <a href="world.html">🗺 map</a></div>
 </div>
 
+<!-- XP bar + level-up flash -->
+<div class="xpbar" id="xpbar">
+  <div class="lvl" id="lvlBadge">Lv.1</div>
+  <div class="xptrack"><i id="xpfillBar"></i><span class="xptxt" id="xptxt">0 / 100</span></div>
+</div>
+<div class="lvlup" id="lvlup"><span></span></div>
+
 <div class="codex" id="codex">
   <div class="page">
-    <div class="tag">Codex of O · Page 1</div>
+    <div class="tag" id="codexTag">Codex of O · Page 1</div>
     <h2>Joining Steps</h2>
-    <div class="law"><b>Add</b> = join steps along the line. &nbsp; 2 + 3 = <span class="r">5</span></div>
-    <div class="law"><b>Order is free</b> (commute): &nbsp; 2 + 3 = 3 + 2</div>
-    <div class="law"><b>Regroup freely</b> (associate): &nbsp; (1+2) = 3, so (1+2)+3 = 1+(2+3) = 6</div>
+    <div class="law"><b>Add</b> = join steps along the line.</div>
+    <div class="law"><b>Order is free</b> (commute): &nbsp; a + b = b + a</div>
+    <div class="law"><b>Regroup freely</b> (associate): &nbsp; a+(b+c) = (a+b)+c</div>
     <div class="teaser">…yet some whisper <b>1 + 1 = 3</b>. 🤔 A riddle for a land far ahead.</div>
-    <div class="xp"><i id="xpfill"></i></div>
-    <div class="xprow"><span>+100 XP</span><span>Level 1 ✓</span></div>
+    <div class="pxp"><i id="pxpfill"></i></div>
+    <div class="pxprow"><span id="pxpL">Pathfinder</span><span id="pxpR">Level 1 ✓</span></div>
     <div class="go"><button onclick="restart()">↺ Replay</button><a class="next" href="world.html">Continue → 🗺</a></div>
   </div>
 </div>
@@ -135,33 +209,49 @@
 const cv=document.getElementById('cv'), ctx=cv.getContext('2d'); ctx.setTransform(2,0,0,2,0,0);
 const LW=cv.width/2, LH=cv.height/2;
 const C={ bg:'#0a0a1c', ledge:'#2f6d3a', grass:'#50d890', chasm:'#070712', line:'#ff7a5c',
-  p:{1:'#2b7fff',2:'#50d890',3:'#f4c830',6:'#c79bff'}, flag:'#f4c830', text:'#9a9ab8', pillar:'#5a4a72' };
-const MAXX=7, padL=30, padR=24, baseY=LH-78, BULLSZ=46, GRASSOFF=0.5;
+  p:{1:'#2b7fff',2:'#50d890',3:'#f4c830',4:'#e0843c',5:'#e0843c',6:'#c79bff'}, flag:'#f4c830', text:'#9a9ab8', pillar:'#5a4a72' };
+let MAXX=9; const padL=30, padR=24, baseY=LH-78, GRASSOFF=0.5;
 const PX=v=>padL+v/MAXX*(LW-padL-padR);
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
 function rr(x,y,w,h,r){ ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath(); }
-function bull(xpx,ypx,rot){ ctx.save(); ctx.translate(xpx,ypx); if(rot)ctx.rotate(rot); ctx.scale(-1,1); ctx.font=BULLSZ+'px serif'; ctx.textAlign='center'; ctx.fillText('🐂',0,0); ctx.restore(); }
+let MOUNT='🐂';
 function grassAt(vx,by){ ctx.font='26px serif'; ctx.textAlign='center'; ctx.fillText('🌿', PX(vx), by-4); }
 function anim(dur,onF,onD){ const t0=performance.now(); (function f(now){ const p=Math.min(1,(now-t0)/dur); onF(p); if(p<1)requestAnimationFrame(f); else onD&&onD(); })(performance.now()); }
 
 const companion=document.getElementById('companion'), bubble=document.getElementById('bubble'),
   tray=document.getElementById('tray'), statusEl=document.getElementById('status'), dotsEl=document.getElementById('dots'),
-  soundBtn=document.getElementById('soundBtn');
+  soundBtn=document.getElementById('soundBtn'), kicker=document.getElementById('kicker'), placebanner=document.getElementById('placebanner');
+const botEl=companion.querySelector('.bot'), BULL_SVG=botEl.innerHTML;
+const SIGMA_SVG='<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g stroke="#f4c830" stroke-linecap="round" stroke-linejoin="round"><path d="M31 36 C 31 26 40 21 50 21 C 60 21 69 26 69 36 Z" fill="#f4c830"/><path d="M23 37 Q 50 31 77 37" fill="none" stroke-width="3"/><rect x="32" y="32" width="36" height="5.4" fill="#121230"/><polyline points="54,32.8 46,32.8 50,35 46,37.4 54,37.4" fill="none" stroke-width="1.4"/><path d="M37 43 L46 45 L45 47 L37 45 Z" fill="#f4c830"/><path d="M63 43 L54 45 L55 47 L63 45 Z" fill="#f4c830"/><path d="M40 49 q 2.5 1.6 5 0" fill="none" stroke-width="2.2"/><path d="M55 49 q 2.5 1.6 5 0" fill="none" stroke-width="2.2"/><path d="M50 49 L50 56 Q50 58.5 52.5 57.2" fill="none" stroke-width="2.2"/><path d="M38 54 C 34 60 35 70 40 77 L44 72 L48 79 L52 72 L56 79 L60 77 C 65 70 66 60 62 54 C 57 61 43 61 38 54 Z" fill="#f4c830"/></g></svg>';
+let speaker='tau';
+function setSpeaker(who){ speaker=who; botEl.innerHTML = who==='sigma'?SIGMA_SVG:BULL_SVG; }
 function setMood(m){ companion.dataset.mood=m; }
 function cheer(){ setMood('happy'); companion.classList.add('cheer'); setTimeout(()=>companion.classList.remove('cheer'),320); }
 function oops(){ setMood('idle'); companion.classList.remove('oops'); void companion.offsetWidth; companion.classList.add('oops'); }
 function sad(){ setMood('sad'); companion.classList.remove('oops'); void companion.offsetWidth; companion.classList.add('oops'); }
 function pop(t){ const e=document.createElement('div'); e.className='pop'; e.textContent=t; companion.appendChild(e); setTimeout(()=>e.remove(),1000); }
 const synth=window.speechSynthesis||null; let soundOn=(localStorage.getItem('mtSound')!=='off');
-function say(t){ if(!synth||!soundOn)return; synth.cancel(); const u=new SpeechSynthesisUtterance(t.replace(/<[^>]+>/g,'').replace(/[🐂🤔🎉🚩😅😏✓⚿💥😵🌿]/g,'')); u.pitch=1.34;u.rate=1.04; synth.speak(u); }
+function say(t){ if(!synth||!soundOn)return; synth.cancel(); const u=new SpeechSynthesisUtterance(t.replace(/<[^>]+>/g,'').replace(/[🐂🤔🎉🚩😅😏✓⚿💥😵🌿🛠🆙⚔✦]/g,'')); if(speaker==='sigma'){u.pitch=0.62;u.rate=0.9;}else{u.pitch=1.34;u.rate=1.04;} synth.speak(u); }
 function updSound(){ soundBtn.textContent=soundOn?'🔊':'🔇'; soundBtn.classList.toggle('off',!soundOn); }
 soundBtn.onclick=()=>{ soundOn=!soundOn; localStorage.setItem('mtSound',soundOn?'on':'off'); updSound(); if(!soundOn&&synth)synth.cancel(); else say(bubble.textContent); };
 function tell(html){ bubble.innerHTML='<span class="bub-txt">'+html+'</span>'; say(bubble.textContent); }
 function setDots(n){ [...dotsEl.children].forEach((d,i)=>d.classList.toggle('on',i<n)); }
 function clearTray(){ tray.innerHTML=''; }
 function addBtn(label,cls,fn){ const b=document.createElement('button'); b.className='btn '+(cls||''); b.innerHTML=label; b.onclick=fn; tray.appendChild(b); return b; }
+function setPlace(name){ kicker.textContent='Origo · '+name; placebanner.textContent='✦ '+name+' ✦'; placebanner.classList.remove('show'); void placebanner.offsetWidth; placebanner.classList.add('show'); }
 let busy=false, round=1, grassEaten=false, currentRound=()=>round1();
 
+// ── XP / leveling (persisted, WoW-style) ──
+let level=+(localStorage.getItem('mtLevel')||1), xp=+(localStorage.getItem('mtXp')||0), need=+(localStorage.getItem('mtNeed')||100);
+const lvlBadge=document.getElementById('lvlBadge'), xpfillBar=document.getElementById('xpfillBar'), xptxt=document.getElementById('xptxt');
+function renderXP(){ lvlBadge.textContent='Lv.'+level; xpfillBar.style.width=Math.min(100,xp/need*100)+'%'; xptxt.textContent=xp+' / '+need; }
+function saveXP(){ localStorage.setItem('mtLevel',level); localStorage.setItem('mtXp',xp); localStorage.setItem('mtNeed',need); }
+function ding(){ const f=document.getElementById('lvlup'); f.querySelector('span').textContent='⚔ LEVEL UP! · Pathfinder Lv.'+level+' ⚔'; f.classList.remove('show'); void f.offsetWidth; f.classList.add('show'); pop('DING! 🆙'); }
+function gainXP(n){ const e=document.createElement('div'); e.className='xpfloat'; e.textContent='+'+n+' EXP'; document.body.appendChild(e); setTimeout(()=>e.remove(),1300);
+  xp+=n; if(xp>=need){ xp-=need; level++; need=Math.round(need*1.25); setTimeout(ding,300); } renderXP(); saveXP(); }
+
 // ── scene with chasm, optional pillar, planks, grass on far ledge ──
+let SPANS=[], SUPPORTS=[];   // gray posts (steps 1 & 2): every seam held
 function scene(spans, planksByStart, b){
   ctx.clearRect(0,0,LW,LH); ctx.fillStyle=C.bg; ctx.fillRect(0,0,LW,LH);
   const end=spans[spans.length-1].to;
@@ -169,56 +259,56 @@ function scene(spans, planksByStart, b){
   ctx.fillStyle=C.ledge; ctx.fillRect(0,baseY+6,PX(0),LH-baseY); ctx.fillRect(PX(end),baseY+6,LW-PX(end),LH-baseY);
   ctx.fillStyle=C.grass; ctx.fillRect(0,baseY+2,PX(0),5); ctx.fillRect(PX(end),baseY+2,LW-PX(end),5);
   spans.forEach(sp=>{ if(sp.from>0){ ctx.fillStyle=C.pillar; ctx.fillRect(PX(sp.from)-6,baseY+4,12,LH-baseY-4); } });
-  // far flag
+  SUPPORTS.forEach(x=>{ ctx.fillStyle=C.pillar; ctx.fillRect(PX(x)-5,baseY+5,10,LH-baseY-5); });
   const fx=PX(end); ctx.strokeStyle=C.flag; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(fx,baseY); ctx.lineTo(fx,baseY-78); ctx.stroke();
   ctx.fillStyle=C.flag; ctx.beginPath(); ctx.moveTo(fx,baseY-78); ctx.lineTo(fx+22,baseY-70); ctx.lineTo(fx,baseY-63); ctx.closePath(); ctx.fill();
-  // planks
   let reach=0; planksByStart.forEach(({from,arr})=>{ let acc=from; arr.forEach(v=>{ const x0=PX(acc),x1=PX(acc+v); ctx.fillStyle=C.p[v]||'#888'; rr(x0+2,baseY-12,(x1-x0)-4,16,5); ctx.fill();
     ctx.fillStyle='rgba(0,0,0,.6)'; ctx.font='bold 13px "IBM Plex Mono",monospace'; ctx.textAlign='center'; ctx.fillText(v,(x0+x1)/2,baseY+1); acc+=v; }); reach=Math.max(reach,acc); });
-  // ticks
   for(let i=0;i<=MAXX;i++){ ctx.fillStyle='rgba(255,122,92,.7)'; ctx.beginPath(); ctx.arc(PX(i),baseY,3,0,7); ctx.fill(); ctx.fillStyle=C.text; ctx.font='12px "IBM Plex Mono",monospace'; ctx.textAlign='center'; ctx.fillText(i,PX(i),baseY+24); }
-  // grass on far ledge (buried if planks overshoot onto it)
   const gx=end+GRASSOFF; if(!grassEaten && reach < gx-0.05) grassAt(gx, baseY);
   if(b) bull(PX(b.xv), baseY-18+(b.dy||0), b.rot||0);
 }
+function bull(xpx,ypx,rot){ ctx.save(); ctx.translate(xpx,ypx); if(rot)ctx.rotate(rot); ctx.scale(-1,1); ctx.font='46px serif'; ctx.textAlign='center'; ctx.fillText(MOUNT,0,0); ctx.restore(); }
 
-// ── run the bull across spans; short→fall off bridge end into gap; long→buries grass; exact→eats grass ──
+// ── run the bull; short→fall off bridge end; long→buries grass; exact→eats grass ──
 function runCrossing(planksByStart, segs, onWin){
   busy=true; clearTray();
   let mode='win', stopAt=segs[segs.length-1].to;
   for(const s of segs){ if(s.have<s.need){ mode='short'; stopAt=s.from+s.have; break; } if(s.have>s.need){ mode='long'; stopAt=s.to; break; } }
-  anim(Math.max(520, stopAt*240), p=>{ scene(SPANS, planksByStart, {xv:stopAt*p, dy:-2}); }, ()=>{
+  anim(Math.max(520, stopAt*200), p=>{ scene(SPANS, planksByStart, {xv:stopAt*p, dy:-2}); }, ()=>{
     if(mode==='win'){ const end=segs[segs.length-1].to;
       anim(440, p=>{ scene(SPANS, planksByStart, {xv:end+GRASSOFF*p, dy:-2}); }, ()=>{ grassEaten=true; scene(SPANS, planksByStart, {xv:end+GRASSOFF, dy:-2}); pop('nom! 🌿'); cheer(); busy=false; onWin(); });
-    } else if(mode==='short'){ oops(); pop('💥'); tell('Too <b class="r">short</b> — I run off the end and into the Fog! 🐂');
-      anim(720, p=>{ scene(SPANS, planksByStart, {xv:stopAt, dy:p*160, rot:p*4}); }, ()=>{ busy=false; setTimeout(currentRound,1800); });
+    } else if(mode==='short'){ oops(); pop('💥'); tell('Too <b class="r">short</b> — I run off the end into the Fog! 🐂');
+      anim(720, p=>{ scene(SPANS, planksByStart, {xv:stopAt, dy:p*160, rot:p*4}); }, ()=>{ busy=false; setTimeout(currentRound,1700); });
     } else { sad(); tell('Too <b class="r">long</b> — the planks <b>buried the grass</b>, nothing to eat! Trim it. 🐂');
-      busy=false; setTimeout(currentRound,2200); }
+      busy=false; setTimeout(currentRound,2100); }
   });
 }
-let SPANS=[];
 
-// ════════ ROUND 1 — span a gap of 5 ════════
-const GAP=5; let planks=[];
+// ════════ STEP 1 — The Cracked Causeway (span a random gap) ════════
+let GAP=5, planks=[];
 function sum(){ return planks.reduce((a,b)=>a+b,0); }
-function round1(){ round=1; currentRound=round1; busy=false; grassEaten=false; planks=[]; cv.onclick=null; setDots(0); setMood('idle');
-  SPANS=[{from:0,to:GAP}]; scene(SPANS,[{from:0,arr:planks}],{xv:0});
-  tell('A chasm! 🐂 Lay planks to reach the <b class="g">🌿 grass</b> at <b class="g">5</b>. Too short, I fall in; too long, the grass is buried!'); refreshR1(); }
-function refreshR1(){ statusEl.innerHTML='bridge: <b>'+sum()+'</b> / 5'; clearTray();
+function round1(){ round=1; currentRound=round1; busy=false; grassEaten=false; planks=[]; cv.onclick=null; setDots(0); setSpeaker('tau'); MOUNT='🐂'; setMood('idle');
+  GAP=rnd(4,7); SUPPORTS=[]; for(let i=1;i<GAP;i++) SUPPORTS.push(i);
+  SPANS=[{from:0,to:GAP}]; setPlace('The Cracked Causeway'); scene(SPANS,[{from:0,arr:planks}],{xv:0});
+  tell('<b>The Cracked Causeway.</b> 🐂 Posts under every number, so any planks hold. Bridge the gap to the <b class="g">🌿</b> at <b class="g">'+GAP+'</b> — too short I fall, too long I bury the grass!'); refreshR1(); }
+function refreshR1(){ statusEl.innerHTML='bridge: <b>'+sum()+'</b> / '+GAP; clearTray();
   addBtn('+1','plank p1',()=>lay(1)); addBtn('+2','plank p2',()=>lay(2)); addBtn('+3','plank p3',()=>lay(3));
   const undo=addBtn('↺','',()=>{ if(!planks.length) return; planks.pop(); scene(SPANS,[{from:0,arr:planks}],{xv:0}); refreshR1(); }); undo.disabled=!planks.length;
   addBtn('Send me! ▶','primary',send1); }
 function lay(v){ if(busy||sum()+v>MAXX) return; planks.push(v); pop('+'+v); scene(SPANS,[{from:0,arr:planks}],{xv:0}); refreshR1(); }
 function send1(){ if(busy) return;
-  runCrossing([{from:0,arr:planks}], [{from:0,to:GAP,need:GAP,have:sum()}], ()=>{ setDots(1);
-    tell('Yum! <b class="y">'+planks.join(' + ')+' = 5</b> — reached the grass! 🐂'); statusEl.innerHTML='<b>'+planks.join(' + ')+' = 5</b> ✓';
-    setTimeout(round2,900); }); }
+  runCrossing([{from:0,arr:planks}], [{from:0,to:GAP,need:GAP,have:sum()}], ()=>{ setDots(1); tickQ('q1'); gainXP(40);
+    tell('Yum! <b class="y">'+planks.join(' + ')+' = '+GAP+'</b> — fed! 🐂'); statusEl.innerHTML='<b>'+planks.join(' + ')+' = '+GAP+'</b> ✓';
+    clearTray(); addBtn('On to the next crossing ▶','primary',round2); }); }
 
-// ════════ ROUND 2 — TWO bridges: 2+3 and 3+2 ════════
-const TGT2=5; let bTop=[2], bBot=[3], gTop=false, gBot=false;
+// ════════ STEP 2 — The Twin Spans (commutativity: a+b = b+a) ════════
+let A2=2, B2=3, TGT2=5, bTop=[], bBot=[], gTop=false, gBot=false;
 function r2sum(a){ return a.reduce((x,y)=>x+y,0); }
 function lane(by, arr, b, eaten){
-  ctx.fillStyle=C.chasm; ctx.fillRect(PX(0),by+5,PX(TGT2)-PX(0),LH*0.32); ctx.fillStyle=C.ledge; ctx.fillRect(0,by+5,PX(0),LH*0.32); ctx.fillRect(PX(TGT2),by+5,LW-PX(TGT2),LH*0.32);
+  const H=LH*0.20;
+  ctx.fillStyle=C.chasm; ctx.fillRect(PX(0),by+5,PX(TGT2)-PX(0),H); ctx.fillStyle=C.ledge; ctx.fillRect(0,by+5,PX(0),H); ctx.fillRect(PX(TGT2),by+5,LW-PX(TGT2),H);
+  for(let x=1;x<TGT2;x++){ ctx.fillStyle=C.pillar; ctx.fillRect(PX(x)-4,by+5,8,H); }
   ctx.strokeStyle=C.flag; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(PX(TGT2),by); ctx.lineTo(PX(TGT2),by-30); ctx.stroke();
   ctx.fillStyle=C.flag; ctx.beginPath(); ctx.moveTo(PX(TGT2),by-30); ctx.lineTo(PX(TGT2)+15,by-25); ctx.lineTo(PX(TGT2),by-20); ctx.closePath(); ctx.fill();
   let acc=0; arr.forEach(v=>{ const x0=PX(acc),x1=PX(acc+v); ctx.fillStyle=C.p[v]||'#888'; rr(x0+2,by-11,(x1-x0)-4,13,4); ctx.fill();
@@ -228,13 +318,14 @@ function lane(by, arr, b, eaten){
   if(b){ ctx.save(); ctx.translate(PX(b.xv),by-16+(b.dy||0)); if(b.rot)ctx.rotate(b.rot); ctx.scale(-1,1); ctx.font='40px serif'; ctx.textAlign='center'; ctx.fillText('🐂',0,0); ctx.restore(); }
 }
 function draw2(tB,bB){ ctx.clearRect(0,0,LW,LH); ctx.fillStyle=C.bg; ctx.fillRect(0,0,LW,LH); lane(LH*0.30,bTop,tB,gTop); lane(LH*0.72,bBot,bB,gBot); }
-function round2(){ round=2; currentRound=round2; busy=false; bTop=[2]; bBot=[3]; gTop=gBot=false; cv.onclick=null; setDots(1); setMood('idle'); draw2({xv:0},{xv:0});
-  tell('Two bulls! Top starts with a <b class="g">2</b>, bottom a <b class="y">3</b>. Only <b class="g">2</b>- and <b class="y">3</b>-planks remain. Build <b>both</b> bridges to the grass at <b>5</b>!'); buildR2(); }
-function buildR2(){ clearTray(); statusEl.innerHTML='top <b>'+r2sum(bTop)+'</b>/5 · bottom <b>'+r2sum(bBot)+'</b>/5';
+function round2(){ round=2; currentRound=round2; busy=false; cv.onclick=null; setDots(1); setMood('idle'); setSpeaker('tau');
+  do{ A2=rnd(2,4); B2=rnd(2,4); }while(A2===B2); TGT2=A2+B2; bTop=[A2]; bBot=[B2]; gTop=gBot=false; setPlace('The Twin Spans'); draw2({xv:0},{xv:0});
+  tell('<b>The Twin Spans.</b> Two hungry bulls! One bridge starts with <b class="g">'+A2+'</b>, the other with <b class="y">'+B2+'</b>. Finish <b>both</b> to <b>'+TGT2+'</b>. Same total either way: <b class="g">'+A2+'+'+B2+' = '+B2+'+'+A2+'</b>.'); buildR2(); }
+function buildR2(){ clearTray(); statusEl.innerHTML='top <b>'+r2sum(bTop)+'</b>/'+TGT2+' · bottom <b>'+r2sum(bBot)+'</b>/'+TGT2;
   const row=(label,arr)=>{ const r=document.createElement('div'); r.style.cssText='display:flex;gap:7px;align-items:center;flex-wrap:wrap;justify-content:center;width:100%';
     const l=document.createElement('span'); l.style.cssText='font:.8rem "IBM Plex Mono",monospace;color:var(--muted);min-width:52px'; l.textContent=label; r.appendChild(l);
-    [2,3].forEach(v=>{ const b=document.createElement('button'); b.className='btn plank p'+v; b.textContent='+'+v; b.style.cssText='font-size:.95rem;padding:8px 12px;min-width:42px';
-      b.onclick=()=>{ if(!busy&&r2sum(arr)+v<=TGT2+2){ arr.push(v); pop('+'+v); draw2({xv:0},{xv:0}); buildR2(); } }; r.appendChild(b); });
+    [A2,B2].forEach(v=>{ const b=document.createElement('button'); b.className='btn plank p'+v; b.textContent='+'+v; b.style.cssText='font-size:.95rem;padding:8px 12px;min-width:42px';
+      b.onclick=()=>{ if(!busy&&r2sum(arr)+v<=MAXX){ arr.push(v); pop('+'+v); draw2({xv:0},{xv:0}); buildR2(); } }; r.appendChild(b); });
     const u=document.createElement('button'); u.className='btn'; u.textContent='↺'; u.style.cssText='font-size:.95rem;padding:8px 10px';
     u.onclick=()=>{ if(arr.length>1){ arr.pop(); draw2({xv:0},{xv:0}); buildR2(); } }; u.disabled=arr.length<=1; r.appendChild(u); tray.appendChild(r); };
   row('top',bTop); row('bottom',bBot);
@@ -245,45 +336,77 @@ function send2(){ if(busy) return; busy=true; clearTray();
   const goA=mA==='short'?a:TGT2, goB=mB==='short'?b:TGT2;
   anim(1050, p=>{ draw2({xv:goA*p,dy:-2},{xv:goB*p,dy:-2}); }, ()=>{
     if(mA==='win'&&mB==='win'){
-      anim(420,p=>{ draw2({xv:TGT2+GRASSOFF*p,dy:-2},{xv:TGT2+GRASSOFF*p,dy:-2}); },()=>{ gTop=gBot=true; draw2({xv:TGT2+GRASSOFF,dy:-2},{xv:TGT2+GRASSOFF,dy:-2}); pop('nom! 🌿'); cheer();
-        statusEl.innerHTML='<b>2 + 3 = 3 + 2 = 5</b> ✓'; tell('Both reached the grass! <b class="g">2 + 3 = 3 + 2</b> — order is free, that\'s <b>commuting</b>.');
-        busy=false; clearTray(); addBtn('Next ▶','primary',()=>{ setDots(2); round3(); }); });
-    } else { const anyShort=(mA==='short'||mB==='short'); (anyShort?oops:sad)(); tell(anyShort?'A bridge was <b class="r">short</b> — tumble! Build BOTH to 5.':'Too <b class="r">long</b> — buried the grass! Build BOTH to exactly 5.');
+      anim(420,p=>{ draw2({xv:TGT2+GRASSOFF*p,dy:-2},{xv:TGT2+GRASSOFF*p,dy:-2}); },()=>{ gTop=gBot=true; draw2({xv:TGT2+GRASSOFF,dy:-2},{xv:TGT2+GRASSOFF,dy:-2}); pop('nom! 🌿'); cheer(); setDots(2); tickQ('q2'); gainXP(40);
+        statusEl.innerHTML='<b>'+A2+' + '+B2+' = '+B2+' + '+A2+' = '+TGT2+'</b> ✓'; tell('Both fed! <b class="g">'+A2+' + '+B2+' = '+B2+' + '+A2+'</b> — swap the order, the bridge is the same length. That\'s <b>commuting</b>.');
+        busy=false; clearTray(); addBtn('On to the Pillar Pass ▶','primary',round3); }); }
+    else { const anyShort=(mA==='short'||mB==='short'); (anyShort?oops:sad)(); tell(anyShort?'A bridge was <b class="r">short</b> — tumble! Build BOTH to '+TGT2+'.':'Too <b class="r">long</b> — buried the grass! Build BOTH to exactly '+TGT2+'.');
       anim(700,p=>{ draw2(
         mA==='short'?{xv:a,dy:p*150,rot:p*4}:{xv:TGT2,dy:-2},
-        mB==='short'?{xv:b,dy:p*150,rot:p*4}:{xv:TGT2,dy:-2}); }, ()=>{ busy=false; setTimeout(round2,1800); }); }
+        mB==='short'?{xv:b,dy:p*150,rot:p*4}:{xv:TGT2,dy:-2}); }, ()=>{ busy=false; setTimeout(round2,1700); }); }
   }); }
 
-// ════════ ROUND 3 — Associativity: same three planks, two groupings, both reach 6 ════════
-const END3=6;
-const GROUPS={ A:{pillar:3,left:[1,2],right:[3],label:'(1+2)+3'}, B:{pillar:1,left:[1],right:[2,3],label:'1+(2+3)'} };
-let cur3='A', grp3Done={A:false,B:false};
-const gsum=a=>a.reduce((x,y)=>x+y,0);
-function draw3(b){ const g=GROUPS[cur3]; SPANS=[{from:0,to:g.pillar},{from:g.pillar,to:END3}]; scene(SPANS,[{from:0,arr:g.left},{from:g.pillar,arr:g.right}], b||{xv:0}); }
-function round3(){ round=3; currentRound=round3; busy=false; grassEaten=false; cur3='A'; grp3Done={A:false,B:false}; cv.onclick=null; setDots(2); setMood('idle'); draw3();
-  tell('The <b>same</b> three planks <b class="b">1</b>, <b class="g">2</b>, <b class="y">3</b> reach the 🌿 at <b>6</b>. Does it matter how you <b>group</b> them? Try <b>both</b> ways!'); buildR3(); }
-function buildR3(){ clearTray(); grassEaten=false; draw3();
-  statusEl.innerHTML='reach <b>6</b> &nbsp; '+(grp3Done.A?'✓':'○')+' (1+2)+3 &nbsp; '+(grp3Done.B?'✓':'○')+' 1+(2+3)';
-  const mk=key=>{ const g=GROUPS[key], b=document.createElement('button'); b.className='btn'+(cur3===key?' on':''); b.innerHTML=(grp3Done[key]?'✓ ':'')+g.label; b.style.cssText='font-size:1.05rem;padding:12px 16px';
-    b.onclick=()=>{ if(busy)return; cur3=key; buildR3(); }; tray.appendChild(b); };
-  mk('A'); mk('B');
-  const s=document.createElement('button'); s.className='btn primary'; s.textContent='Send me ▶'; s.onclick=send3; tray.appendChild(s); }
-function send3(){ if(busy) return; const g=GROUPS[cur3];
-  runCrossing([{from:0,arr:g.left},{from:g.pillar,arr:g.right}],
-    [{from:0,to:g.pillar,need:g.pillar,have:gsum(g.left)},{from:g.pillar,to:END3,need:END3-g.pillar,have:gsum(g.right)}], ()=>{
-      grp3Done[cur3]=true;
-      if(grp3Done.A&&grp3Done.B){ setDots(3); statusEl.innerHTML='<b>(1+2)+3 = 1+(2+3) = 6</b> ✓';
-        tell('Both groupings land on the <b>same</b> grass at <b>6</b>! <b class="g">(1+2)+3 = 1+(2+3)</b>. The <b>grouping is free</b>: that is associativity.');
-        clearTray(); addBtn('Claim the Codex 📖','primary',openCodex); }
-      else { cur3=(cur3==='A'?'B':'A');
-        tell('Reached <b>6</b> with <b class="g">'+g.label+'</b>! Now try <b class="g">'+GROUPS[cur3].label+'</b>: same planks, same grass?'); buildR3(); } }); }
+// ════════ STEP 3 — The Pillar Pass (associativity: bracket the unsupported seam) ════════
+let A3=1,B3=2,C3=3, END3=6, S1=1, S2=3;
+let p3=[ {sup:new Set(), brk:null}, {sup:new Set(), brk:null} ];   // planks always A3|B3|C3; brk='first'(a+b) | 'second'(b+c)
+let g3eat=[false,false];
+function seamOk(lane,pos){ if(lane.sup.has(pos)) return true; if(lane.brk==='first'&&pos===S1) return true; if(lane.brk==='second'&&pos===S2) return true; return false; }
+function badSeam(lane){ for(const pos of [S1,S2]){ if(!seamOk(lane,pos)) return pos; } return null; }
+function lane3(by, lane, b, eaten){
+  const H=LH*0.20, PLK=[A3,B3,C3];
+  ctx.fillStyle=C.chasm; ctx.fillRect(PX(0),by+5,PX(END3)-PX(0),H); ctx.fillStyle=C.ledge; ctx.fillRect(0,by+5,PX(0),H); ctx.fillRect(PX(END3),by+5,LW-PX(END3),H);
+  lane.sup.forEach(x=>{ ctx.fillStyle=C.pillar; ctx.fillRect(PX(x)-5,by+4,10,H); });
+  ctx.strokeStyle=C.flag; ctx.lineWidth=2.4; ctx.beginPath(); ctx.moveTo(PX(END3),by); ctx.lineTo(PX(END3),by-28); ctx.stroke();
+  ctx.fillStyle=C.flag; ctx.beginPath(); ctx.moveTo(PX(END3),by-28); ctx.lineTo(PX(END3)+14,by-23); ctx.lineTo(PX(END3),by-18); ctx.closePath(); ctx.fill();
+  let acc=0; PLK.forEach(v=>{ const x0=PX(acc),x1=PX(acc+v); ctx.fillStyle=C.p[v]||'#888'; rr(x0+2,by-11,(x1-x0)-4,13,4); ctx.fill();
+    ctx.fillStyle='rgba(0,0,0,.6)'; ctx.font='bold 11px "IBM Plex Mono",monospace'; ctx.textAlign='center'; ctx.fillText(v,(x0+x1)/2,by-1); acc+=v; });
+  [S1,S2].forEach(pos=>{ const ok=seamOk(lane,pos); ctx.strokeStyle= ok?'rgba(80,216,144,.95)':'#ff4d4d'; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(PX(pos),by-13); ctx.lineTo(PX(pos),by+5); ctx.stroke();
+    if(!ok){ ctx.fillStyle='#ff4d4d'; ctx.font='13px serif'; ctx.textAlign='center'; ctx.fillText('⚠',PX(pos),by-17); } });
+  if(lane.brk){ const a=lane.brk==='first'?0:A3, c=lane.brk==='first'?S2:END3, y=by+16, lab=lane.brk==='first'?('('+A3+'+'+B3+')'):('('+B3+'+'+C3+')');
+    ctx.strokeStyle=C.flag; ctx.lineWidth=3; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(PX(a)+3,y-7); ctx.lineTo(PX(a)+3,y); ctx.lineTo(PX(c)-3,y); ctx.lineTo(PX(c)-3,y-7); ctx.stroke();
+    ctx.fillStyle=C.flag; ctx.font='italic 13px Georgia'; ctx.textAlign='center'; ctx.fillText(lab,(PX(a)+PX(c))/2,y+15); }
+  for(let i=0;i<=END3;i++){ ctx.fillStyle='rgba(255,122,92,.6)'; ctx.beginPath(); ctx.arc(PX(i),by,2.5,0,7); ctx.fill(); }
+  const gx=END3+GRASSOFF; if(!eaten){ ctx.font='20px serif'; ctx.textAlign='center'; ctx.fillText('🌿',PX(gx),by-3); }
+  if(b){ ctx.save(); ctx.translate(PX(b.xv),by-16+(b.dy||0)); if(b.rot)ctx.rotate(b.rot); ctx.scale(-1,1); ctx.font='40px serif'; ctx.textAlign='center'; ctx.fillText('🐂',0,0); ctx.restore(); }
+}
+function draw3v(bT,bB){ ctx.clearRect(0,0,LW,LH); ctx.fillStyle=C.bg; ctx.fillRect(0,0,LW,LH); lane3(LH*0.30,p3[0],bT,g3eat[0]); lane3(LH*0.72,p3[1],bB,g3eat[1]); }
+function round3(){ round=3; currentRound=round3; busy=false; cv.onclick=null; setSpeaker('tau'); MOUNT='🐂'; setMood('idle'); setDots(2);
+  do{ A3=rnd(1,3); B3=rnd(1,3); C3=rnd(1,3); }while(A3+B3+C3<4||A3+B3+C3>8); END3=A3+B3+C3; S1=A3; S2=A3+B3;
+  p3=[ {sup:new Set([S1]), brk:null}, {sup:new Set([S2]), brk:null} ]; g3eat=[false,false]; setPlace('The Pillar Pass'); draw3v({xv:0},{xv:0});
+  tell('<b>The Pillar Pass.</b> 🛠 A <b>seam</b> needs a <b class="p">post</b> beneath — or a <b class="y">bracket</b> to strengthen it. Top has a post at <b>'+S1+'</b>, bottom at <b>'+S2+'</b>. Bracket each <b class="r">⚠ red seam</b> — the numbers stay <b>'+A3+' | '+B3+' | '+C3+'</b>.'); buildR3v(); }
+function buildR3v(){ clearTray(); statusEl.innerHTML='bracket each <b class="r">⚠ red seam</b>, then send both';
+  const row=(idx,label)=>{ const lane=p3[idx]; const r=document.createElement('div'); r.style.cssText='display:flex;gap:7px;align-items:center;flex-wrap:wrap;justify-content:center;width:100%';
+    const l=document.createElement('span'); l.style.cssText='font:.8rem "IBM Plex Mono",monospace;color:var(--muted);min-width:64px'; l.textContent=label+' (post '+[...lane.sup][0]+')'; r.appendChild(l);
+    const bf=document.createElement('button'); bf.className='btn'+(lane.brk==='first'?' on':''); bf.textContent='( '+A3+'+'+B3+' )'; bf.style.cssText='font-size:.92rem;padding:8px 13px'; bf.onclick=()=>setBrk(idx,'first');
+    const bs=document.createElement('button'); bs.className='btn'+(lane.brk==='second'?' on':''); bs.textContent='( '+B3+'+'+C3+' )'; bs.style.cssText='font-size:.92rem;padding:8px 13px'; bs.onclick=()=>setBrk(idx,'second');
+    r.appendChild(bf); r.appendChild(bs); tray.appendChild(r); };
+  row(0,'top'); row(1,'bottom');
+  const s=document.createElement('button'); s.className='btn primary'; s.style.marginTop='3px'; s.textContent='Send both ▶'; s.onclick=send3v; tray.appendChild(s); }
+function setBrk(idx,which){ if(busy)return; p3[idx].brk = (p3[idx].brk===which?null:which); pop('bracket!'); draw3v({xv:0},{xv:0}); buildR3v(); }
+function send3v(){ if(busy)return; busy=true; clearTray();
+  const badT=badSeam(p3[0]), badB=badSeam(p3[1]);
+  const goT=badT!=null?badT:END3, goB=badB!=null?badB:END3;
+  anim(1100,p=>{ draw3v({xv:goT*p,dy:-2},{xv:goB*p,dy:-2}); },()=>{
+    if(badT==null && badB==null){
+      anim(420,p=>{ draw3v({xv:END3+GRASSOFF*p,dy:-2},{xv:END3+GRASSOFF*p,dy:-2}); },()=>{ g3eat=[true,true]; draw3v({xv:END3+GRASSOFF,dy:-2},{xv:END3+GRASSOFF,dy:-2}); pop('nom! 🌿'); cheer(); setDots(3); tickQ('q3'); gainXP(55);
+        statusEl.innerHTML='<b>'+A3+'+('+B3+'+'+C3+') = ('+A3+'+'+B3+')+'+C3+' = '+END3+'</b> ✓';
+        tell('Both across! Same planks <b>'+A3+', '+B3+', '+C3+'</b>, grouped two ways — <b class="g">'+A3+'+('+B3+'+'+C3+') = ('+A3+'+'+B3+')+'+C3+'</b>. That\'s <b>associating</b>!');
+        clearTray(); addBtn('Claim the Codex 📖','primary',openCodex); }); }
+    else { oops(); pop('💥'); tell('A <b class="r">seam over the Fog</b> snapped! Put a <b class="y">bracket</b> over the <b class="r">⚠</b> seam (a post holds it too).');
+      anim(720,p=>{ draw3v( badT!=null?{xv:badT,dy:p*150,rot:p*4}:{xv:END3,dy:-2}, badB!=null?{xv:badB,dy:p*150,rot:p*4}:{xv:END3,dy:-2} ); },()=>{ busy=false; setTimeout(round3,1700); }); } }); }
 
-function openCodex(){ setDots(3); document.getElementById('codex').classList.add('show');
-  document.getElementById('xpfill').style.width='100%'; try{ localStorage.setItem('mtZone_origin1','done'); }catch(_){}
-  say('Adding joins steps. Order is free, and grouping is free: group the planks either way, and you still reach six.'); }
+function openCodex(){ document.getElementById('codex').classList.add('show'); try{ localStorage.setItem('mtZone_origin1','done'); }catch(_){}
+  document.getElementById('pxpfill').style.width=Math.min(100,xp/need*100)+'%'; document.getElementById('pxpR').textContent='Pathfinder Lv.'+level;
+  say('Adding joins steps. Order is free, and grouping is free.'); }
 function restart(){ document.getElementById('codex').classList.remove('show'); round1(); }
 
-updSound(); round1();
+// ── quest plumbing ──
+const scrim=document.getElementById('scrim'), qtrack=document.getElementById('qtrack');
+function tickQ(id){ const e=document.getElementById(id); if(e&&!e.classList.contains('done')){ e.classList.add('done'); e.textContent='☑'+e.textContent.slice(1); } }
+function resetQ(){ ['q1','q2','q3'].forEach(id=>{ const e=document.getElementById(id); e.classList.remove('done'); e.textContent='◻'+e.textContent.slice(1); }); }
+function showQuest(){ SPANS=[{from:0,to:5}]; SUPPORTS=[1,2,3,4]; scene(SPANS,[{from:0,arr:[]}],{xv:0}); setSpeaker('sigma'); resetQ(); qtrack.classList.remove('show'); scrim.classList.remove('hide'); }
+document.getElementById('acceptQ').onclick=()=>{ scrim.classList.add('hide'); qtrack.classList.add('show'); setSpeaker('tau'); round1(); };
+
+updSound(); renderXP(); showQuest();
 </script>
 </body>
 </html>

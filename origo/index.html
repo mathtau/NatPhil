@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ORIGO</title>
+<meta name="robots" content="noindex">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap');
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  :root{ --gold:#f4c830; --cyan:#40c8f0; --purple:#b070f0; --green:#50d890; }
+  html,body{height:100%;}
+  body{ background:#06060f; color:#dfe2f0; font-family:'Playfair Display',Georgia,serif; overflow:hidden;
+    min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:24px; }
+
+  /* cosmic background */
+  .sky{ position:fixed; inset:0; z-index:0; background:
+    radial-gradient(1100px 600px at 78% -10%, rgba(176,112,240,.22), transparent),
+    radial-gradient(900px 600px at 12% 115%, rgba(64,200,240,.16), transparent),
+    radial-gradient(700px 700px at 50% 45%, rgba(244,200,48,.10), transparent),
+    linear-gradient(#06060f,#0a0a20 55%,#0e0a24); }
+  #stars{ position:fixed; inset:0; z-index:1; }
+  .star{ position:absolute; width:2px; height:2px; border-radius:50%; background:#fff; opacity:.7; animation:tw 3s ease-in-out infinite; }
+  @keyframes tw{ 0%,100%{opacity:.25} 50%{opacity:.9} }
+  /* drifting fog */
+  .fog{ position:fixed; z-index:2; inset:-20% -20% auto -20%; height:70%; bottom:-10%; top:auto;
+    background:radial-gradient(60% 100% at 50% 100%, rgba(120,95,170,.5), rgba(120,95,170,0) 70%);
+    filter:blur(8px); animation:drift 14s ease-in-out infinite; pointer-events:none; }
+  @keyframes drift{ 0%,100%{transform:translateX(-4%)} 50%{transform:translateX(4%)} }
+
+  .wrap{ position:relative; z-index:3; max-width:660px; }
+
+  /* the Great Circle drawing itself around O */
+  .hero{ width:190px; height:190px; margin:0 auto 10px; }
+  .hero svg{ width:100%; height:100%; overflow:visible; filter:drop-shadow(0 0 26px rgba(244,200,48,.35)); }
+  .gc{ fill:none; stroke:var(--gold); stroke-width:2.4; stroke-linecap:round;
+    stroke-dasharray:534; stroke-dashoffset:534; animation:draw 3.2s ease-out .3s forwards; }
+  @keyframes draw{ to{ stroke-dashoffset:0; } }
+  .spoke{ stroke:#ff7a5c; stroke-width:2.4; stroke-linecap:round; transform-origin:95px 95px; animation:spin 3.4s ease-out .3s 1; opacity:.9; }
+  @keyframes spin{ from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  .oDot{ fill:#fff; }
+  .oLabel{ fill:#fff; font:italic 16px 'Playfair Display',serif; }
+
+  .title{ font-size:clamp(2.6rem,12vw,5rem); letter-spacing:.14em; color:var(--gold); font-weight:500;
+    text-shadow:0 0 60px rgba(244,200,48,.4); opacity:0; animation:rise 1.4s ease .6s forwards; }
+  .sub{ font-style:italic; color:#9fb4d8; font-size:clamp(.95rem,3.6vw,1.15rem); margin-top:6px;
+    opacity:0; animation:rise 1.4s ease 1.2s forwards; }
+
+  .crawl{ margin-top:26px; min-height:120px; display:flex; flex-direction:column; gap:14px; }
+  .pline{ font-style:italic; font-size:clamp(1.05rem,4.2vw,1.32rem); line-height:1.45; color:#e6e9f5;
+    opacity:0; transform:translateY(10px); animation:rise 1.6s ease forwards; }
+  .pline b.o{ color:#fff; font-style:normal; } .pline b.f{ color:var(--purple); font-style:normal; }
+  .pline b.t{ color:var(--gold); font-style:normal; } .pline b.p{ color:var(--cyan); font-style:normal; }
+  .pline:nth-child(1){ animation-delay:2.2s; }
+  .pline:nth-child(2){ animation-delay:4.4s; }
+  .pline:nth-child(3){ animation-delay:6.6s; }
+  .pline:nth-child(4){ animation-delay:8.8s; }
+  .pline:nth-child(5){ animation-delay:11s; }
+  @keyframes rise{ to{ opacity:1; transform:translateY(0); } }
+
+  .begin{ margin-top:30px; opacity:0; animation:rise 1.4s ease 13.2s forwards; }
+  .begin a{ display:inline-block; padding:16px 34px; border-radius:13px; text-decoration:none; cursor:pointer;
+    font-family:'IBM Plex Mono',monospace; font-size:1.15rem; font-weight:600; letter-spacing:.03em;
+    background:linear-gradient(#f4c830,#c89a1e); color:#241a04; box-shadow:0 0 40px -6px rgba(244,200,48,.6); }
+  .begin a:hover{ filter:brightness(1.08); }
+  .begin .map{ display:block; margin-top:14px; font-family:'IBM Plex Mono',monospace; font-size:.82rem;
+    color:var(--cyan); background:none; box-shadow:none; padding:0; }
+
+  .skip{ position:fixed; bottom:16px; right:18px; z-index:5; font-family:'IBM Plex Mono',monospace; font-size:.8rem;
+    color:#7a7a98; background:none; border:none; cursor:pointer; letter-spacing:.08em; }
+  .skip:hover{ color:var(--gold); }
+
+  /* skip → reveal everything instantly */
+  body.skip-all .pline,body.skip-all .begin,body.skip-all .title,body.skip-all .sub{ opacity:1 !important; transform:none !important; animation:none !important; }
+  body.skip-all .gc{ stroke-dashoffset:0 !important; animation:none !important; }
+</style>
+</head>
+<body>
+  <div class="sky"></div>
+  <div id="stars"></div>
+  <div class="fog"></div>
+
+  <div class="wrap">
+    <div class="hero">
+      <svg viewBox="0 0 190 190" xmlns="http://www.w3.org/2000/svg">
+        <circle class="gc" cx="95" cy="95" r="85"/>
+        <line class="spoke" x1="95" y1="95" x2="180" y2="95"/>
+        <circle class="oDot" cx="95" cy="95" r="4.5"/>
+        <text class="oLabel" x="101" y="90">O</text>
+      </svg>
+    </div>
+
+    <div class="title">ORIGO</div>
+    <div class="sub">a world built from a single point</div>
+
+    <div class="crawl">
+      <p class="pline">Before all numbers… a single point. <b class="o">O</b>.</p>
+      <p class="pline">From O a whole world unfolded — step by step, circle by circle. They named it <b class="t">Origo</b>.</p>
+      <p class="pline">Then came the <b class="f">Unravelling</b> — a Fog that devours all we no longer understand. Forgotten lands… dissolve.</p>
+      <p class="pline">One path remains: rebuild Origo from <b class="o">O</b>, truth by truth, until you can draw the <b class="t">Great Circle (τ)</b> and seal the Rift.</p>
+      <p class="pline">You are a <b class="p">Pathfinder</b>. The first step waits.</p>
+    </div>
+
+    <div class="begin">
+      <a href="01-addition.html">Begin your path ▶</a>
+      <a class="map" href="world.html">…or survey the world map 🗺</a>
+    </div>
+  </div>
+
+  <button class="skip" id="skip">skip intro ⏭</button>
+
+<script>
+// starfield
+const sk=document.getElementById('stars');
+for(let i=0;i<90;i++){ const s=document.createElement('div'); s.className='star';
+  s.style.left=(Math.random()*100)+'%'; s.style.top=(Math.random()*100)+'%';
+  const sz=Math.random()*2+1; s.style.width=s.style.height=sz+'px';
+  s.style.animationDelay=(Math.random()*3)+'s'; s.style.opacity=(Math.random()*.5+.3);
+  sk.appendChild(s); }
+document.getElementById('skip').onclick=()=>document.body.classList.add('skip-all');
+</script>
+</body>
+</html>
