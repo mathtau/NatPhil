@@ -390,6 +390,31 @@
 <main>
 
 <!-- ═══════════════════════════════════════════════════════════════
+     59 秒讲解 — 竖屏（手机）/ 横屏（桌面）自动切换
+═══════════════════════════════════════════════════════════════ -->
+<div class="short-vid" id="shortVidWrap">
+  <video id="shortVid" controls playsinline preload="metadata" aria-label="59 秒高斯积分讲解"></video>
+  <p class="short-vid-cap">59 秒精简版，然后继续读完整推导。</p>
+</div>
+<style>
+  .short-vid{max-width:760px;margin:4px auto 34px;text-align:center;}
+  .short-vid video{width:100%;max-height:80vh;border-radius:14px;border:1px solid var(--border,#22224a);
+    background:#0c0c1e;box-shadow:0 18px 48px -20px rgba(0,0,0,.6);display:block;margin:0 auto;}
+  .short-vid.portrait video{max-width:430px;}
+  .short-vid-cap{color:var(--muted,#8888a8);font-size:.86rem;font-style:italic;margin-top:9px;}
+</style>
+<script>
+(function(){
+  var wrap=document.getElementById('shortVidWrap'), v=document.getElementById('shortVid'), base='gauss_short_zh';
+  var mq=window.matchMedia('(max-aspect-ratio: 1/1)');
+  function pick(){ var portrait=mq.matches, file='video/'+base+(portrait?'_vertical':'_landscape')+'.mp4';
+    if(v.getAttribute('src')!==file){ v.setAttribute('src',file); v.load(); }
+    wrap.classList.toggle('portrait',portrait); }
+  pick(); mq.addEventListener ? mq.addEventListener('change',pick) : mq.addListener(pick);
+})();
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════
      序章 —— 等式两侧各藏着同一个圆周
 ═══════════════════════════════════════════════════════════════ -->
 <div class="section" id="prelude">
@@ -1009,12 +1034,65 @@
   <p>平方技巧把不可能的一维积分变成了具有<strong>完美圆对称性</strong>的二维积分。
   我们从未引入旋转，也未引入角度——勾股定理与 exp 的乘积性质独立地产生了对称性。</p>
 
+  <p>但为什么保持这个高度不变会描出一个<em>圆</em>，而不是别的曲线？看一个点就明白。
+  它的水平位置 <em class="mx">x</em> 喂给下方的钟形曲线，读出
+  <em class="mg">exp</em><em class="m">(−</em><em class="mx">x</em><em class="m">²/2)</em>；它的竖直位置
+  <em class="my">y</em> 喂给左侧的钟形曲线，读出
+  <em class="mg">exp</em><em class="m">(−</em><em class="my">y</em><em class="m">²/2)</em>。该点处二维曲面的高度，
+  就是这两个读数的<strong>乘积</strong>。</p>
+
+  <div class="controls">
+    <label><em class="mx">x</em> =</label>
+    <input type="range" id="sl4x" min="-3" max="3" step="0.01" value="1.23">
+    <span class="val" id="vl4x">1.23</span>
+  </div>
+  <div class="controls" style="margin-top:6px;">
+    <label><em class="my">y</em> =</label>
+    <input type="range" id="sl4y" min="-3" max="3" step="0.01" value="0.86">
+    <span class="val" id="vl4y">0.86</span>
+    <button class="btn" id="play4xy">&#9654; 扫描 <em class="mx">x</em>, <em class="my">y</em></button>
+  </div>
+  <div class="controls" style="margin-top:14px;">
+    <label><em class="mt">θ</em> =</label>
+    <input type="range" id="sl4a" min="0" max="360" step="1" value="35">
+    <span class="val" id="vl4a">35°</span>
+  </div>
+  <div class="controls" style="margin-top:6px;">
+    <label><em class="mr">r</em> =</label>
+    <input type="range" id="sl4r" min="0" max="3" step="0.01" value="1.5">
+    <span class="val" id="vl4r">1.50</span>
+    <button class="btn" id="play4rt">&#9654; 扫描 <em class="mt">θ</em>, <em class="mr">r</em></button>
+    <button class="btn" id="clear4">&#8634; 清除</button>
+  </div>
+
+  <div class="graphs">
+    <div class="graph-card" style="max-width:560px;">
+      <canvas id="c4link" width="700" height="700"></canvas>
+      <p class="graph-caption">驱动同一个点有两种方式：直接设定输入 <em class="mx">x</em> 和
+      <em class="my">y</em>，或使用极坐标手柄 <em class="mr">r</em> 和 <em class="mt">θ</em>，两组互相同步。
+      让 <em class="mt">θ</em> 绕圆移动，<em class="mx">x</em> 钟形读数（红）与 <em class="my">y</em> 钟形读数（青）
+      此消彼长，但它们的乘积
+      <em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2)</em> 始终不变。
+      这种恒定就是圆；改变 <em class="mr">r</em> 即得到另一个圆。亮度即高度：每条钟形曲线在峰顶最亮，
+      该点的亮度即其乘积，也就是它在下方二维曲面上的高度。</p>
+    </div>
+  </div>
+
+  <p>带着这个点绕圆走一圈（角度只是带它行走的手柄；对称性本身从不需要角度）。
+  两个读数朝相反方向滑动，乘积却始终钉在
+  <em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2)</em>。乘积恒定意味着
+  <em class="mx">x</em><em class="m">² +</em> <em class="my">y</em><em class="m">²</em> 恒定，而
+  <em class="mx">x</em><em class="m">² +</em> <em class="my">y</em><em class="m">² =</em> <em class="mr">r</em><em class="m">²</em> 恰好就是一个圆。
+  把 <em class="mr">r</em> 滑到新值，乘积就跳到新的常数：0 到 1 之间的每个高度都挑出自己的圆，
+  整个平面便被下方画出的同心圆等高线填满。</p>
+
   <div class="graphs">
     <div class="graph-card" style="max-width:520px;">
       <canvas id="c4a" width="700" height="700"></canvas>
-      <p class="graph-caption">exp(−(x²+y²)/2) 的亮度热图：在原点最亮，远处变暗。
-      r = 1, 2, 3 的等高线是完美的圆——并非人为强加，
-      而是 exp 的乘积性质作用于两个独立直线累积所强制。</p>
+      <p class="graph-caption">就是你在上方亲手扫描出的那片场，这里干净地画出，并标出它的圆形等高线。
+      exp(−(x²+y²)/2) 的亮度热图：在原点最亮，远处变暗。
+      r = 1, 2, 3 的等高线是完美的圆，由 exp 的乘积性质作用于两个独立直线累积所强制，
+      而非人为强加。</p>
     </div>
   </div>
 
@@ -1026,7 +1104,7 @@
   （0 到 1 之间的数，由该方形离原点的距离决定）。将高度乘以方形面积，
   我们得到体积为 <em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2) ·</em> <em class="mx">dx</em> <em class="m">·</em> <em class="my">dy</em> 的薄柱。
   二重积分 <em class="my">I</em><em class="m">²</em> 就是整个平面上<strong>所有这些薄柱的体积之和</strong>
-  ——二维钟面下方的总体积。</p>
+  ——二维钟面下方的总体积。上方图表中逐行扫描，扫过的正是这种正方形分割。</p>
 
   <span class="eq"><em class="my">I</em><em class="m">²</em> &ensp;=&ensp; <span style="color:var(--gold)">∑</span><sub>方格</sub> &ensp;<em class="mg">exp</em><em class="m">(−</em><em class="mr">r</em><em class="m">²/2)</em> &thinsp;·&thinsp; <em class="mx">dx</em><em class="m">&thinsp;·&thinsp;</em><em class="my">dy</em></span>
 
@@ -1035,7 +1113,8 @@
   因为被积函数只依赖于 <em class="mr">r</em>——同一半径上每个点贡献相同的高度
   ——还有一种更自然的切分方式：<strong>薄薄的同心圆环</strong>，每个半径一环。
   在单个圆环内，高度从不改变，整个圆环就成为求和的一个构件，
-  替换掉许多带有相同值的独立方形。</p>
+  替换掉许多带有相同值的独立方形。你在上方图表里见过这一幕：环形扫描把每个圆环
+  都涂成单一亮度，因为高度沿圆周恒定。正是这种恒定，使圆环成为这里最自然的分割。</p>
 
   <div class="graphs">
     <div class="graph-card">
@@ -2619,6 +2698,119 @@ function drawRings4() {
   ctx.textAlign='center'; ctx.textBaseline='bottom'; ctx.fillText('y', cx, pT-5);
 }
 
+// ── c4link: one point → two bell readings → product is constant on a circle ──
+const G4 = { X0:180, X1:560, Y0:60, Y1:440, By:580, Hb:90, Lx:150, Wb:90, rng:3.4 };
+G4.cx = (G4.X0+G4.X1)/2; G4.cy = (G4.Y0+G4.Y1)/2; G4.s = (G4.X1-G4.X0)/(2*G4.rng);
+
+let trail4 = null, trail4ctx = null;
+function heat4(z) {                                  // same dark→gold scale as drawHeatmap4a
+  z = Math.max(0, Math.min(1, z));
+  return [Math.round(10 + z*230), Math.round(10 + z*182), Math.round(28 + z*36)];
+}
+function ensureTrail4() {
+  if (!trail4) {
+    trail4 = document.createElement('canvas'); trail4.width = 700; trail4.height = 700;
+    trail4ctx = trail4.getContext('2d');
+    trail4ctx.fillStyle = C.bg; trail4ctx.fillRect(0, 0, 700, 700);
+  }
+}
+function stampTrail4() {
+  ensureTrail4();
+  const th = link4.thetaDeg * Math.PI / 180;
+  const Px = G4.cx + link4.radius * Math.cos(th) * G4.s;
+  const Py = G4.cy - link4.radius * Math.sin(th) * G4.s;
+  const z = Math.exp(-link4.radius * link4.radius / 2);   // height at this point
+  const [r, g, b] = heat4(z), R = 21;
+  const grd = trail4ctx.createRadialGradient(Px, Py, 0, Px, Py, R);
+  grd.addColorStop(0, `rgba(${r},${g},${b},1)`);
+  grd.addColorStop(1, `rgba(${r},${g},${b},0)`);
+  trail4ctx.globalCompositeOperation = 'lighten';
+  trail4ctx.fillStyle = grd;
+  trail4ctx.beginPath(); trail4ctx.arc(Px, Py, R, 0, Math.PI*2); trail4ctx.fill();
+  trail4ctx.globalCompositeOperation = 'source-over';
+}
+
+function drawLink4(rd, deg) {
+  const ctx = document.getElementById('c4link').getContext('2d');
+  const S = 700;
+  const g = t => Math.exp(-t*t/2);
+  ctx.clearRect(0,0,S,S);
+  ctx.fillStyle = C.bg; ctx.fillRect(0,0,S,S);
+
+  const { X0, X1, Y0, Y1, cx, cy, rng, s, By, Hb, Lx, Wb } = G4;
+
+  if (trail4) { ctx.save(); ctx.beginPath(); ctx.rect(X0,Y0,X1-X0,Y1-Y0); ctx.clip(); ctx.drawImage(trail4,0,0); ctx.restore(); }
+
+  ctx.strokeStyle=C.grid; ctx.lineWidth=1;
+  for (let v=-3; v<=3; v++) { const gx=cx+v*s, gy=cy-v*s;
+    ctx.beginPath(); ctx.moveTo(gx,Y0); ctx.lineTo(gx,Y1); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(X0,gy); ctx.lineTo(X1,gy); ctx.stroke(); }
+  ctx.strokeStyle=C.axis; ctx.lineWidth=1.2;
+  ctx.beginPath(); ctx.moveTo(X0,cy); ctx.lineTo(X1,cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx,Y0); ctx.lineTo(cx,Y1); ctx.stroke();
+
+  if (rd <= 3.02) {
+    ctx.strokeStyle='rgba(240,136,64,.6)'; ctx.lineWidth=2; ctx.setLineDash([5,4]);
+    ctx.beginPath(); ctx.arc(cx,cy,rd*s,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  const heat = z => { z = Math.max(0, Math.min(1, z));
+    return `rgb(${Math.max(40,Math.round(10+z*230))},${Math.max(40,Math.round(10+z*182))},${Math.max(46,Math.round(28+z*36))})`; };
+  ctx.lineWidth=4; ctx.lineCap='round'; ctx.lineJoin='round';
+  let bx, by;
+  for (let i=0;i<=140;i++){ const xx=-rng+2*rng*i/140, h=g(xx), px=cx+xx*s, py=By-Hb*h;
+    if (i){ ctx.strokeStyle=heat(h); ctx.beginPath(); ctx.moveTo(bx,by); ctx.lineTo(px,py); ctx.stroke(); } bx=px; by=py; }
+  for (let i=0;i<=140;i++){ const yy=-rng+2*rng*i/140, h=g(yy), px=Lx-Wb*h, py=cy-yy*s;
+    if (i){ ctx.strokeStyle=heat(h); ctx.beginPath(); ctx.moveTo(bx,by); ctx.lineTo(px,py); ctx.stroke(); } bx=px; by=py; }
+  ctx.fillStyle='rgba(244,200,48,.8)'; ctx.font='15px Georgia'; ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.fillText('x 钟形', X1-34, By+12);
+  ctx.save(); ctx.translate(Lx-Wb-18, Y0+26); ctx.rotate(-Math.PI/2); ctx.textBaseline='alphabetic'; ctx.textAlign='right'; ctx.fillText('y 钟形',0,0); ctx.restore();
+
+  const pr=deg*Math.PI/180, ax=rd*Math.cos(pr), ay=rd*Math.sin(pr);
+  const Px=cx+ax*s, Py=cy-ay*s, xr=g(ax), yr=g(ay), prod=xr*yr;
+
+  ctx.save(); ctx.setLineDash([7,6]); ctx.strokeStyle=C.red; ctx.lineWidth=2.5;
+  ctx.beginPath(); ctx.moveTo(Px,Py); ctx.lineTo(Px,By-Hb*xr); ctx.stroke(); ctx.restore();
+  ctx.strokeStyle=C.red; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(Px,cy); ctx.stroke();
+  ctx.fillStyle=C.red; ctx.beginPath(); ctx.arc(Px,By-Hb*xr,6,0,Math.PI*2); ctx.fill();
+  ctx.font='italic 17px Georgia'; ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillText('x',(cx+Px)/2,cy+6);
+
+  ctx.save(); ctx.setLineDash([7,6]); ctx.strokeStyle=C.cyan; ctx.lineWidth=2.5;
+  ctx.beginPath(); ctx.moveTo(Px,Py); ctx.lineTo(Lx-Wb*yr,Py); ctx.stroke(); ctx.restore();
+  ctx.strokeStyle=C.cyan; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx,Py); ctx.stroke();
+  ctx.fillStyle=C.cyan; ctx.beginPath(); ctx.arc(Lx-Wb*yr,Py,6,0,Math.PI*2); ctx.fill();
+  ctx.textAlign='right'; ctx.textBaseline='middle'; ctx.fillText('y',cx-8,(cy+Py)/2);
+
+  ctx.strokeStyle=C.orange; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(Px,Py); ctx.stroke();
+  ctx.fillStyle=C.orange; ctx.font='italic 18px Georgia'; ctx.textAlign='left'; ctx.textBaseline='bottom'; ctx.fillText('r',(cx+Px)/2+4,(cy+Py)/2-4);
+
+  if (rd > 0.05) {
+    const aR = Math.min(34, 0.5*rd*s), VIO = '#b070f0';
+    ctx.strokeStyle=VIO; ctx.lineWidth=2.5; ctx.beginPath();
+    for (let i=0;i<=24;i++){ const a=pr*i/24, axp=cx+aR*Math.cos(a), ayp=cy-aR*Math.sin(a); i?ctx.lineTo(axp,ayp):ctx.moveTo(axp,ayp); }
+    ctx.stroke();
+    ctx.fillStyle=VIO; ctx.font='italic 17px Georgia'; ctx.textAlign='left'; ctx.textBaseline='middle';
+    ctx.fillText('θ', cx+(aR+11)*Math.cos(pr/2), cy-(aR+11)*Math.sin(pr/2));
+  }
+
+  ctx.fillStyle=C.axis; ctx.beginPath(); ctx.arc(cx,cy,4,0,Math.PI*2); ctx.fill();
+  ctx.save();
+  ctx.shadowColor='rgba(244,200,48,0.9)'; ctx.shadowBlur=5+prod*22;
+  ctx.fillStyle=heat(prod);
+  ctx.beginPath(); ctx.arc(Px,Py,8,0,Math.PI*2); ctx.fill();
+  ctx.restore();
+  ctx.strokeStyle='rgba(244,200,48,0.65)'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.arc(Px,Py,8,0,Math.PI*2); ctx.stroke();
+
+  const v = n => n.toFixed(3);
+  ctx.textBaseline='middle';
+  ctx.font='16px "IBM Plex Mono", monospace';
+  ctxRuns(ctx, [['exp(−x²/2)',C.green],[' = ',C.text],[v(xr),C.red]],  S/2, 612, 'center');
+  ctxRuns(ctx, [['exp(−y²/2)',C.green],[' = ',C.text],[v(yr),C.cyan]], S/2, 640, 'center');
+  ctx.font='16px "IBM Plex Mono", monospace';
+  ctxRuns(ctx, [['乘积 = exp(−r²/2) = ',C.green],[v(prod),C.gold],['　（沿圆恒定）',C.orange]], S/2, 672, 'center');
+}
+
 function draw4() {
   drawHeatmap4a();
   drawGrid4();
@@ -2628,6 +2820,92 @@ function draw4() {
 }
 
 draw4();
+
+// ── §4 link chart: x/y inputs, θ/r handles, and scan-to-paint ───────
+const sl4x = document.getElementById('sl4x'), vl4x = document.getElementById('vl4x');
+const sl4y = document.getElementById('sl4y'), vl4y = document.getElementById('vl4y');
+const sl4r = document.getElementById('sl4r'), vl4r = document.getElementById('vl4r');
+const sl4a = document.getElementById('sl4a'), vl4a = document.getElementById('vl4a');
+const play4xy = document.getElementById('play4xy');
+const play4rt = document.getElementById('play4rt');
+const clear4  = document.getElementById('clear4');
+
+const RMAX4 = 3;
+const link4 = { radius: 1.5, thetaDeg: 35 };
+
+function syncLink4(paint = true) {
+  const th = link4.thetaDeg * Math.PI / 180;
+  const x = link4.radius * Math.cos(th), y = link4.radius * Math.sin(th);
+  sl4x.value = x; vl4x.textContent = x.toFixed(2);
+  sl4y.value = y; vl4y.textContent = y.toFixed(2);
+  sl4r.value = link4.radius; vl4r.textContent = link4.radius.toFixed(2);
+  sl4a.value = link4.thetaDeg; vl4a.textContent = Math.round(link4.thetaDeg) + '°';
+  if (paint) stampTrail4();
+  drawLink4(link4.radius, link4.thetaDeg);
+}
+function setFromXY(x, y) {
+  link4.radius = Math.hypot(x, y);
+  link4.thetaDeg = (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+}
+
+sl4x.addEventListener('input', () => {
+  const y = link4.radius * Math.sin(link4.thetaDeg * Math.PI / 180);
+  const lim = Math.sqrt(Math.max(0, RMAX4 * RMAX4 - y * y));
+  setFromXY(Math.max(-lim, Math.min(lim, +sl4x.value)), y);
+  syncLink4();
+});
+sl4y.addEventListener('input', () => {
+  const x = link4.radius * Math.cos(link4.thetaDeg * Math.PI / 180);
+  const lim = Math.sqrt(Math.max(0, RMAX4 * RMAX4 - x * x));
+  setFromXY(x, Math.max(-lim, Math.min(lim, +sl4y.value)));
+  syncLink4();
+});
+sl4r.addEventListener('input', () => { link4.radius = Math.min(RMAX4, Math.max(0, +sl4r.value)); syncLink4(); });
+sl4a.addEventListener('input', () => { link4.thetaDeg = ((+sl4a.value) % 360 + 360) % 360; syncLink4(); });
+
+let rafScan = null, scanMode = null;
+function stopScan() {
+  if (rafScan) { cancelAnimationFrame(rafScan); rafScan = null; }
+  scanMode = null;
+  play4xy.innerHTML = '&#9654; 扫描 <em class="mx">x</em>, <em class="my">y</em>'; play4xy.classList.remove('active');
+  play4rt.innerHTML = '&#9654; 扫描 <em class="mt">θ</em>, <em class="mr">r</em>'; play4rt.classList.remove('active');
+}
+
+play4xy.addEventListener('click', () => {
+  if (scanMode === 'xy') { stopScan(); return; }
+  stopScan(); scanMode = 'xy';
+  play4xy.textContent = '◼ 停止'; play4xy.classList.add('active');
+  let x = -3, y = -3;
+  const stepf = () => {
+    if (scanMode !== 'xy') return;
+    setFromXY(x, y); syncLink4();
+    x += 0.09;
+    if (x > 3) { x = -3; y += 0.40; }
+    if (y > 3) { stopScan(); return; }
+    rafScan = requestAnimationFrame(stepf);
+  };
+  rafScan = requestAnimationFrame(stepf);
+});
+
+play4rt.addEventListener('click', () => {
+  if (scanMode === 'rt') { stopScan(); return; }
+  stopScan(); scanMode = 'rt';
+  play4rt.textContent = '◼ 停止'; play4rt.classList.add('active');
+  let r = 0, th = 0;
+  const stepf = () => {
+    if (scanMode !== 'rt') return;
+    link4.radius = r; link4.thetaDeg = th * 180 / Math.PI; syncLink4();
+    th += 0.13;
+    if (th >= Math.PI * 2) { th = 0; r += 0.22; }
+    if (r > 3) { stopScan(); return; }
+    rafScan = requestAnimationFrame(stepf);
+  };
+  rafScan = requestAnimationFrame(stepf);
+});
+
+clear4.addEventListener('click', () => { ensureTrail4(); trail4ctx.fillStyle = C.bg; trail4ctx.fillRect(0, 0, 700, 700); stopScan(); syncLink4(false); });
+
+syncLink4(false);
 </script>
 </body>
 </html>
