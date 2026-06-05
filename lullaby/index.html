@@ -538,13 +538,17 @@ function langVoices() {
 function voiceScore(v) {
   const id = (v.voiceURI + " " + v.name).toLowerCase();
   let s = 0;
-  if (/premium/.test(id)) s += 100;
+  if (/premium/.test(id)) s += 100;             // 若系统真的开放了高音质版
   if (/siri/.test(id))    s += 95;
-  if (/enhanced/.test(id))s += 80;
+  if (/enhanced/.test(id))s += 85;
   if (/neural|natural/.test(id)) s += 70;
   if (v.localService === false)  s += 30;       // 远端/网络嗓音通常更好
-  if ((lang === "zh" ? /tingting|tian|sinji|meijia|liang|yue|han/ :
-                       /samantha|ava|allison|susan|zoe|nora|aria|jenny|libby|karen|moira|serena/).test(id)) s += 20;
+  // 在“能拿到的”嗓音里,首选用户认可的:英文 Samantha,中文 美嘉(Meijia)
+  const preferred = lang === "zh" ? /美嘉|meijia|mei-?jia/ : /samantha/;
+  const good      = lang === "zh" ? /婷婷|tingting|ting-?ting|sinji|li-?mu|yue/
+                                  : /ava|allison|susan|zoe|nora|aria|jenny|libby|karen|moira|serena/;
+  if (preferred.test(id)) s += 120;
+  else if (good.test(id)) s += 25;
   return s;
 }
 function pickVoice() {
