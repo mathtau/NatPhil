@@ -1234,11 +1234,212 @@ function arcQuilt(h, lvl) {
   return P;
 }
 
+/* ===========================================================================
+   追加故事库(数据驱动)。所有数字都由代码计算,所有“列举”都用 seqList() 从
+   真实数组生成,因此绝不会出现“数到三但其实只有两个”这类数/文不符的错误。
+   =========================================================================== */
+const SEP = () => (lang === "zh" ? "、" : ", ");
+const seqList = a => a.map(num).join(SEP());
+const oneOf = a => a[Math.floor(Math.random() * a.length)];
+
+const SENSE_EN = [
+  () => `The night was soft and still, and nothing needed doing.`,
+  () => `A little wind moved through, slow as breathing.`,
+  () => `The lamp was warm, and the dark outside was kind.`,
+  () => `Everything was quiet — the good kind of quiet.`,
+  h => `${cap(h.name)} felt warm right to the tips of its paws.`,
+];
+const SENSE_ZH = [
+  () => `夜又软又静,什么也不必做。`,
+  () => `一阵小小的风吹过,慢得像呼吸。`,
+  () => `灯暖暖的,窗外的黑也很温柔。`,
+  () => `四下里安安静静的,是那种很好的安静。`,
+  h => `${h.name}从头到脚,都暖暖的。`,
+];
+const CLOSE_EN = [
+  h => `${cap(h.name)} yawned, curled up small, and was soon fast asleep.`,
+  h => `${cap(h.name)} pulled up the blanket, and the numbers melted into a dream.`,
+  h => `Warm and sleepy, ${h.name} closed its eyes and drifted off.`,
+  h => `${cap(h.name)} counted them once more, slower and slower, until sleep came.`,
+];
+const CLOSE_ZH = [
+  h => `${h.name}打了个哈欠,蜷成小小的一团,很快就睡着了。`,
+  h => `${h.name}拉好被子,数字就慢慢化进了梦里。`,
+  h => `又暖又困,${h.name}闭上眼睛,飘进了睡眠里。`,
+  h => `${h.name}又数了一遍,越来越慢,越来越慢,睡着了。`,
+];
+function opener(h, pe, pz) {
+  return lang === "en"
+    ? oneOf([`${cap(h.full)} lived in ${pe}.`, `In ${pe}, ${h.full} was getting sleepy.`])
+    : oneOf([`${pz}，住着${h.full}。`, `${h.full}就住在${pz}，这会儿正犯着困。`]);
+}
+function mkArc(tEn, tZh, pe, pz, body) {
+  return (h, lvl) => {
+    const P = [{ cls: "stitle", html: lang === "en" ? tEn : tZh }];
+    P.push({ html: opener(h, pe, pz) });
+    body(lvl, h).forEach(s => P.push({ html: lang === "en" ? s.en : s.zh }));
+    const sense = lang === "en" ? SENSE_EN : SENSE_ZH;
+    if (lvl >= 1) P.push({ html: oneOf(sense)(h) });
+    if (lvl >= 2) P.push({ html: oneOf(sense)(h) });
+    P.push({ html: (oneOf(lang === "en" ? CLOSE_EN : CLOSE_ZH))(h) });
+    return P;
+  };
+}
+
+/* ---- 数学小节(每个都计算正确,列举用 seqList) ---- */
+function bAdd(u) { return (lvl, h) => {
+  const a = SR.int(2,4), b = SR.int(2,4), L = lvl>=2, c = L?SR.int(2,3):0, t = a+b+c;
+  const o = [{ en:`First ${num(a)} ${u.en}, then ${num(b)} more.`, zh:`先是 ${num(a)} ${u.zh},后来又有 ${num(b)} ${u.zh}。` }];
+  if (L) o.push({ en:`And later, ${num(c)} more.`, zh:`再后来,又添了 ${num(c)} ${u.zh}。` });
+  o.push(L ? { en:`${num(a)}, ${num(b)} and ${num(c)} makes ${num(t)} altogether.`, zh:`${num(a)}、${num(b)} 再加 ${num(c)},一共是 ${num(t)} ${u.zh}。` }
+           : { en:`${num(a)} and ${num(b)} makes ${num(t)}.`, zh:`${num(a)} 加 ${num(b)},一共是 ${num(t)} ${u.zh}。` });
+  return o; };
+}
+function bSub(u) { return (lvl, h) => {
+  const start = lvl>=2?SR.int(8,10):SR.int(5,8), t1 = SR.int(1,2), r1 = start-t1;
+  const o = [{ en:`There were ${num(start)} ${u.en}.`, zh:`本来有 ${num(start)} ${u.zh}。` },
+             { en:`${num(t1)} went away, leaving ${num(r1)}.`, zh:`走掉了 ${num(t1)} ${u.zh},还剩 ${num(r1)} ${u.zh}。` }];
+  if (lvl>=1) { const t2 = SR.int(1,2), r2 = Math.max(0, r1-t2);
+    o.push({ en:`Then ${num(t2)} more, leaving ${num(r2)}.`, zh:`又走了 ${num(t2)} ${u.zh},还剩 ${num(r2)} ${u.zh}。` }); }
+  return o; };
+}
+function bCountUp(u) { return (lvl, h) => {
+  const n = lvl>=2?SR.int(9,12):lvl>=1?SR.int(7,9):SR.int(5,7), s = [];
+  for (let i=1;i<=n;i++) s.push(i);
+  return [{ en:`${cap(h.name)} began to count the ${u.en}, one by one.`, zh:`${h.name}一个一个地,数起了${u.zh}。` },
+          { en:`${seqList(s)}…`, zh:`${seqList(s)}……` },
+          { en:`…all the way to ${num(n)}.`, zh:`……一直数到 ${num(n)} 。` }]; };
+}
+function bCountDown(u) { return (lvl, h) => {
+  const n = lvl>=2?SR.int(9,12):SR.int(6,9), s = [];
+  for (let i=n;i>=0;i--) s.push(i);
+  return [{ en:`${cap(h.name)} counted down the ${u.en}:`, zh:`${h.name}倒着数起了${u.zh}:` },
+          { en:`${seqList(s)}.`, zh:`${seqList(s)}。` },
+          { en:`…all the way down to ${num(0)}.`, zh:`……一直数到 ${num(0)} 。` }]; };
+}
+function bMult(per, g, item) { return (lvl, h) => {
+  const k = lvl>=2?SR.int(4,6):lvl>=1?SR.int(3,4):SR.int(2,3), m = [];
+  for (let i=1;i<=k;i++) m.push(per*i);
+  return [{ en:`Each ${g.en} had ${num(per)} ${item.en}.`, zh:`每${g.zh}有 ${num(per)} ${item.zh}。` },
+          { en:`${cap(h.name)} counted them up: ${seqList(m)}.`, zh:`${h.name}一路数过去:${seqList(m)}。` },
+          { en:`${num(k)} ${g.en}s, ${num(per)} each — ${num(k*per)} ${item.en} in all.`,
+            zh:`${num(k)} ${g.zh},每${g.zh} ${num(per)} ${item.zh},一共 ${num(k*per)} ${item.zh}。` }]; };
+}
+function bShare(item) { return (lvl, h) => {
+  const g = SR.int(2,4), e = lvl>=2?SR.int(3,4):SR.int(2,3), t = g*e;
+  return [{ en:`${num(t)} ${item.en} to share among ${num(g)} friends.`, zh:`${num(t)} ${item.zh},要分给 ${num(g)} 个朋友。` },
+          { en:`${num(t)} into ${num(g)} equal piles is ${num(e)} each — ${num(g)} times ${num(e)} is ${num(t)}.`,
+            zh:`${num(t)} ${item.zh},平均分成 ${num(g)} 份,每份 ${num(e)} ${item.zh},因为 ${num(g)} 乘 ${num(e)} 就是 ${num(t)}。` }]; };
+}
+function bHalve() { return (lvl, h) => {
+  const start = lvl>=2?16:8, s = []; for (let v=start; v>=1; v/=2) s.push(v);
+  return [{ en:`${cap(h.name)} split them in half, then in half again.`, zh:`${h.name}把它们对半分,再对半分。` },
+          { en:`Half of ${num(start)} is ${num(start/2)}; half again is ${num(start/4)}.`, zh:`${num(start)} 的一半是 ${num(start/2)},再一半是 ${num(start/4)}。` },
+          { en:`Smaller and smaller: ${seqList(s)}.`, zh:`越来越小:${seqList(s)}。` }]; };
+}
+function bTriangular(item) { return (lvl, h) => {
+  const n = lvl>=2?SR.int(5,7):SR.int(4,5), adds=[], run=[]; let s=0;
+  for (let i=1;i<=n;i++){ adds.push(i); s+=i; run.push(s); }
+  return [{ en:`Row by row, adding ${seqList(adds)} each time.`, zh:`一排一排,依次多加 ${seqList(adds)} 。` },
+          { en:`The totals climb: ${seqList(run)}.`, zh:`总数越叠越高:${seqList(run)}。` },
+          { en:`${num(n)} rows make ${num(s)} ${item.en} in all.`, zh:`${num(n)} 排,一共 ${num(s)} ${item.zh}。` }]; };
+}
+function bDouble(item) { return (lvl, h) => {
+  const days = lvl>=2?6:SR.int(4,5), s=[]; let v=1; for (let i=0;i<days;i++){ s.push(v); v*=2; }
+  return [{ en:`It doubled every day: ${seqList(s)}.`, zh:`每天翻一倍:${seqList(s)}。` },
+          { en:`By day ${num(days)} there were ${num(s[s.length-1])} ${item.en}.`, zh:`到第 ${num(days)} 天,就有 ${num(s[s.length-1])} ${item.zh}了。` }]; };
+}
+function bFib(item) { return (lvl, h) => {
+  const n = lvl>=2?SR.int(7,8):SR.int(5,6), s=[1,1]; while (s.length<n) s.push(s[s.length-1]+s[s.length-2]);
+  return [{ en:`Each was the sum of the two before: ${seqList(s)}.`, zh:`每个都是前两个之和:${seqList(s)}。` },
+          { en:`By the end there were ${num(s[s.length-1])} ${item.en}.`, zh:`到最后,就有 ${num(s[s.length-1])} ${item.zh}。` }]; };
+}
+function bOddEven(item) { return (lvl, h) => {
+  const n = lvl>=2?SR.int(7,9):SR.int(4,6), p = Math.floor(n/2), odd = n%2;
+  return [{ en:`${num(n)} ${item.en} lined up two by two.`, zh:`${num(n)} ${item.zh},两个两个地排好。` },
+          odd ? { en:`That made ${num(p)} pairs, with ${num(1)} left over — ${num(n)} is odd.`, zh:`正好 ${num(p)} 对,还多 ${num(1)} 个——${num(n)} 是单数。` }
+              : { en:`That made ${num(p)} even pairs, none left over — ${num(n)} is even.`, zh:`正好 ${num(p)} 对,一个不多——${num(n)} 是双数。` }]; };
+}
+function bRunTotal(item) { return (lvl, h) => {
+  const per = SR.int(1,3), days = lvl>=2?SR.int(4,5):SR.int(3,4), run=[]; let s=0;
+  for (let d=1;d<=days;d++){ s+=per; run.push(s); }
+  return [{ en:`${num(per)} ${item.en} more each day: ${seqList(run)}.`, zh:`每天多 ${num(per)} ${item.zh}:${seqList(run)}。` },
+          { en:`After ${num(days)} days, ${num(s)} ${item.en} in all.`, zh:`${num(days)} 天后,一共 ${num(s)} ${item.zh}。` }]; };
+}
+
+const MORE_ARCS = [
+  /* 加法 */
+  mkArc("Acorns Above","树上的橡果","an old oak tree","一棵老橡树上", bAdd({en:"acorns",zh:"颗橡果"})),
+  mkArc("Two Baskets of Apples","两篮苹果","an orchard cottage","果园边的小屋", bAdd({en:"apples",zh:"个苹果"})),
+  mkArc("Shells on the Shore","海边的贝壳","a hut by the sea","海边的小屋", bAdd({en:"shells",zh:"个贝壳"})),
+  mkArc("Pebbles by the Stream","溪边的小石子","a den beside a stream","溪边的小窝", bAdd({en:"pebbles",zh:"颗小石子"})),
+  mkArc("Snowballs in the Yard","院子里的雪球","a snowy yard","落满雪的院子", bAdd({en:"snowballs",zh:"个雪球"})),
+  mkArc("Eggs from the Henhouse","鸡窝里的蛋","a little henhouse","小小的鸡舍", bAdd({en:"eggs",zh:"个蛋"})),
+  /* 减法 */
+  mkArc("The Cookie Plate","盘子里的饼干","a snug little house","一间暖暖的小屋", bSub({en:"cookies",zh:"块饼干"})),
+  mkArc("Balloons Let Go","放飞的气球","a room full of balloons","满是气球的房间", bSub({en:"balloons",zh:"个气球"})),
+  mkArc("Leaves Coming Down","飘落的叶子","a house under a maple","一棵枫树下的屋子", bSub({en:"leaves",zh:"片叶子"})),
+  mkArc("Candles Out","熄灭的蜡烛","a candlelit room","点着蜡烛的房间", bSub({en:"candles",zh:"支蜡烛"})),
+  mkArc("Fish Slipping Away","游走的小鱼","a little fishing boat","一条小渔船上", bSub({en:"fish",zh:"条小鱼"})),
+  mkArc("Berries One by One","一颗颗的浆果","a cabin by a berry patch","浆果丛边的小木屋", bSub({en:"berries",zh:"颗浆果"})),
+  /* 顺数 */
+  mkArc("Counting Sheep","数羊","a hillside farm","山坡上的农场", bCountUp({en:"sheep",zh:"羊"})),
+  mkArc("Stars Before Sleep","睡前数星","a little rooftop room","屋顶的小阁楼", bCountUp({en:"stars",zh:"星星"})),
+  mkArc("Raindrops on the Glass","窗上的雨点","a room by a rainy window","雨窗边的房间", bCountUp({en:"raindrops",zh:"雨点"})),
+  mkArc("Little Boats on the Lake","湖上的小船","a cabin by the lake","湖边的小木屋", bCountUp({en:"little boats",zh:"小船"})),
+  mkArc("Geese Flying Over","飞过的大雁","a reed hut by the marsh","沼泽边的芦苇屋", bCountUp({en:"geese",zh:"大雁"})),
+  mkArc("Lanterns Down the Lane","小巷的灯笼","a house on a lantern-lit lane","挂满灯笼的小巷边", bCountUp({en:"lanterns",zh:"灯笼"})),
+  /* 倒数 */
+  mkArc("Steps to the Loft","通往阁楼的台阶","a barn with a hayloft","有草料阁楼的谷仓", bCountDown({en:"steps",zh:"台阶"})),
+  mkArc("Train Cars Passing","驶过的车厢","a house by the railway","铁道边的小屋", bCountDown({en:"train cars",zh:"车厢"})),
+  mkArc("Down the Cellar Stairs","下地窖的台阶","a cottage with a cellar","带地窖的小屋", bCountDown({en:"steps",zh:"台阶"})),
+  mkArc("Hours Until Morning","到天亮还有几钟头","a bedroom with a ticking clock","摆着座钟的卧室", bCountDown({en:"hours",zh:"钟头"})),
+  /* 乘法 / 跳数 */
+  mkArc("Four Little Paws","四只小爪子","a cozy burrow","一个暖暖的洞里", bMult(4,{en:"friend",zh:"位朋友"},{en:"paws",zh:"只爪子"})),
+  mkArc("Beetle Legs","甲虫的腿","a garden shed at dusk","黄昏的花园小棚", bMult(6,{en:"beetle",zh:"只甲虫"},{en:"legs",zh:"条腿"})),
+  mkArc("Petals on Each Flower","每朵花的花瓣","a cottage in a flower garden","花园里的小屋", bMult(5,{en:"flower",zh:"朵花"},{en:"petals",zh:"片花瓣"})),
+  mkArc("Eggs in Every Nest","每个窝里的蛋","a tree full of nests","满是鸟窝的大树", bMult(3,{en:"nest",zh:"个窝"},{en:"eggs",zh:"个蛋"})),
+  mkArc("Wings in the Eaves","屋檐下的翅膀","a barn","一座谷仓", bMult(2,{en:"bird",zh:"只鸟"},{en:"wings",zh:"只翅膀"})),
+  mkArc("Toes Under the Quilt","被子里的脚趾","a warm bed","暖暖的被窝里", bMult(5,{en:"paw",zh:"只爪子"},{en:"toes",zh:"个脚趾"})),
+  mkArc("Jars of Fireflies","一瓶瓶萤火虫","a meadow hut","草地边的小屋", bMult(10,{en:"jar",zh:"个瓶子"},{en:"fireflies",zh:"只萤火虫"})),
+  mkArc("Wheels on the Carts","小车的轮子","a playroom of toy carts","摆满玩具车的游戏间", bMult(4,{en:"cart",zh:"辆小车"},{en:"wheels",zh:"个轮子"})),
+  mkArc("Buttons on the Coats","外套上的扣子","a little tailor's shop","小小的裁缝铺", bMult(3,{en:"coat",zh:"件外套"},{en:"buttons",zh:"颗扣子"})),
+  mkArc("Spots on the Ladybugs","瓢虫的斑点","a leafy hedge","绿油油的篱笆边", bMult(4,{en:"ladybug",zh:"只瓢虫"},{en:"spots",zh:"个斑点"})),
+  mkArc("Fingers by the Fire","炉火边的手指","a room by the fire","炉火边的房间", bMult(5,{en:"hand",zh:"只手"},{en:"fingers",zh:"根手指"})),
+  mkArc("Posts Along the Fence","篱笆上的木桩","a farm by a long fence","长篱笆边的农场", bMult(10,{en:"stretch",zh:"段篱笆"},{en:"posts",zh:"根木桩"})),
+  /* 除法 / 平分 */
+  mkArc("Sharing the Berries","分浆果","a kitchen full of jam","满是果酱的厨房", bShare({en:"berries",zh:"颗浆果"})),
+  mkArc("Slices of Pie","分派","a warm little bakery","暖暖的小面包房", bShare({en:"slices of pie",zh:"块派"})),
+  mkArc("Dealing the Cards","发牌","a room with a card table","摆着牌桌的房间", bShare({en:"cards",zh:"张牌"})),
+  mkArc("Nuts for the Squirrels","给松鼠分坚果","a hollow in an autumn wood","秋林里的树洞", bShare({en:"nuts",zh:"颗坚果"})),
+  mkArc("Blankets for Everyone","给大家分毯子","a sleepy room of friends","挤满朋友的小屋", bShare({en:"blankets",zh:"条毯子"})),
+  mkArc("Cups of Warm Milk","分热牛奶","a quiet dairy kitchen","安静的牛奶房", bShare({en:"cups of milk",zh:"杯牛奶"})),
+  /* 减半 */
+  mkArc("Halving the Apple","对半分苹果","an orchard at night","夜里的果园", bHalve()),
+  mkArc("The Folding Blanket","对折的毯子","a tidy little bedroom","整洁的小卧室", bHalve()),
+  mkArc("Lights Out, Half by Half","一半一半地关灯","a big old house","一座古老的大房子", bHalve()),
+  /* 三角数(累加) */
+  mkArc("The Growing Stairs","越叠越高的台阶","a tall stone tower","一座高高的石塔", bTriangular({en:"steps",zh:"级"})),
+  mkArc("A Pile of River Stones","河边的石堆","a hut by a quiet riverbank","河边的小屋", bTriangular({en:"stones",zh:"块石头"})),
+  /* 翻倍 */
+  mkArc("The Doubling Pot","会翻倍的锅","a tiny warm kitchen","暖暖的小厨房", bDouble({en:"dumplings",zh:"个饺子"})),
+  mkArc("Lily Pads Spreading","越长越多的荷叶","a hut by a still pond","池塘边的小屋", bDouble({en:"lily pads",zh:"片荷叶"})),
+  /* 斐波那契 */
+  mkArc("The Rabbit Family","兔子一家","a meadow warren","草地上的兔子窝", bFib({en:"rabbits",zh:"只兔子"})),
+  mkArc("Inside the Spiral Shell","螺壳里的螺旋","a cave by a tide pool","潮水洼边的小洞", bFib({en:"chambers",zh:"个小室"})),
+  /* 单双数 */
+  mkArc("Two by Two to Bed","两个两个去睡","a tidy burrow","整齐的小洞", bOddEven({en:"little ones",zh:"个小家伙"})),
+  mkArc("Ducklings in a Row","排成排的小鸭","a nest by the pond","池塘边的窝", bOddEven({en:"ducklings",zh:"只小鸭"})),
+  /* 逐日累计 */
+  mkArc("A Coin a Day","每天一枚硬币","a room above a little shop","小店楼上的房间", bRunTotal({en:"coins",zh:"枚硬币"})),
+  mkArc("A Spoon of Honey","每天一勺蜜","a bear's warm den","熊的暖窝", bRunTotal({en:"spoons of honey",zh:"勺蜜"})),
+];
+
 const STORY_ARCS = [
   arcBerries, arcShare, arcNibble, arcSteps, arcSeeds,
   arcEars, arcPetals, arcFireflies, arcHalf, arcShareHalf,
   arcPairs, arcMittens, arcCoins, arcWeek, arcHours, arcShapes, arcQuilt
-];
+].concat(MORE_ARCS);
 
 // 洗牌发牌:每轮把所有故事各发一次,发完再洗;且不连着重复同一篇
 function bagDealer(items) {
