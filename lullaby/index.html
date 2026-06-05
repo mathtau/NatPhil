@@ -295,6 +295,9 @@
       </select>
     </label>
     <button class="toggle-btn on" id="narrate" data-i18n="narrate">read aloud</button>
+    <label class="field"><span data-i18n="voiceLabel">Voice</span>
+      <select id="voice"></select>
+    </label>
     <button class="toggle-btn" id="dim" data-i18n="dim">dim</button>
   </div>
 
@@ -336,6 +339,7 @@ const I18N = {
     modeCount: "Counting", modeStory: "A story",
     heroLabel: "Who", lenLabel: "Length", newStory: "Tell me a story", anotherStory: "Another story",
     autoStory: "keep going", pauseStory: "pause", resumeStory: "resume",
+    voiceLabel: "Voice", voiceAuto: "Auto",
     lenShort: "short", lenMed: "medium", lenLong: "long", lenAny: "🎲 surprise me", anyHero: "✨ anyone",
     storyHint: "Pick who it’s about, and let a small, sleepy story count itself out.",
     ambient: "ambient", rain: "rain", waves: "waves", wind: "wind", fire: "fire", night: "crickets",
@@ -373,6 +377,7 @@ const I18N = {
     modeCount: "数数", modeStory: "讲故事",
     heroLabel: "主角", lenLabel: "长短", newStory: "讲一个故事", anotherStory: "再讲一个",
     autoStory: "连续播放", pauseStory: "暂停", resumeStory: "继续",
+    voiceLabel: "嗓音", voiceAuto: "自动",
     lenShort: "短", lenMed: "中", lenLong: "长", lenAny: "🎲 随机", anyHero: "✨ 随便谁",
     storyHint: "选一个主角，让一个小小的、困困的故事，自己数着数着就讲完了。",
     ambient: "环境音", rain: "雨声", waves: "海浪", wind: "风声", fire: "炉火", night: "虫鸣",
@@ -521,11 +526,33 @@ let advancing = false, storyPaused = false, speechKeep = null;
 const GAP = 3000;   // 两三秒的间歇,再开始下一篇
 const IS_SAFARI = /^((?!chrome|android|crios|fxios).)*safari/i.test(navigator.userAgent);
 function clearAuto() { if (autoTimer) { clearTimeout(autoTimer); clearInterval(autoTimer); autoTimer = null; } }
+let chosenVoiceURI = "";
+try { chosenVoiceURI = localStorage.getItem("lullabyVoice") || ""; } catch (e) {}
+function langVoices() {
+  const re = lang === "zh" ? /zh|chinese/i : /^en|english/i;
+  return speechSynthesis.getVoices().filter(v => re.test(v.lang) || re.test(v.name));
+}
 function pickVoice() {
   const vs = speechSynthesis.getVoices();
-  return lang === "zh"
-    ? vs.find(x => /zh|chinese|tingting|xiaoxiao|huihui/i.test(x.name + x.lang))
-    : (vs.find(x => /samantha|aria|jenny|zira|female/i.test(x.name)) || vs.find(x => /en/i.test(x.lang)));
+  if (chosenVoiceURI) { const v = vs.find(x => x.voiceURI === chosenVoiceURI); if (v) return v; }
+  const c = langVoices();
+  return c.find(v => /enhanced|premium|siri/i.test(v.name))          // 优先高音质
+      || c.find(v => /samantha|aria|jenny|tingting|xiaoxiao|huihui/i.test(v.name))
+      || c[0] || null;
+}
+function buildVoiceOptions() {
+  const sel = document.getElementById("voice"); if (!sel) return;
+  const list = langVoices();
+  sel.innerHTML = "";
+  const auto = document.createElement("option");
+  auto.value = ""; auto.textContent = I18N[lang].voiceAuto;
+  sel.appendChild(auto);
+  list.forEach(v => {
+    const o = document.createElement("option");
+    o.value = v.voiceURI; o.textContent = v.name;
+    sel.appendChild(o);
+  });
+  sel.value = (chosenVoiceURI && list.some(v => v.voiceURI === chosenVoiceURI)) ? chosenVoiceURI : "";
 }
 function speak(v) {                          // 朗读单个数字(数数模式)
   if (!("speechSynthesis" in window)) return;
@@ -563,7 +590,7 @@ function stopVoice() {
   if (speechKeep) { clearInterval(speechKeep); speechKeep = null; }
   if ("speechSynthesis" in window) speechSynthesis.cancel();
 }
-if ("speechSynthesis" in window) speechSynthesis.onvoiceschanged = () => {};
+if ("speechSynthesis" in window) speechSynthesis.onvoiceschanged = buildVoiceOptions;
 
 /* ============================================================
    故事模式 —— 把简单的算术,织进猫儿狗儿的睡前小故事里
@@ -1480,7 +1507,7 @@ function applyLang(l) {
   document.querySelectorAll(".lang-toggle a").forEach(a =>
     a.classList.toggle("active", a.dataset.lang === l));
   buildSeqOptions();
-  buildHeroOptions(); buildLenOptions();
+  buildHeroOptions(); buildLenOptions(); buildVoiceOptions();
   document.getElementById("newStory").textContent = currentStory.length ? I18N[l].anotherStory : I18N[l].newStory;
   setPauseBtn(storyPaused);
   if (turns > 0) turnsEl.innerHTML = I18N[l].turns(turns);
@@ -1517,6 +1544,11 @@ document.getElementById("autoStory").addEventListener("click", e => {
   if (!storyAuto) clearAuto();
 });
 document.getElementById("pauseStory").addEventListener("click", toggleStoryPause);
+document.getElementById("voice").addEventListener("change", e => {
+  chosenVoiceURI = e.target.value;
+  try { localStorage.setItem("lullabyVoice", chosenVoiceURI); } catch (err) {}
+  if (mode === "story" && narrateOn && currentStory.length) playCurrent();   // 立刻用新嗓音重读
+});
 document.getElementById("m-count").addEventListener("click", () => setMode("count"));
 document.getElementById("m-story").addEventListener("click", () => setMode("story"));
 document.getElementById("newStory").addEventListener("click", newStory);
