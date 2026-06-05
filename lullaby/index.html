@@ -528,9 +528,11 @@ const IS_SAFARI = /^((?!chrome|android|crios|fxios).)*safari/i.test(navigator.us
 function clearAuto() { if (autoTimer) { clearTimeout(autoTimer); clearInterval(autoTimer); autoTimer = null; } }
 let chosenVoiceURI = "";
 try { chosenVoiceURI = localStorage.getItem("lullabyVoice") || ""; } catch (e) {}
+// 过滤掉 iOS/macOS 自带的搞笑/低质“小品”嗓音,让列表只剩能用的
+const NOVELTY = /albert|bad news|bahh|bells|boing|bubbles|cellos|good news|jester|organ|superstar|trinoids|whisper|wobble|zarvox|novelty/i;
 function langVoices() {
   const re = lang === "zh" ? /zh|chinese/i : /^en|english/i;
-  return speechSynthesis.getVoices().filter(v => re.test(v.lang) || re.test(v.name));
+  return speechSynthesis.getVoices().filter(v => (re.test(v.lang) || re.test(v.name)) && !NOVELTY.test(v.name));
 }
 function pickVoice() {
   const vs = speechSynthesis.getVoices();
@@ -1336,7 +1338,7 @@ function fallAsleep() {
    环境音 —— Web Audio 实时合成(雨 / 浪 / 风 / 火 / 虫鸣)+ 轻提示音
    ============================================================ */
 const Ambient = (() => {
-  let ctx = null, master = null, noiseBuf = null, unlockEl = null;
+  let ctx = null, master = null, noiseBuf = null, unlockEl = null, audioWatch = null;
   const layers = {};
   // iOS: 一段静音媒体在用户手势里播放,可把音频会话切到“playback”,
   // 这样 Web Audio 即使在「静音/响铃」拨片打开时也能发声。
@@ -1364,6 +1366,12 @@ const Ambient = (() => {
       for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
     }
     if (ctx.state === "suspended") ctx.resume();
+    // 看门狗:朗读等会抢占 iOS 的音频会话并挂起 Web Audio / 暂停静音解锁片,
+    // 这里持续把它们唤回来,保证环境音不会被掐掉。
+    if (!audioWatch) audioWatch = setInterval(() => {
+      if (ctx && ctx.state === "suspended") ctx.resume().catch(() => {});
+      if (unlockEl && unlockEl.paused) unlockEl.play().catch(() => {});
+    }, 2500);
   }
   function noise() { const s = ctx.createBufferSource(); s.buffer = noiseBuf; s.loop = true; s.start(); return s; }
   function teardown(l) {
