@@ -534,13 +534,25 @@ function langVoices() {
   const re = lang === "zh" ? /zh|chinese/i : /^en|english/i;
   return speechSynthesis.getVoices().filter(v => (re.test(v.lang) || re.test(v.name)) && !NOVELTY.test(v.name));
 }
+// iOS 的高音质嗓音常与普通版“同名”,只有 voiceURI 不同,所以要按 voiceURI 打分
+function voiceScore(v) {
+  const id = (v.voiceURI + " " + v.name).toLowerCase();
+  let s = 0;
+  if (/premium/.test(id)) s += 100;
+  if (/siri/.test(id))    s += 95;
+  if (/enhanced/.test(id))s += 80;
+  if (/neural|natural/.test(id)) s += 70;
+  if (v.localService === false)  s += 30;       // 远端/网络嗓音通常更好
+  if ((lang === "zh" ? /tingting|tian|sinji|meijia|liang|yue|han/ :
+                       /samantha|ava|allison|susan|zoe|nora|aria|jenny|libby|karen|moira|serena/).test(id)) s += 20;
+  return s;
+}
 function pickVoice() {
   const vs = speechSynthesis.getVoices();
   if (chosenVoiceURI) { const v = vs.find(x => x.voiceURI === chosenVoiceURI); if (v) return v; }
   const c = langVoices();
-  return c.find(v => /enhanced|premium|siri/i.test(v.name))          // 优先高音质
-      || c.find(v => /samantha|aria|jenny|tingting|xiaoxiao|huihui/i.test(v.name))
-      || c[0] || null;
+  if (!c.length) return null;
+  return c.slice().sort((a, b) => voiceScore(b) - voiceScore(a))[0];   // 取得分最高者
 }
 function buildVoiceOptions() {
   const sel = document.getElementById("voice"); if (!sel) return;
@@ -551,7 +563,9 @@ function buildVoiceOptions() {
   sel.appendChild(auto);
   list.forEach(v => {
     const o = document.createElement("option");
-    o.value = v.voiceURI; o.textContent = v.name;
+    const id = (v.voiceURI + " " + v.name).toLowerCase();
+    const tag = /premium|siri|enhanced|neural|natural/.test(id) ? " ✨" : "";
+    o.value = v.voiceURI; o.textContent = v.name + tag;
     sel.appendChild(o);
   });
   sel.value = (chosenVoiceURI && list.some(v => v.voiceURI === chosenVoiceURI)) ? chosenVoiceURI : "";
@@ -1588,11 +1602,24 @@ document.getElementById("vol").addEventListener("input", e => Ambient.setVolume(
   }
 })();
 
+// 浏览器会拦截“无手势的自动朗读”;首次轻触时正式开讲(并解锁音频)
+function armAutostart() {
+  const go = () => {
+    document.removeEventListener("pointerdown", go, true);
+    if (mode === "story" && narrateOn && !storyPaused && currentStory.length &&
+        (!("speechSynthesis" in window) || !speechSynthesis.speaking)) playCurrent();
+    else Ambient.prime();
+  };
+  document.addEventListener("pointerdown", go, true);
+}
+
 /* init */
 initSeq();
-applyLang("en");
+applyLang("zh");                       // 默认中文
 setComet(0); setDot(0);
 numEl.textContent = "·";
+newStory();                            // 默认故事模式:自动开讲(“连续播放”默认开启 → 一篇接一篇换新故事)
+armAutostart();
 </script>
 </body>
 </html>
