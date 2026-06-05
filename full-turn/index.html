@@ -269,7 +269,7 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════
-     SECTION 1 — the spinning arrow + the averaging lemma  [LIVE FIGURE]
+     SECTION 1 — the spinning arrow + the full-turn cancellation lemma  [LIVE FIGURE]
 ═══════════════════════════════════════════════════════════════ -->
 <div class="section" id="s1">
   <div class="sec-head">
@@ -540,15 +540,19 @@
   whole number of loops over one turn and lands exactly back where it started —
   so the positions fall into perfectly balanced pairs and sum to zero. A
   fractional rate would leave the arrow stopped partway around, the loop unclosed,
-  and a leftover sliver that does <em>not</em> cancel. Whole-number rates are
-  also exactly the spinning arrows a repeating signal is built from, which is why
-  this is all we will ever need.</p>
+  and a leftover sliver that does <em>not</em> cancel. So from here on the only spins
+  we ever worry about are the ones that <strong>complete a full cycle</strong> and close;
+  spins that do not close we simply set aside. That is not a loss: the closing spins are
+  exactly what each later setting is built from. What "closing" versus "not closing"
+  actually means, and why the leftovers can be set aside, is something every section will
+  spell out in its own terms.</p>
 
   <div class="callout">
-    <p><strong>This is the only tool we need.</strong> Call it the
-    <em>orthogonality lemma</em>, the <em>averaging lemma</em>, or just
-    "spinning things cancel." Sections 2, 3, and 4 are nothing but this lemma
-    pointed at three different functions.</p>
+    <p><strong>This is the only tool we need.</strong> Textbooks call it the
+    <em>orthogonality lemma</em> or the <em>averaging lemma</em>; here we name it the
+    <strong>full-turn cancellation lemma</strong>, because that is exactly what it says:
+    over one full turn, everything that spins cancels, and only the still arrow survives.
+    Sections 2, 3, and 4 are nothing but this lemma pointed at three different functions.</p>
   </div>
 </div>
 
@@ -600,6 +604,28 @@
   <p>(The <em class="my">c</em><sub>0</sub> term is the arrow that does not spin —
   a fixed offset — and terms with negative rates spin the other way. Together
   they can build <em>any</em> repeating signal.)</p>
+
+  <h3 class="subhead">Full cycles only — what "repeating" really demands</h3>
+
+  <p>This is the place to cash in the promise from §1: that we only ever worry about
+  spins which complete a <strong>full cycle</strong>. Here is what that means for a
+  signal. To repeat is to <em>close</em>: after one full turn the signal is exactly back
+  where it began,
+  <span style="white-space:nowrap;"><em class="mg">f</em>(<em class="mt">θ</em> + <em class="mtau">τ</em>) = <em class="mg">f</em>(<em class="mt">θ</em>)</span>.
+  That single demand is what forces every rate to be whole: a rate-<em class="m">k</em>
+  arrow comes back to its start after one turn only when <em class="m">k</em> is a whole
+  number, while a rate-<em class="m">3.5</em> arrow is left pointing halfway around, so a
+  signal carrying it would <em>not</em> return after one turn. A signal that closes on a
+  single turn is therefore built from full-cycle arrows and nothing else, which is
+  precisely the case the full-turn cancellation lemma reads cleanly.</p>
+
+  <p>And a signal that does <em>not</em> close on one turn? Either it still repeats, just
+  over a longer stretch (two turns, when a half-integer like 3.5 = 7/2 is present); then
+  we simply call that longer stretch one turn and the rates come out whole again. Or it
+  never repeats at all, a lone pulse or a signal running down the endless line; then there
+  is no period to make whole, and the sum of arrows must open into a <em>continuum</em> of
+  them, the Fourier <em>transform</em>, which waits for §5. Either way, the closing signals
+  are the ones we work with here.</p>
 
   <h3 class="subhead">The real part and the imaginary part of an <em class="mg">exp</em> item</h3>
 
@@ -660,7 +686,7 @@
   <strong>analysis problem</strong> is the reverse: someone hands you the
   finished sound <em class="mg">f</em>, and you must recover the individual
   strengths <em class="my">c<sub>k</sub></em>: how much of each frequency is in
-  the mix. It sounds hard. The averaging lemma makes it a one-liner.</p>
+  the mix. It sounds hard. The full-turn cancellation lemma makes it a one-liner.</p>
 
   <h3 class="subhead">Watch the arrow emit both parts — we catch only one</h3>
 
@@ -698,11 +724,13 @@
     beyond the scope of this series.</p>
   </div>
 
+  <h3 class="subhead">Hunting for a single strength</h3>
+
   <p>Why hunt for a single strength <em class="my">c<sub>k</sub></em>? That one number is
   the answer to "how much of this frequency is in here": the weight of one pure tone in a
   chord, the strength of one ripple in an image, the size of one harmonic in a vibration.
   Reading those weights back off the finished signal, one at a time, is exactly what
-  <em>analysis</em> means, and the averaging lemma is the tool that does it.</p>
+  <em>analysis</em> means, and the full-turn cancellation lemma is the tool that does it.</p>
 
   <p>Let us do one concretely. Take the rate-<em class="m">3</em> arrow's strength,
   <em class="my">c</em><sub>3</sub>. Multiply the whole signal by
@@ -712,40 +740,97 @@
   = <em class="mg">exp</em>(<em class="m">i</em>(<em class="m">k</em>−<em class="m">3</em>)<em class="mt">θ</em>):</p>
 
   <div style="margin:18px 0; text-align:center;">
-    <div style="margin-bottom:12px; font-size:1.04rem;"><em class="mg">f</em>(<em class="mt">θ</em>)&thinsp;<em class="mg">exp</em>(−<em class="m">3i</em><em class="mt">θ</em>)&ensp;=</div>
-    <div style="display:inline-grid; grid-template-columns:auto auto; gap:8px 24px; justify-content:center; align-items:baseline; text-align:left; font-size:1.02rem;">
-      <span style="color:var(--muted);">⋯</span><span></span>
-      <span>+&thinsp;<em class="my">c</em><sub>0</sub>&thinsp;<em class="mg">exp</em>(−<em class="m">3i</em><em class="mt">θ</em>)</span><span style="font-family:'IBM Plex Mono',monospace; font-size:.68rem; color:var(--muted); letter-spacing:.04em;">rate −3 · spins, averages to 0</span>
-      <span>+&thinsp;<em class="my">c</em><sub>1</sub>&thinsp;<em class="mg">exp</em>(−<em class="m">2i</em><em class="mt">θ</em>)</span><span style="font-family:'IBM Plex Mono',monospace; font-size:.68rem; color:var(--muted); letter-spacing:.04em;">rate −2 · spins, averages to 0</span>
-      <span>+&thinsp;<em class="my">c</em><sub>2</sub>&thinsp;<em class="mg">exp</em>(−<em class="m">i</em><em class="mt">θ</em>)</span><span style="font-family:'IBM Plex Mono',monospace; font-size:.68rem; color:var(--muted); letter-spacing:.04em;">rate −1 · spins, averages to 0</span>
-      <span style="background:rgba(244,200,48,.13); border-radius:6px; padding:2px 7px;">+&thinsp;<em class="my" style="color:var(--gold);">c</em><sub style="color:var(--gold);">3</sub>&thinsp;<em class="mg" style="color:var(--gold);">exp</em>(<em class="m" style="color:var(--gold);">0</em>) = <em class="my" style="color:var(--gold);">c</em><sub style="color:var(--gold);">3</sub></span><span style="font-family:'IBM Plex Mono',monospace; font-size:.68rem; color:var(--gold); letter-spacing:.04em;">rate 0 · FROZEN, survives</span>
-      <span>+&thinsp;<em class="my">c</em><sub>4</sub>&thinsp;<em class="mg">exp</em>(+<em class="m">i</em><em class="mt">θ</em>)</span><span style="font-family:'IBM Plex Mono',monospace; font-size:.68rem; color:var(--muted); letter-spacing:.04em;">rate +1 · spins, averages to 0</span>
-      <span style="color:var(--muted);">⋯</span><span></span>
+    <div style="margin-bottom:12px; font-size:1.04rem;"><em class="mg">f</em>(<em class="mt">θ</em>)&thinsp;<em class="mg">exp</em>(−<em class="m">3i</em><em class="mt">θ</em>)&ensp;=&ensp;<span style="font-size:.8rem; font-style:normal; color:var(--muted);">multiply every term by <em class="mg">exp</em>(−<em class="m">3i</em><em class="mt">θ</em>)</span></div>
+    <style>#mulgrid > span:nth-child(4n+3), #mulgrid > span:nth-child(4n){ margin-left:30px; }</style>
+    <div id="mulgrid" style="display:inline-grid; grid-template-columns:auto auto auto auto; gap:10px 12px; justify-content:center; align-items:baseline; text-align:left; font-size:.97rem;">
+      <span style="color:var(--muted);">⋯</span><span></span><span></span><span></span>
+
+      <span>+&thinsp;<em class="my">c</em><sub>0</sub></span>
+      <span style="color:var(--muted);">·&thinsp;<em class="mg">exp</em>(−<em class="m">3i</em><em class="mt">θ</em>)</span>
+      <span>=&thinsp;<em class="my">c</em><sub>0</sub>&thinsp;<em class="mg">exp</em>(−<em class="m">3i</em><em class="mt">θ</em>)</span>
+      <span style="font-family:'IBM Plex Mono',monospace; font-size:.66rem; color:var(--muted); letter-spacing:.04em;">rate −3 · spins</span>
+
+      <span>+&thinsp;<em class="my">c</em><sub>1</sub>&thinsp;<em class="mg">exp</em>(<em class="m">i</em><em class="mt">θ</em>)</span>
+      <span style="color:var(--muted);">·&thinsp;<em class="mg">exp</em>(−<em class="m">3i</em><em class="mt">θ</em>)</span>
+      <span>=&thinsp;<em class="my">c</em><sub>1</sub>&thinsp;<em class="mg">exp</em>(−<em class="m">2i</em><em class="mt">θ</em>)</span>
+      <span style="font-family:'IBM Plex Mono',monospace; font-size:.66rem; color:var(--muted); letter-spacing:.04em;">rate −2 · spins</span>
+
+      <span>+&thinsp;<em class="my">c</em><sub>2</sub>&thinsp;<em class="mg">exp</em>(<em class="m">2i</em><em class="mt">θ</em>)</span>
+      <span style="color:var(--muted);">·&thinsp;<em class="mg">exp</em>(−<em class="m">3i</em><em class="mt">θ</em>)</span>
+      <span>=&thinsp;<em class="my">c</em><sub>2</sub>&thinsp;<em class="mg">exp</em>(−<em class="m">i</em><em class="mt">θ</em>)</span>
+      <span style="font-family:'IBM Plex Mono',monospace; font-size:.66rem; color:var(--muted); letter-spacing:.04em;">rate −1 · spins</span>
+
+      <span>+&thinsp;<em class="my" style="color:var(--gold);">c</em><sub style="color:var(--gold);">3</sub>&thinsp;<em class="mg" style="color:var(--gold);">exp</em>(<em class="m" style="color:var(--gold);">3i</em><em class="mt" style="color:var(--gold);">θ</em>)</span>
+      <span style="color:var(--gold);">·&thinsp;<em class="mg" style="color:var(--gold);">exp</em>(−<em class="m" style="color:var(--gold);">3i</em><em class="mt" style="color:var(--gold);">θ</em>)</span>
+      <span style="background:rgba(244,200,48,.13); border-radius:6px; padding:2px 7px;">=&thinsp;<em class="my" style="color:var(--gold);">c</em><sub style="color:var(--gold);">3</sub>&thinsp;<em class="mg" style="color:var(--gold);">exp</em>(<em class="m" style="color:var(--gold);">0</em>) = <em class="my" style="color:var(--gold);">c</em><sub style="color:var(--gold);">3</sub></span>
+      <span style="font-family:'IBM Plex Mono',monospace; font-size:.66rem; color:var(--gold); letter-spacing:.04em;">rate 0 · stands still</span>
+
+      <span>+&thinsp;<em class="my">c</em><sub>4</sub>&thinsp;<em class="mg">exp</em>(<em class="m">4i</em><em class="mt">θ</em>)</span>
+      <span style="color:var(--muted);">·&thinsp;<em class="mg">exp</em>(−<em class="m">3i</em><em class="mt">θ</em>)</span>
+      <span>=&thinsp;<em class="my">c</em><sub>4</sub>&thinsp;<em class="mg">exp</em>(+<em class="m">i</em><em class="mt">θ</em>)</span>
+      <span style="font-family:'IBM Plex Mono',monospace; font-size:.66rem; color:var(--muted); letter-spacing:.04em;">rate +1 · spins</span>
+
+      <span style="color:var(--muted);">⋯</span><span></span><span></span><span></span>
     </div>
   </div>
 
-  <p>Now average over one full turn. By §1, every arrow that still spins averages to
-  nothing, wiping out every term but one. The <em class="my">c</em><sub>3</sub> term was
-  tuned to <strong>rate 0</strong>: a frozen arrow worth
-  <em class="mg">exp</em>(<em class="m">0</em>) = <em class="m">1</em>, so its average is
-  its whole self. The total collapses to exactly <em class="my">c</em><sub>3</sub>.</p>
+  <p>So far we have only re-tuned the arrows; nothing has been averaged yet. The averaging
+  is the next move, and to average over one full turn is to <strong>integrate</strong> across
+  it: apply
+  <span style="white-space:nowrap;"><span class="frac" style="font-size:.8em;"><span class="num">1</span><span class="den"><em class="mtau">τ</em></span></span>&thinsp;∫<sub>0</sub><sup><em class="mtau">τ</em></sup>(&thinsp;…&thinsp;)&thinsp;<em class="m">d</em><em class="mt">θ</em></span>
+  to the whole sum. Only now does the full-turn cancellation lemma bite: every
+  <em>spinning</em> arrow (any nonzero rate) integrates to nothing, while the one arrow that
+  <em>stands still</em> (rate <em class="m">0</em>, worth <em class="mg">exp</em>(<em class="m">0</em>) =
+  <em class="m">1</em>) integrates to its whole self. Every term but one is wiped out, and the
+  total collapses to exactly <em class="my">c</em><sub>3</sub>.</p>
 
-  <p>Nothing was special about 3. To recover whichever arrow you like, call its rate
-  <em class="m">n</em>, multiply by <em class="mg">exp</em>(−<em class="m">in</em><em class="mt">θ</em>)
-  and average. (Here <em class="m">n</em> is the single rate you are hunting for, while
-  <em class="m">k</em> is the running label over every arrow in the signal.) The only term
-  that freezes is the <em class="m">n</em>-th, and it carries off exactly its strength:</p>
+  <p>Nothing was special about 3: the same move recovers <em class="my">c<sub>k</sub></em>
+  for any whole number <em class="m">k</em>. Multiply the signal by
+  <em class="mg">exp</em>(−<em class="m">ik</em><em class="mt">θ</em>) and average; only the
+  rate-<em class="m">k</em> arrow is brought to a standstill, every other one cancels, and
+  it hands you exactly its strength:</p>
 
-  <span class="eq"><em class="my">c<sub>n</sub></em> &ensp;=&ensp;
+  <span class="eq"><em class="my">c<sub>k</sub></em> &ensp;=&ensp;
     <span class="frac"><span class="num">1</span><span class="den"><em class="mtau">τ</em></span></span>
     ∫<sub>0</sub><sup><em class="mtau">τ</em></sup>
-    <em class="mg">f</em>(<em class="mt">θ</em>)&thinsp;<em class="mg">exp</em>(−<em class="m">in</em><em class="mt">θ</em>)&thinsp;<em class="m">d</em><em class="mt">θ</em></span>
+    <em class="mg">f</em>(<em class="mt">θ</em>)&thinsp;<em class="mg">exp</em>(−<em class="m">ik</em><em class="mt">θ</em>)&thinsp;<em class="m">d</em><em class="mt">θ</em></span>
 
   <p>That is the Fourier coefficient. There is no cleverness in it beyond §1:
   <em>freeze the arrow you want, average away the rest.</em> Set the strengths on
   the left, choose which one to recover with the dial, and press ▶ — the
   <em class="mp">pink dot</em> is the running average, and after one full turn it
   lands exactly on the strength you dialed for.</p>
+
+  <p style="text-align:center; font-size:.72rem; color:var(--muted); letter-spacing:.05em; margin:16px 0 6px;">THE MOVE, END TO END</p>
+  <div style="max-width:840px; margin:0 auto 10px; display:flex; align-items:center; justify-content:center; gap:9px; flex-wrap:wrap; font-size:.95rem;">
+
+    <span style="display:inline-flex; flex-direction:column; align-items:center; gap:3px; padding:7px 13px; border:1px solid rgba(80,216,144,.45); border-radius:9px; background:rgba(80,216,144,.06);">
+      <span><em class="mg">f</em>(<em class="mt">θ</em>)</span>
+      <span style="font-family:'IBM Plex Mono',monospace; font-size:.57rem; letter-spacing:.06em; color:var(--muted);">SIGNAL IN</span>
+    </span>
+
+    <span style="color:var(--muted); font-size:.82rem; white-space:nowrap;">×&thinsp;<em class="mg">exp</em>(−<em class="m">ik</em><em class="mt">θ</em>)&ensp;→</span>
+
+    <span style="display:inline-flex; flex-direction:column; align-items:center; gap:3px; padding:7px 13px; border:1px solid rgba(255,255,255,.16); border-radius:9px;">
+      <span><em class="mg">f</em>(<em class="mt">θ</em>)&thinsp;<em class="mg">exp</em>(−<em class="m">ik</em><em class="mt">θ</em>)</span>
+      <span style="font-family:'IBM Plex Mono',monospace; font-size:.57rem; letter-spacing:.06em; color:var(--muted);">RE-TUNED</span>
+    </span>
+
+    <span style="color:var(--muted); font-size:.82rem; white-space:nowrap;">average&ensp;→</span>
+
+    <span style="display:inline-flex; flex-direction:column; align-items:center; gap:3px; padding:7px 13px; border:1px solid rgba(244,200,48,.4); border-radius:9px; background:rgba(244,200,48,.05);">
+      <span><span class="frac" style="font-size:.8em;"><span class="num">1</span><span class="den"><em class="mtau">τ</em></span></span>&thinsp;∫<sub>0</sub><sup><em class="mtau">τ</em></sup>(&thinsp;…&thinsp;)&thinsp;<em class="m">d</em><em class="mt">θ</em></span>
+      <span style="font-family:'IBM Plex Mono',monospace; font-size:.57rem; letter-spacing:.06em; color:var(--muted);">OVER ONE TURN</span>
+    </span>
+
+    <span style="color:var(--muted); font-size:.9rem;">=</span>
+
+    <span style="display:inline-flex; flex-direction:column; align-items:center; gap:3px; padding:7px 13px; border:1px solid rgba(64,200,240,.45); border-radius:9px; background:rgba(64,200,240,.06);">
+      <span><em class="my">c<sub>k</sub></em></span>
+      <span style="font-family:'IBM Plex Mono',monospace; font-size:.57rem; letter-spacing:.06em; color:var(--muted);">STRENGTH OUT</span>
+    </span>
+
+  </div>
 
   <div class="graphs">
     <div class="graph-card">
@@ -772,7 +857,7 @@
     <div class="graph-card">
       <div class="graph-card-head" style="flex-direction:column;align-items:flex-start;">
         <div class="controls" style="margin:4px 0;">
-          <label>dial <em class="m">n</em> =</label>
+          <label>dial <em class="m">k</em> =</label>
           <input type="range" id="slFourN" min="0" max="3" step="1" value="2">
           <span class="val" id="vlFourN">2</span>
           <button class="btn" id="btnFourPlay">▶ play</button>
@@ -780,18 +865,21 @@
       </div>
       <canvas id="cFourEx" width="640" height="600"></canvas>
       <p class="graph-caption">Extraction: the running average of
-      <em class="mg">f</em>(<em class="mt">θ</em>)<em class="mg">exp</em>(−<em class="m">in</em><em class="mt">θ</em>).
-      After one full turn the <em class="mp">pink dot</em> sits on
-      <em class="my">c<sub>n</sub></em>.</p>
+      <em class="mg">f</em>(<em class="mt">θ</em>)<em class="mg">exp</em>(−<em class="m">ik</em><em class="mt">θ</em>)
+      starts at the first sample and <em class="mp">spirals inward</em> along the dashed
+      trail as <em class="mt">θ</em> sweeps one turn, landing on
+      <em class="my">c<sub>k</sub></em>.</p>
     </div>
   </div>
 
+  <div id="fourLive" style="max-width:760px; margin:14px auto 4px; padding:13px 18px; border:1px solid rgba(255,255,255,.1); border-radius:10px; background:rgba(255,255,255,.02); text-align:center;"></div>
+
   <div class="callout">
-    <p>Try it: dial up <em class="m">n</em> = <em class="m">2</em> and the dot
+    <p>Try it: dial up <em class="m">k</em> = <em class="m">2</em> and the dot
     lands on whatever you set <em class="my">c</em><sub>2</sub> to — ignoring the
     other three completely. The signal can be as tangled as you like; the
     average reads off one ingredient at a time, blind to all the others. That
-    blindness <em>is</em> the lemma.</p>
+    blindness <em>is</em> the full-turn cancellation lemma.</p>
   </div>
 
   <p>This is the Fourier <strong>series</strong> — the natural language for
@@ -812,48 +900,122 @@
     <h2>Cauchy: The Same Average, Drawn as a Circle</h2>
   </div>
 
-  <p>Time for the second face of the same coin. In §2 the spinning arrows lived
-  in the <em>signal</em>. Now we let a spinning arrow drive the <em>input</em> of
-  a function. Pick a point <em class="m">a</em>, draw a circle of radius
-  <em class="mr">r</em> around it, and walk a point <em class="m">z</em> once
-  around that circle:</p>
+  <p>The same trick has a second home, and it is the one that built much of modern
+  physics and engineering. In §2 a <em>signal</em> was a value at every <em>moment</em>.
+  Now picture a value at every <em>point of a plane</em>: the temperature across a metal
+  sheet, the height of a stretched drum-skin, the electric potential around a wire, the
+  flow of smooth water. Steady, source-free fields like these are what a
+  <strong>complex function</strong> <em class="mg">f</em> captures, and they turn out to
+  be strangely rigid.</p>
+
+  <p>That rigidity is the punchline of this section: <strong>the value at the centre of a
+  circle is just the average of the values around its rim.</strong> Measure the edge and
+  you know the middle. A plate cannot hide a hot-spot at its centre while its rim stays
+  cool; the centre is pinned to the average of its surroundings. That fact is
+  <strong>Cauchy's theorem</strong>, and it is the §2 averaging lemma in a new coat. Here
+  is how it falls out.</p>
+
+  <h3 class="subhead">Walk a point around a circle</h3>
+
+  <p>Pick a point <em class="m">a</em> and a radius <em class="mr">r</em>, and let a second
+  point <em class="m">z</em> walk the circle of radius <em class="mr">r</em> around
+  <em class="m">a</em>:</p>
 
   <span class="eq"><em class="m">z</em> &ensp;=&ensp; <em class="m">a</em> &thinsp;+&thinsp; <em class="mr">r</em>&thinsp;<em class="mg">exp</em>(<em class="m">i</em><em class="mt">θ</em>)</span>
 
-  <p>As <em class="mt">θ</em> runs from <em class="m">0</em> to
-  <em class="mtau">τ</em>, the displacement
-  <em class="m">z</em> − <em class="m">a</em> =
-  <em class="mr">r</em>&thinsp;<em class="mg">exp</em>(<em class="m">i</em><em class="mt">θ</em>)
-  is exactly a spinning arrow of length <em class="mr">r</em>. The lemma is about
-  to fire again — we just feed the circle through a function first.</p>
+  <p>Both <em class="m">a</em> and <em class="m">z</em> are <strong>complex numbers</strong>:
+  points in the plane, not ticks on a line. As <em class="mt">θ</em> runs from
+  <em class="m">0</em> to <em class="mtau">τ</em>, the displacement from the centre is</p>
+
+  <span class="eq"><em class="m">z</em> − <em class="m">a</em> &ensp;=&ensp; <em class="mr">r</em>&thinsp;<em class="mg">exp</em>(<em class="m">i</em><em class="mt">θ</em>)</span>
+
+  <p>which is exactly one of our spinning arrows: length <em class="mr">r</em>, turning
+  once around. The full-turn cancellation lemma is poised to fire; we only have to feed
+  the circle through a function first.</p>
 
   <h3 class="subhead">A "nice" function is a stack of powers</h3>
 
-  <p>The functions complex analysis cares about — the smooth, tear-free ones —
-  are exactly those you can write as a sum of powers of the displacement from
-  <em class="m">a</em>:</p>
+  <p>The functions complex analysis cares about, the smooth and tear-free ones, are
+  exactly those you can build as a sum of whole-number powers of that same displacement
+  <em class="m">z</em>−<em class="m">a</em>:</p>
 
   <span class="eq"><em class="mg">f</em>(<em class="m">z</em>) &ensp;=&ensp;
     <em class="mg">a</em><sub>0</sub> + <em class="mg">a</em><sub>1</sub>(<em class="m">z</em>−<em class="m">a</em>) + <em class="mg">a</em><sub>2</sub>(<em class="m">z</em>−<em class="m">a</em>)² + <em class="mg">a</em><sub>3</sub>(<em class="m">z</em>−<em class="m">a</em>)³ + …</span>
 
-  <p>(That this is even possible is the deep fact; take it as given for now — we
-  pry it open in §4.) Watch what each power does once <em class="m">z</em> sits on
-  the circle. Because <em class="m">z</em> − <em class="m">a</em> =
-  <em class="mr">r</em>&thinsp;<em class="mg">exp</em>(<em class="m">i</em><em class="mt">θ</em>),</p>
+  <p>(That you <em>can</em> always do this is the deep fact; take it as given for now, we
+  earn it in §4.) Writing <em class="mg">f</em> this way pays off immediately, because on
+  the circle every power becomes a spinning arrow. Feeding in
+  <em class="m">z</em>−<em class="m">a</em> = <em class="mr">r</em>&thinsp;<em class="mg">exp</em>(<em class="m">i</em><em class="mt">θ</em>)
+  from just above,</p>
 
   <span class="eq">(<em class="m">z</em>−<em class="m">a</em>)<sup><em class="m">k</em></sup>
     &ensp;=&ensp; <em class="mr">r</em><sup><em class="m">k</em></sup>&thinsp;<em class="mg">exp</em>(<em class="m">ik</em><em class="mt">θ</em>)</span>
 
-  <p>— a spinning arrow of rate <em class="m">k</em> and length
+  <p>so the <em class="m">k</em>-th term turns at <strong>rate <em class="m">k</em></strong>
+  (<em class="m">k</em> whole turns per lap) on a circle of radius
   <em class="mr">r</em><sup><em class="m">k</em></sup>. <strong>Every term of
-  <em class="mg">f</em> on the circle is one of our arrows.</strong></p>
+  <em class="mg">f</em> on the circle is one of our arrows</strong>; only the constant
+  <em class="mg">a</em><sub>0</sub>, the rate-<em class="m">0</em> term, does not spin.</p>
+
+  <p>Two views of the same setup, side by side. <strong>Left:</strong> drag the centre
+  <em class="m">a</em>, set the radius, and walk <em class="m">z</em> once around.
+  <strong>Right:</strong> watch the powers
+  (<em class="m">z</em>−<em class="m">a</em>)<sup><em class="m">k</em></sup> spin at rates
+  <em class="m">1</em>, <em class="m">2</em>, <em class="m">3</em> on their nested circles.</p>
+
+  <div class="graphs">
+    <div class="graph-card">
+      <div class="graph-card-head" style="justify-content:flex-end;">
+        <div class="controls">
+          <label>radius <em class="mr">r</em> =</label>
+          <input type="range" id="slSetR" min="0.2" max="0.9" step="0.01" value="0.6">
+          <span class="val" id="vlSetR">0.60</span>
+          <button class="btn" id="btnSetPlay">▶ walk z</button>
+        </div>
+      </div>
+      <canvas id="cSetup" width="620" height="560"></canvas>
+      <p class="graph-caption">The <strong>walk</strong>:
+      <em class="m">z</em> = <em class="m">a</em> + <em class="mr">r</em>&thinsp;<em class="mg">exp</em>(<em class="m">i</em><em class="mt">θ</em>)
+      circles the centre <em class="m">a</em> (right = real, up = imaginary). The arrow
+      <em class="m">z</em>−<em class="m">a</em> is the spinning displacement.
+      <strong>Drag to move <em class="m">a</em>.</strong></p>
+    </div>
+    <div class="graph-card">
+      <div class="graph-card-head" style="justify-content:flex-end;">
+        <div class="controls">
+          <label>radius <em class="mr">r</em> =</label>
+          <input type="range" id="slPowR" min="0.45" max="0.95" step="0.01" value="0.72">
+          <span class="val" id="vlPowR">0.72</span>
+          <button class="btn" id="btnPowPlay">▶ play</button>
+        </div>
+      </div>
+      <canvas id="cPow" width="620" height="560"></canvas>
+      <p class="graph-caption">The <strong>powers</strong>: each
+      (<em class="m">z</em>−<em class="m">a</em>)<sup><em class="m">k</em></sup> turns at rate
+      <em class="m">k</em> on a circle of radius <em class="mr">r</em><sup><em class="m">k</em></sup>.
+      Higher powers spin faster and ride shorter (for <em class="mr">r</em> &lt; 1).</p>
+    </div>
+  </div>
 
   <h3 class="subhead">Average around the circle → the centre value</h3>
 
-  <p>Now average <em class="mg">f</em> over one full turn. Term by term, the §1
-  lemma does all the work: the constant <em class="mg">a</em><sub>0</sub> averages
-  to itself, and every power <em class="m">k</em> ≥ <em class="m">1</em> is a
-  spinning arrow that cancels to nothing. Only the constant is left standing:</p>
+  <p>Send the whole circle through <em class="mg">f</em>. Each power becomes one of
+  our arrows, spinning at its own rate:</p>
+
+  <div style="margin:18px 0; text-align:center;">
+    <div style="margin-bottom:10px; font-size:1.02rem;"><em class="mg">f</em>(<em class="m">a</em> + <em class="mr">r</em>&thinsp;<em class="mg">exp</em>(<em class="m">i</em><em class="mt">θ</em>)) &ensp;=</div>
+    <div style="display:inline-grid; grid-template-columns:auto auto; gap:9px 26px; justify-content:center; align-items:baseline; text-align:left; font-size:1rem;">
+      <span style="background:rgba(244,200,48,.13); border-radius:6px; padding:2px 8px;"><em class="mg" style="color:var(--gold);">a</em><sub style="color:var(--gold);">0</sub></span><span style="font-family:'IBM Plex Mono',monospace; font-size:.66rem; color:var(--gold); letter-spacing:.04em;">rate 0 · stands still</span>
+      <span>+&thinsp;<em class="mg">a</em><sub>1</sub>&thinsp;<em class="mr">r</em>&thinsp;<em class="mg">exp</em>(<em class="m">i</em><em class="mt">θ</em>)</span><span style="font-family:'IBM Plex Mono',monospace; font-size:.66rem; color:var(--muted); letter-spacing:.04em;">rate 1 · spins</span>
+      <span>+&thinsp;<em class="mg">a</em><sub>2</sub>&thinsp;<em class="mr">r</em><sup>2</sup>&thinsp;<em class="mg">exp</em>(<em class="m">2i</em><em class="mt">θ</em>)</span><span style="font-family:'IBM Plex Mono',monospace; font-size:.66rem; color:var(--muted); letter-spacing:.04em;">rate 2 · spins</span>
+      <span>+&thinsp;<em class="mg">a</em><sub>3</sub>&thinsp;<em class="mr">r</em><sup>3</sup>&thinsp;<em class="mg">exp</em>(<em class="m">3i</em><em class="mt">θ</em>)</span><span style="font-family:'IBM Plex Mono',monospace; font-size:.66rem; color:var(--muted); letter-spacing:.04em;">rate 3 · spins</span>
+      <span style="color:var(--muted);">⋯</span><span></span>
+    </div>
+  </div>
+
+  <p>Now average over one full turn. By the full-turn cancellation lemma every
+  spinning arrow averages to nothing; only the still term, the constant
+  <em class="mg">a</em><sub>0</sub>, is left standing:</p>
 
   <span class="eq"><span class="frac"><span class="num">1</span><span class="den"><em class="mtau">τ</em></span></span>
     &thinsp;∫<sub>0</sub><sup><em class="mtau">τ</em></sup>
@@ -868,42 +1030,82 @@
   <em class="mg">f</em>(<em class="m">z</em>) as <em class="m">z</em> circles,
   homes in on <em class="mg">f</em>(<em class="m">a</em>) every time.</p>
 
+  <div class="controls" style="justify-content:center; margin:18px 0 2px;">
+    <label>radius <em class="mr">r</em> =</label>
+    <input type="range" id="slCauR" min="0.15" max="0.6" step="0.01" value="0.45">
+    <span class="val" id="vlCauR">0.45</span>
+    <button class="btn" id="btnCauPlay">▶ play</button>
+  </div>
   <div class="graphs">
     <div class="graph-card">
-      <div class="graph-card-head">
-        <div class="controls">
-          <label>radius <em class="mr">r</em> =</label>
-          <input type="range" id="slCauR" min="0.15" max="0.6" step="0.01" value="0.45">
-          <span class="val" id="vlCauR">0.45</span>
-          <button class="btn" id="btnCauPlay">▶ play</button>
-        </div>
-      </div>
+      <div class="graph-card-head"></div>
       <canvas id="cCauZ" width="640" height="600"></canvas>
-      <p class="graph-caption">Input plane: <em class="m">z</em> walks the circle
-      of radius <em class="mr">r</em> around the centre <em class="m">a</em>
-      (<em class="mtau">gold</em>).</p>
+      <p class="graph-caption"><strong>Drag to place the centre <em class="m">a</em></strong>;
+      <em class="m">z</em> walks the circle of radius <em class="mr">r</em> around it
+      (<em class="mtau">gold</em>). Drag the slider for <em class="mr">r</em>, press ▶ to
+      walk <em class="m">z</em> once around.</p>
     </div>
     <div class="graph-card">
       <div class="graph-card-head"></div>
       <canvas id="cCauW" width="640" height="600"></canvas>
       <p class="graph-caption">Output plane: the images
       <em class="mg">f</em>(<em class="m">z</em>) = <em class="m">z</em>² trace a
-      loop; the <em class="mp">pink dot</em> is their running average, settling on
+      loop; the <em class="mp">pink dot</em> is their running average,
+      <em class="mp">spiralling inward</em> along the dashed trail to settle on
       <em class="mg">f</em>(<em class="m">a</em>).</p>
     </div>
   </div>
 
   <h3 class="subhead">Dial in any coefficient — the same trick again</h3>
 
-  <p>The mean value gives only <em class="mg">a</em><sub>0</sub>. To pull out a
-  deeper coefficient <em class="mg">a</em><sub>n</sub>, reuse the §2 move: kill the
-  <em class="m">n</em> spins of the term you want <em>before</em> averaging, by
-  dividing through by (<em class="m">z</em>−<em class="m">a</em>)<sup><em class="m">n</em></sup>.
-  Written as a loop integral — with
+  <p style="text-align:center; font-size:.72rem; color:var(--muted); letter-spacing:.05em; margin:16px 0 6px;">THE MOVE, END TO END</p>
+  <div style="max-width:840px; margin:0 auto 12px; display:flex; align-items:center; justify-content:center; gap:9px; flex-wrap:wrap; font-size:.95rem;">
+
+    <span style="display:inline-flex; flex-direction:column; align-items:center; gap:3px; padding:7px 13px; border:1px solid rgba(80,216,144,.45); border-radius:9px; background:rgba(80,216,144,.06);">
+      <span><em class="mg">f</em>(<em class="m">z</em>)</span>
+      <span style="font-family:'IBM Plex Mono',monospace; font-size:.57rem; letter-spacing:.06em; color:var(--muted);">FUNCTION IN</span>
+    </span>
+
+    <span style="color:var(--muted); font-size:.82rem; white-space:nowrap;">÷&thinsp;(<em class="m">z</em>−<em class="m">a</em>)<sup><em class="m">n</em>+1</sup>&ensp;→</span>
+
+    <span style="display:inline-flex; flex-direction:column; align-items:center; gap:3px; padding:7px 13px; border:1px solid rgba(255,255,255,.16); border-radius:9px;">
+      <span><span class="frac" style="font-size:.8em;"><span class="num"><em class="mg">f</em>(<em class="m">z</em>)</span><span class="den">(<em class="m">z</em>−<em class="m">a</em>)<sup><em class="m">n</em>+1</sup></span></span></span>
+      <span style="font-family:'IBM Plex Mono',monospace; font-size:.57rem; letter-spacing:.06em; color:var(--muted);">RE-TUNED</span>
+    </span>
+
+    <span style="color:var(--muted); font-size:.82rem; white-space:nowrap;">average&ensp;→</span>
+
+    <span style="display:inline-flex; flex-direction:column; align-items:center; gap:3px; padding:7px 13px; border:1px solid rgba(244,200,48,.4); border-radius:9px; background:rgba(244,200,48,.05);">
+      <span><span class="frac" style="font-size:.8em;"><span class="num">1</span><span class="den"><em class="mtau">τ</em><em class="m">i</em></span></span>&thinsp;∮(&thinsp;…&thinsp;)&thinsp;<em class="m">d</em><em class="m">z</em></span>
+      <span style="font-family:'IBM Plex Mono',monospace; font-size:.57rem; letter-spacing:.06em; color:var(--muted);">ONE LOOP</span>
+    </span>
+
+    <span style="color:var(--muted); font-size:.9rem;">=</span>
+
+    <span style="display:inline-flex; flex-direction:column; align-items:center; gap:3px; padding:7px 13px; border:1px solid rgba(80,216,144,.45); border-radius:9px; background:rgba(80,216,144,.06);">
+      <span><em class="mg">a</em><sub><em class="m">n</em></sub></span>
+      <span style="font-family:'IBM Plex Mono',monospace; font-size:.57rem; letter-spacing:.06em; color:var(--muted);">COEFFICIENT OUT</span>
+    </span>
+
+  </div>
+
+  <p>Averaging plain <em class="mg">f</em> caught only the still term,
+  <em class="mg">a</em><sub>0</sub>. To catch a deeper
+  <em class="mg">a</em><sub>n</sub>, play the §2 card again: bring the term you want to a
+  standstill <em>before</em> averaging. We saw that
+  (<em class="m">z</em>−<em class="m">a</em>)<sup><em class="m">n</em></sup> =
+  <em class="mr">r</em><sup><em class="m">n</em></sup>&thinsp;<em class="mg">exp</em>(<em class="m">in</em><em class="mt">θ</em>)
+  spins at rate <em class="m">n</em>, so <strong>dividing by it</strong> slows the
+  <em class="m">n</em>-th term to rate <em class="m">0</em> while every other term keeps
+  spinning. Average, and only that frozen term is left: <em class="mg">a</em><sub>n</sub>.</p>
+
+  <p>One last piece of bookkeeping turns that average into the textbook shape. As
+  <em class="m">z</em> swings around the circle it moves by
   <em class="m">d</em><em class="m">z</em> =
-  <em class="m">i</em>&thinsp;<em class="mr">r</em>&thinsp;<em class="mg">exp</em>(<em class="m">i</em><em class="mt">θ</em>)&thinsp;<em class="m">d</em><em class="mt">θ</em>
-  carrying the swing of <em class="m">z</em> around the circle — that is exactly
-  <strong>Cauchy's integral formula</strong>:</p>
+  <em class="m">i</em>&thinsp;<em class="mr">r</em>&thinsp;<em class="mg">exp</em>(<em class="m">i</em><em class="mt">θ</em>)&thinsp;<em class="m">d</em><em class="mt">θ</em>,
+  so the average over <em class="mt">θ</em> can be rewritten as a loop integral in
+  <em class="m">z</em> itself. That rewrite is exactly <strong>Cauchy's integral
+  formula</strong>:</p>
 
   <span class="eq"><em class="mg">f</em>(<em class="m">a</em>) &ensp;=&ensp;
     <span class="frac"><span class="num">1</span><span class="den"><em class="mtau">τ</em><em class="m">i</em></span></span>
@@ -917,8 +1119,20 @@
   bookkeeping from <em class="m">d</em><em class="m">z</em> swinging around the
   circle.</p>
 
+  <p><strong>Why circle the point instead of standing on it?</strong> Because the recipe
+  divides by <em class="m">z</em>−<em class="m">a</em>, and at the centre itself, where
+  <em class="m">z</em> = <em class="m">a</em> and so
+  <em class="m">z</em>−<em class="m">a</em> = <em class="m">0</em>, that is a division by
+  zero: the integrand blows up. The circle is the way around it.
+  <em class="m">z</em>−<em class="m">a</em> = <em class="mr">r</em>&thinsp;<em class="mg">exp</em>(<em class="m">i</em><em class="mt">θ</em>)
+  keeps a fixed distance <em class="mr">r</em> from <em class="m">0</em> the whole way, so
+  we surround the centre and read its value off a full turn <em>around</em> it, never
+  landing on the one forbidden point. That is why we always walk a loop <em>about</em>
+  <em class="m">a</em>, giving the centre (<em class="m">z</em>−<em class="m">a</em> =
+  <em class="m">0</em>) a wide berth.</p>
+
   <div class="callout">
-    <p>Cauchy is not a new idea — it is §1's lemma applied to a function's
+    <p>Cauchy is not a new idea — it is the full-turn cancellation lemma applied to a function's
     <em>input</em> as it circles a point. Next we read the very same formula from
     the other end, and watch the Taylor series fall straight out of it.</p>
   </div>
@@ -1183,7 +1397,7 @@ const C = {
   pink: '#d040a0', red: '#e84040', muted: '#60607a',
 };
 
-// ── §1 live figure: the averaging lemma ──────────────────────────────
+// ── §1 live figure: the full-turn cancellation lemma ─────────────────
 // Left canvas: unit circle, sampled arrow positions e^(inθ) for θ∈[0,sweep],
 //   the current gold arrow, and the running-average (centroid) pink dot.
 // Right canvas: |running average| plotted against θ as it sweeps 0→τ.
@@ -1381,6 +1595,26 @@ const C = {
   let n = parseInt(slN.value, 10);
   let sweep = TAU, playing = false, raf = null;
 
+  // live worked example: the chosen numbers plugged into the equation
+  const live = document.getElementById('fourLive');
+  function num1(v){ const s = v.toFixed(1).replace('-','−'); return v < 0 ? '(' + s + ')' : s; }
+  function expk(k, neg){
+    const kk = (k === 1) ? '' : '<em class="m">' + k + '</em>';
+    return '<em class="mg">exp</em>(' + (neg ? '−' : '') + kk + '<em class="m">i</em><em class="mt">θ</em>)';
+  }
+  function updateLive(){
+    if (!live) return;
+    let sig = '<em class="my">' + c[0].toFixed(1).replace('-','−') + '</em>';
+    for (let k = 1; k < c.length; k++) sig += ' + <em class="my">' + num1(c[k]) + '</em>&thinsp;' + expk(k, false);
+    const res = c[n].toFixed(2).replace('-','−');
+    const lbl = 'font-family:\'IBM Plex Mono\',monospace; font-size:.59rem; letter-spacing:.07em; color:var(--muted);';
+    live.innerHTML =
+      '<div style="' + lbl + ' margin-bottom:6px;">YOUR SIGNAL, FROM THE SLIDERS</div>' +
+      '<div style="font-size:1.02rem;"><em class="mg">f</em>(<em class="mt">θ</em>) = ' + sig + '</div>' +
+      '<div style="' + lbl + ' margin:12px 0 6px;">DIAL k = ' + n + ' · MULTIPLY BY <span style="font-family:Georgia,serif; font-style:italic; letter-spacing:normal;">exp(−' + (n === 1 ? '' : n) + 'iθ)</span>, THEN AVERAGE</div>' +
+      '<div style="font-size:1.02rem;"><em class="my">c<sub>' + n + '</sub></em> = <span class="frac" style="font-size:.8em;"><span class="num">1</span><span class="den"><em class="mtau">τ</em></span></span>&thinsp;∫<sub>0</sub><sup><em class="mtau">τ</em></sup>&thinsp;<em class="mg">f</em>(<em class="mt">θ</em>)&thinsp;' + expk(n, true) + '&thinsp;<em class="m">d</em><em class="mt">θ</em> &ensp;=&ensp; <em class="my">' + res + '</em></div>';
+  }
+
   // f(θ) = Σ c_k e^(ikθ)
   function fAt(th) {
     let re = 0, im = 0;
@@ -1449,6 +1683,20 @@ const C = {
     const [tx, ty] = pt(c[n], 0);
     cE.strokeStyle = C.gold; cE.lineWidth = 1.5; cE.setLineDash([3, 3]);
     cE.beginPath(); cE.arc(tx, ty, 9, 0, TAU); cE.stroke(); cE.setLineDash([]);
+    // running-average trail: the partial averages from θ=0 up to the sweep, spiralling in
+    cE.strokeStyle = 'rgba(208,64,160,0.45)'; cE.lineWidth = 1.5; cE.setLineDash([4, 3]);
+    cE.beginPath();
+    const TN = 140;
+    for (let i = 0; i <= TN; i++) {
+      const s = Math.max(sweep * i / TN, 1e-9);
+      const av = avgAt(s);
+      const [px, py] = pt(av.re, av.im);
+      i === 0 ? cE.moveTo(px, py) : cE.lineTo(px, py);
+    }
+    cE.stroke(); cE.setLineDash([]);
+    // mark where the trail began (the first partial average)
+    { const a0 = avgAt(1e-9); const [s0x, s0y] = pt(a0.re, a0.im);
+      cE.fillStyle = 'rgba(208,64,160,0.55)'; cE.beginPath(); cE.arc(s0x, s0y, 3, 0, TAU); cE.fill(); }
     // running-average dot + vector
     const a = avgAt(sweep);
     const [ax, ay] = pt(a.re, a.im);
@@ -1465,7 +1713,7 @@ const C = {
     cE.fillStyle = C.pink; cE.fillText(`avg = ${a.re.toFixed(2)}${a.im >= 0 ? ' + ' : ' − '}${Math.abs(a.im).toFixed(2)}i`, 10, 54);
   }
 
-  function draw() { drawSig(); drawEx(); }
+  function draw() { drawSig(); drawEx(); updateLive(); }
 
   function step() {
     if (!playing) return;
@@ -1625,9 +1873,9 @@ const C = {
   const slR = document.getElementById('slCauR'), vlR = document.getElementById('vlCauR');
   const btn = document.getElementById('btnCauPlay');
 
-  const a = { re: 0.8, im: 0.5 };
+  let a = { re: 0.8, im: 0.5 };
   const f = (re, im) => ({ re: re * re - im * im, im: 2 * re * im });   // z²
-  const fa = f(a.re, a.im);
+  let fa = f(a.re, a.im);
   let r = parseFloat(slR.value), sweep = TAU, playing = false, raf = null;
 
   function plane(ctx, half) {
@@ -1679,6 +1927,18 @@ const C = {
       k === 0 ? wx.moveTo(x, y) : wx.lineTo(x, y);
     }
     wx.stroke();
+    // running-average trail: partial averages from a tiny arc up to the sweep, spiralling to f(a)
+    wx.strokeStyle = 'rgba(208,64,160,0.45)'; wx.lineWidth = 1.5; wx.setLineDash([4, 3]); wx.beginPath();
+    const TN = 110;
+    for (let j = 0; j <= TN; j++) {
+      const s = Math.max(sweep * j / TN, 1e-4);
+      const M = Math.max(2, Math.round(180 * s / TAU));
+      let rre = 0, rim = 0;
+      for (let k = 0; k <= M; k++) { const th = s * k / M; const w = f(a.re + r * Math.cos(th), a.im + r * Math.sin(th)); rre += w.re; rim += w.im; }
+      const [px, py] = Q.pt(rre / (M + 1), rim / (M + 1));
+      j === 0 ? wx.moveTo(px, py) : wx.lineTo(px, py);
+    }
+    wx.stroke(); wx.setLineDash([]);
     const wnow = f(a.re + r * Math.cos(sweep), a.im + r * Math.sin(sweep));
     const [cwx, cwy] = Q.pt(wnow.re, wnow.im);
     wx.fillStyle = C.gold; wx.beginPath(); wx.arc(cwx, cwy, 5, 0, TAU); wx.fill();
@@ -1699,13 +1959,118 @@ const C = {
     draw();
     if (playing) raf = requestAnimationFrame(step);
   }
-  slR.addEventListener('input', () => { r = parseFloat(slR.value); vlR.textContent = r.toFixed(2); draw(); });
+  function clampA(){ const lim = 1.5 - r; a.re = Math.max(-lim, Math.min(lim, a.re)); a.im = Math.max(-lim, Math.min(lim, a.im)); fa = f(a.re, a.im); }
+  slR.addEventListener('input', () => { r = parseFloat(slR.value); vlR.textContent = r.toFixed(2); clampA(); draw(); });
+  function setAFromEvent(e){ const rect = zc.getBoundingClientRect(); const s = (Math.min(W, H) * 0.42) / 1.7;
+    a.re = ((e.clientX - rect.left) / rect.width * W - W / 2) / s; a.im = (H / 2 - (e.clientY - rect.top) / rect.height * H) / s; clampA(); draw(); }
+  let dragA = false;
+  zc.style.cursor = 'crosshair';
+  zc.addEventListener('pointerdown', e => { dragA = true; try { zc.setPointerCapture(e.pointerId); } catch (_) {} setAFromEvent(e); });
+  zc.addEventListener('pointermove', e => { if (dragA) setAFromEvent(e); });
+  zc.addEventListener('pointerup', () => { dragA = false; });
+  zc.addEventListener('pointercancel', () => { dragA = false; });
   btn.addEventListener('click', () => {
     if (playing) { playing = false; btn.classList.remove('active'); btn.textContent = '▶ play'; cancelAnimationFrame(raf); return; }
     if (sweep >= TAU) sweep = 0;
     playing = true; btn.classList.add('active'); btn.textContent = '⏸ pause';
     raf = requestAnimationFrame(step);
   });
+  draw();
+})();
+
+// ── §3 powers figure: each (z−a)^k is a spinning arrow, rate k, length r^k ──
+(function () {
+  const cv = document.getElementById('cPow');
+  if (!cv) return;
+  const ctx = cv.getContext('2d'); ctx.setTransform(2, 0, 0, 2, 0, 0);
+  const W = cv.width / 2, H = cv.height / 2, cx = W / 2, cy = H / 2, R0 = Math.min(W, H) * 0.42;
+  const slR = document.getElementById('slPowR'), vlR = document.getElementById('vlPowR');
+  const btn = document.getElementById('btnPowPlay');
+  let r = parseFloat(slR.value), theta = 0, playing = false, raf = null;
+  const COLS = [C.cyan, C.green, C.gold], LBL = ['(z−a)', '(z−a)²', '(z−a)³'];
+  function arrow(bx, by, col) {
+    ctx.strokeStyle = col; ctx.lineWidth = 2.4; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(bx, by); ctx.stroke();
+    const ang = Math.atan2(by - cy, bx - cx), h = 8;
+    ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(bx, by);
+    ctx.lineTo(bx - h * Math.cos(ang - 0.42), by - h * Math.sin(ang - 0.42));
+    ctx.lineTo(bx - h * Math.cos(ang + 0.42), by - h * Math.sin(ang + 0.42));
+    ctx.closePath(); ctx.fill();
+  }
+  function draw() {
+    ctx.clearRect(0, 0, W, H); ctx.fillStyle = C.surface; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = C.axis; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(W, cy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, H); ctx.stroke();
+    ctx.strokeStyle = C.border; ctx.setLineDash([3, 4]); ctx.beginPath(); ctx.arc(cx, cy, R0, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = C.muted; ctx.font = '11px "IBM Plex Mono",monospace'; ctx.textAlign = 'left'; ctx.fillText('1', cx + R0 + 5, cy - 4);
+    for (let k = 1; k <= 3; k++) {
+      const len = Math.pow(r, k) * R0, ang = k * theta, col = COLS[k - 1];
+      ctx.strokeStyle = 'rgba(255,255,255,.07)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(cx, cy, len, 0, TAU); ctx.stroke();
+      const tx = cx + len * Math.cos(ang), ty = cy - len * Math.sin(ang);
+      arrow(tx, ty, col);
+      ctx.fillStyle = col; ctx.font = 'italic 13px Georgia'; ctx.textAlign = 'left'; ctx.fillText(LBL[k - 1], tx + 7, ty - 5);
+    }
+    ctx.fillStyle = C.text; ctx.beginPath(); ctx.arc(cx, cy, 3.5, 0, TAU); ctx.fill();
+    ctx.fillStyle = C.muted; ctx.font = '12px "IBM Plex Mono",monospace'; ctx.textAlign = 'left';
+    ctx.fillText('θ = ' + theta.toFixed(2), 10, 18);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = C.cyan; ctx.fillText('r = ' + r.toFixed(2), W - 10, 18);
+    ctx.fillStyle = C.green; ctx.fillText('r² = ' + (r * r).toFixed(2), W - 10, 34);
+    ctx.fillStyle = C.gold; ctx.fillText('r³ = ' + (r * r * r).toFixed(2), W - 10, 50);
+  }
+  function stepf() { if (!playing) return; theta += TAU / 200; if (theta >= TAU) { theta = TAU; playing = false; btn.classList.remove('active'); btn.textContent = '▶ play'; } draw(); if (playing) raf = requestAnimationFrame(stepf); }
+  slR.addEventListener('input', () => { r = parseFloat(slR.value); vlR.textContent = r.toFixed(2); draw(); });
+  btn.addEventListener('click', () => {
+    if (playing) { playing = false; btn.classList.remove('active'); btn.textContent = '▶ play'; cancelAnimationFrame(raf); return; }
+    if (theta >= TAU) theta = 0; playing = true; btn.classList.add('active'); btn.textContent = '⏸ pause'; raf = requestAnimationFrame(stepf);
+  });
+  draw();
+})();
+
+// ── §3 setup figure: pick a, draw the circle, walk z (a and z are complex numbers) ──
+(function () {
+  const cv = document.getElementById('cSetup');
+  if (!cv) return;
+  const ctx = cv.getContext('2d'); ctx.setTransform(2, 0, 0, 2, 0, 0);
+  const W = cv.width / 2, H = cv.height / 2, cxp = W / 2, cyp = H / 2, half = 1.8, s = Math.min(W, H) * 0.42 / half;
+  const pt = (re, im) => [cxp + re * s, cyp - im * s];
+  const slR = document.getElementById('slSetR'), vlR = document.getElementById('vlSetR'), btn = document.getElementById('btnSetPlay');
+  let a = { re: -0.35, im: 0.25 }, r = parseFloat(slR.value), theta = 0, playing = false, raf = null;
+  function clampA() { const lim = half - r - 0.1; a.re = Math.max(-lim, Math.min(lim, a.re)); a.im = Math.max(-lim, Math.min(lim, a.im)); }
+  function arrow(ax, ay, bx, by, col, lw) {
+    ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
+    const ang = Math.atan2(by - ay, bx - ax), h = 8; ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(bx, by);
+    ctx.lineTo(bx - h * Math.cos(ang - 0.42), by - h * Math.sin(ang - 0.42)); ctx.lineTo(bx - h * Math.cos(ang + 0.42), by - h * Math.sin(ang + 0.42)); ctx.closePath(); ctx.fill();
+  }
+  function draw() {
+    ctx.clearRect(0, 0, W, H); ctx.fillStyle = C.surface; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = C.axis; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(0, cyp); ctx.lineTo(W, cyp); ctx.stroke(); ctx.beginPath(); ctx.moveTo(cxp, 0); ctx.lineTo(cxp, H); ctx.stroke();
+    ctx.fillStyle = C.muted; ctx.font = 'italic 12px Georgia';
+    ctx.textAlign = 'right'; ctx.fillText('real', W - 6, cyp - 6);
+    ctx.textAlign = 'left'; ctx.fillText('imaginary', cxp + 6, 14);
+    const [axp, ayp] = pt(a.re, a.im);
+    ctx.strokeStyle = C.border; ctx.lineWidth = 1.4; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.arc(axp, ayp, r * s, 0, TAU); ctx.stroke(); ctx.setLineDash([]);
+    ctx.strokeStyle = 'rgba(244,200,48,.55)'; ctx.lineWidth = 2.5; ctx.beginPath();
+    const N = Math.max(1, Math.round(120 * theta / TAU));
+    for (let i = 0; i <= N; i++) { const th = theta * i / N; const [x, y] = pt(a.re + r * Math.cos(th), a.im + r * Math.sin(th)); i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }
+    ctx.stroke();
+    ctx.fillStyle = C.gold; ctx.beginPath(); ctx.arc(axp, ayp, 5, 0, TAU); ctx.fill();
+    ctx.fillStyle = C.text; ctx.font = 'italic 15px Georgia'; ctx.textAlign = 'left'; ctx.fillText('a', axp + 9, ayp - 6);
+    const [zx, zy] = pt(a.re + r * Math.cos(theta), a.im + r * Math.sin(theta));
+    arrow(axp, ayp, zx, zy, C.gold, 2);
+    ctx.fillStyle = C.gold; ctx.beginPath(); ctx.arc(zx, zy, 5, 0, TAU); ctx.fill();
+    ctx.fillStyle = C.text; ctx.fillText('z', zx + 9, zy - 5);
+    ctx.fillStyle = C.muted; ctx.font = 'italic 12px Georgia'; ctx.fillText('r', (axp + zx) / 2 + 6, (ayp + zy) / 2 - 4);
+    ctx.fillStyle = C.muted; ctx.font = '12px "IBM Plex Mono",monospace'; ctx.textAlign = 'left'; ctx.fillText('θ = ' + theta.toFixed(2), 10, H - 12);
+  }
+  function stepf() { if (!playing) return; theta += TAU / 200; if (theta >= TAU) { theta = TAU; playing = false; btn.classList.remove('active'); btn.textContent = '▶ walk z'; } draw(); if (playing) raf = requestAnimationFrame(stepf); }
+  function setAFromEvent(e) { const rect = cv.getBoundingClientRect(); a.re = ((e.clientX - rect.left) / rect.width * W - cxp) / s; a.im = (cyp - (e.clientY - rect.top) / rect.height * H) / s; clampA(); draw(); }
+  let dragA = false; cv.style.cursor = 'crosshair';
+  cv.addEventListener('pointerdown', e => { dragA = true; try { cv.setPointerCapture(e.pointerId); } catch (_) {} setAFromEvent(e); });
+  cv.addEventListener('pointermove', e => { if (dragA) setAFromEvent(e); });
+  cv.addEventListener('pointerup', () => { dragA = false; }); cv.addEventListener('pointercancel', () => { dragA = false; });
+  slR.addEventListener('input', () => { r = parseFloat(slR.value); vlR.textContent = r.toFixed(2); clampA(); draw(); });
+  btn.addEventListener('click', () => { if (playing) { playing = false; btn.classList.remove('active'); btn.textContent = '▶ walk z'; cancelAnimationFrame(raf); return; } if (theta >= TAU) theta = 0; playing = true; btn.classList.add('active'); btn.textContent = '⏸ pause'; raf = requestAnimationFrame(stepf); });
   draw();
 })();
 
