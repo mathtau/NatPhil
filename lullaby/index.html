@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The τ Lullaby — count yourself to sleep · MathTau</title>
+
+  <meta name="description" content="A breathing circle that counts you to sleep. Every breath draws one step around the circle; every full turn is one τ. Counting sheep, doubling, Fibonacci, with rain and waves. Part of MathTau.">
+  <meta name="author" content="MathTau">
+  <meta name="robots" content="noindex">
+  <link rel="canonical" href="https://mathtau.com/lullaby/">
+
+  <meta property="og:title" content="The τ Lullaby">
+  <meta property="og:description" content="Count yourself to sleep, one full turn at a time.">
+  <meta property="og:url" content="https://mathtau.com/lullaby/">
+  <meta property="og:type" content="website">
+
+  <link rel="icon" type="image/svg+xml" href="/logo-minimal.svg">
+  <link rel="apple-touch-icon" href="/logo-minimal.svg">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0c0c1e;
+      --surface:   #111128;
+      --surface-2: #16163a;
+      --border:    #22224a;
+      --text:      #c4c4dc;
+      --muted:     #8888a8;
+      --gold:      #f4c830;
+      --cyan:      #40c8f0;
+      --green:     #50d890;
+      --orange:    #f08840;
+      --pink:      #d040a0;
+      --red:       #e84040;
+      --blue:      #6080f0;
+      --purple:    #b070f0;
+    }
+
+    html, body { height: 100%; }
+    body {
+      font-family: 'Georgia', serif;
+      background:
+        radial-gradient(1100px 700px at 70% -10%, #14143200 0%, transparent 60%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.8;
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: filter 1.4s ease, background-color 1.4s ease;
+    }
+
+    /* faint starfield */
+    #sky { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+    .star { position: absolute; border-radius: 50%; background: #d6e0f6; opacity: 0;
+      animation: tw var(--dur) ease-in-out infinite; animation-delay: var(--delay); }
+    @keyframes tw { 0%,100%{opacity:0;transform:scale(.6)} 50%{opacity:var(--max);transform:scale(1)} }
+
+    /* nav */
+    .top-left { position: fixed; top: 16px; left: 18px; z-index: 100; }
+    .top-left a {
+      color: var(--muted); text-decoration: none; font-style: italic; font-size: .95rem;
+      transition: color .2s;
+    }
+    .top-left a:hover { color: var(--gold); }
+    .lang-toggle {
+      position: fixed; top: 16px; right: 16px; z-index: 100; display: flex; gap: 2px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+      padding: 3px; font-family: 'Georgia', serif;
+    }
+    .lang-toggle a {
+      padding: 6px 14px; border-radius: 6px; cursor: pointer; text-decoration: none;
+      color: var(--text); font-size: .9rem; transition: color .2s, background .2s;
+    }
+    .lang-toggle a:hover { color: var(--gold); }
+    .lang-toggle a.active { background: rgba(244,200,48,.15); color: var(--gold); }
+
+    .wrap { position: relative; z-index: 1; max-width: 760px; margin: 0 auto;
+      padding: 64px 24px 120px; text-align: center; }
+
+    header h1 {
+      font-size: 2.6rem; font-style: italic; color: var(--gold); letter-spacing: .03em;
+      text-shadow: 0 0 50px rgba(244,200,48,.25);
+    }
+    header .tagline { margin-top: 12px; color: #6090c0; font-style: italic; font-size: 1.08rem; }
+    header .thesis { margin-top: 16px; color: var(--gold); font-style: italic; font-size: .92rem; opacity: .85; }
+
+    /* breathing figure */
+    .stage { margin: 40px auto 8px; position: relative; width: min(78vw, 360px); aspect-ratio: 1; }
+    svg.ring { width: 100%; height: 100%; display: block; overflow: visible; }
+    .ring .bg-ring { fill: none; stroke: var(--border); stroke-width: 2; }
+    .ring .arc { fill: none; stroke: var(--gold); stroke-width: 4; stroke-linecap: round;
+      filter: drop-shadow(0 0 8px rgba(244,200,48,.4)); transition: stroke .8s ease; }
+    .ring .dot { fill: #fff; filter: drop-shadow(0 0 6px rgba(255,255,255,.7)); }
+    .ring .halo { fill: rgba(244,200,48,.05); }
+
+    .center {
+      position: absolute; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; pointer-events: none;
+    }
+    .center .num {
+      font-size: clamp(3rem, 16vw, 5.6rem); font-style: italic; color: var(--text);
+      line-height: 1; letter-spacing: .01em; transition: color .5s;
+    }
+    .center .breathe { margin-top: 14px; font-style: italic; color: var(--cyan);
+      font-size: 1rem; letter-spacing: .12em; opacity: .9; min-height: 1.4em; transition: opacity .6s; }
+    .turns { margin-top: 4px; color: var(--muted); font-size: .9rem; letter-spacing: .06em; }
+    .turns .tau { color: var(--gold); font-style: italic; }
+
+    /* primary button */
+    .begin {
+      margin-top: 26px; font-family: 'Georgia', serif; font-style: italic;
+      font-size: 1.15rem; color: var(--gold); cursor: pointer;
+      background: linear-gradient(180deg, rgba(244,200,48,.16), rgba(244,200,48,.05));
+      border: 1px solid rgba(244,200,48,.5); border-radius: 999px; padding: 12px 40px;
+      transition: all .3s; box-shadow: 0 0 30px -10px rgba(244,200,48,.4);
+    }
+    .begin:hover { background: rgba(244,200,48,.2); }
+
+    /* controls */
+    .controls { margin-top: 40px; display: flex; flex-wrap: wrap; gap: 14px 22px;
+      justify-content: center; align-items: flex-end; }
+    .field { display: flex; flex-direction: column; gap: 6px; font-family: monospace;
+      font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+    select {
+      font-family: 'Georgia', serif; font-size: .98rem; color: var(--text);
+      background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+      padding: 9px 14px; cursor: pointer; transition: border-color .2s;
+    }
+    select:hover { border-color: rgba(244,200,48,.4); }
+    input[type=range] { -webkit-appearance: none; appearance: none; width: 150px; height: 4px;
+      border-radius: 999px; background: var(--border); outline: none; cursor: pointer; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 15px; height: 15px;
+      border-radius: 50%; background: var(--gold); box-shadow: 0 0 8px rgba(244,200,48,.5); }
+    input[type=range]::-moz-range-thumb { width: 15px; height: 15px; border: none;
+      border-radius: 50%; background: var(--gold); }
+    .pace-val { font-family: monospace; color: var(--text); font-size: .8rem; }
+
+    .toggle-btn, .amb-btn {
+      font-family: 'Georgia', serif; font-size: .9rem; color: var(--text);
+      background: var(--surface); border: 1px solid var(--border); border-radius: 999px;
+      padding: 8px 16px; cursor: pointer; transition: all .3s;
+    }
+    .toggle-btn:hover, .amb-btn:hover { border-color: rgba(244,200,48,.4); }
+    .toggle-btn.on, .amb-btn.on {
+      background: linear-gradient(180deg, rgba(244,200,48,.22), rgba(244,200,48,.08));
+      border-color: rgba(244,200,48,.6); color: var(--gold);
+    }
+
+    .ambient-row { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 9px;
+      justify-content: center; align-items: center; }
+    .ambient-row .lbl { font-family: monospace; font-size: .66rem; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--muted); margin-right: 2px; }
+    #vol { width: 110px; }
+
+    /* faint per-sequence insight */
+    em.m { font-style: italic; color: var(--cyan); }  em.mx { font-style: italic; color: var(--red); }
+    em.my { font-style: italic; color: var(--blue); } em.mt { font-style: italic; color: var(--purple); }
+    em.mr { font-style: italic; color: var(--orange); } em.mtau { font-style: italic; color: var(--gold); }
+    em.mg { font-style: italic; color: var(--green); } em.mp { font-style: italic; color: var(--pink); }
+    .insight {
+      margin: 4px auto 0; max-width: 480px; min-height: 1.6em;
+      color: var(--muted); font-size: .92rem; font-style: italic; line-height: 1.6;
+      opacity: 0; transition: opacity .7s ease;
+    }
+    .insight.show { opacity: .8; }
+
+    /* mode switch (Counting / Story) */
+    .mode-toggle { display: flex; gap: 8px; justify-content: center; margin: 6px 0 30px; }
+    .mode-btn { font-family: 'Georgia', serif; font-style: italic; font-size: 1rem; color: var(--text);
+      background: var(--surface); border: 1px solid var(--border); border-radius: 999px;
+      padding: 9px 24px; cursor: pointer; transition: all .3s; }
+    .mode-btn:hover { border-color: rgba(244,200,48,.4); }
+    .mode-btn.on { background: linear-gradient(180deg, rgba(244,200,48,.2), rgba(244,200,48,.06));
+      border-color: rgba(244,200,48,.6); color: var(--gold); }
+    .controls.shared { margin-top: 30px; }
+
+    /* story panel */
+    @keyframes settle { to { opacity: 1; filter: blur(0); transform: none; } }
+    .story-panel { text-align: left; max-width: 600px; margin: 4px auto 0;
+      font-size: clamp(1.04rem, 2.6vw, 1.22rem); line-height: 2; min-height: 34vh; }
+    .story-panel p { margin: 0 0 1.3rem; opacity: 0; filter: blur(6px); transform: translateY(8px);
+      animation: settle 2.1s ease forwards; }
+    .story-panel .stitle { text-align: center; color: var(--gold); font-style: italic;
+      font-size: 1.12em; letter-spacing: .04em; margin-bottom: 1.8rem; }
+    .story-panel em.num { color: var(--gold); font-style: italic; font-weight: 600;
+      text-shadow: 0 0 14px rgba(244,200,48,.3); }
+    .story-panel em.op { color: var(--cyan); font-style: normal; }
+    .story-panel .placeholder { text-align: center; color: var(--muted); font-style: italic;
+      opacity: .8; margin-top: 9vh; }
+
+    .note { margin-top: 30px; color: var(--muted); font-size: .9rem; font-style: italic;
+      line-height: 1.7; max-width: 560px; margin-left: auto; margin-right: auto; }
+
+    footer { margin-top: 60px; padding-top: 28px; border-top: 1px solid var(--border);
+      font-size: .85rem; color: var(--muted); line-height: 1.7; }
+    footer a { color: var(--cyan); text-decoration: none; border-bottom: 1px dotted rgba(64,200,240,.5); }
+    footer a:hover { color: var(--gold); border-bottom-color: var(--gold); }
+
+    /* dim-to-sleep */
+    body.dim { filter: brightness(.4) saturate(.8); }
+    body.asleep { filter: brightness(.06); }
+
+    @media (max-width: 520px) {
+      .wrap { padding: 54px 18px 120px; }
+      header h1 { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+<div id="sky"></div>
+
+<div class="top-left"><a href="/">← MathTau</a></div>
+<div class="lang-toggle">
+  <a data-lang="en" class="active">English</a>
+  <a data-lang="zh">中文</a>
+</div>
+
+<div class="wrap">
+  <header>
+    <h1 data-i18n="title">The τ Lullaby</h1>
+    <p class="tagline" data-i18n="tagline">count yourself to sleep, one full turn at a time</p>
+    <p class="thesis" data-i18n="thesis">every breath draws one step around the circle — every full turn is one <em>τ</em></p>
+  </header>
+
+  <div class="mode-toggle">
+    <button id="m-count" class="mode-btn" data-i18n="modeCount">Counting</button>
+    <button id="m-story" class="mode-btn on" data-i18n="modeStory">A story</button>
+  </div>
+
+  <!-- ── Mode 1: the breathing / counting circle ───────────────── -->
+  <section id="mode-count" hidden>
+    <div class="stage">
+      <svg class="ring" viewBox="0 0 300 300" aria-hidden="true">
+        <g id="figure">
+          <circle class="halo" cx="150" cy="150" r="120"></circle>
+          <circle class="bg-ring" cx="150" cy="150" r="120"></circle>
+          <circle class="arc" id="arc" cx="150" cy="150" r="120"
+                  transform="rotate(-90 150 150)"></circle>
+          <circle class="dot" id="dot" cx="150" cy="30" r="6"></circle>
+        </g>
+      </svg>
+      <div class="center">
+        <div class="num" id="num">·</div>
+        <div class="breathe" id="breathe"></div>
+        <div class="turns" id="turns"></div>
+      </div>
+    </div>
+
+    <p class="insight" id="insight"></p>
+
+    <button class="begin" id="begin" data-i18n="begin">Begin</button>
+
+    <div class="controls">
+      <label class="field"><span data-i18n="seqLabel">Count</span>
+        <select id="seq"></select>
+      </label>
+      <label class="field"><span data-i18n="paceLabel">Breaths / min</span>
+        <span style="display:flex;align-items:center;gap:8px;">
+          <input id="pace" type="range" min="4" max="10" step="1" value="6">
+          <span class="pace-val" id="paceVal">6</span>
+        </span>
+      </label>
+      <button class="toggle-btn" id="why" data-i18n="why">why</button>
+    </div>
+  </section>
+
+  <!-- ── Mode 2: a bedtime story with arithmetic woven in ──────── -->
+  <section id="mode-story">
+    <div class="story-panel" id="story"></div>
+
+    <div class="controls">
+      <label class="field"><span data-i18n="heroLabel">Who</span>
+        <select id="hero"></select>
+      </label>
+      <label class="field"><span data-i18n="lenLabel">Length</span>
+        <select id="slen"></select>
+      </label>
+      <button class="toggle-btn on" id="autoStory" data-i18n="autoStory">keep going</button>
+      <button class="toggle-btn" id="pauseStory" data-i18n="pauseStory">pause</button>
+      <button class="begin" id="newStory" data-i18n="newStory">Tell me a story</button>
+    </div>
+  </section>
+
+  <!-- ── Shared controls (both modes) ──────────────────────────── -->
+  <div class="controls shared">
+    <label class="field"><span data-i18n="timerLabel">Sleep timer</span>
+      <select id="timer">
+        <option value="0">∞</option>
+        <option value="10">10 min</option>
+        <option value="20" selected>20 min</option>
+        <option value="30">30 min</option>
+        <option value="45">45 min</option>
+      </select>
+    </label>
+    <button class="toggle-btn on" id="narrate" data-i18n="narrate">read aloud</button>
+    <button class="toggle-btn" id="dim" data-i18n="dim">dim</button>
+  </div>
+
+  <div class="ambient-row">
+    <span class="lbl" data-i18n="ambient">ambient</span>
+    <button class="amb-btn" data-sound="rain"  data-i18n="rain">rain</button>
+    <button class="amb-btn" data-sound="waves" data-i18n="waves">waves</button>
+    <button class="amb-btn" data-sound="wind"  data-i18n="wind">wind</button>
+    <button class="amb-btn" data-sound="fire"  data-i18n="fire">fire</button>
+    <button class="amb-btn" data-sound="night" data-i18n="night">crickets</button>
+    <input id="vol" type="range" min="0" max="1" step="0.01" value="0.55" title="volume">
+  </div>
+
+  <p class="note" id="note"></p>
+
+  <footer>
+    <p>Part of <a href="/">MathTau</a> — mathematical explainers, derived naturally.
+       Licensed <a href="https://creativecommons.org/licenses/by/4.0/" rel="license">CC BY 4.0</a>.</p>
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   The τ Lullaby — a MathTau page.
+   A breathing circle that counts you to sleep. Fully offline.
+   One breath = one step around the circle. One full turn = τ.
+   Ambient sound is synthesized live with Web Audio (no files).
+   ============================================================ */
+
+/* ---------------- i18n ---------------- */
+const I18N = {
+  en: {
+    title: "The τ Lullaby",
+    tagline: "count yourself to sleep, one full turn at a time",
+    thesis: 'every breath draws one step around the circle — every full turn is one <em>τ</em>',
+    begin: "Begin", pause: "Pause",
+    seqLabel: "Count", paceLabel: "Breaths / min", timerLabel: "Sleep timer",
+    narrate: "read aloud", dim: "dim", why: "why",
+    modeCount: "Counting", modeStory: "A story",
+    heroLabel: "Who", lenLabel: "Length", newStory: "Tell me a story", anotherStory: "Another story",
+    autoStory: "keep going", pauseStory: "pause", resumeStory: "resume",
+    lenShort: "short", lenMed: "medium", lenLong: "long", lenAny: "🎲 surprise me", anyHero: "✨ anyone",
+    storyHint: "Pick who it’s about, and let a small, sleepy story count itself out.",
+    ambient: "ambient", rain: "rain", waves: "waves", wind: "wind", fire: "fire", night: "crickets",
+    in: "breathe in", out: "breathe out",
+    turns: (n) => `${n} full ${n===1?'turn':'turns'} · ${n}τ`,
+    note: "Pick a way to count, set a slow pace, and let the numbers go on without you. " +
+          "The circle fills as you breathe; each time it closes is one τ. " +
+          "When the sleep timer runs out, the screen and sound fade away on their own.",
+    seqs: {
+      sheep:    "counting sheep · 1, 2, 3 …",
+      doubling: "doubling · 1, 2, 4, 8 …",
+      triangle: "running sums · 1, 3, 6, 10 …",
+      fib:      "Fibonacci · 1, 1, 2, 3, 5 …",
+      down3:    "counting down · 100, 97, 94 …",
+      down7:    "counting down by 7 · 100, 93, 86 …",
+      squares:  "square numbers · 1, 4, 9, 16 …",
+    },
+    whys: {
+      sheep:    'every number is just <em class="m">1</em> added to the one before it.',
+      doubling: 'each step is twice the last, so step <em class="m">k</em> is <em class="m">2</em> raised to <em class="m">k</em>.',
+      triangle: 'these are <em class="m">1</em>+<em class="m">2</em>+…+<em class="m">n</em>. two such stacks form a rectangle, so the sum is ½·<em class="m">n</em>·(<em class="m">n</em>+1).',
+      fib:      'each one is the sum of the two before it. their ratios drift toward the golden ratio <em class="mtau">φ</em>.',
+      down3:    'subtracting a fixed step is an arithmetic sequence: a straight line, walked downhill.',
+      down7:    'still a straight line down, just a wider step. it lands on the same place every 7 counts.',
+      squares:  'the gaps between square numbers are the odd numbers: <em class="mg">1, 3, 5, 7</em> …',
+    },
+  },
+  zh: {
+    title: "τ 摇篮曲",
+    tagline: "一圈一圈，数着数着就睡着了",
+    thesis: '每一次呼吸，画出圆上的一步 —— 每画满一整圈，就是一个 <em>τ</em>',
+    begin: "开始", pause: "暂停",
+    seqLabel: "数法", paceLabel: "每分钟呼吸", timerLabel: "睡眠定时",
+    narrate: "朗读", dim: "调暗", why: "原理",
+    modeCount: "数数", modeStory: "讲故事",
+    heroLabel: "主角", lenLabel: "长短", newStory: "讲一个故事", anotherStory: "再讲一个",
+    autoStory: "连续播放", pauseStory: "暂停", resumeStory: "继续",
+    lenShort: "短", lenMed: "中", lenLong: "长", lenAny: "🎲 随机", anyHero: "✨ 随便谁",
+    storyHint: "选一个主角，让一个小小的、困困的故事，自己数着数着就讲完了。",
+    ambient: "环境音", rain: "雨声", waves: "海浪", wind: "风声", fire: "炉火", night: "虫鸣",
+    in: "吸 气", out: "呼 气",
+    turns: (n) => `已画 ${n} 整圈 · ${n}τ`,
+    note: "选一种数法，把节奏调慢，让数字自己一个一个走下去。" +
+          "圆圈会随着呼吸一点点画满，每画满一整圈，就是一个 τ。" +
+          "睡眠定时一到，画面和声音都会自己慢慢消失。",
+    seqs: {
+      sheep:    "数羊 · 1、2、3 ……",
+      doubling: "翻倍 · 1、2、4、8 ……",
+      triangle: "累加 · 1、3、6、10 ……",
+      fib:      "斐波那契 · 1、1、2、3、5 ……",
+      down3:    "倒数 · 100、97、94 ……",
+      down7:    "每次减 7 · 100、93、86 ……",
+      squares:  "平方数 · 1、4、9、16 ……",
+    },
+    whys: {
+      sheep:    '每一个数，不过是前一个数再加上 <em class="m">1</em>。',
+      doubling: '每一步都是上一步的两倍，所以第 <em class="m">k</em> 步是 <em class="m">2</em> 的 <em class="m">k</em> 次方。',
+      triangle: '它们是 <em class="m">1</em>+<em class="m">2</em>+…+<em class="m">n</em>。两摞这样的台阶拼成一个长方形，所以和是 ½·<em class="m">n</em>·(<em class="m">n</em>+1)。',
+      fib:      '每个数都是前两个之和，它们的比值越来越接近黄金比例 <em class="mtau">φ</em>。',
+      down3:    '每次减去相同的一步，这是等差数列：一条直线，往下走。',
+      down7:    '同样是一条往下的直线，只是步子更大，每 7 步落回同一个位置。',
+      squares:  '相邻平方数之间的间隔，正是奇数：<em class="mg">1、3、5、7</em> ……',
+    },
+  },
+};
+let lang = "en";
+
+/* ---------------- 数列(简单的) ---------------- */
+/* 每个: start() 初值; next(state) 下一个; cap 重置上限 */
+const SEQS = {
+  sheep:    { start: () => 1,            next: v => v + 1,             reset: v => v > 999 ? 1 : v },
+  doubling: { start: () => 1,            next: v => v * 2,             reset: v => v > 1024 ? 1 : v },
+  triangle: { start: () => ({ n:1, s:1 }), nextO: st => ({ n: st.n+1, s: st.s + st.n+1 }),
+              val: st => st.s, resetO: st => st.s > 990 ? { n:1, s:1 } : st },
+  fib:      { start: () => ({ a:1, b:1, show:1 }), nextO: st => ({ a: st.b, b: st.a+st.b, show: st.b }),
+              val: st => st.show, resetO: st => st.b > 987 ? { a:1, b:1, show:1 } : st },
+  down3:    { start: () => 99,           next: v => v - 3,             reset: v => v < 0 ? 99 : v },
+  down7:    { start: () => 98,           next: v => v - 7,             reset: v => v < 0 ? 98 : v },
+  squares:  { start: () => ({ n:1 }), nextO: st => ({ n: st.n+1 }),
+              val: st => st.n * st.n, resetO: st => st.n*st.n > 900 ? { n:1 } : st },
+};
+const SEQ_ORDER = ["sheep","doubling","triangle","fib","down3","down7","squares"];
+
+/* ---------------- 几何(连续绕圈的彗尾 + 呼吸缩放) ---------------- */
+const R = 120, C = 2 * Math.PI * R;
+const TRAIL = 0.55, A = C * TRAIL;              // 彗尾长度(占整圈的比例)
+const arcEl = document.getElementById("arc");
+const dotEl = document.getElementById("dot");
+const figEl = document.getElementById("figure");
+const numEl = document.getElementById("num");
+const breatheEl = document.getElementById("breathe");
+const turnsEl = document.getElementById("turns");
+arcEl.style.strokeDasharray = `${A} ${C}`;      // 只露出一段弧,其余隐去
+
+const TURN_COLORS = ["var(--gold)","var(--cyan)","var(--green)","var(--purple)","var(--pink)","var(--orange)"];
+// f = 当前这一次呼吸内绕圈的进度(0→1),彗头即光点位置
+function setComet(f) { arcEl.style.strokeDashoffset = A - f * C; }
+function setDot(f) {
+  const th = -Math.PI/2 + f * 2*Math.PI;
+  dotEl.setAttribute("cx", 150 + R*Math.cos(th));
+  dotEl.setAttribute("cy", 150 + R*Math.sin(th));
+}
+function setScale(s) { figEl.setAttribute("transform", `translate(150 150) scale(${s}) translate(-150 -150)`); }
+const easeInOut = u => u < .5 ? 2*u*u : 1 - Math.pow(-2*u+2, 2)/2;
+
+/* ---------------- 状态 & 循环 ---------------- */
+let running = false, raf = null, cycleStart = 0;
+let seqKey = "sheep", state = null, displayVal = 1;
+let turns = 0;
+let pace = 6;                  // 每分钟呼吸数
+const INHALE = 0.4;           // 吸气占比(呼气更长,更放松)
+
+function curVal() {
+  const s = SEQS[seqKey];
+  return s.val ? s.val(state) : state;
+}
+function initSeq() {
+  const s = SEQS[seqKey];
+  state = s.start();
+  displayVal = curVal();
+}
+function advance() {
+  const s = SEQS[seqKey];
+  if (s.nextO) { state = s.resetO(s.nextO(state)); }
+  else { state = s.reset(s.next(state)); }
+  displayVal = curVal();
+  turns++;                                        // 每一次呼吸 = 绕一整圈 = 一个 τ
+  arcEl.style.stroke = TURN_COLORS[turns % TURN_COLORS.length];
+  if (turns % 10 === 0) chime();                  // 每 10 圈,一声极轻的提示
+  numEl.textContent = displayVal;
+  turnsEl.innerHTML = I18N[lang].turns(turns);
+  if (narrateOn) speak(displayVal);
+}
+
+function loop(ts) {
+  if (!running) return;
+  if (!cycleStart) cycleStart = ts;
+  const cycleMs = 60000 / pace;
+  let t = (ts - cycleStart) / cycleMs;
+  if (t >= 1) { cycleStart = ts; t = 0; advance(); }
+
+  // 呼吸缩放 + 提示
+  let scale;
+  if (t < INHALE) { scale = 0.82 + 0.18 * easeInOut(t / INHALE); setBreath(true); }
+  else { scale = 1.0 - 0.18 * easeInOut((t - INHALE) / (1 - INHALE)); setBreath(false); }
+  setScale(scale);
+
+  // 连续绕圈:每一次呼吸,光点带着彗尾绕整圈一周(始终在动)
+  setComet(t); setDot(t);
+
+  raf = requestAnimationFrame(loop);
+}
+let lastBreathIn = null;
+function setBreath(inhale) {
+  if (lastBreathIn === inhale) return;
+  lastBreathIn = inhale;
+  breatheEl.textContent = inhale ? I18N[lang].in : I18N[lang].out;
+}
+
+function start() {
+  if (running) { pause(); return; }
+  running = true; cycleStart = 0; lastBreathIn = null;
+  initSeq();
+  numEl.textContent = displayVal;
+  if (narrateOn) speak(displayVal);
+  Ambient.prime();
+  beginBtn.textContent = I18N[lang].pause;
+  document.body.classList.remove("asleep");
+  startTimer();
+  raf = requestAnimationFrame(loop);
+}
+function pause() {
+  running = false; if (raf) cancelAnimationFrame(raf);
+  stopVoice(); clearTimer(); clearAuto();
+  beginBtn.textContent = I18N[lang].begin;
+  breatheEl.textContent = "";
+}
+
+/* ---------------- 朗读 ---------------- */
+let narrateOn = true;
+let storyAuto = true, storyToken = 0, autoTimer = null, chainArmed = false;
+let advancing = false, storyPaused = false, speechKeep = null;
+const GAP = 3000;   // 两三秒的间歇,再开始下一篇
+const IS_SAFARI = /^((?!chrome|android|crios|fxios).)*safari/i.test(navigator.userAgent);
+function clearAuto() { if (autoTimer) { clearTimeout(autoTimer); clearInterval(autoTimer); autoTimer = null; } }
+function pickVoice() {
+  const vs = speechSynthesis.getVoices();
+  return lang === "zh"
+    ? vs.find(x => /zh|chinese|tingting|xiaoxiao|huihui/i.test(x.name + x.lang))
+    : (vs.find(x => /samantha|aria|jenny|zira|female/i.test(x.name)) || vs.find(x => /en/i.test(x.lang)));
+}
+function speak(v) {                          // 朗读单个数字(数数模式)
+  if (!("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(String(v));
+  u.lang = lang === "zh" ? "zh-CN" : "en-US";
+  u.rate = 0.8; u.pitch = 0.95; u.volume = 0.9;
+  const want = pickVoice(); if (want) u.voice = want;
+  speechSynthesis.speak(u);
+}
+function stripTags(html) { const d = document.createElement("div"); d.innerHTML = html; return d.textContent || ""; }
+function speakStory(paras) {                    // 缓缓朗读整篇故事(故事模式)
+  if (!("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  if (speechKeep) { clearInterval(speechKeep); speechKeep = null; }
+  const text = paras.map(p => stripTags(p.html)).join(lang === "zh" ? "。 " : ". ");
+  const chunks = text.split(/(?<=[.。…？！?!，,、])\s*/).filter(s => s.trim());
+  const want = pickVoice();
+  chunks.forEach(c => {
+    const u = new SpeechSynthesisUtterance(c);
+    u.lang = lang === "zh" ? "zh-CN" : "en-US";
+    u.rate = 0.82; u.pitch = 0.98; u.volume = 0.92;
+    if (want) u.voice = want;
+    speechSynthesis.speak(u);
+  });
+  // Chrome 会在 ~15 秒后悄悄掐断长朗读;定时 resume 让它把整篇读完(Safari 不需要)
+  if (!IS_SAFARI) {
+    speechKeep = setInterval(() => {
+      if (storyPaused) return;                       // 用户手动暂停时,不要去 resume
+      if (speechSynthesis.speaking) { speechSynthesis.pause(); speechSynthesis.resume(); }
+      else { clearInterval(speechKeep); speechKeep = null; }
+    }, 10000);
+  }
+}
+function stopVoice() {
+  chainArmed = false;
+  if (speechKeep) { clearInterval(speechKeep); speechKeep = null; }
+  if ("speechSynthesis" in window) speechSynthesis.cancel();
+}
+if ("speechSynthesis" in window) speechSynthesis.onvoiceschanged = () => {};
+
+/* ============================================================
+   故事模式 —— 把简单的算术,织进猫儿狗儿的睡前小故事里
+   ============================================================ */
+const SR = { pick: a => a[Math.floor(Math.random()*a.length)], int: (lo,hi) => lo + Math.floor(Math.random()*(hi-lo+1)) };
+const num = n => `<em class="num">${n}</em>`;
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+const ORD = {1:"first",2:"second",3:"third",4:"fourth",5:"fifth",6:"sixth"};
+const ordinal = n => ORD[n] || (n + "th");
+
+const SANIMALS = {
+  cat:      { emoji:"🐱", en:{k:"cat",      n:["Mittens","Biscuit","Smudge","Clover"]}, zh:{k:"猫",   n:["咪咪","小白","芝麻","布丁"]} },
+  dog:      { emoji:"🐶", en:{k:"puppy",    n:["Rusty","Pip","Scout","Biscuit"]},       zh:{k:"狗",   n:["阿黄","豆豆","糯米","欢欢"]} },
+  rabbit:   { emoji:"🐰", en:{k:"bunny",    n:["Cotton","Nibbles","Hazel","Pebble"]},   zh:{k:"兔子", n:["雪球","棉花","跳跳","白白"]} },
+  squirrel: { emoji:"🐿️", en:{k:"squirrel", n:["Acorn","Hazel","Tuft"]},               zh:{k:"松鼠", n:["毛毛","橡果","蓬蓬"]} },
+  duck:     { emoji:"🦆", en:{k:"duckling", n:["Waddle","Puddle","Pebble"]},            zh:{k:"鸭子", n:["嘎嘎","黄黄","扁扁"]} },
+  bear:     { emoji:"🐻", en:{k:"bear cub", n:["Honey","Cocoa","Barley"]},              zh:{k:"熊",   n:["胖胖","可可","蜜蜜"]} },
+  fox:      { emoji:"🦊", en:{k:"fox cub",  n:["Ember","Ginger","Rufus"]},              zh:{k:"狐狸", n:["小橙","火火","橘子"]} },
+  mouse:    { emoji:"🐭", en:{k:"mouse",    n:["Squeak","Crumb","Pip"]},                zh:{k:"老鼠", n:["吱吱","米粒","点点"]} },
+};
+const HERO_ORDER = ["any","cat","dog","rabbit","squirrel","duck","bear","fox","mouse"];
+
+function heroS(key) {
+  const a = SANIMALS[key][lang], name = SR.pick(a.n);
+  return { key, k: a.k, name, full: lang === "en" ? `a little ${a.k} named ${name}` : `小${a.k}${name}` };
+}
+function friendS(exclude) {
+  const ks = Object.keys(SANIMALS).filter(k => !exclude.includes(k));
+  return heroS(SR.pick(ks));
+}
+
+/* --- 故事(每篇都藏着一点算术) --- */
+function arcBerries(h, lvl) {                   // 加法(还有一点减法)
+  const M = lvl >= 1, L = lvl >= 2;
+  const a = SR.int(2,4), b = SR.int(2,4), d = SR.int(2,4), g = SR.int(1,2), c = 1;
+  const f = friendS([h.key]);
+  const have = L ? (a+b+d-g) : (M ? a+b+d : a+b), left = have - c, P = [];
+  if (lang === "en") {
+    P.push({cls:"stitle", html:"Counting Berries"});
+    P.push({html:`In a warm hollow at the edge of the woods lived ${h.full}.`});
+    if (M) P.push({html:`It had been a long, golden afternoon, and the shadows were growing soft and long.`});
+    P.push({html:`One quiet evening, ${h.name} took a small basket out to pick berries.`});
+    if (L) P.push({html:`The path was cool underfoot, and the woods were settling down for the night, leaf by leaf.`});
+    P.push({html:`Under the first bush were ${num(a)} berries, round and shiny.`});
+    P.push({html:`Under the next, ${h.name} found ${num(b)} more.`});
+    P.push({html:`${num(a)} and ${num(b)}… ${h.name} counted them slowly. That makes ${num(a+b)}.`});
+    if (M) P.push({html:`Further along, behind a mossy log, were ${num(d)} more — the darkest, sweetest ones of all.`});
+    if (M) P.push({html:`${num(a+b)} and ${num(d)} more… now there were ${num(a+b+d)} berries nestled in the basket.`});
+    if (L) P.push({html:`${h.name} sat a while and listened: a stream somewhere, a sleepy bird, the slow hush of the leaves.`});
+    if (L) P.push({html:`On the way home, ${h.name} met ${f.full}, who hadn’t found a single berry all day.`});
+    if (L) P.push({html:`“Here, have some.” ${h.name} gave ${f.name} ${num(g)}. ${num(a+b+d)} take away ${num(g)} leaves ${num(a+b+d-g)}.`});
+    if (L) P.push({html:`${f.name} smiled so wide that ${h.name} felt warm the whole way home.`});
+    P.push({html:`At home, ${h.name} ate just ${num(c)} before bed. ${num(have)} take away ${num(c)} leaves ${num(left)}.`});
+    if (L) P.push({html:`${num(left)} berries, lined up on a leaf, saved for the morning, glistening in the last of the light.`});
+    P.push({html:`${h.name} curled up in the soft hollow and counted them once more, slower… and slower… until the numbers melted into a dream.`});
+  } else {
+    P.push({cls:"stitle", html:"数浆果"});
+    P.push({html:`森林边一个暖暖的小树洞里，住着${h.full}。`});
+    if (M) P.push({html:`这是一个又长又金黄的下午，影子被拉得软软的、长长的。`});
+    P.push({html:`一个安静的傍晚，${h.name}挎上小篮子，出门去采浆果。`});
+    if (L) P.push({html:`小路踩上去凉凉的，森林正一片叶子、一片叶子地，慢慢安静下来。`});
+    P.push({html:`第一丛灌木下，有 ${num(a)} 颗浆果，又圆又亮。`});
+    P.push({html:`第二丛下面，${h.name}又找到了 ${num(b)} 颗。`});
+    P.push({html:`${num(a)} 颗，再加 ${num(b)} 颗……${h.name}慢慢地数，一共是 ${num(a+b)} 颗。`});
+    if (M) P.push({html:`再往前，一根长满青苔的倒木后面，还藏着 ${num(d)} 颗——是最黑最甜的那种。`});
+    if (M) P.push({html:`${num(a+b)} 颗，再添上 ${num(d)} 颗……篮子里现在有 ${num(a+b+d)} 颗啦。`});
+    if (L) P.push({html:`${h.name}坐下来听了一会儿：不知哪里的小溪，一只困倦的鸟，还有树叶缓缓的沙沙声。`});
+    if (L) P.push({html:`回家路上，${h.name}遇到了${f.full}，它今天一颗浆果也没找到。`});
+    if (L) P.push({html:`“给你一些吧。”${h.name}分给${f.name} ${num(g)} 颗。${num(a+b+d)} 减去 ${num(g)}，还剩 ${num(a+b+d-g)} 颗。`});
+    if (L) P.push({html:`${f.name}笑得那么开心，${h.name}一路上心里都暖暖的。`});
+    P.push({html:`到家后，${h.name}睡前只吃了 ${num(c)} 颗。${num(have)} 减去 ${num(c)}，还剩 ${num(left)} 颗。`});
+    if (L) P.push({html:`${num(left)} 颗浆果，整整齐齐排在一片叶子上，留着明天早上吃，在最后一点光里亮晶晶的。`});
+    P.push({html:`${h.name}在软软的树洞里蜷起身子，又数了一遍，越数越慢……越数越慢……数着数着，数字就化进了梦里。`});
+  }
+  return P;
+}
+
+function arcShare(h, lvl) {                     // 平均分(除法)
+  const M = lvl >= 1, L = lvl >= 2;
+  const each = SR.int(2,3), fr = SR.int(2,3), sharers = fr+1, tot = each*sharers;
+  const fruitEach = SR.int(1,2), fruitTot = fruitEach*sharers, P = [];
+  if (lang === "en") {
+    P.push({cls:"stitle", html:"Sharing, Just Right"});
+    P.push({html:`In a little kitchen that smelled of honey lived ${h.full}.`});
+    if (M) P.push({html:`It was the kind of quiet evening when friends drop by, just because the lamp looks warm.`});
+    P.push({html:`That afternoon, ${h.name} had baked ${num(tot)} warm biscuits.`});
+    P.push({html:`Soon there came a soft knock at the door. Friends had come to visit.`});
+    P.push({html:`Counting ${h.name}, there were ${num(sharers)} of them in all.`});
+    if (M) P.push({html:`${h.name} set out ${num(sharers)} little plates in a neat, careful row.`});
+    P.push({html:`“Everyone the same,” said ${h.name}. ${num(tot)} biscuits, shared into ${num(sharers)} equal piles…`});
+    P.push({html:`…makes ${num(each)} each. Because ${num(sharers)} times ${num(each)} is ${num(tot)}. Just right, none left over.`});
+    if (L) P.push({html:`Then ${h.name} remembered a bowl of ${num(fruitTot)} ripe berries, too.`});
+    if (L) P.push({html:`${num(fruitTot)} berries, shared the very same way among ${num(sharers)}, came to ${num(fruitEach)} each.`});
+    if (L) P.push({html:`The little lamp was warm, and outside the first stars were coming out, one by one.`});
+    if (L) P.push({html:`They ate slowly, telling small soft stories, until every plate was empty and the talk turned to yawns.`});
+    if (M) P.push({html:`One by one, the friends said goodnight and padded off into the dark.`});
+    P.push({html:`${h.name} washed up, climbed into bed, and was asleep before the lamp went cool.`});
+  } else {
+    P.push({cls:"stitle", html:"分得刚刚好"});
+    P.push({html:`一间满是蜂蜜香味的小厨房里，住着${h.full}。`});
+    if (M) P.push({html:`这样安静的傍晚，朋友们总会顺路来坐坐，只因为那盏灯看着就暖。`});
+    P.push({html:`那天下午，${h.name}烤了 ${num(tot)} 块热乎乎的小饼干。`});
+    P.push({html:`没过多久，门被轻轻敲响——朋友们来做客了。`});
+    P.push({html:`算上${h.name}，一共有 ${num(sharers)} 个小家伙。`});
+    if (M) P.push({html:`${h.name}把 ${num(sharers)} 个小盘子，整整齐齐地摆成一排。`});
+    P.push({html:`“每个人都一样多。”${h.name}说。${num(tot)} 块饼干，平平均均地分成 ${num(sharers)} 份……`});
+    P.push({html:`……每份正好 ${num(each)} 块。因为 ${num(sharers)} 乘 ${num(each)} 就是 ${num(tot)}，不多，不少。`});
+    if (L) P.push({html:`接着，${h.name}又想起还有一碗 ${num(fruitTot)} 颗熟透的浆果。`});
+    if (L) P.push({html:`${num(fruitTot)} 颗浆果，照样分给 ${num(sharers)} 个小家伙，每人正好 ${num(fruitEach)} 颗。`});
+    if (L) P.push({html:`小灯暖暖的，窗外的星星，一颗一颗地，慢慢亮了起来。`});
+    if (L) P.push({html:`大家慢慢地吃，轻声讲着小小的故事，直到每个盘子都空了，话也变成了一个个哈欠。`});
+    if (M) P.push({html:`朋友们一个接一个道了晚安，轻轻地走进夜色里。`});
+    P.push({html:`${h.name}收拾停当，爬上床，灯还没凉，就睡着了。`});
+  }
+  return P;
+}
+
+function arcNibble(h, lvl) {                    // 减法(倒着吃,数着数着睡着)
+  const M = lvl >= 1, L = lvl >= 2;
+  const start = L ? SR.int(9,12) : M ? SR.int(7,9) : SR.int(6,8);
+  const lo = L ? start-4 : start-2, lo2 = lo-1, P = [];
+  if (lang === "en") {
+    P.push({cls:"stitle", html:"The Plate by the Bed"});
+    P.push({html:`${cap(h.full)} could not quite fall asleep.`});
+    if (M) P.push({html:`The day had been full and happy, but ${h.name}’s eyes simply would not stay shut.`});
+    P.push({html:`On a little plate by the bed sat ${num(start)} warm biscuits.`});
+    P.push({html:`“Just one,” thought ${h.name}, and nibbled it slowly. ${num(start)} take away ${num(1)} leaves ${num(start-1)}.`});
+    P.push({html:`Another, even slower. ${num(start-1)} take away ${num(1)} leaves ${num(start-2)}.`});
+    if (M) P.push({html:`The blanket was heavy and warm, and the room was very, very still.`});
+    if (L) P.push({html:`${num(start-2)} take away ${num(1)} leaves ${num(start-3)}.`});
+    if (L) P.push({html:`${num(start-3)} take away ${num(1)} leaves ${num(start-4)}.`});
+    P.push({html:`${num(lo)}… then ${num(lo2)}… each number a little quieter than the one before.`});
+    if (L) P.push({html:`Outside, a small wind moved through the trees, slow as breathing.`});
+    P.push({html:`${h.name} meant to count all the way down to ${num(0)}…`});
+    P.push({html:`…but long before the plate was empty, the counting had turned into slow, soft breathing, and ${h.name} was fast asleep.`});
+  } else {
+    P.push({cls:"stitle", html:"床边的小盘子"});
+    P.push({html:`${h.full}怎么也睡不着。`});
+    if (M) P.push({html:`这一天过得又满足又开心，可${h.name}的眼睛，就是不肯乖乖闭上。`});
+    P.push({html:`床边的小盘子上，放着 ${num(start)} 块热乎乎的饼干。`});
+    P.push({html:`“就吃一块吧。”${h.name}慢慢地啃着。${num(start)} 减 ${num(1)}，还剩 ${num(start-1)} 块。`});
+    P.push({html:`再来一块，吃得更慢了。${num(start-1)} 减 ${num(1)}，还剩 ${num(start-2)} 块。`});
+    if (M) P.push({html:`被子又重又暖，整个房间都安安静静的。`});
+    if (L) P.push({html:`${num(start-2)} 减 ${num(1)}，还剩 ${num(start-3)} 块。`});
+    if (L) P.push({html:`${num(start-3)} 减 ${num(1)}，还剩 ${num(start-4)} 块。`});
+    P.push({html:`${num(lo)}……${num(lo2)}……每数一个，声音都比上一个更轻一点。`});
+    if (L) P.push({html:`窗外，一阵小小的风穿过树林，慢得像呼吸一样。`});
+    P.push({html:`${h.name}本想一直数到 ${num(0)}……`});
+    P.push({html:`……可还没等盘子空，数着数着，就变成了又慢又轻的呼吸，${h.name}早已睡熟了。`});
+  }
+  return P;
+}
+
+function arcSteps(h, lvl) {                     // 倒数(回家的台阶)
+  const M = lvl >= 1, L = lvl >= 2;
+  const n = L ? SR.int(12,16) : M ? SR.int(10,12) : SR.int(8,10), P = [];
+  if (lang === "en") {
+    P.push({cls:"stitle", html:"The Steps Home"});
+    P.push({html:`It was late, and ${h.full} was walking home along a quiet path.`});
+    if (M) P.push({html:`The lanterns had been turned down low, and ${h.name}’s paws were tired and happy.`});
+    P.push({html:`From the garden gate to the front door there were exactly ${num(n)} little stone steps.`});
+    P.push({html:`${cap(h.name)} always counted them. Tonight, ${h.name} counted them backwards.`});
+    P.push({html:`${num(n)}… ${num(n-1)}… ${num(n-2)}…`});
+    if (L) P.push({html:`${num(n-3)}… ${num(n-4)}… ${num(n-5)}…`});
+    P.push({html:`…each step a little softer than the last on the cool, smooth stone.`});
+    if (L) P.push({html:`The moon was up, round and kind, and the whole street was already asleep.`});
+    if (M) P.push({html:`Halfway up now, ${h.name} slowed, letting each number last a little longer.`});
+    if (L) P.push({html:`${num(5)}… ${num(4)}…`});
+    P.push({html:`${num(3)}… ${num(2)}… ${num(1)}… and the warm door swung gently open.`});
+    P.push({html:`${num(0)} steps left. ${cap(h.name)} was home — into bed, under the blanket, and down, down into sleep.`});
+  } else {
+    P.push({cls:"stitle", html:"回家的台阶"});
+    P.push({html:`夜深了，${h.full}沿着安静的小路往家走。`});
+    if (M) P.push({html:`路灯都调得很暗了，${h.name}的脚又累又满足。`});
+    P.push({html:`从花园门口到家门口，正好有 ${num(n)} 级小小的石台阶。`});
+    P.push({html:`${h.name}每次都要数一数。今晚，${h.name}倒着数。`});
+    P.push({html:`${num(n)}……${num(n-1)}……${num(n-2)}……`});
+    if (L) P.push({html:`${num(n-3)}……${num(n-4)}……${num(n-5)}……`});
+    P.push({html:`……每一步踩在凉凉、光滑的石头上，都比上一步更轻。`});
+    if (L) P.push({html:`月亮升起来了，又圆又温柔，整条街都已经睡着了。`});
+    if (M) P.push({html:`走到一半，${h.name}慢了下来，让每一个数字，都多停留一会儿。`});
+    if (L) P.push({html:`${num(5)}……${num(4)}……`});
+    P.push({html:`${num(3)}……${num(2)}……${num(1)}……暖暖的门，轻轻地开了。`});
+    P.push({html:`还剩 ${num(0)} 级。${h.name}到家了——钻进被窝，盖好被子，一点一点地，沉进了睡眠里。`});
+  }
+  return P;
+}
+
+function arcSeeds(h, lvl) {                     // 翻倍(会翻倍的花园)
+  const M = lvl >= 1, L = lvl >= 2;
+  const days = L ? 6 : M ? 5 : 4, seq = []; let v = 1;
+  for (let i = 0; i < days; i++) { seq.push(v); v *= 2; }
+  const last = seq[seq.length-1], P = [];
+  if (lang === "en") {
+    P.push({cls:"stitle", html:"The Doubling Garden"});
+    P.push({html:`${cap(h.full)} planted one tiny seed in a pot by the window.`});
+    if (M) P.push({html:`${h.name} gave it a drink of water and went to bed wondering what might happen.`});
+    P.push({html:`On the first morning, ${num(1)} little flower had opened.`});
+    P.push({html:`The next morning there were ${num(2)}. The morning after, ${num(4)}.`});
+    if (M) P.push({html:`${h.name} watered them gently each day and watched the bees drift from one to the next.`});
+    if (L) P.push({html:`Word spread among the little creatures, and each day a few more came to see the garden that kept on growing.`});
+    P.push({html:`Each morning, twice as many as the day before: ${seq.map(num).join(", ")}…`});
+    if (L) P.push({html:`${num(seq[days-2])} flowers became ${num(last)} overnight — it was hard to believe how fast a small thing could grow.`});
+    P.push({html:`By the ${ordinal(days)} morning there were ${num(last)} flowers, a soft crowd of them nodding in the breeze.`});
+    if (L) P.push({html:`The whole window glowed with them, and the little room smelled of honey and green, growing leaves.`});
+    P.push({html:`${h.name} lay down among them in the warm grass, and as the petals swayed, ${h.name}’s eyes grew heavy, and closed.`});
+  } else {
+    P.push({cls:"stitle", html:"会翻倍的花园"});
+    P.push({html:`${h.full}在窗边的一个小花盆里，种下了一粒小小的种子。`});
+    if (M) P.push({html:`${h.name}给它浇了点水，便去睡了，心里猜着，明天会发生什么呢。`});
+    P.push({html:`第一天早上，开了 ${num(1)} 朵小花。`});
+    P.push({html:`第二天早上，有了 ${num(2)} 朵。再过一天，是 ${num(4)} 朵。`});
+    if (M) P.push({html:`${h.name}每天都轻轻地浇水，看蜜蜂从这一朵，飘到那一朵。`});
+    if (L) P.push({html:`消息在小动物们中间传开了，每天都有几个新的小家伙，来看这座一直在长大的花园。`});
+    P.push({html:`每天早上，都是前一天的两倍：${seq.map(num).join("、")}……`});
+    if (L) P.push({html:`一夜之间，${num(seq[days-2])} 朵变成了 ${num(last)} 朵——真不敢相信，小小的东西，竟长得这么快。`});
+    P.push({html:`到了第 ${num(days)} 天早上，已经有 ${num(last)} 朵花，软软的一大片，在微风里轻轻点头。`});
+    if (L) P.push({html:`整扇窗子都被它们映得发亮，小屋里飘着蜂蜜和青绿叶子的味道。`});
+    P.push({html:`${h.name}在暖暖的草地上躺下来，花瓣轻轻摇啊摇，${h.name}的眼皮越来越沉，慢慢地，合上了。`});
+  }
+  return P;
+}
+
+/* ----- skip-counting: 2s ----- */
+function arcEars(h, lvl) {
+  const M = lvl>=1, L = lvl>=2;
+  const fr = L?SR.int(5,6):M?SR.int(4,5):SR.int(3,4);
+  const seq = []; for (let k=1;k<=fr;k++) seq.push(2*k);
+  const P = [];
+  if (lang==="en") {
+    P.push({cls:"stitle",html:"Counting Ears"});
+    P.push({html:`In a meadow under a big, soft moon lived ${h.full}.`});
+    if (M) P.push({html:`${cap(h.name)} loved counting things best of all when sleepy.`});
+    P.push({html:`One by one, ${num(fr)} friends came to lie in the cool grass and watch the stars.`});
+    P.push({html:`To get drowsy, ${h.name} counted their ears — everyone has ${num(2)}.`});
+    P.push({html:`The first friend, ${num(2)}. The next, ${num(2)} more — that’s ${num(4)}.`});
+    if (M) P.push({html:`Then ${num(6)}… and ${num(8)}… counting two at a time.`});
+    P.push({html:`Counting by twos: ${seq.map(num).join(", ")}.`});
+    P.push({html:`${num(fr)} friends, ${num(2)} ears each, makes ${num(2*fr)} ears in all.`});
+    if (L) P.push({html:`The grass was soft, the stars were many, and the numbers came slower and slower.`});
+    P.push({html:`${h.name} was still counting ears, two by two, when sleep gently carried it away.`});
+  } else {
+    P.push({cls:"stitle",html:"数耳朵"});
+    P.push({html:`一片大大软软的月光下的草地上，住着${h.full}。`});
+    if (M) P.push({html:`${h.name}最喜欢数东西了，尤其是在犯困的时候。`});
+    P.push({html:`${num(fr)} 个朋友一个一个地来了，躺在凉凉的草地上看星星。`});
+    P.push({html:`为了快点犯困，${h.name}数起了它们的耳朵——每个都有 ${num(2)} 只。`});
+    P.push({html:`第一个朋友，${num(2)} 只。下一个，再加 ${num(2)} 只，就是 ${num(4)} 只。`});
+    if (M) P.push({html:`接着是 ${num(6)} 只……再是 ${num(8)} 只……两只两只地数。`});
+    P.push({html:`两只两只地数：${seq.map(num).join("、")}。`});
+    P.push({html:`${num(fr)} 个朋友，每个 ${num(2)} 只耳朵，一共是 ${num(2*fr)} 只。`});
+    if (L) P.push({html:`草地软软的，星星多多的，数字也来得越来越慢。`});
+    P.push({html:`${h.name}还在两只两只地数着耳朵，睡意就轻轻地把它带走了。`});
+  }
+  return P;
+}
+
+/* ----- skip-counting: 5s ----- */
+function arcPetals(h, lvl) {
+  const M = lvl>=1, L = lvl>=2;
+  const fl = L?SR.int(5,6):M?SR.int(4,5):SR.int(3,4);
+  const seq = []; for (let k=1;k<=fl;k++) seq.push(5*k);
+  const P = [];
+  if (lang==="en") {
+    P.push({cls:"stitle",html:"Five Little Petals"});
+    P.push({html:`By the window, in the last gold light of the day, sat ${h.full}.`});
+    if (M) P.push({html:`On the sill stood a row of flowers ${h.name} had grown all summer long.`});
+    P.push({html:`Each flower had exactly ${num(5)} soft petals.`});
+    P.push({html:`${h.name} counted them, one flower at a time: ${num(5)}…`});
+    P.push({html:`then ${num(10)}… then ${num(15)}…`});
+    if (M) P.push({html:`five more each time, like climbing little steps.`});
+    P.push({html:`Counting by fives: ${seq.map(num).join(", ")}.`});
+    P.push({html:`${num(fl)} flowers, ${num(5)} petals each — that’s ${num(5*fl)} petals in all.`});
+    if (L) P.push({html:`The light went from gold to grey to blue, and the petals began to fold for the night.`});
+    P.push({html:`${h.name} counted them once more, slower, and folded up just like the flowers, fast asleep.`});
+  } else {
+    P.push({cls:"stitle",html:"五片小花瓣"});
+    P.push({html:`窗边，在一天最后的金色光线里，坐着${h.full}。`});
+    if (M) P.push({html:`窗台上摆着一排花，是${h.name}种了一整个夏天的。`});
+    P.push({html:`每一朵花，正好有 ${num(5)} 片软软的花瓣。`});
+    P.push({html:`${h.name}一朵一朵地数：${num(5)}……`});
+    P.push({html:`再数 ${num(10)}……再数 ${num(15)}……`});
+    if (M) P.push({html:`每次多五片，像爬一级一级的小台阶。`});
+    P.push({html:`五片五片地数：${seq.map(num).join("、")}。`});
+    P.push({html:`${num(fl)} 朵花，每朵 ${num(5)} 片花瓣——一共是 ${num(5*fl)} 片。`});
+    if (L) P.push({html:`光线从金色变成灰色，又变成蓝色，花瓣也开始为夜晚合拢。`});
+    P.push({html:`${h.name}又慢慢数了一遍，像花儿一样合上了，睡熟了。`});
+  }
+  return P;
+}
+
+/* ----- skip-counting: 10s ----- */
+function arcFireflies(h, lvl) {
+  const M = lvl>=1, L = lvl>=2;
+  const j = L?SR.int(5,6):M?SR.int(4,5):SR.int(3,4);
+  const seq = []; for (let k=1;k<=j;k++) seq.push(10*k);
+  const P = [];
+  if (lang==="en") {
+    P.push({cls:"stitle",html:"Ten in Every Jar"});
+    P.push({html:`On a warm summer night, ${h.full} went out with some glass jars to visit the fireflies.`});
+    if (M) P.push({html:`Not to keep them — only to hold their light a little while, then let them go.`});
+    P.push({html:`Into each jar drifted exactly ${num(10)} tiny lights.`});
+    P.push({html:`One jar: ${num(10)}. Two jars: ${num(20)}.`});
+    if (M) P.push({html:`Then ${num(30)}… ${num(40)}… ten more in every jar.`});
+    P.push({html:`Counting by tens: ${seq.map(num).join(", ")}.`});
+    P.push({html:`${num(j)} jars, ${num(10)} fireflies each — ${num(10*j)} little lights in all.`});
+    if (L) P.push({html:`Then, one jar at a time, ${h.name} opened the lids and let every light float back up toward the stars.`});
+    P.push({html:`${h.name} watched them rise, counting softly by tens, until its eyes were far too heavy to count any more.`});
+  } else {
+    P.push({cls:"stitle",html:"每个瓶子十只"});
+    P.push({html:`一个温暖的夏夜，${h.full}带着几个玻璃瓶，出门去看萤火虫。`});
+    if (M) P.push({html:`不是要抓住它们——只是想借它们的光待一会儿，再放它们走。`});
+    P.push({html:`每个瓶子里，正好飘进 ${num(10)} 点小小的光。`});
+    P.push({html:`一个瓶子：${num(10)} 只。两个瓶子：${num(20)} 只。`});
+    if (M) P.push({html:`接着 ${num(30)}……${num(40)}……每个瓶子都多十只。`});
+    P.push({html:`十只十只地数：${seq.map(num).join("、")}。`});
+    P.push({html:`${num(j)} 个瓶子，每个 ${num(10)} 只——一共 ${num(10*j)} 点小光。`});
+    if (L) P.push({html:`然后，${h.name}一个一个地打开瓶盖，让每一点光，都重新飘回星星那里去。`});
+    P.push({html:`${h.name}看着它们升起，十只十只地轻轻数着，直到眼睛太沉，再也数不动了。`});
+  }
+  return P;
+}
+
+/* ----- halving ----- */
+function arcHalf(h, lvl) {
+  const M = lvl>=1, L = lvl>=2;
+  const start = L?16:8;
+  const seq = []; for (let s=start;s>=1;s/=2) seq.push(s);
+  const P = [];
+  if (lang==="en") {
+    P.push({cls:"stitle",html:"Half, and Half Again"});
+    P.push({html:`${cap(h.full)} was given one enormous biscuit, far too big to eat all at once.`});
+    P.push({html:`So ${h.name} broke it neatly in half. Half of ${num(start)} is ${num(start/2)}.`});
+    P.push({html:`One half ${h.name} set aside; the other broke again — half of ${num(start/2)} is ${num(start/4)}.`});
+    P.push({html:`And half of ${num(start/4)} is ${num(start/8)}.`});
+    if (L) P.push({html:`And at last, half of ${num(start/8)} is ${num(start/16)} — one tiny final crumb.`});
+    if (M) P.push({html:`Each piece was half the size of the one before: ${seq.map(num).join(", ")}.`});
+    if (L) P.push({html:`The crumbs grew so small, and the room so very quiet.`});
+    P.push({html:`By that last little half, ${h.name} was far too sleepy to chew, and drifted off, sweet and warm.`});
+  } else {
+    P.push({cls:"stitle",html:"一半，再一半"});
+    P.push({html:`${h.full}得到了一块大得吓人的饼干，大到一口根本吃不完。`});
+    P.push({html:`于是${h.name}把它整整齐齐地掰成两半。${num(start)} 的一半，是 ${num(start/2)}。`});
+    P.push({html:`一半先放在一边，另一半再掰开——${num(start/2)} 的一半，是 ${num(start/4)}。`});
+    P.push({html:`${num(start/4)} 的一半，是 ${num(start/8)}。`});
+    if (L) P.push({html:`最后，${num(start/8)} 的一半，是 ${num(start/16)}——剩下小小的一点点。`});
+    if (M) P.push({html:`每一块，都是上一块的一半：${seq.map(num).join("、")}。`});
+    if (L) P.push({html:`饼干渣越来越小，屋子也越来越安静。`});
+    P.push({html:`到了最后那小小的一半，${h.name}已经困得嚼不动了，甜甜暖暖地睡着了。`});
+  }
+  return P;
+}
+
+/* ----- fractions: sharing in halves ----- */
+function arcShareHalf(h, lvl) {
+  const M = lvl>=1, L = lvl>=2;
+  const f = friendS([h.key]);
+  const P = [];
+  if (lang==="en") {
+    P.push({cls:"stitle",html:"One Apple, Two Friends"});
+    P.push({html:`${cap(h.full)} and its best friend ${f.full} found ${num(1)} round red apple under a tree.`});
+    P.push({html:`Only ${num(1)} apple, and ${num(2)} of them. What to do?`});
+    P.push({html:`“We share,” said ${h.name}, and cut it right down the middle — one half each, fair and square.`});
+    if (M) P.push({html:`Later they found ${num(1)} ripe pear, and halved that too: one half for ${h.name}, one half for ${f.name}.`});
+    if (L) P.push({html:`And ${num(1)} sweet plum, shared the same way — because half for me and half for you is always just right.`});
+    if (L) P.push({html:`They sat back to back in the long grass, full and happy, watching the sky turn pink.`});
+    P.push({html:`Two friends, leaning together, grew sleepier and sleepier, until both were dreaming the very same dream.`});
+  } else {
+    P.push({cls:"stitle",html:"一个苹果，两个朋友"});
+    P.push({html:`${h.full}和它最好的朋友${f.full}，在树下捡到 ${num(1)} 个又圆又红的苹果。`});
+    P.push({html:`只有 ${num(1)} 个苹果，却有 ${num(2)} 个小家伙，怎么办呢？`});
+    P.push({html:`“我们分着吃。”${h.name}说着，把苹果从正中间切开——一人一半，公公平平。`});
+    if (M) P.push({html:`后来它们又找到 ${num(1)} 个熟梨，也对半分了：${h.name}一半，${f.name}一半。`});
+    if (L) P.push({html:`还有 ${num(1)} 颗甜李子，照样分——因为我一半、你一半，总是刚刚好。`});
+    if (L) P.push({html:`它们背靠着背坐在长草里，又饱又开心，看着天空慢慢变红。`});
+    P.push({html:`两个朋友靠在一起，越来越困，越来越困，最后做起了一模一样的梦。`});
+  }
+  return P;
+}
+
+/* ----- odd / even, pairs ----- */
+function arcPairs(h, lvl) {
+  const M = lvl>=1, L = lvl>=2;
+  const n = L?SR.int(7,9):M?SR.int(5,7):SR.int(4,6);
+  const pairs = Math.floor(n/2), odd = n%2;
+  const P = [];
+  if (lang==="en") {
+    P.push({cls:"stitle",html:"Lining Up, Two by Two"});
+    P.push({html:`It was bedtime in the burrow, and ${h.full} had to get everyone lined up.`});
+    P.push({html:`There were ${num(n)} little ones, all still wide awake.`});
+    P.push({html:`“Two by two!” called ${h.name}, and they paired off, paw in paw.`});
+    P.push({html: odd
+      ? `That made ${num(pairs)} pairs, with ${num(1)} little one left over, who held ${h.name}’s hand instead.`
+      : `That made ${num(pairs)} pairs, and not one left over — ${num(n)} is an even number, even and tidy.`});
+    if (M) P.push({html: odd
+      ? `An odd number always leaves one on its own — and that one got the coziest spot of all.`
+      : `Even numbers love to pair up, with nobody left waiting.`});
+    if (L) P.push({html:`Two by two, they padded down the hall, yawning a soft little chain of yawns.`});
+    P.push({html:`${h.name} tucked in the last pair, and soon the whole burrow was breathing slow and deep.`});
+  } else {
+    P.push({cls:"stitle",html:"两个两个排好队"});
+    P.push({html:`树洞里到了睡觉的时候，${h.full}得把大家排成队。`});
+    P.push({html:`一共有 ${num(n)} 个小家伙，个个都还精神得很。`});
+    P.push({html:`“两个两个来！”${h.name}喊道，它们就手拉手，两两站好。`});
+    P.push({html: odd
+      ? `正好是 ${num(pairs)} 对，还多出 ${num(1)} 个小家伙，就牵着${h.name}的手。`
+      : `正好是 ${num(pairs)} 对，一个也不多——${num(n)} 是个偶数，整整齐齐。`});
+    if (M) P.push({html: odd
+      ? `奇数总会剩下一个落单的，而那一个，得到了最暖和的位置。`
+      : `偶数最喜欢成双成对，谁也不用孤零零地等着。`});
+    if (L) P.push({html:`两个两个地，它们打着哈欠，沿着走廊走过去，哈欠连成了一条软软的小链子。`});
+    P.push({html:`${h.name}给最后一对盖好被子，没多久，整个树洞都呼吸得又慢又沉。`});
+  }
+  return P;
+}
+
+/* ----- pairs / multiply by 2 ----- */
+function arcMittens(h, lvl) {
+  const M = lvl>=1, L = lvl>=2;
+  const p = L?SR.int(4,5):M?SR.int(3,4):SR.int(2,3);
+  const pl = []; for (let k=1;k<=p;k++) pl.push(num(k));   // 按实际对数列举,避免数错
+  const P = [];
+  if (lang==="en") {
+    P.push({cls:"stitle",html:"Pairs of Mittens"});
+    P.push({html:`After a long day playing in the snow, ${h.full} hung the wet mittens to dry by the fire.`});
+    P.push({html:`${cap(h.name)} hung them in pairs — ${num(2)} mittens to a pair.`});
+    P.push({html:`${cap(h.name)} counted them swinging on the line: ${pl.join(", ")} pairs in a row.`});
+    P.push({html:`${num(p)} pairs, ${num(2)} mittens each: ${num(2)} times ${num(p)} is ${num(2*p)} mittens.`});
+    if (M) P.push({html:`Steam curled up from each one, and the fire popped softly to itself.`});
+    if (L) P.push({html:`${h.name} matched every left to every right, until not a single mitten was lonely.`});
+    P.push({html:`Warm and paired and drowsy, ${h.name} curled up by the fire and was soon fast asleep.`});
+  } else {
+    P.push({cls:"stitle",html:"一双一双的手套"});
+    P.push({html:`在雪里玩了一整天，${h.full}把湿手套挂在火炉边晾干。`});
+    P.push({html:`${h.name}一双一双地挂——每双 ${num(2)} 只。`});
+    P.push({html:`${h.name}数着绳子上轻轻晃悠的手套：${pl.join("、")} 双，一双挨着一双。`});
+    P.push({html:`${num(p)} 双，每双 ${num(2)} 只：${num(2)} 乘 ${num(p)}，是 ${num(2*p)} 只手套。`});
+    if (M) P.push({html:`每只手套都冒着白白的热气，炉火自己轻轻地噼啪响。`});
+    if (L) P.push({html:`${h.name}把每一只左手套，都和右手套配好，没有一只是落单的。`});
+    P.push({html:`暖暖的、成双成对的、困困的，${h.name}在炉边蜷起身子，很快就睡着了。`});
+  }
+  return P;
+}
+
+/* ----- money ----- */
+function arcCoins(h, lvl) {
+  const M = lvl>=1, L = lvl>=2;
+  const a = L?SR.int(2,3):SR.int(1,2), b = SR.int(2,4);
+  const big = 5*a, total = big + b;
+  const P = [];
+  if (lang==="en") {
+    P.push({cls:"stitle",html:"The Coin Jar"});
+    P.push({html:`${cap(h.full)} kept a little jar of coins on the shelf, saved up for something special.`});
+    P.push({html:`Tonight ${h.name} tipped them out to count — some big coins, and some small.`});
+    P.push({html:`${num(a)} big coins, worth ${num(5)} each, make ${num(big)}.`});
+    P.push({html:`Then ${num(b)} little coins, worth ${num(1)} each, make ${num(b)}.`});
+    P.push({html:`${num(big)} and ${num(b)} together is ${num(total)}.`});
+    if (M) P.push({html:`Just enough, ${h.name} thought, for a warm bun from the morning baker.`});
+    if (L) P.push({html:`${h.name} stacked the coins into neat little towers, glinting in the candlelight.`});
+    P.push({html:`Then ${h.name} dropped them back in, one soft clink at a time, counting down to sleep.`});
+  } else {
+    P.push({cls:"stitle",html:"硬币罐"});
+    P.push({html:`${h.full}在架子上放着一个小小的硬币罐，攒着买点特别的东西。`});
+    P.push({html:`今晚，${h.name}把硬币倒出来数——有大的，也有小的。`});
+    P.push({html:`${num(a)} 个大硬币，每个值 ${num(5)}，合起来是 ${num(big)}。`});
+    P.push({html:`再加 ${num(b)} 个小硬币，每个值 ${num(1)}，合起来是 ${num(b)}。`});
+    P.push({html:`${num(big)} 和 ${num(b)} 加在一起，就是 ${num(total)}。`});
+    if (M) P.push({html:`${h.name}想，正好够明早从面包师那儿买一个热乎乎的小面包。`});
+    if (L) P.push({html:`${h.name}把硬币叠成一座座整整齐齐的小塔，在烛光里闪着光。`});
+    P.push({html:`然后${h.name}把它们一个一个放回罐里，叮、叮、叮，数着数着就睡着了。`});
+  }
+  return P;
+}
+
+/* ----- days of the week ----- */
+function arcWeek(h, lvl) {
+  const M = lvl>=1, L = lvl>=2;
+  const P = [];
+  if (lang==="en") {
+    P.push({cls:"stitle",html:"Seven Sleeps"});
+    P.push({html:`${cap(h.full)} was waiting for something lovely, now just ${num(7)} sleeps away.`});
+    P.push({html:`So ${h.name} counted the days of the week, one for each sleep.`});
+    P.push({html:`${num(1)}, Monday. ${num(2)}, Tuesday. ${num(3)}, Wednesday.`});
+    P.push({html:`${num(4)}, Thursday. ${num(5)}, Friday.`});
+    P.push({html:`${num(6)}, Saturday. ${num(7)}, Sunday — and then the week comes softly round again.`});
+    P.push({html:`${num(7)} days make one week, and a week always ends in a good, long rest.`});
+    if (L) P.push({html:`${h.name} pictured each day, slow and soft, like turning the pages of a gentle book.`});
+    P.push({html:`Counting sleeps — ${num(1)}, ${num(2)}, ${num(3)}… ${h.name} never reached ${num(7)}, asleep by Wednesday.`});
+  } else {
+    P.push({cls:"stitle",html:"睡七觉"});
+    P.push({html:`${h.full}在等一件美好的事，现在只剩 ${num(7)} 觉就到了。`});
+    P.push({html:`于是${h.name}数起一周里的日子，一天，就是一觉。`});
+    P.push({html:`${num(1)}，星期一。${num(2)}，星期二。${num(3)}，星期三。`});
+    P.push({html:`${num(4)}，星期四。${num(5)}，星期五。`});
+    P.push({html:`${num(6)}，星期六。${num(7)}，星期天——然后，一周又轻轻地重新开始。`});
+    P.push({html:`${num(7)} 天就是一个星期，而一个星期，总是以一场长长的好觉结束。`});
+    if (L) P.push({html:`${h.name}想象着每一天，又慢又软，像翻着一本温柔的书。`});
+    P.push({html:`数着觉——${num(1)}、${num(2)}、${num(3)}……${h.name}还没数到 ${num(7)}，星期三就睡着了。`});
+  }
+  return P;
+}
+
+/* ----- time: countdown of hours ----- */
+function arcHours(h, lvl) {
+  const M = lvl>=1, L = lvl>=2;
+  const hrs = L?SR.int(8,10):M?SR.int(6,8):SR.int(5,7);
+  const P = [];
+  if (lang==="en") {
+    P.push({cls:"stitle",html:"Hours Until Morning"});
+    P.push({html:`The little clock by the bed went tick… tick… tick…`});
+    P.push({html:`${cap(h.full)} could not sleep, so it counted the hours until morning.`});
+    P.push({html:`${num(hrs)} hours to go. The clock chimed once, soft and low.`});
+    P.push({html:`${num(hrs-1)} hours… ${num(hrs-2)} hours… each chime quieter than the last.`});
+    if (M) P.push({html:`${num(hrs-3)}… ${num(hrs-4)}… the night folded itself up, one hour at a time.`});
+    if (L) P.push({html:`${num(hrs-5)}… ${num(hrs-6)}… and the dark grew soft and round at the edges.`});
+    P.push({html:`${h.name} meant to count all the way down to ${num(0)}, when the sun would climb up…`});
+    P.push({html:`…but the hours grew so slow and so warm that ${h.name} was asleep long before morning ever came.`});
+  } else {
+    P.push({cls:"stitle",html:"还有几个钟头天亮"});
+    P.push({html:`床边的小钟，滴答……滴答……滴答……`});
+    P.push({html:`${h.full}睡不着，就数起了到天亮还有几个钟头。`});
+    P.push({html:`还有 ${num(hrs)} 个钟头。钟轻轻地、低低地敲了一下。`});
+    P.push({html:`${num(hrs-1)} 个钟头……${num(hrs-2)} 个钟头……每一声，都比上一声更轻。`});
+    if (M) P.push({html:`${num(hrs-3)}……${num(hrs-4)}……夜晚一个钟头一个钟头地，把自己收拢起来。`});
+    if (L) P.push({html:`${num(hrs-5)}……${num(hrs-6)}……黑暗的边缘，变得又软又圆。`});
+    P.push({html:`${h.name}本想一直数到 ${num(0)}，数到太阳爬上来……`});
+    P.push({html:`……可时间过得又慢又暖，天还没亮，${h.name}早就睡着了。`});
+  }
+  return P;
+}
+
+/* ----- shapes & sides ----- */
+function arcShapes(h, lvl) {
+  const M = lvl>=1, L = lvl>=2;
+  const P = [];
+  if (lang==="en") {
+    P.push({cls:"stitle",html:"Counting Corners"});
+    P.push({html:`On the wall by the bed hung a quilt, stitched all over with little shapes.`});
+    P.push({html:`${cap(h.full)} traced them with a sleepy paw, counting the sides of each.`});
+    P.push({html:`A triangle: ${num(3)} sides. A square: ${num(4)} sides.`});
+    if (M) P.push({html:`A pentagon: ${num(5)} sides. A hexagon: ${num(6)} sides.`});
+    P.push({html:`Each shape had one more side than the last: ${num(3)}, ${num(4)}${M?`, ${num(5)}, ${num(6)}`:""}…`});
+    if (L) P.push({html:`And there in the corner, a circle — with no corners at all, smooth and round as the moon.`});
+    if (L) P.push({html:`${h.name} traced the circle round and round, slower each time.`});
+    P.push({html:`Counting corners, then no corners, ${h.name}’s paw went still, and it slipped into a round, soft sleep.`});
+  } else {
+    P.push({cls:"stitle",html:"数数有几个角"});
+    P.push({html:`床边的墙上挂着一床被子，上面绣满了小小的形状。`});
+    P.push({html:`${h.full}用困困的爪子，一个一个地描着，数它们有几条边。`});
+    P.push({html:`三角形：${num(3)} 条边。正方形：${num(4)} 条边。`});
+    if (M) P.push({html:`五边形：${num(5)} 条边。六边形：${num(6)} 条边。`});
+    P.push({html:`每个形状都比上一个多一条边：${num(3)}、${num(4)}${M?`、${num(5)}、${num(6)}`:""}……`});
+    if (L) P.push({html:`而那边角落里，有一个圆——一个角也没有，又光滑又圆，像月亮一样。`});
+    if (L) P.push({html:`${h.name}绕着那个圆，一圈一圈地描，越描越慢。`});
+    P.push({html:`数着角，又数到没有角，${h.name}的爪子停了下来，滑进了一个圆圆的、软软的梦里。`});
+  }
+  return P;
+}
+
+/* ----- rows × columns (array) ----- */
+function arcQuilt(h, lvl) {
+  const M = lvl>=1, L = lvl>=2;
+  const r = L?SR.int(3,4):SR.int(2,3), c = L?SR.int(4,5):SR.int(3,4);
+  const P = [];
+  if (lang==="en") {
+    P.push({cls:"stitle",html:"The Patchwork Quilt"});
+    P.push({html:`${cap(h.full)} snuggled down under a patchwork quilt, sewn from little coloured squares.`});
+    P.push({html:`The squares lay in neat rows, and ${h.name} counted them to grow sleepy.`});
+    P.push({html:`${num(c)} squares in the first row. Two rows: ${num(2*c)}.`});
+    if (r>=3) P.push({html:`Three rows: ${num(3*c)}.`});
+    if (r>=4) P.push({html:`Four rows: ${num(4*c)}.`});
+    P.push({html:`${num(r)} rows, ${num(c)} squares in each: ${num(r)} times ${num(c)} is ${num(r*c)} squares in all.`});
+    if (L) P.push({html:`Each square was a different colour, soft and worn, warm from the lamp.`});
+    P.push({html:`${h.name} ran a paw across the rows, counting by ${num(c)}s, until the colours blurred into a cozy dream.`});
+  } else {
+    P.push({cls:"stitle",html:"拼布被子"});
+    P.push({html:`${h.full}钻进一床拼布被子里，被子是用一块块彩色的小方块缝成的。`});
+    P.push({html:`方块排成整整齐齐的行，${h.name}数着它们，好让自己犯困。`});
+    P.push({html:`第一行有 ${num(c)} 块。两行，就是 ${num(2*c)} 块。`});
+    if (r>=3) P.push({html:`三行，是 ${num(3*c)} 块。`});
+    if (r>=4) P.push({html:`四行，是 ${num(4*c)} 块。`});
+    P.push({html:`一共 ${num(r)} 行，每行 ${num(c)} 块：${num(r)} 乘 ${num(c)}，是 ${num(r*c)} 块。`});
+    if (L) P.push({html:`每一块都是不同的颜色，软软的、旧旧的，被灯光烘得暖暖的。`});
+    P.push({html:`${h.name}用爪子抚过一行行方块，${num(c)} 块 ${num(c)} 块地数着，直到颜色都融进了一个暖暖的梦里。`});
+  }
+  return P;
+}
+
+const STORY_ARCS = [
+  arcBerries, arcShare, arcNibble, arcSteps, arcSeeds,
+  arcEars, arcPetals, arcFireflies, arcHalf, arcShareHalf,
+  arcPairs, arcMittens, arcCoins, arcWeek, arcHours, arcShapes, arcQuilt
+];
+
+// 洗牌发牌:每轮把所有故事各发一次,发完再洗;且不连着重复同一篇
+function bagDealer(items) {
+  let bag = [], last = null;
+  return () => {
+    if (bag.length === 0) {
+      bag = items.slice();
+      for (let i = bag.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [bag[i], bag[j]] = [bag[j], bag[i]]; }
+      if (bag.length > 1 && bag[bag.length - 1] === last) [bag[0], bag[bag.length - 1]] = [bag[bag.length - 1], bag[0]];
+    }
+    return (last = bag.pop());
+  };
+}
+const nextArc = bagDealer(STORY_ARCS);
+const nextHero = bagDealer(Object.keys(SANIMALS));
+
+const Story = {
+  build(heroKey, len) {
+    const tier = len === "any" ? SR.pick(["short","medium","long"]) : len;        // 长短随机轮换
+    const lvl = tier === "long" ? 2 : tier === "medium" ? 1 : 0;
+    const hk = heroKey === "any" ? nextHero() : heroKey;                           // 主角依次轮换
+    return nextArc()(heroS(hk), lvl);                                             // 故事依次轮换
+  }
+};
+
+let currentStory = [];
+const storyEl = document.getElementById("story");
+function renderStory(paras) {
+  storyEl.innerHTML = "";
+  paras.forEach((p, i) => {
+    const d = document.createElement("p");
+    if (p.cls) d.className = p.cls;
+    d.innerHTML = p.html;
+    d.style.animationDelay = (i * 0.7) + "s";
+    storyEl.appendChild(d);
+  });
+  storyEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+function storyPlaceholder() {
+  if (currentStory.length === 0)
+    storyEl.innerHTML = `<p class="placeholder">${I18N[lang].storyHint}</p>`;
+}
+// 朗读“当前这一篇”并接上自动续播(不新建故事) —— 暂停后继续就用它
+function playCurrent() {
+  clearAuto(); advancing = false;
+  storyToken++; const myToken = storyToken;
+  document.body.classList.remove("asleep");
+  Ambient.prime();
+
+  const ok = () => storyAuto && !storyPaused && mode === "story" &&
+                   myToken === storyToken && !document.body.classList.contains("asleep");
+  const advance = () => {                        // 一篇读完 → 歇几秒 → 下一篇
+    if (advancing || !ok()) return;
+    advancing = true; clearAuto();
+    autoTimer = setTimeout(() => { if (ok()) newStory(); }, GAP);
+  };
+
+  if (narrateOn && ("speechSynthesis" in window)) {
+    chainArmed = true;
+    speakStory(currentStory);
+    let started = false;                         // 轮询朗读是否真的读完(比 onend 可靠)
+    autoTimer = setInterval(() => {
+      if (!chainArmed) { clearAuto(); return; }
+      if (speechSynthesis.speaking || speechSynthesis.pending) { started = true; return; }
+      if (started) { clearAuto(); advance(); }
+    }, 700);
+  } else {
+    const chars = currentStory.reduce((n, p) => n + stripTags(p.html).length, 0);
+    const silent = Math.max(22, lang === "zh" ? chars / 7 : chars / 16);   // 默读留出的时间
+    autoTimer = setTimeout(advance, silent * 1000);
+  }
+  startTimer();
+}
+
+// 新建一篇(主角与长短按选择随机轮换),再播放
+function newStory() {
+  if (storyPaused) { storyPaused = false; setPauseBtn(false); }   // 手动开始 = 取消暂停
+  currentStory = Story.build(document.getElementById("hero").value, document.getElementById("slen").value);
+  renderStory(currentStory);
+  document.getElementById("newStory").textContent = I18N[lang].anotherStory;
+  playCurrent();
+}
+
+function setPauseBtn(p) {
+  const btn = document.getElementById("pauseStory");
+  btn.classList.toggle("on", p);
+  btn.textContent = p ? I18N[lang].resumeStory : I18N[lang].pauseStory;
+}
+function toggleStoryPause() {
+  const speaking = narrateOn && ("speechSynthesis" in window);
+  if (storyPaused) {                             // 继续:从暂停处接着往下读(不重头、不跳下一篇)
+    storyPaused = false; setPauseBtn(false);
+    if (speaking) speechSynthesis.resume();      // 朗读:就地继续(轮询仍在跑,读完会自动续播)
+    else if (currentStory.length) playCurrent(); // 默读:重新计时(同一篇,不重排文字)
+  } else {                                       // 暂停:就地停住
+    storyPaused = true; setPauseBtn(true);
+    if (speaking) speechSynthesis.pause();       // 朗读:在当前这句就地暂停
+    else clearAuto();                            // 默读:停掉前进计时
+  }
+}
+
+let mode = "story";
+function setMode(m) {
+  mode = m;
+  const isCount = (m === "count");
+  document.getElementById("mode-count").hidden = !isCount;
+  document.getElementById("mode-story").hidden = isCount;
+  document.getElementById("m-count").classList.toggle("on", isCount);
+  document.getElementById("m-story").classList.toggle("on", !isCount);
+  pause();              // 离开数数模式时,停下呼吸循环
+  stopVoice();
+  document.body.classList.remove("asleep");
+  if (!isCount && !storyPaused) newStory();   // 进入故事模式即开始(并自动续播)
+}
+
+function buildHeroOptions() {
+  const sel = document.getElementById("hero"); const cur = sel.value; sel.innerHTML = "";
+  HERO_ORDER.forEach(k => {
+    const o = document.createElement("option"); o.value = k;
+    o.textContent = k === "any" ? I18N[lang].anyHero : `${SANIMALS[k].emoji} ${SANIMALS[k][lang].k}`;
+    sel.appendChild(o);
+  });
+  if (cur) sel.value = cur;
+}
+function buildLenOptions() {
+  const sel = document.getElementById("slen"); const cur = sel.value || "any"; sel.innerHTML = "";
+  [["any", I18N[lang].lenAny], ["short", I18N[lang].lenShort], ["medium", I18N[lang].lenMed], ["long", I18N[lang].lenLong]].forEach(([v, t]) => {
+    const o = document.createElement("option"); o.value = v; o.textContent = t; sel.appendChild(o);
+  });
+  sel.value = cur;
+}
+
+/* ---------------- 睡眠定时:渐隐画面与声音 ---------------- */
+let timerId = null;
+function startTimer() {
+  clearTimer();
+  const mins = parseInt(document.getElementById("timer").value, 10);
+  if (!mins) return;
+  timerId = setTimeout(fallAsleep, mins * 60000);
+}
+function clearTimer() { if (timerId) { clearTimeout(timerId); timerId = null; } }
+function fallAsleep() {
+  chainArmed = false; clearAuto();
+  Ambient.fadeOutAll(6);
+  document.body.classList.add("asleep");
+  setTimeout(() => { pause(); }, 6500);
+}
+
+/* ============================================================
+   环境音 —— Web Audio 实时合成(雨 / 浪 / 风 / 火 / 虫鸣)+ 轻提示音
+   ============================================================ */
+const Ambient = (() => {
+  let ctx = null, master = null, noiseBuf = null;
+  const layers = {};
+  function ensure() {
+    if (!ctx) {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      master = ctx.createGain();
+      master.gain.value = parseFloat(document.getElementById("vol").value);
+      master.connect(ctx.destination);
+      const len = ctx.sampleRate * 4;
+      noiseBuf = ctx.createBuffer(1, len, ctx.sampleRate);
+      const d = noiseBuf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    }
+    if (ctx.state === "suspended") ctx.resume();
+  }
+  function noise() { const s = ctx.createBufferSource(); s.buffer = noiseBuf; s.loop = true; s.start(); return s; }
+  function teardown(l) {
+    if (l.timer) clearInterval(l.timer);
+    (l.srcs || []).forEach(s => { try { s.stop(); } catch (e) {} });
+    (l.nodes || []).forEach(n => { try { n.disconnect(); } catch (e) {} });
+  }
+  const BUILDERS = {
+    rain() {
+      const src = noise();
+      const hp = ctx.createBiquadFilter(); hp.type="highpass"; hp.frequency.value=500;
+      const lp = ctx.createBiquadFilter(); lp.type="lowpass"; lp.frequency.value=7000;
+      const out = ctx.createGain(); out.gain.value=0;
+      src.connect(hp); hp.connect(lp); lp.connect(out); out.connect(master);
+      return { out, target:0.5, srcs:[src], nodes:[hp,lp,out] };
+    },
+    waves() {
+      const src = noise();
+      const lp = ctx.createBiquadFilter(); lp.type="lowpass"; lp.frequency.value=550;
+      const swell = ctx.createGain(); swell.gain.value=0.4;
+      const out = ctx.createGain(); out.gain.value=0;
+      src.connect(lp); lp.connect(swell); swell.connect(out); out.connect(master);
+      const lfo = ctx.createOscillator(); lfo.frequency.value=0.11;
+      const lg = ctx.createGain(); lg.gain.value=0.34;
+      lfo.connect(lg); lg.connect(swell.gain); lfo.start();
+      return { out, target:0.6, srcs:[src], nodes:[lp,swell,out,lg], _osc:lfo };
+    },
+    wind() {
+      const src = noise();
+      const bp = ctx.createBiquadFilter(); bp.type="bandpass"; bp.frequency.value=500; bp.Q.value=0.6;
+      const out = ctx.createGain(); out.gain.value=0;
+      src.connect(bp); bp.connect(out); out.connect(master);
+      const lfo = ctx.createOscillator(); lfo.frequency.value=0.07;
+      const lg = ctx.createGain(); lg.gain.value=320;
+      lfo.connect(lg); lg.connect(bp.frequency); lfo.start();
+      return { out, target:0.45, srcs:[src], nodes:[bp,out,lg], _osc:lfo };
+    },
+    fire() {
+      const src = noise();
+      const lp = ctx.createBiquadFilter(); lp.type="lowpass"; lp.frequency.value=900;
+      const base = ctx.createGain(); base.gain.value=0.5;
+      const out = ctx.createGain(); out.gain.value=0;
+      src.connect(lp); lp.connect(base); base.connect(out); out.connect(master);
+      const csrc = noise();
+      const cbp = ctx.createBiquadFilter(); cbp.type="bandpass"; cbp.frequency.value=1700; cbp.Q.value=1.2;
+      const cg = ctx.createGain(); cg.gain.value=0;
+      csrc.connect(cbp); cbp.connect(cg); cg.connect(out);
+      const timer = setInterval(() => {
+        const t=ctx.currentTime, amp=0.2+Math.random()*0.6;
+        cg.gain.cancelScheduledValues(t); cg.gain.setValueAtTime(cg.gain.value,t);
+        cg.gain.linearRampToValueAtTime(amp,t+0.004);
+        cg.gain.linearRampToValueAtTime(0,t+0.04+Math.random()*0.07);
+      }, 70+Math.random()*130);
+      return { out, target:0.55, srcs:[src,csrc], nodes:[lp,base,cbp,cg,out], timer };
+    },
+    night() {
+      const src = noise();
+      const bp = ctx.createBiquadFilter(); bp.type="bandpass"; bp.frequency.value=4500; bp.Q.value=8;
+      const trem = ctx.createGain(); trem.gain.value=0.5;
+      const out = ctx.createGain(); out.gain.value=0;
+      src.connect(bp); bp.connect(trem); trem.connect(out); out.connect(master);
+      const lfo = ctx.createOscillator(); lfo.type="square"; lfo.frequency.value=11;
+      const lg = ctx.createGain(); lg.gain.value=0.45;
+      lfo.connect(lg); lg.connect(trem.gain); lfo.start();
+      const src2 = noise();
+      const lp2 = ctx.createBiquadFilter(); lp2.type="lowpass"; lp2.frequency.value=400;
+      const g2 = ctx.createGain(); g2.gain.value=0.15;
+      src2.connect(lp2); lp2.connect(g2); g2.connect(out);
+      return { out, target:0.3, srcs:[src,src2], nodes:[bp,trem,out,lg,lp2,g2], _osc:lfo };
+    },
+  };
+  function toggle(name, btn) {
+    ensure();
+    if (layers[name]) { stopLayer(name); btn.classList.remove("on"); }
+    else {
+      const l = BUILDERS[name](); const t = ctx.currentTime;
+      l.out.gain.setValueAtTime(0, t);
+      l.out.gain.linearRampToValueAtTime(l.target, t + 1.2);
+      layers[name] = l; btn.classList.add("on");
+    }
+  }
+  function stopLayer(name) {
+    const l = layers[name]; if (!l) return; delete layers[name];
+    const t = ctx.currentTime;
+    try { l.out.gain.cancelScheduledValues(t); l.out.gain.setValueAtTime(l.out.gain.value, t);
+          l.out.gain.linearRampToValueAtTime(0, t + 0.7); } catch (e) {}
+    setTimeout(() => teardown(l), 850);
+  }
+  function setVolume(v) { if (master) master.gain.value = v; }
+  function prime() { ensure(); }
+  function chime() {
+    if (!ctx) return;
+    const t = ctx.currentTime;
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = "sine"; o.frequency.value = 528;          // 柔和的提示音
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.12, t + 0.04);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 2.4);
+    o.connect(g); g.connect(master); o.start(t); o.stop(t + 2.5);
+  }
+  function fadeOutAll(sec) {
+    if (master) { const t = ctx.currentTime; master.gain.cancelScheduledValues(t);
+      master.gain.setValueAtTime(master.gain.value, t);
+      master.gain.linearRampToValueAtTime(0, t + sec); }
+  }
+  return { toggle, setVolume, prime, chime, fadeOutAll };
+})();
+function chime() { Ambient.chime(); }
+
+/* ============================================================
+   UI 绑定 & 语言
+   ============================================================ */
+const beginBtn = document.getElementById("begin");
+const seqSel = document.getElementById("seq");
+const insightEl = document.getElementById("insight");
+
+let whyOn = false;
+function updateInsight() {
+  insightEl.innerHTML = I18N[lang].whys[seqKey] || "";
+  insightEl.classList.toggle("show", whyOn);
+}
+
+function buildSeqOptions() {
+  seqSel.innerHTML = "";
+  SEQ_ORDER.forEach(k => {
+    const o = document.createElement("option");
+    o.value = k; o.textContent = I18N[lang].seqs[k];
+    seqSel.appendChild(o);
+  });
+  seqSel.value = seqKey;
+}
+function applyLang(l) {
+  lang = l;
+  document.documentElement.lang = (l === "zh" ? "zh-CN" : "en");
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.getAttribute("data-i18n");
+    if (key === "begin") { el.textContent = running ? I18N[l].pause : I18N[l].begin; return; }
+    if (I18N[l][key] !== undefined) el.innerHTML = I18N[l][key];
+  });
+  document.getElementById("note").textContent = I18N[l].note;
+  document.querySelectorAll(".lang-toggle a").forEach(a =>
+    a.classList.toggle("active", a.dataset.lang === l));
+  buildSeqOptions();
+  buildHeroOptions(); buildLenOptions();
+  document.getElementById("newStory").textContent = currentStory.length ? I18N[l].anotherStory : I18N[l].newStory;
+  setPauseBtn(storyPaused);
+  if (turns > 0) turnsEl.innerHTML = I18N[l].turns(turns);
+  if (running) breatheEl.textContent = lastBreathIn ? I18N[l].in : I18N[l].out;
+  updateInsight();
+  if (mode === "story" && currentStory.length && !storyPaused) newStory();   // 切换语言时,用新语言重讲
+  else storyPlaceholder();
+}
+
+document.querySelectorAll(".lang-toggle a").forEach(a =>
+  a.addEventListener("click", () => applyLang(a.dataset.lang)));
+
+beginBtn.addEventListener("click", start);
+seqSel.addEventListener("change", () => {
+  seqKey = seqSel.value; turns = 0;
+  arcEl.style.stroke = TURN_COLORS[0]; setComet(0); setDot(0);
+  turnsEl.innerHTML = "";
+  initSeq(); numEl.textContent = displayVal;
+  cycleStart = 0;
+  updateInsight();
+});
+document.getElementById("pace").addEventListener("input", e => {
+  pace = parseInt(e.target.value, 10);
+  document.getElementById("paceVal").textContent = pace;
+});
+document.getElementById("timer").addEventListener("change", () => { if (running || (mode === "story" && currentStory.length)) startTimer(); });
+document.getElementById("narrate").addEventListener("click", e => {
+  narrateOn = !narrateOn; e.target.classList.toggle("on", narrateOn);
+  if (!narrateOn) { stopVoice(); clearAuto(); }
+  else if (mode === "story" && currentStory.length) newStory();
+});
+document.getElementById("autoStory").addEventListener("click", e => {
+  storyAuto = !storyAuto; e.target.classList.toggle("on", storyAuto);
+  if (!storyAuto) clearAuto();
+});
+document.getElementById("pauseStory").addEventListener("click", toggleStoryPause);
+document.getElementById("m-count").addEventListener("click", () => setMode("count"));
+document.getElementById("m-story").addEventListener("click", () => setMode("story"));
+document.getElementById("newStory").addEventListener("click", newStory);
+document.getElementById("hero").addEventListener("change", newStory);
+document.getElementById("slen").addEventListener("change", () => { if (mode === "story") newStory(); });
+document.getElementById("why").addEventListener("click", e => {
+  whyOn = !whyOn; e.target.classList.toggle("on", whyOn);
+  updateInsight();
+});
+document.getElementById("dim").addEventListener("click", e => {
+  document.body.classList.toggle("dim"); e.target.classList.toggle("on");
+});
+document.querySelectorAll(".amb-btn").forEach(btn =>
+  btn.addEventListener("click", () => Ambient.toggle(btn.dataset.sound, btn)));
+document.getElementById("vol").addEventListener("input", e => Ambient.setVolume(parseFloat(e.target.value)));
+
+/* 星空 */
+(function makeStars() {
+  const sky = document.getElementById("sky");
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement("div"); s.className = "star";
+    s.style.left = Math.random()*100 + "%"; s.style.top = Math.random()*100 + "%";
+    s.style.setProperty("--dur", (4 + Math.random()*7) + "s");
+    s.style.setProperty("--delay", (Math.random()*8) + "s");
+    s.style.setProperty("--max", (0.25 + Math.random()*0.5).toFixed(2));
+    const z = (1 + Math.random()*2).toFixed(1);
+    s.style.width = z+"px"; s.style.height = z+"px";
+    sky.appendChild(s);
+  }
+})();
+
+/* init */
+initSeq();
+applyLang("en");
+setComet(0); setDot(0);
+numEl.textContent = "·";
+</script>
+</body>
+</html>
