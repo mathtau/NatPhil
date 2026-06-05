@@ -608,16 +608,19 @@ function speak(v) {                          // 朗读单个数字(数数模式)
 function stripTags(html) { const d = document.createElement("div"); d.innerHTML = html; return d.textContent || ""; }
 function speakStory(paras) {                    // 缓缓朗读整篇故事(故事模式)
   if (!("speechSynthesis" in window)) return;
-  speechSynthesis.cancel();
+  try { if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel(); } catch (e) {}
+  try { speechSynthesis.resume(); } catch (e) {}   // iOS 有时卡在暂停态,先唤醒
   if (speechKeep) { clearInterval(speechKeep); speechKeep = null; }
-  // 整篇只用一个 utterance —— iOS 会把多段排队的语音叠在一起,造成破音
-  const sep = lang === "zh" ? "。  " : ".  ";
-  const text = paras.map(p => stripTags(p.html)).join(sep);
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = lang === "zh" ? "zh-CN" : "en-US";
-  u.rate = 0.9; u.pitch = 1.0; u.volume = 1.0;     // 不改音高,避免 iOS 失真
-  const want = pickVoice(); if (want) u.voice = want;
-  speechSynthesis.speak(u);
+  const want = pickVoice();
+  // 一段一句:整篇做成一个 utterance 时 iOS 会因过长而静默;逐句又会叠音破音。按段落折中。
+  const chunks = paras.map(p => stripTags(p.html)).filter(s => s.trim());
+  chunks.forEach(c => {
+    const u = new SpeechSynthesisUtterance(c);
+    u.lang = lang === "zh" ? "zh-CN" : "en-US";
+    u.rate = 0.9; u.pitch = 1.0; u.volume = 1.0;
+    if (want) u.voice = want;
+    speechSynthesis.speak(u);
+  });
   // Chrome 会在 ~15 秒后悄悄掐断长朗读;定时 resume 让它把整篇读完(Safari 不需要)
   if (!IS_SAFARI) {
     speechKeep = setInterval(() => {
@@ -1637,13 +1640,13 @@ function initOverlay() {
   const tap = document.getElementById("tapstart");
   if (!tap) return;
   const go = () => {
-    tap.removeEventListener("pointerdown", go);
+    tap.removeEventListener("click", go);
     tap.classList.add("hide");
     Ambient.prime();
     if (mode === "story") { if (currentStory.length) playCurrent(); else newStory(); }
     setTimeout(() => { try { tap.remove(); } catch (e) {} }, 900);
   };
-  tap.addEventListener("pointerdown", go);
+  tap.addEventListener("click", go);   // click 在 iOS 上更可靠地算作用户手势
 }
 
 /* init */
