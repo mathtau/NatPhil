@@ -202,6 +202,16 @@
     body.dim { filter: brightness(.4) saturate(.8); }
     body.asleep { filter: brightness(.06); }
 
+    /* tap-to-begin (browsers require one tap before any audio) */
+    .tapstart { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center;
+      justify-content: center; text-align: center; cursor: pointer; padding: 24px;
+      background: rgba(12,12,30,.86); backdrop-filter: blur(5px);
+      transition: opacity .8s ease; }
+    .tapstart.hide { opacity: 0; pointer-events: none; }
+    .ts-title { color: var(--gold); font-style: italic; letter-spacing: .08em;
+      font-size: clamp(1.7rem, 6vw, 2.5rem); text-shadow: 0 0 40px rgba(244,200,48,.3); }
+    .ts-sub { color: #6090c0; font-style: italic; margin-top: 16px; font-size: 1.02rem; line-height: 1.7; }
+
     @media (max-width: 520px) {
       .wrap { padding: 54px 18px 120px; }
       header h1 { font-size: 2rem; }
@@ -210,6 +220,13 @@
 </head>
 <body>
 <div id="sky"></div>
+
+<div id="tapstart" class="tapstart">
+  <div>
+    <div class="ts-title" data-i18n="tapTitle">轻触开始</div>
+    <div class="ts-sub" data-i18n="tapSub">故事会一个接一个,慢慢读给你听</div>
+  </div>
+</div>
 
 <div class="top-left"><a href="/">← MathTau</a></div>
 <div class="lang-toggle">
@@ -340,6 +357,7 @@ const I18N = {
     heroLabel: "Who", lenLabel: "Length", newStory: "Tell me a story", anotherStory: "Another story",
     autoStory: "keep going", pauseStory: "pause", resumeStory: "resume",
     voiceLabel: "Voice", voiceAuto: "Auto",
+    tapTitle: "tap to begin", tapSub: "stories will read themselves to you, one after another",
     lenShort: "short", lenMed: "medium", lenLong: "long", lenAny: "🎲 surprise me", anyHero: "✨ anyone",
     storyHint: "Pick who it’s about, and let a small, sleepy story count itself out.",
     ambient: "ambient", rain: "rain", waves: "waves", wind: "wind", fire: "fire", night: "crickets",
@@ -378,6 +396,7 @@ const I18N = {
     heroLabel: "主角", lenLabel: "长短", newStory: "讲一个故事", anotherStory: "再讲一个",
     autoStory: "连续播放", pauseStory: "暂停", resumeStory: "继续",
     voiceLabel: "嗓音", voiceAuto: "自动",
+    tapTitle: "轻触开始", tapSub: "故事会一个接一个,慢慢读给你听",
     lenShort: "短", lenMed: "中", lenLong: "长", lenAny: "🎲 随机", anyHero: "✨ 随便谁",
     storyHint: "选一个主角，让一个小小的、困困的故事，自己数着数着就讲完了。",
     ambient: "环境音", rain: "雨声", waves: "海浪", wind: "风声", fire: "炉火", night: "虫鸣",
@@ -1613,14 +1632,18 @@ document.getElementById("vol").addEventListener("input", e => Ambient.setVolume(
   }
 })();
 
-// 浏览器会拦截“无手势的自动朗读”;首次轻触时正式开讲(并解锁音频)
-function armAutostart() {
+// 浏览器禁止“无手势自动播放音频”,用“轻触开始”遮罩把第一次手势变成开始按钮
+function initOverlay() {
+  const tap = document.getElementById("tapstart");
+  if (!tap) return;
   const go = () => {
-    document.removeEventListener("pointerdown", go, true);
+    tap.removeEventListener("pointerdown", go);
+    tap.classList.add("hide");
     Ambient.prime();
-    if (mode === "story" && narrateOn && !storyPaused && currentStory.length) playCurrent();  // 首次轻触即开始朗读
+    if (mode === "story") { if (currentStory.length) playCurrent(); else newStory(); }
+    setTimeout(() => { try { tap.remove(); } catch (e) {} }, 900);
   };
-  document.addEventListener("pointerdown", go, true);
+  tap.addEventListener("pointerdown", go);
 }
 
 /* init */
@@ -1628,8 +1651,8 @@ initSeq();
 applyLang("zh");                       // 默认中文
 setComet(0); setDot(0);
 numEl.textContent = "·";
-newStory();                            // 默认故事模式:自动开讲(“连续播放”默认开启 → 一篇接一篇换新故事)
-armAutostart();
+newStory();                            // 预备第一篇(在“轻触开始”遮罩后面)
+initOverlay();                         // 轻触即开始朗读,并自动连续播放
 </script>
 </body>
 </html>
