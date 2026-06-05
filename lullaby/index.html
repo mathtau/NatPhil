@@ -561,15 +561,18 @@ function pickVoice() {
 function buildVoiceOptions() {
   const sel = document.getElementById("voice"); if (!sel) return;
   const list = langVoices();
+  const best = list.slice().sort((a, b) => voiceScore(b) - voiceScore(a))[0];   // 自动会选它
   sel.innerHTML = "";
   const auto = document.createElement("option");
-  auto.value = ""; auto.textContent = I18N[lang].voiceAuto;
+  auto.value = "";
+  auto.textContent = I18N[lang].voiceAuto + (best ? " · " + best.name : "");      // 显示自动解析到的嗓音
   sel.appendChild(auto);
   list.forEach(v => {
     const o = document.createElement("option");
     const id = (v.voiceURI + " " + v.name).toLowerCase();
-    const tag = /premium|siri|enhanced|neural|natural/.test(id) ? " ✨" : "";
-    o.value = v.voiceURI; o.textContent = v.name + tag;
+    const star = ((best && v.voiceURI === best.voiceURI) ||
+                  /premium|siri|enhanced|neural|natural/.test(id)) ? " ✨" : "";
+    o.value = v.voiceURI; o.textContent = v.name + star;
     sel.appendChild(o);
   });
   sel.value = (chosenVoiceURI && list.some(v => v.voiceURI === chosenVoiceURI)) ? chosenVoiceURI : "";
@@ -610,7 +613,17 @@ function stopVoice() {
   if (speechKeep) { clearInterval(speechKeep); speechKeep = null; }
   if ("speechSynthesis" in window) speechSynthesis.cancel();
 }
-if ("speechSynthesis" in window) speechSynthesis.onvoiceschanged = buildVoiceOptions;
+let voiceFixApplied = false;
+function onVoicesReady() {
+  buildVoiceOptions();
+  // iOS 往往在第一次开口后才加载好嗓音列表;就绪后用首选嗓音(中文美嘉)把当前这篇重读一次
+  if (!voiceFixApplied && mode === "story" && narrateOn && !storyPaused && currentStory.length &&
+      ("speechSynthesis" in window) && (speechSynthesis.speaking || speechSynthesis.pending)) {
+    voiceFixApplied = true;
+    playCurrent();
+  }
+}
+if ("speechSynthesis" in window) speechSynthesis.onvoiceschanged = onVoicesReady;
 
 /* ============================================================
    故事模式 —— 把简单的算术,织进猫儿狗儿的睡前小故事里
@@ -1355,12 +1368,19 @@ function fallAsleep() {
 /* ============================================================
    环境音 —— Web Audio 实时合成(雨 / 浪 / 风 / 火 / 虫鸣)+ 轻提示音
    ============================================================ */
+/* 环境音改为:离线合成成循环波形 → 用 <audio> 元素播放。
+   iOS 会让 <audio> 媒体与朗读语音共存(Web Audio 则会被语音挤掉)。 */
 const Ambient = (() => {
-  let ctx = null, master = null, noiseBuf = null, unlockEl = null, audioWatch = null;
-  const layers = {};
-  // iOS: 一段静音媒体在用户手势里播放,可把音频会话切到“playback”,
-  // 这样 Web Audio 即使在「静音/响铃」拨片打开时也能发声。
-  function unlockIOS() {
+  let masterVol = parseFloat((document.getElementById("vol") || {}).value || "0.6");
+  let unlockEl = null;
+  const cache = {};            // name -> blob URL(预渲染好的循环)
+  const els = {};              // name -> { el, target }
+  const NAMES = ["rain", "waves", "wind", "fire", "night"];
+  const DUR = { rain: 6, waves: 12, wind: 14, fire: 8, night: 8 };
+  const TARGET = { rain: 0.5, waves: 0.6, wind: 0.45, fire: 0.55, night: 0.32 };
+  const clamp = v => Math.max(0, Math.min(1, v));
+
+  function unlockIOS() {       // 静音媒体播放,切到 playback 会话,绕过静音拨片
     if (unlockEl) return;
     try {
       unlockEl = new Audio("data:audio/wav;base64,UklGRiwAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQgAAAAAAAAAAAAAAA==");
@@ -1368,134 +1388,121 @@ const Ambient = (() => {
       unlockEl.play().catch(() => {});
     } catch (e) {}
   }
-  function ensure() {
+
+  function noiseSrc(octx, buf) { const s = octx.createBufferSource(); s.buffer = buf; s.loop = true; s.start(0); return s; }
+  function buildGraph(name, octx, dur, out) {
+    const len = octx.sampleRate * dur;
+    const nb = octx.createBuffer(1, len, octx.sampleRate);
+    const d = nb.getChannelData(0); for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    if (name === "rain") {
+      const s = noiseSrc(octx, nb);
+      const hp = octx.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 500;
+      const lp = octx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 7000;
+      const g = octx.createGain(); g.gain.value = 0.5;
+      s.connect(hp); hp.connect(lp); lp.connect(g); g.connect(out);
+    } else if (name === "waves") {
+      const s = noiseSrc(octx, nb);
+      const lp = octx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 550;
+      const swell = octx.createGain(); swell.gain.value = 0.45;
+      const g = octx.createGain(); g.gain.value = 0.95;
+      s.connect(lp); lp.connect(swell); swell.connect(g); g.connect(out);
+      const lfo = octx.createOscillator(); lfo.frequency.value = 2 / dur;   // 整数个周期 → 无缝循环
+      const lg = octx.createGain(); lg.gain.value = 0.34;
+      lfo.connect(lg); lg.connect(swell.gain); lfo.start(0);
+    } else if (name === "wind") {
+      const s = noiseSrc(octx, nb);
+      const bp = octx.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 500; bp.Q.value = 0.6;
+      const g = octx.createGain(); g.gain.value = 0.6;
+      s.connect(bp); bp.connect(g); g.connect(out);
+      const lfo = octx.createOscillator(); lfo.frequency.value = 2 / dur;
+      const lg = octx.createGain(); lg.gain.value = 320;
+      lfo.connect(lg); lg.connect(bp.frequency); lfo.start(0);
+    } else if (name === "fire") {
+      const s = noiseSrc(octx, nb);
+      const lp = octx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 900;
+      const base = octx.createGain(); base.gain.value = 0.5;
+      s.connect(lp); lp.connect(base); base.connect(out);
+      const cs = noiseSrc(octx, nb);
+      const cbp = octx.createBiquadFilter(); cbp.type = "bandpass"; cbp.frequency.value = 1700; cbp.Q.value = 1.2;
+      const cg = octx.createGain(); cg.gain.value = 0;
+      cs.connect(cbp); cbp.connect(cg); cg.connect(out);
+      for (let t = 0.05; t < dur - 0.15; t += 0.07 + Math.random() * 0.13) {  // 噼啪声
+        const amp = 0.2 + Math.random() * 0.6;
+        cg.gain.setValueAtTime(0, t);
+        cg.gain.linearRampToValueAtTime(amp, t + 0.004);
+        cg.gain.linearRampToValueAtTime(0, t + 0.04 + Math.random() * 0.07);
+      }
+    } else if (name === "night") {
+      const s = noiseSrc(octx, nb);
+      const bp = octx.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 4500; bp.Q.value = 8;
+      const trem = octx.createGain(); trem.gain.value = 0.5;
+      const g = octx.createGain(); g.gain.value = 0.85;
+      s.connect(bp); bp.connect(trem); trem.connect(g); g.connect(out);
+      const lfo = octx.createOscillator(); lfo.type = "square"; lfo.frequency.value = Math.round(11 * dur) / dur;
+      const lg = octx.createGain(); lg.gain.value = 0.45;
+      lfo.connect(lg); lg.connect(trem.gain); lfo.start(0);
+      const s2 = noiseSrc(octx, nb);
+      const lp2 = octx.createBiquadFilter(); lp2.type = "lowpass"; lp2.frequency.value = 400;
+      const g2 = octx.createGain(); g2.gain.value = 0.15;
+      s2.connect(lp2); lp2.connect(g2); g2.connect(out);
+    }
+  }
+  function wavURL(audioBuffer) {
+    const ch = audioBuffer.getChannelData(0), len = ch.length, sr = audioBuffer.sampleRate;
+    const buf = new ArrayBuffer(44 + len * 2), view = new DataView(buf);
+    const w = (o, s) => { for (let i = 0; i < s.length; i++) view.setUint8(o + i, s.charCodeAt(i)); };
+    w(0, "RIFF"); view.setUint32(4, 36 + len * 2, true); w(8, "WAVE"); w(12, "fmt ");
+    view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+    view.setUint32(24, sr, true); view.setUint32(28, sr * 2, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true);
+    w(36, "data"); view.setUint32(40, len * 2, true);
+    let o = 44;
+    for (let i = 0; i < len; i++) { const v = Math.max(-1, Math.min(1, ch[i])); view.setInt16(o, v < 0 ? v * 0x8000 : v * 0x7FFF, true); o += 2; }
+    return URL.createObjectURL(new Blob([buf], { type: "audio/wav" }));
+  }
+  function renderLoop(name) {
+    return new Promise(resolve => {
+      if (cache[name]) return resolve(cache[name]);
+      try {
+        const dur = DUR[name] || 8;
+        const OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+        const octx = new OAC(1, Math.ceil(44100 * dur), 44100);
+        const comp = octx.createDynamicsCompressor(); comp.connect(octx.destination);  // 防削波
+        buildGraph(name, octx, dur, comp);
+        octx.startRendering().then(r => { cache[name] = wavURL(r); resolve(cache[name]); }).catch(() => resolve(null));
+      } catch (e) { resolve(null); }
+    });
+  }
+  function prerender() { NAMES.forEach(n => renderLoop(n)); }   // 提前渲染好,点按时即可立即播放
+
+  function applyVol() { Object.keys(els).forEach(n => { els[n].el.volume = clamp(els[n].target * masterVol); }); }
+
+  async function toggle(name, btn) {
     unlockIOS();
-    if (!ctx) {
-      ctx = new (window.AudioContext || window.webkitAudioContext)();
-      master = ctx.createGain();
-      master.gain.value = parseFloat(document.getElementById("vol").value);
-      const limiter = ctx.createDynamicsCompressor();   // 防削波,声音更干净
-      limiter.threshold.value = -3; limiter.ratio.value = 12;
-      limiter.attack.value = 0.003; limiter.release.value = 0.25;
-      master.connect(limiter); limiter.connect(ctx.destination);
-      const len = ctx.sampleRate * 4;
-      noiseBuf = ctx.createBuffer(1, len, ctx.sampleRate);
-      const d = noiseBuf.getChannelData(0);
-      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    if (els[name]) {                       // 关闭
+      const e = els[name]; delete els[name]; btn.classList.remove("on");
+      try { e.el.pause(); e.el.src = ""; } catch (_) {}
+      return;
     }
-    if (ctx.state === "suspended") ctx.resume();
-    // 看门狗:朗读等会抢占 iOS 的音频会话并挂起 Web Audio / 暂停静音解锁片,
-    // 这里持续把它们唤回来,保证环境音不会被掐掉。
-    if (!audioWatch) audioWatch = setInterval(() => {
-      if (ctx && ctx.state === "suspended") ctx.resume().catch(() => {});
-      if (unlockEl && unlockEl.paused) unlockEl.play().catch(() => {});
-    }, 2500);
+    btn.classList.add("on");
+    const url = cache[name] || await renderLoop(name);   // 一般已预渲染,可在手势内同步播放
+    if (!url || !btn.classList.contains("on")) return;
+    const el = new Audio(url);
+    el.loop = true; el.setAttribute("playsinline", ""); el.volume = clamp((TARGET[name] || 0.5) * masterVol);
+    el.play().catch(() => {});
+    els[name] = { el, target: TARGET[name] || 0.5 };
   }
-  function noise() { const s = ctx.createBufferSource(); s.buffer = noiseBuf; s.loop = true; s.start(); return s; }
-  function teardown(l) {
-    if (l.timer) clearInterval(l.timer);
-    (l.srcs || []).forEach(s => { try { s.stop(); } catch (e) {} });
-    (l.nodes || []).forEach(n => { try { n.disconnect(); } catch (e) {} });
-  }
-  const BUILDERS = {
-    rain() {
-      const src = noise();
-      const hp = ctx.createBiquadFilter(); hp.type="highpass"; hp.frequency.value=500;
-      const lp = ctx.createBiquadFilter(); lp.type="lowpass"; lp.frequency.value=7000;
-      const out = ctx.createGain(); out.gain.value=0;
-      src.connect(hp); hp.connect(lp); lp.connect(out); out.connect(master);
-      return { out, target:0.5, srcs:[src], nodes:[hp,lp,out] };
-    },
-    waves() {
-      const src = noise();
-      const lp = ctx.createBiquadFilter(); lp.type="lowpass"; lp.frequency.value=550;
-      const swell = ctx.createGain(); swell.gain.value=0.4;
-      const out = ctx.createGain(); out.gain.value=0;
-      src.connect(lp); lp.connect(swell); swell.connect(out); out.connect(master);
-      const lfo = ctx.createOscillator(); lfo.frequency.value=0.11;
-      const lg = ctx.createGain(); lg.gain.value=0.34;
-      lfo.connect(lg); lg.connect(swell.gain); lfo.start();
-      return { out, target:0.6, srcs:[src], nodes:[lp,swell,out,lg], _osc:lfo };
-    },
-    wind() {
-      const src = noise();
-      const bp = ctx.createBiquadFilter(); bp.type="bandpass"; bp.frequency.value=500; bp.Q.value=0.6;
-      const out = ctx.createGain(); out.gain.value=0;
-      src.connect(bp); bp.connect(out); out.connect(master);
-      const lfo = ctx.createOscillator(); lfo.frequency.value=0.07;
-      const lg = ctx.createGain(); lg.gain.value=320;
-      lfo.connect(lg); lg.connect(bp.frequency); lfo.start();
-      return { out, target:0.45, srcs:[src], nodes:[bp,out,lg], _osc:lfo };
-    },
-    fire() {
-      const src = noise();
-      const lp = ctx.createBiquadFilter(); lp.type="lowpass"; lp.frequency.value=900;
-      const base = ctx.createGain(); base.gain.value=0.5;
-      const out = ctx.createGain(); out.gain.value=0;
-      src.connect(lp); lp.connect(base); base.connect(out); out.connect(master);
-      const csrc = noise();
-      const cbp = ctx.createBiquadFilter(); cbp.type="bandpass"; cbp.frequency.value=1700; cbp.Q.value=1.2;
-      const cg = ctx.createGain(); cg.gain.value=0;
-      csrc.connect(cbp); cbp.connect(cg); cg.connect(out);
-      const timer = setInterval(() => {
-        const t=ctx.currentTime, amp=0.2+Math.random()*0.6;
-        cg.gain.cancelScheduledValues(t); cg.gain.setValueAtTime(cg.gain.value,t);
-        cg.gain.linearRampToValueAtTime(amp,t+0.004);
-        cg.gain.linearRampToValueAtTime(0,t+0.04+Math.random()*0.07);
-      }, 70+Math.random()*130);
-      return { out, target:0.55, srcs:[src,csrc], nodes:[lp,base,cbp,cg,out], timer };
-    },
-    night() {
-      const src = noise();
-      const bp = ctx.createBiquadFilter(); bp.type="bandpass"; bp.frequency.value=4500; bp.Q.value=8;
-      const trem = ctx.createGain(); trem.gain.value=0.5;
-      const out = ctx.createGain(); out.gain.value=0;
-      src.connect(bp); bp.connect(trem); trem.connect(out); out.connect(master);
-      const lfo = ctx.createOscillator(); lfo.type="square"; lfo.frequency.value=11;
-      const lg = ctx.createGain(); lg.gain.value=0.45;
-      lfo.connect(lg); lg.connect(trem.gain); lfo.start();
-      const src2 = noise();
-      const lp2 = ctx.createBiquadFilter(); lp2.type="lowpass"; lp2.frequency.value=400;
-      const g2 = ctx.createGain(); g2.gain.value=0.15;
-      src2.connect(lp2); lp2.connect(g2); g2.connect(out);
-      return { out, target:0.3, srcs:[src,src2], nodes:[bp,trem,out,lg,lp2,g2], _osc:lfo };
-    },
-  };
-  function toggle(name, btn) {
-    ensure();
-    if (layers[name]) { stopLayer(name); btn.classList.remove("on"); }
-    else {
-      const l = BUILDERS[name](); const t = ctx.currentTime;
-      l.out.gain.setValueAtTime(0, t);
-      l.out.gain.linearRampToValueAtTime(l.target, t + 1.2);
-      layers[name] = l; btn.classList.add("on");
-    }
-  }
-  function stopLayer(name) {
-    const l = layers[name]; if (!l) return; delete layers[name];
-    const t = ctx.currentTime;
-    try { l.out.gain.cancelScheduledValues(t); l.out.gain.setValueAtTime(l.out.gain.value, t);
-          l.out.gain.linearRampToValueAtTime(0, t + 0.7); } catch (e) {}
-    setTimeout(() => teardown(l), 850);
-  }
-  function setVolume(v) { if (master) master.gain.value = v; }
-  function prime() { ensure(); }
-  function chime() {
-    if (!ctx) return;
-    const t = ctx.currentTime;
-    const o = ctx.createOscillator(), g = ctx.createGain();
-    o.type = "sine"; o.frequency.value = 528;          // 柔和的提示音
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(0.12, t + 0.04);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 2.4);
-    o.connect(g); g.connect(master); o.start(t); o.stop(t + 2.5);
-  }
+  function setVolume(v) { masterVol = v; applyVol(); }
+  function prime() { unlockIOS(); prerender(); }
+  function chime() { /* 媒体方案下省略提示音(数数模式) */ }
   function fadeOutAll(sec) {
-    if (master) { const t = ctx.currentTime; master.gain.cancelScheduledValues(t);
-      master.gain.setValueAtTime(master.gain.value, t);
-      master.gain.linearRampToValueAtTime(0, t + sec); }
+    Object.keys(els).forEach(n => {
+      const e = els[n], start = e.el.volume, steps = Math.max(1, Math.round((sec || 4) * 10));
+      let i = 0;
+      const iv = setInterval(() => { i++; try { e.el.volume = clamp(start * (1 - i / steps)); } catch (_) {}
+        if (i >= steps) { clearInterval(iv); try { e.el.pause(); } catch (_) {} } }, 100);
+    });
   }
-  return { toggle, setVolume, prime, chime, fadeOutAll };
+  return { toggle, setVolume, prime, prerender, fadeOutAll, chime };
 })();
 function chime() { Ambient.chime(); }
 
@@ -1610,9 +1617,8 @@ document.getElementById("vol").addEventListener("input", e => Ambient.setVolume(
 function armAutostart() {
   const go = () => {
     document.removeEventListener("pointerdown", go, true);
-    if (mode === "story" && narrateOn && !storyPaused && currentStory.length &&
-        (!("speechSynthesis" in window) || !speechSynthesis.speaking)) playCurrent();
-    else Ambient.prime();
+    Ambient.prime();
+    if (mode === "story" && narrateOn && !storyPaused && currentStory.length) playCurrent();  // 首次轻触即开始朗读
   };
   document.addEventListener("pointerdown", go, true);
 }
