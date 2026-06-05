@@ -1684,7 +1684,7 @@ const Ambient = (() => {
   const cache = {};            // name -> blob URL（预渲染好的循环）
   const els = {};              // name -> { el, target }
   const NAMES = ["rain", "waves", "wind", "fire", "night"];
-  const DUR = { rain: 6, waves: 12, wind: 14, fire: 8, night: 8 };
+  const DUR = { rain: 12, waves: 12, wind: 14, fire: 11, night: 10 };
   const TARGET = { rain: 0.5, waves: 0.6, wind: 0.45, fire: 0.55, night: 0.32 };
   const clamp = v => Math.max(0, Math.min(1, v));
 
@@ -1726,19 +1726,20 @@ const Ambient = (() => {
       const lg = octx.createGain(); lg.gain.value = 320;
       lfo.connect(lg); lg.connect(bp.frequency); lfo.start(0);
     } else if (name === "fire") {
+      // 低沉的暖鸣（不是中频"呼呼"风声）+ 频繁清脆的噼啪
       const s = noiseSrc(octx, nb);
-      const lp = octx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 900;
-      const base = octx.createGain(); base.gain.value = 0.5;
+      const lp = octx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 220;
+      const base = octx.createGain(); base.gain.value = 0.4;
       s.connect(lp); lp.connect(base); base.connect(out);
       const cs = noiseSrc(octx, nb);
-      const cbp = octx.createBiquadFilter(); cbp.type = "bandpass"; cbp.frequency.value = 1700; cbp.Q.value = 1.2;
+      const cbp = octx.createBiquadFilter(); cbp.type = "bandpass"; cbp.frequency.value = 2200; cbp.Q.value = 1.8;
       const cg = octx.createGain(); cg.gain.value = 0;
       cs.connect(cbp); cbp.connect(cg); cg.connect(out);
-      for (let t = 0.05; t < total - 0.15; t += 0.07 + Math.random() * 0.13) {  // 噼啪声
-        const amp = 0.2 + Math.random() * 0.6;
+      for (let t = 0.05; t < total - 0.12; t += 0.04 + Math.random() * 0.10) {  // 噼啪声（更密更脆）
+        const amp = 0.3 + Math.random() * 0.6;
         cg.gain.setValueAtTime(0, t);
-        cg.gain.linearRampToValueAtTime(amp, t + 0.004);
-        cg.gain.linearRampToValueAtTime(0, t + 0.04 + Math.random() * 0.07);
+        cg.gain.linearRampToValueAtTime(amp, t + 0.003);
+        cg.gain.linearRampToValueAtTime(0, t + 0.03 + Math.random() * 0.05);
       }
     } else if (name === "night") {
       const s = noiseSrc(octx, nb);
@@ -1755,11 +1756,11 @@ const Ambient = (() => {
       s2.connect(lp2); lp2.connect(g2); g2.connect(out);
     }
   }
-  function crossfadeLoop(buf, dur, xf) {           // 把结尾淡入到开头，循环接缝处无缝、不会“咔”一下停住
+  function crossfadeLoop(buf, dur, xf) {           // 等功率交叉淡化：噪声在接缝处响度恒定，不会忽地变小/中断
     const sr = buf.sampleRate, L = Math.floor(dur * sr), n = Math.min(Math.floor(xf * sr), L - 1);
     const a = buf.getChannelData(0), out = new Float32Array(L);
     for (let i = 0; i < L; i++) out[i] = a[i];
-    for (let i = 0; i < n; i++) { const w = i / n; out[i] = a[i] * w + a[L + i] * (1 - w); }
+    for (let i = 0; i < n; i++) { const t = (i / n) * (Math.PI / 2); out[i] = a[i] * Math.sin(t) + a[L + i] * Math.cos(t); }
     return out;
   }
   function wavURL(ch, sr) {
@@ -1778,7 +1779,7 @@ const Ambient = (() => {
     return new Promise(resolve => {
       if (cache[name]) return resolve(cache[name]);
       try {
-        const dur = DUR[name] || 8, XF = 1.5, total = dur + XF, sr = 44100;
+        const dur = DUR[name] || 8, XF = 2.0, total = dur + XF, sr = 44100;
         const OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
         const octx = new OAC(1, Math.ceil(sr * total), sr);
         const comp = octx.createDynamicsCompressor(); comp.connect(octx.destination);  // 防削波
