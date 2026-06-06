@@ -1684,7 +1684,7 @@ const Ambient = (() => {
   const cache = {};            // name -> blob URL（预渲染好的循环）
   const els = {};              // name -> { el, target }
   const NAMES = ["rain", "waves", "wind", "fire", "night"];
-  const DUR = { rain: 12, waves: 12, wind: 14, fire: 11, night: 10 };
+  const DUR = { rain: 16, waves: 14, wind: 16, fire: 12, night: 12 };
   const TARGET = { rain: 0.5, waves: 0.6, wind: 0.45, fire: 0.55, night: 0.32 };
   const clamp = v => Math.max(0, Math.min(1, v));
 
@@ -1779,45 +1779,70 @@ const Ambient = (() => {
     return new Promise(resolve => {
       if (cache[name]) return resolve(cache[name]);
       try {
-        const dur = DUR[name] || 8, XF = 2.0, total = dur + XF, sr = 44100;
+        const dur = DUR[name] || 8, sr = 44100;
         const OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
-        const octx = new OAC(1, Math.ceil(sr * total), sr);
+        const octx = new OAC(1, Math.ceil(sr * dur), sr);
         const comp = octx.createDynamicsCompressor(); comp.connect(octx.destination);  // 防削波
-        buildGraph(name, octx, dur, total, comp);
-        octx.startRendering().then(r => { cache[name] = wavURL(crossfadeLoop(r, dur, XF), sr); resolve(cache[name]); }).catch(() => resolve(null));
+        buildGraph(name, octx, dur, dur, comp);
+        octx.startRendering().then(r => { cache[name] = wavURL(r.getChannelData(0), sr); resolve(cache[name]); }).catch(() => resolve(null));
       } catch (e) { resolve(null); }
     });
   }
   function prerender() { NAMES.forEach(n => renderLoop(n)); }   // 提前渲染好，点按时即可立即播放
 
-  function applyVol() { Object.keys(els).forEach(n => { els[n].el.volume = clamp(els[n].target * masterVol); }); }
-
+  /* 双元素交叉淡化：一段在收尾时渐弱，新的一段同时从头渐起，接缝处始终有声音（无缝、不掉音） */
+  const XF = 3;   // 交叉淡化时长（秒）
+  function applyLayerVol(L) { L.els.forEach((e, i) => { try { e.volume = clamp(L.w[i] * L.target * masterVol); } catch (_) {} }); }
+  function animate(L, fromIdx, toIdx, secs, startNew) {
+    if (startNew) { const e = L.els[toIdx]; try { e.currentTime = 0; e.play().catch(() => {}); } catch (_) {} }
+    const steps = Math.max(1, Math.round(secs * 20)); let s = 0;
+    const iv = setInterval(() => {
+      if (L.off) { clearInterval(iv); return; }
+      s++; const t = Math.min(1, s / steps) * (Math.PI / 2);
+      L.w[toIdx] = Math.sin(t); if (fromIdx >= 0) L.w[fromIdx] = Math.cos(t);   // 等功率，响度恒定
+      applyLayerVol(L);
+      if (s >= steps) { clearInterval(iv); if (fromIdx >= 0) { try { L.els[fromIdx].pause(); } catch (_) {} } }
+    }, 50);
+    L.timers.push(iv);
+  }
+  function scheduleSwap(L) {
+    const D = DUR[L.name] || 12;
+    const to = setTimeout(() => {
+      if (L.off) return;
+      const from = L.idx, nx = 1 - from;
+      animate(L, from, nx, XF, true);    // 新一段渐起，旧一段渐弱
+      L.idx = nx;
+      scheduleSwap(L);
+    }, Math.max(500, (D - XF) * 1000));
+    L.timers.push(to);
+  }
+  function stopLayer(name) {
+    const L = els[name]; if (!L) return; delete els[name]; L.off = true;
+    L.timers.forEach(t => { clearTimeout(t); clearInterval(t); });
+    L.els.forEach(e => { try { e.pause(); e.src = ""; } catch (_) {} });
+  }
   async function toggle(name, btn) {
     unlockIOS();
-    if (els[name]) {                       // 关闭
-      const e = els[name]; delete els[name]; btn.classList.remove("on");
-      try { e.el.pause(); e.el.src = ""; } catch (_) {}
-      return;
-    }
+    if (els[name]) { stopLayer(name); btn.classList.remove("on"); return; }
     btn.classList.add("on");
     const url = cache[name] || await renderLoop(name);   // 一般已预渲染，可在手势内同步播放
     if (!url || !btn.classList.contains("on")) return;
-    const el = new Audio(url);
-    el.loop = true; el.setAttribute("playsinline", ""); el.volume = clamp((TARGET[name] || 0.5) * masterVol);
-    el.addEventListener("ended", () => { try { el.currentTime = 0; el.play(); } catch (e) {} });  // 兜底：个别浏览器 loop 失效时手动续播
-    el.play().catch(() => {});
-    els[name] = { el, target: TARGET[name] || 0.5 };
+    const mk = () => { const e = new Audio(url); e.setAttribute("playsinline", ""); e.preload = "auto"; e.loop = false; e.volume = 0; return e; };
+    const L = { name, target: (TARGET[name] || 0.5), els: [mk(), mk()], w: [0, 0], idx: 0, timers: [], off: false };
+    els[name] = L;
+    try { L.els[0].currentTime = 0; L.els[0].play().catch(() => {}); } catch (_) {}
+    animate(L, -1, 0, XF, false);        // 第一段从静音渐起
+    scheduleSwap(L);
   }
-  function setVolume(v) { masterVol = v; applyVol(); }
+  function setVolume(v) { masterVol = v; Object.keys(els).forEach(n => applyLayerVol(els[n])); }
   function prime() { unlockIOS(); prerender(); }
   function chime() { /* 媒体方案下省略提示音（数数模式） */ }
   function fadeOutAll(sec) {
-    Object.keys(els).forEach(n => {
-      const e = els[n], start = e.el.volume, steps = Math.max(1, Math.round((sec || 4) * 10));
-      let i = 0;
-      const iv = setInterval(() => { i++; try { e.el.volume = clamp(start * (1 - i / steps)); } catch (_) {}
-        if (i >= steps) { clearInterval(iv); try { e.el.pause(); } catch (_) {} } }, 100);
-    });
+    const start = masterVol, steps = Math.max(1, Math.round((sec || 4) * 10)); let s = 0;
+    const iv = setInterval(() => {
+      s++; masterVol = clamp(start * (1 - s / steps)); Object.keys(els).forEach(n => applyLayerVol(els[n]));
+      if (s >= steps) { clearInterval(iv); Object.keys(els).forEach(n => stopLayer(n)); masterVol = start; }
+    }, 100);
   }
   return { toggle, setVolume, prime, prerender, fadeOutAll, chime };
 })();
