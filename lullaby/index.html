@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -211,6 +211,24 @@
     .ts-title { color: var(--gold); font-style: italic; letter-spacing: .08em;
       font-size: clamp(1.7rem, 6vw, 2.5rem); text-shadow: 0 0 40px rgba(244,200,48,.3); }
     .ts-sub { color: #6090c0; font-style: italic; margin-top: 16px; font-size: 1.02rem; line-height: 1.7; }
+
+    /* 中文不用斜体（斜体的 MathTau 风格只保留给英文版）；数字 em.num 等保持原样 */
+    html[lang="zh-CN"] header h1,
+    html[lang="zh-CN"] header .tagline,
+    html[lang="zh-CN"] header .thesis,
+    html[lang="zh-CN"] .center .breathe,
+    html[lang="zh-CN"] .begin,
+    html[lang="zh-CN"] .mode-btn,
+    html[lang="zh-CN"] .toggle-btn,
+    html[lang="zh-CN"] .field,
+    html[lang="zh-CN"] .insight,
+    html[lang="zh-CN"] .story-panel,
+    html[lang="zh-CN"] .story-panel .stitle,
+    html[lang="zh-CN"] .story-panel .placeholder,
+    html[lang="zh-CN"] .placeholder,
+    html[lang="zh-CN"] .note,
+    html[lang="zh-CN"] .ts-title,
+    html[lang="zh-CN"] .ts-sub { font-style: normal; }
 
     @media (max-width: 520px) {
       .wrap { padding: 54px 18px 120px; }
