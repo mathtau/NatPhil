@@ -1708,6 +1708,9 @@ const Ambient = (() => {
       const lp = octx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 7000;
       const g = octx.createGain(); g.gain.value = 0.5;
       s.connect(hp); hp.connect(lp); lp.connect(g); g.connect(out);
+      const slow = octx.createOscillator(); slow.frequency.value = 3 / dur;   // 缓慢起伏：雨势忽大忽小
+      const sd = octx.createGain(); sd.gain.value = 0.2;
+      slow.connect(sd); sd.connect(g.gain); slow.start(0);
     } else if (name === "waves") {
       const s = noiseSrc(octx, nb);
       const lp = octx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 550;
@@ -1726,30 +1729,37 @@ const Ambient = (() => {
       const lg = octx.createGain(); lg.gain.value = 320;
       lfo.connect(lg); lg.connect(bp.frequency); lfo.start(0);
     } else if (name === "fire") {
-      // 低沉的暖鸣（不是中频"呼呼"风声）+ 频繁清脆的噼啪
+      // 低沉的暖鸣（不是中频"呼呼"风声）+ 频繁清脆的噼啪，整体缓慢明灭（像火苗忽旺忽弱）
+      const fg = octx.createGain(); fg.gain.value = 0.95; fg.connect(out);
       const s = noiseSrc(octx, nb);
       const lp = octx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 220;
       const base = octx.createGain(); base.gain.value = 0.4;
-      s.connect(lp); lp.connect(base); base.connect(out);
+      s.connect(lp); lp.connect(base); base.connect(fg);
       const cs = noiseSrc(octx, nb);
       const cbp = octx.createBiquadFilter(); cbp.type = "bandpass"; cbp.frequency.value = 2200; cbp.Q.value = 1.8;
       const cg = octx.createGain(); cg.gain.value = 0;
-      cs.connect(cbp); cbp.connect(cg); cg.connect(out);
+      cs.connect(cbp); cbp.connect(cg); cg.connect(fg);
       for (let t = 0.05; t < total - 0.12; t += 0.04 + Math.random() * 0.10) {  // 噼啪声（更密更脆）
         const amp = 0.3 + Math.random() * 0.6;
         cg.gain.setValueAtTime(0, t);
         cg.gain.linearRampToValueAtTime(amp, t + 0.003);
         cg.gain.linearRampToValueAtTime(0, t + 0.03 + Math.random() * 0.05);
       }
+      const slow = octx.createOscillator(); slow.frequency.value = 2 / dur;   // 火苗缓慢明灭
+      const sd = octx.createGain(); sd.gain.value = 0.33;
+      slow.connect(sd); sd.connect(fg.gain); slow.start(0);
     } else if (name === "night") {
       const s = noiseSrc(octx, nb);
       const bp = octx.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 4500; bp.Q.value = 8;
       const trem = octx.createGain(); trem.gain.value = 0.5;
-      const g = octx.createGain(); g.gain.value = 0.85;
+      const g = octx.createGain(); g.gain.value = 0.7;
       s.connect(bp); bp.connect(trem); trem.connect(g); g.connect(out);
       const lfo = octx.createOscillator(); lfo.type = "square"; lfo.frequency.value = Math.round(11 * dur) / dur;
       const lg = octx.createGain(); lg.gain.value = 0.45;
       lfo.connect(lg); lg.connect(trem.gain); lfo.start(0);
+      const slow = octx.createOscillator(); slow.frequency.value = 2 / dur;   // 虫鸣此起彼伏，缓缓涨落
+      const sd = octx.createGain(); sd.gain.value = 0.35;
+      slow.connect(sd); sd.connect(g.gain); slow.start(0);
       const s2 = noiseSrc(octx, nb);
       const lp2 = octx.createBiquadFilter(); lp2.type = "lowpass"; lp2.frequency.value = 400;
       const g2 = octx.createGain(); g2.gain.value = 0.15;
