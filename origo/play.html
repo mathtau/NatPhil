@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>ORIGO</title>
+<link rel="icon" href="../logo.svg?v=20260605">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Patrick+Hand&family=Playfair+Display:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="engine.css?v=202606064a">
+</head>
+<body data-region="cradle">
+
+<!-- settings (sound) -->
+<div class="settings" id="settings">
+  <div class="gear" id="gear">⚙</div>
+  <div class="panel">
+    <label>Music <input type="checkbox" id="mMusic"></label>
+    <label>Sound effects <input type="checkbox" id="mSfx"></label>
+    <label>Narration (voices) <input type="checkbox" id="mNarr"></label>
+  </div>
+</div>
+
+<!-- quest tracker -->
+<aside class="qtrack" id="qtrack"><h5 id="qtrackTitle"></h5><div id="qtrackList"></div></aside>
+
+<!-- header -->
+<div class="top">
+  <div class="kicker" id="kicker"></div>
+  <h1 id="h1"></h1>
+  <div class="dots" id="dots"></div>
+</div>
+
+<!-- stage -->
+<div class="stage">
+  <div class="placebanner" id="placebanner"></div>
+  <div class="companion" id="companion" data-mood="idle">
+    <div class="bot"></div>
+    <div class="bubble" id="bubble"><span></span></div>
+  </div>
+  <div class="card"><canvas id="cv" width="1180" height="560"></canvas></div>
+  <div class="status" id="status"></div>
+  <div class="tray" id="tray"></div>
+  <div class="foot">Origo · <span id="footTag">the MathO book, made playable</span> · <a id="codexLink" href="#" style="display:none">📖 Codex</a> · <a id="langLink" href="#">中文</a></div>
+</div>
+
+<!-- XP bar -->
+<div class="xpbar">
+  <div class="lvl" id="lvlBadge">Lv.1</div>
+  <div class="xptrack"><i id="xpfillBar"></i><div class="xptxt" id="xptxt"></div></div>
+</div>
+<div class="lvlup" id="lvlup"><span></span></div>
+
+<!-- quest scroll -->
+<div class="scrim" id="scrim">
+  <div class="scroll">
+    <div class="seal" id="qseal"></div>
+    <div class="qtitle" id="qtitleScroll"></div>
+    <div class="giver" id="giver"></div>
+    <div class="flavor" id="flavor"></div>
+    <button class="readaloud" id="readQuest">🔊 Hear Sigma speak</button>
+    <ul class="objs" id="objs"></ul>
+    <button class="accept" id="acceptQ">Accept the Quest</button>
+  </div>
+</div>
+
+<!-- Codex / reclaimed book page -->
+<div class="codex" id="codex">
+  <div>
+    <div class="page" id="bookpage">
+      <div class="pno" id="codexPno"></div>
+      <div class="ptag" id="codexTag"></div>
+      <div class="ptitle" id="codexTitle"></div>
+      <div id="codexBody"></div>
+    </div>
+    <div class="bookbar">
+      <button class="bk" id="bkClose" onclick="E.closeBook()">✕ Close</button>
+      <button class="bk" id="bkPdf" onclick="BOOK.savePDF()">⤓ PDF</button>
+      <button class="bk" id="bkPng" onclick="BOOK.savePNG()">⤓ PNG</button>
+      <button class="bk" id="bkReplay" onclick="E.replay()">↺ Replay</button>
+      <a class="bk" id="bkMap" href="../world.html">▣ Map</a>
+      <button class="bk go" id="bkNext">More quests soon ▶</button>
+    </div>
+    <div class="pxp" id="pxpR"></div>
+  </div>
+</div>
+
+<script src="figures.js?v=202606063d"></script>
+<script src="book.js?v=202606063d"></script>
+<script src="engine.js?v=202606063d"></script>
+<script>
+(function(){
+  var VER='202606063d';
+  var p=new URLSearchParams(location.search);
+  var q=(p.get('q')||'01').replace(/[^0-9]/g,'')||'01';
+  var s=document.createElement('script');
+  s.src='quests/q'+q+'.js?v='+VER;
+  s.onload=function(){ var Q=window['QUEST_q'+q]; if(Q){ E.boot(Q); } else { document.getElementById('bubble').innerHTML='<span>Quest q'+q+' not found.</span>'; } };
+  s.onerror=function(){ document.getElementById('bubble').innerHTML='<span>Could not load quest q'+q+'.</span>'; };
+  document.body.appendChild(s);
+  document.getElementById('bkNext').onclick=function(){ location.href='../world.html'; };
+})();
+</script>
+</body>
+</html>
