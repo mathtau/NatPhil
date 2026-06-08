@@ -64,9 +64,20 @@ canvas{ width:100%; height:auto; display:block; border-radius:8px; }
 .btn.primary{ border-color:rgba(244,200,48,.55); color:var(--gold); background:rgba(244,200,48,.08); }
 .btn.on{ background:rgba(244,200,48,.16); border-color:var(--gold); color:var(--gold); }
 .btn:disabled{ opacity:.4; cursor:default; }
+.btn.dim{ opacity:.32; } .btn.dim:hover{ border-color:var(--border); color:var(--text); }   /* locked button — visible but inactive */
+/* ----- button TYPES (same job → same colour across all quests) ----- */
+.btn.magic{ border-color:rgba(120,104,210,.6); color:#cdbcff; background:rgba(96,80,170,.22); }   /* the magic action (Product copy) */
+.btn.magic:hover{ border-color:#9a86e0; color:#e7ddff; }
+.btn.grass{ border-color:rgba(80,200,140,.45); color:#9fe7bf; background:rgba(63,174,84,.12); }   /* grass steppers */
+.btn.grass:hover{ border-color:#6fd6a0; color:#bff0d4; }
+.btn.wheat{ border-color:rgba(224,168,58,.5); color:#f0cf94; background:rgba(224,168,58,.12); }    /* wheat steppers */
+.btn.wheat:hover{ border-color:#f0c24a; color:#ffe0a0; }
+.btn.ghost{ color:var(--muted); border-color:var(--border); background:transparent; }             /* secondary / navigation (back, replay, undo, reshape) */
+.btn.ghost:hover{ color:var(--text); border-color:var(--muted); }
 
-.foot{ margin-top:16px; font-family:'IBM Plex Mono',monospace; font-size:.78rem; color:var(--muted); text-align:center; }
-.foot a{ color:var(--cyan); text-decoration:none; } .foot a:hover{ color:var(--gold); }
+.foot{ margin-top:16px; font-family:'IBM Plex Mono',monospace; font-size:.95rem; color:var(--muted); text-align:center; display:flex; gap:6px; align-items:center; justify-content:center; flex-wrap:wrap; }
+.foot a{ color:var(--cyan); text-decoration:none; display:inline-flex; align-items:center; gap:5px; padding:5px 9px; border-radius:8px; border:1px solid transparent; } .foot a:hover{ color:var(--gold); background:rgba(244,200,48,.08); border-color:rgba(244,200,48,.25); }
+.foot a svg{ width:17px; height:17px; }
 
 /* settings (sound) */
 .settings{ position:fixed; top:12px; left:12px; z-index:30; }
@@ -142,24 +153,24 @@ html[lang="zh"] .flavor, html[lang="zh"] .placebanner, html[lang="zh"] em, html[
 @keyframes fadein{ from{opacity:0} to{opacity:1} }
 /* white BOOK paper, faithful to MathO p6; book.js renders the blocks + hand-drawn figures */
 .page{ position:relative; width:100%; max-width:580px; margin:auto; min-height:calc(580px * 297 / 210); background:#fdfcf6; color:#23201a;
-  border-radius:4px; padding:22px 28px 26px; box-shadow:0 28px 70px -18px #000;
+  border-radius:4px; padding:10px 12px 12px; box-shadow:0 28px 70px -18px #000;
   font-family:'Patrick Hand','Ma Shan Zheng','Segoe UI',sans-serif; font-size:1rem; line-height:1.28; }
 .page .corner{ position:absolute; top:0; left:0; border-width:0 0 26px 26px; border-style:solid; border-color:transparent transparent transparent #d4b24a; opacity:.8; }
-.page .pno{ position:absolute; bottom:12px; right:20px; font-family:'Caveat','Segoe Print','Bradley Hand','Ma Shan Zheng',Georgia,serif; font-size:1.2rem; color:#9a958a; }
+.page .pno{ position:absolute; bottom:12px; right:20px; font-family:'Caveat','Segoe Print','Bradley Hand','Ma Shan Zheng','KaiTi','STKaiti',Georgia,cursive; font-size:1.2rem; color:#9a958a; }
 .page .mathtau{ position:absolute; top:13px; right:18px; display:flex; align-items:center; gap:6px; }
 .page .mathtau svg{ width:24px; height:24px; }
 .page .mathtau span{ font-family:'Playfair Display',Georgia,serif; font-weight:600; font-size:1.02rem; color:#a8780f; }
 .bkh{ margin:1px 0 5px; }
-.bkh .kick{ font-family:'Caveat','Segoe Print','Bradley Hand','Ma Shan Zheng',Georgia,serif; font-size:1.5rem; color:#3a3630; line-height:1; }
-.bkh .ttl{ font-family:'Caveat','Segoe Print','Bradley Hand','Ma Shan Zheng',Georgia,serif; font-weight:700; font-size:2.2rem; color:#1a1712; line-height:1; margin-top:-2px; }
-.bkrow{ border-top:1px solid #e7e3d6; padding-top:4px; margin-top:4px; }
+.bkh .kick{ font-family:'Caveat','Segoe Print','Bradley Hand','Ma Shan Zheng','KaiTi','STKaiti',Georgia,cursive; font-size:1.5rem; color:#3a3630; line-height:1; }
+.bkh .ttl{ font-family:'Caveat','Segoe Print','Bradley Hand','Ma Shan Zheng','KaiTi','STKaiti',Georgia,cursive; font-weight:700; font-size:2.2rem; color:#1a1712; line-height:1; margin-top:-2px; }
+.bkrow{ border-top:1px solid #e7e3d6; padding-top:2px; margin-top:2px; }
 .bkrow:first-of-type{ border-top:none; }
 .bkrow p{ margin:0 0 2px; }
-.bkfig{ display:block; width:100%; max-width:440px; height:auto; margin:1px auto 3px; }
-.bklaw{ font-family:'Caveat','Segoe Print','Bradley Hand','Ma Shan Zheng',Georgia,serif; font-weight:700; font-size:1.35rem; }
-.bkeq{ font-family:'Caveat','Segoe Print','Bradley Hand','Ma Shan Zheng',Georgia,serif; font-size:1.5rem; letter-spacing:.02em; }
+.bkfig{ display:block; width:100%; max-width:544px; height:auto; margin:1px auto 3px; }
+.bklaw{ font-family:'Caveat','Segoe Print','Bradley Hand','Ma Shan Zheng','KaiTi','STKaiti',Georgia,cursive; font-weight:700; font-size:1.35rem; }
+.bkeq{ font-family:'Caveat','Segoe Print','Bradley Hand','Ma Shan Zheng','KaiTi','STKaiti',Georgia,cursive; font-size:1.5rem; letter-spacing:.02em; }
 .q{ color:#2f74d0; font-weight:bold; } .len{ color:#e8402e; font-weight:bold; }   /* book key-term colors: quantity=blue, length=red */
-.r{ color:#e8402e } .b{ color:#2f74d0 } .gr{ color:#2faa4e }
+.r{ color:#e8402e } .b{ color:#2f74d0 } .gr{ color:#2faa4e } .p{ color:#7c3fd4 }
 .bknote{ margin-top:5px; background:#fbf7e4; border:1px solid #e9dab0; border-left:4px solid #f0c419; border-radius:6px; padding:6px 10px; font-size:.88rem; color:#4a4436; }
 .bknote b{ color:#b5860b; }
 .bookbar{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:16px; }

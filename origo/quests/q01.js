@@ -49,7 +49,7 @@ function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.fed=false; E.setDots(
     zh:'<b>裂隙石道。</b>任何木板都可行，因为每一步都有立柱。搭到 <b class="g">'+G+'</b> 处的 <b class="g">青草</b>：太短我会掉下去，太长就会埋住青草！'}));
   function refresh(){ E.status(E.t({en:'bridge: ',zh:'桥长：'})+'<b>'+sum()+'</b> / '+G); E.clearTray();
     [1,2,3].forEach(v=>E.addBtn('+'+v,'plank p'+v,()=>{ if(E.busy||sum()+v>maxx)return; planks.push(v); E.sfx('place'); E.pop('+'+v); draw(null); refresh(); }));
-    const u=E.addBtn('↺','',()=>{ if(!planks.length)return; planks.pop(); draw(null); refresh(); }); u.disabled=!planks.length;
+    const u=E.addBtn('↺','ghost',()=>{ if(!planks.length)return; planks.pop(); draw(null); refresh(); }); u.disabled=!planks.length;
     E.addBtn(E.t({en:'Send me! ▶',zh:'出发！▶'}),'primary',()=>{ if(E.busy)return;
       E.runCross({ target:G, reach:sum(), draw, retry:round1.bind(null,E),
         msgs:{ short:{en:'Too <b class="r">short</b>, I run off into the Fog!',zh:'太<b class="r">短</b>，我掉进迷雾了！'},
@@ -57,7 +57,7 @@ function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.fed=false; E.setDots(
         onWin:()=>{ E.setDots(1); E.tickQ(1); E.award(40);
           E.status(keq(planks.join(' + ')+' = '+G)); E.tell(E.t({en:'Yum, the little calf is fed!',zh:'好香，小牛犊吃饱饱！'}));
           E.clearTray(); E.addBtn(E.t({en:'On to the next crossing ▶',zh:'前往下一处 ▶'}),'primary',E.advance);
-          E.addBtn(E.t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'',E.replayStep); } }); }); }
+          E.addBtn(E.t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep); } }); }); }
   refresh();
 }
 
@@ -96,7 +96,7 @@ function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.cv.oncl
       E.status(E.t({en:(pick==='top'?'Top':'Bottom')+' span ('+preset+' + ?): pick a plank to reach '+T,zh:(pick==='top'?'上桥':'下桥')+'（'+preset+' + ?）：选木板凑到 '+T}));
       E.addBtn('+'+a,'plank p'+a,()=>{ L.fill=a; pick=null; E.sfx('place'); refresh(); });
       E.addBtn('+'+b,'plank p'+b,()=>{ L.fill=b; pick=null; E.sfx('place'); refresh(); });
-      E.addBtn(E.t({en:'‹ back',zh:'‹ 返回'}),'',()=>{ pick=null; refresh(); });
+      E.addBtn(E.t({en:'‹ back',zh:'‹ 返回'}),'ghost',()=>{ pick=null; refresh(); });
     }
   }
   function sendBoth(){ if(E.busy)return; const ts=sumT(), bs=sumB(), tOK=ts===T, bOK=bs===T;
@@ -109,7 +109,7 @@ function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.cv.oncl
     E.tell(E.t({en:'Top is <b class="g">'+a+' + '+b+'</b>, bottom is <b class="y">'+b+' + '+a+'</b>: same length! That\'s <b>commuting</b>.',
       zh:'上桥 <b class="g">'+a+' + '+b+'</b>，下桥 <b class="y">'+b+' + '+a+'</b>：长度相同！这就是<b>交换律</b>。'}));
     E.clearTray(); E.addBtn(E.t({en:'On to the Pillar Pass ▶',zh:'前往立柱关 ▶'}),'primary',E.advance);
-    E.addBtn(E.t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'',E.replayStep);
+    E.addBtn(E.t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep);
   }
   E.tell(E.t({en:'<b>The Twin Spans.</b> Top holds <b class="g">'+a+'</b>, bottom holds <b class="y">'+b+'</b>. Add the missing plank so <b>both</b> reach <b>'+T+'</b>, and see <b class="g">'+a+'+'+b+'</b> = <b class="y">'+b+'+'+a+'</b>.',
     zh:'<b>双生桥。</b>上桥已有 <b class="g">'+a+'</b>，下桥已有 <b class="y">'+b+'</b>。补上缺的木板，让<b>两座桥</b>都到 <b>'+T+'</b>，可见 <b class="g">'+a+'+'+b+'</b> = <b class="y">'+b+'+'+a+'</b>。'}));
@@ -134,13 +134,13 @@ function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.fed=false; E.setDots(
       E.status(E.t({en:'a <b>gap</b> has no post: pick a span, then add a <b>support</b>',zh:'有处<b>缺口</b>没有立柱：先选一座桥，再加<b>支撑</b>'}));
       E.addBtn(E.t({en:'Top span:&nbsp;',zh:'上桥：'})+(top.grp?brk(top).label:E.t({en:'support ?',zh:'支撑 ?'})), top.grp?'on':'', ()=>{ pick='top'; refresh(); });
       E.addBtn(E.t({en:'Bottom span:&nbsp;',zh:'下桥：'})+(bot.grp?brk(bot).label:E.t({en:'support ?',zh:'支撑 ?'})), bot.grp?'on':'', ()=>{ pick='bot'; refresh(); });
-      if(top.grp&&bot.grp) E.addBtn(E.t({en:'Send both ▶',zh:'两头一起出发 ▶'}),'primary',sendBoth);
+      if(top.grp&&bot.grp) E.addBtn(E.t({en:'Send both ▶',zh:'一起出发 ▶'}),'primary',sendBoth);
     } else {
       const L=pick==='top'?top:bot;
       E.status(E.t({en:(pick==='top'?'Top':'Bottom')+' span: which pair sits over the gap?',zh:(pick==='top'?'上桥':'下桥')+'：哪一对跨在缺口上？'}));
       E.addBtn('( '+a+'+'+b+' )', L.grp==='left'?'on':'', ()=>{ L.grp='left'; pick=null; E.sfx('bracket'); refresh(); });
       E.addBtn('( '+b+'+'+c+' )', L.grp==='right'?'on':'', ()=>{ L.grp='right'; pick=null; E.sfx('bracket'); refresh(); });
-      E.addBtn(E.t({en:'‹ back',zh:'‹ 返回'}),'',()=>{ pick=null; refresh(); });
+      E.addBtn(E.t({en:'‹ back',zh:'‹ 返回'}),'ghost',()=>{ pick=null; refresh(); });
     }
   }
   function sendBoth(){ if(E.busy)return; const tOK=covered(top), bOK=covered(bot);
@@ -153,7 +153,7 @@ function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.fed=false; E.setDots(
     E.tell(E.t({en:'Top grouped <b class="g">'+a+'+('+b+'+'+c+')</b>, bottom <b class="y">('+a+'+'+b+')+'+c+'</b>: both reach <b>'+T+'</b>. That\'s <b>associating</b>.',
       zh:'上桥 <b class="g">'+a+'+('+b+'+'+c+')</b>，下桥 <b class="y">('+a+'+'+b+')+'+c+'</b>：都到 <b>'+T+'</b>。这就是<b>结合律</b>。'}));
     E.clearTray(); E.addBtn(E.t({en:'Claim the Codex page 📖',zh:'领取典籍书页 📖'}),'primary',()=>E.openBook(QUEST.book));
-    E.addBtn(E.t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'',E.replayStep);
+    E.addBtn(E.t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep);
   }
   E.tell(E.t({en:'<b>The Pillar Pass.</b> Each span has planks <b>'+a+' | '+b+' | '+c+'</b>, but one seam has a <b class="r">missing post</b>. Add a <b>support</b> by grouping the pair over the gap, on each span: <b class="g">'+a+'+('+b+'+'+c+')</b> = <b class="y">('+a+'+'+b+')+'+c+'</b>.',
     zh:'<b>立柱关。</b>每座桥都有木板 <b>'+a+' | '+b+' | '+c+'</b>，但有处接缝<b class="r">缺了立柱</b>。在每座桥上把缺口上的一对括起来补充<b>支撑</b>：<b class="g">'+a+'+('+b+'+'+c+')</b> = <b class="y">('+a+'+'+b+')+'+c+'</b>。'}));

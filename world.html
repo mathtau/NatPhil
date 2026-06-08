@@ -19,6 +19,13 @@
   svg{ width:100%; height:auto; display:block; }
   .foot{ margin-top:14px; font-family:'IBM Plex Mono',monospace; font-size:.78rem; color:#8a8a68; text-align:center; }
   .foot a{ color:#40c8f0; text-decoration:none; } .foot a:hover{ color:#f4c830; }
+  .quests{ width:100%; max-width:560px; margin:18px auto 0; display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+  .quests h6{ width:100%; text-align:center; font-family:'IBM Plex Mono',monospace; font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:#8a8a68; margin-bottom:4px; font-weight:400; }
+  .quests a,.quests span{ font-family:'IBM Plex Mono',monospace; font-size:.84rem; text-decoration:none; border-radius:9px; padding:8px 13px; border:1px solid; transition:.15s; }
+  .quests a{ color:#f4c830; border-color:rgba(244,200,48,.45); background:rgba(244,200,48,.06); }
+  .quests a:hover{ background:rgba(244,200,48,.16); transform:translateY(-1px); }
+  .quests a.cleared{ color:#50d890; border-color:rgba(80,216,144,.4); background:rgba(80,216,144,.06); }
+  .quests span.lock{ color:#6a6a8a; border-color:#33334e; }
   a.node{ cursor:pointer; } a.node:hover .card{ filter:brightness(1.12); }
   .nm{ font-family:'Playfair Display',Georgia,serif; }
   .mono{ font-family:'IBM Plex Mono',monospace; }
@@ -155,6 +162,8 @@
   </svg>
   </div>
 
+  <nav class="quests" id="questNav"></nav>
+
   <div class="foot" id="legend">✦ cleared &nbsp;·&nbsp; ▶ open &nbsp;·&nbsp; 🔒 in the Fog &nbsp;—&nbsp; <a href="index.html">mathtau.com</a></div>
 
 <script>
@@ -165,6 +174,21 @@
       const fog=document.getElementById('foglayer'); fog.setAttribute('transform','translate(0,-120)'); fog.setAttribute('opacity','.82');
     }
   }catch(e){}
+
+  // unlocked-quest shortcuts: jump straight back into any quest you've reached (q01 always open; the next opens once the previous is cleared)
+  (function(){
+    const CATALOG=[ {n:'01',t:'Addition'}, {n:'02',t:'Multiplication'} ];
+    let dn={}; try{ dn=(JSON.parse(localStorage.getItem('origo')||'{}').quests)||{}; }catch(e){}
+    let h='<h6>↩ Return to a quest</h6>';
+    CATALOG.forEach(function(q,i){
+      const cleared=dn['q'+q.n]==='done';
+      const unlocked = i===0 || dn['q'+CATALOG[i-1].n]==='done' || !!dn['q'+q.n];
+      h+= unlocked
+        ? '<a class="'+(cleared?'cleared':'')+'" href="origo/play.html?q='+q.n+'">'+(cleared?'✦':'▶')+' '+q.t+'</a>'
+        : '<span class="lock">🔒 '+q.t+'</span>';
+    });
+    document.getElementById('questNav').innerHTML=h;
+  })();
 </script>
 </body>
 </html>

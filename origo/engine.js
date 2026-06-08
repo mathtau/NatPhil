@@ -6,7 +6,7 @@ const E = { busy:false, fed:false, MAXX:9, padL:30, padR:24 };
 window.E = E;
 
 /* ---------- save schema (single source) ---------- */
-const DEF={ xp:0, level:1, need:100, act:'cradle', quests:{}, pages:[], audio:{music:true,sfx:true,narr:false,vSigma:'',vTau:'',vver:3} };
+const DEF={ xp:0, level:1, need:100, act:'cradle', quests:{}, pages:[], audio:{music:true,sfx:true,narr:false,vSigma:'',vProduct:'',vTau:'',vver:4} };
 function load(){ try{ return Object.assign({},DEF,JSON.parse(localStorage.getItem('origo')||'{}')); }catch(_){ return Object.assign({},DEF); } }
 let S = load();
 E.save = ()=>{ try{ localStorage.setItem('origo',JSON.stringify(S)); }catch(_){ } };
@@ -59,39 +59,41 @@ const reSig=/grandpa|grand|old|reed|rocko|ralph|arthur|daniel|fred|albert|aaron|
 const reTau=/grandma|samantha|karen|moira|tessa|junior|kathy|princess|zira|hazel|susan|eva|female|huihui|yaoyao|tingting|sinji|女/i;
 function voicePool(){ const lang=E.lang==='zh'?'zh':'en'; const p=A.voices.filter(v=>(v.lang||'').toLowerCase().startsWith(lang)); return p.length?p:A.voices; }
 const PREF_SIG=['mark','david','george','daniel','arthur','grandpa','kangkang'];   // preferred Sigma voices by name (PC: Mark first)
+const PREF_PROD=['david','george','daniel','arthur','mark','guy','kangkang'];      // Product the wizard — a warm, wise male-ish voice
 const PREF_TAU=['junior','princess','flo','zira','hazel','samantha','susan','karen','huihui','yaoyao'];   // Tau is a CALF — prefer child-like voices (macOS Junior/Princess); PC falls back to Zira, pitched up below
 function pickVoice(role){ const list=voicePool(); if(!list.length) return '';
-  const pref=role==='sigma'?PREF_SIG:PREF_TAU;
+  const pref=role==='sigma'?PREF_SIG:role==='product'?PREF_PROD:PREF_TAU;
   for(const nm of pref){ const v=list.find(x=>x.name.toLowerCase().includes(nm)); if(v) return v.name; }
-  if(role==='sigma') return (list.find(v=>reSig.test(v.name)) || list.find(v=>!reTau.test(v.name)) || list[0]).name||'';   // male/old; never fall back to a clearly-female voice
-  return (list.find(v=>reTau.test(v.name)) || list.find(v=>!reSig.test(v.name)) || list[0]).name||''; }
+  if(role==='tau') return (list.find(v=>reTau.test(v.name)) || list.find(v=>!reSig.test(v.name)) || list[0]).name||'';   // female/young
+  return (list.find(v=>reSig.test(v.name)) || list.find(v=>!reTau.test(v.name)) || list[0]).name||''; }   // sigma & product: male-ish, never a clearly-female voice
 A.loadVoices=function(){ if(synth){ A.voices=synth.getVoices()||[]; } };
-if(synth){ A.loadVoices(); synth.addEventListener('voiceschanged',()=>{ A.loadVoices(); if(!S.audio.vSigma)S.audio.vSigma=pickVoice('sigma'); if(!S.audio.vTau)S.audio.vTau=pickVoice('tau'); E.save(); E.fillVoicePickers&&E.fillVoicePickers(); }); }
+if(synth){ A.loadVoices(); synth.addEventListener('voiceschanged',()=>{ A.loadVoices(); if(!S.audio.vSigma)S.audio.vSigma=pickVoice('sigma'); if(!S.audio.vProduct)S.audio.vProduct=pickVoice('product'); if(!S.audio.vTau)S.audio.vTau=pickVoice('tau'); E.save(); E.fillVoicePickers&&E.fillVoicePickers(); }); }
 E.say=function(t){ if(!synth||!S.audio.narr) return; synth.cancel(); const u=new SpeechSynthesisUtterance(t.replace(/<[^>]+>/g,''));
-  const lang = E.lang==='zh'?'zh':'en'; const nm = speaker==='sigma'? S.audio.vSigma : S.audio.vTau;
+  const lang = E.lang==='zh'?'zh':'en'; const nm = speaker==='sigma'? S.audio.vSigma : speaker==='product'? S.audio.vProduct : S.audio.vTau;
   let v = A.voices.find(x=>x.name===nm);
   if(!v || !(v.lang||'').toLowerCase().startsWith(lang)) v = A.voices.find(x=>x.name===pickVoice(speaker));   // saved voice can't speak this language → pick one that can
   if(v){ u.voice=v; u.lang=v.lang; } else { u.lang = lang==='zh'?'zh-CN':'en-US'; }
-  if(speaker==='sigma'){ u.pitch=.5; u.rate=.82; } else { u.pitch=1.5; u.rate=1.06; }   // Tau is a calf — pitch up high so the voice reads young/child-like
+  if(speaker==='sigma'){ u.pitch=.5; u.rate=.82; } else if(speaker==='product'){ u.pitch=.82; u.rate=.96; } else { u.pitch=1.5; u.rate=1.06; }   // Tau (calf) high; Product (wizard) warm/low
   A.speaking=true; u.onend=u.onerror=()=>{ A.speaking=false; const f=A._afterSpeech; A._afterSpeech=null; if(f)f(); }; synth.speak(u); };
 /* run cb once narration finishes the current line, then a gap (voice on: end+1.3s; voice off: read-time ~1.9s) */
 E.afterSpeech=function(cb){ let done=false; const go=g=>{ if(done)return; done=true; setTimeout(cb,g); };
   if(S.audio.narr && synth && (synth.speaking || A.speaking)){ A._afterSpeech=()=>go(1300); setTimeout(()=>go(1300),9000); }
   else go(1900); };
 E.sayAs=function(who,text){ const prev=speaker; speaker=who; const wasOff=!S.audio.narr; S.audio.narr=true; const mc=$('mNarr'); if(mc)mc.checked=true; E.save(); A.ensure(); E.say(text); speaker=prev; };
+E.speakAs=function(who,text){ if(!S.audio.narr) return; const prev=speaker; speaker=who; E.say(text); speaker=prev; };   // speak as `who` only if narration is already on (doesn't force it, doesn't change the bubble)
 E.fillVoicePickers=function(){ const host=document.getElementById('voicePick'); if(!host) return;
   if(!A.voices.length){ host.innerHTML='<div class="vhint">voices loading… reopen this panel</div>'; return; }
-  if(!S.audio.vSigma)S.audio.vSigma=pickVoice('sigma'); if(!S.audio.vTau)S.audio.vTau=pickVoice('tau'); E.save();
+  if(!S.audio.vProduct)S.audio.vProduct=pickVoice('product'); if(!S.audio.vTau)S.audio.vTau=pickVoice('tau'); E.save();
   const esc=s=>s.replace(/"/g,'&quot;');
   const opts=sel=>A.voices.map(v=>'<option value="'+esc(v.name)+'"'+(v.name===sel?' selected':'')+'>'+v.name+(v.lang?' · '+v.lang:'')+'</option>').join('');
-  host.innerHTML='<div class="vrow"><span class="vico">'+SIGMA_SVG+'</span>Sigma<select id="vSig">'+opts(S.audio.vSigma)+'</select></div>'
-    +'<div class="vrow"><span class="vico">'+BULL_SVG+'</span>Tau<select id="vTau">'+opts(S.audio.vTau)+'</select></div>'
+  host.innerHTML='<div class="vrow"><span class="vico">'+MAGE_SVG+'</span>Product<select id="vPro">'+opts(S.audio.vProduct)+'</select></div>'
+    +'<div class="vrow"><span class="vico">'+FIG.tauBull('happy')+'</span>Tau<select id="vTau">'+opts(S.audio.vTau)+'</select></div>'
     +'<button id="vTest" class="vtest">▶ test voices</button>';
-  document.getElementById('vSig').onchange=e=>{ S.audio.vSigma=e.target.value; E.save(); };
+  document.getElementById('vPro').onchange=e=>{ S.audio.vProduct=e.target.value; E.save(); };
   document.getElementById('vTau').onchange=e=>{ S.audio.vTau=e.target.value; E.save(); };
   document.getElementById('vTest').onclick=()=>{ const restore=S.audio.narr; S.audio.narr=true; const prev=speaker;
-    speaker='sigma'; E.say(E.lang==='zh'?'我是测绘师西格玛，年纪大了。':'I am Surveyor Sigma, old and weary.');
-    setTimeout(()=>{ speaker='tau'; E.say(E.lang==='zh'?'我是公牛陶！':'And I am Tau the bull!'); speaker=prev; S.audio.narr=restore; },1700); }; };
+    speaker='product'; E.say(E.lang==='zh'?'我是魔法师“乘”！':'I am Product, the multiplying magician!');
+    setTimeout(()=>{ speaker='tau'; E.say(E.lang==='zh'?'我是小牛陶！':'And I am Tau the calf!'); speaker=prev; S.audio.narr=restore; },1900); }; };
 
 /* ---------- companion ---------- */
 const BULL_SVG='<svg viewBox="0 0 100 100">'
@@ -116,8 +118,15 @@ const BULL_SVG='<svg viewBox="0 0 100 100">'
 +'<ellipse cx="46.6" cy="60" rx="1.2" ry="2" fill="#5a3f08"/><ellipse cx="53.4" cy="60" rx="1.2" ry="2" fill="#5a3f08"/>'
 +'<circle cx="50" cy="67" r="3" fill="none" stroke="#c89a1e" stroke-width="2"/></svg>';
 const SIGMA_SVG='<svg viewBox="0 0 100 100"><g stroke="#f4c830" stroke-linecap="round" stroke-linejoin="round"><path d="M31 36 C 31 26 40 21 50 21 C 60 21 69 26 69 36 Z" fill="#f4c830"/><path d="M23 37 Q 50 31 77 37" fill="none" stroke-width="3"/><rect x="32" y="32" width="36" height="5.4" fill="#121230"/><polyline points="54,32.8 46,32.8 50,35 46,37.4 54,37.4" fill="none" stroke-width="1.4"/><path d="M37 43 L46 45 L45 47 L37 45 Z" fill="#f4c830"/><path d="M63 43 L54 45 L55 47 L63 45 Z" fill="#f4c830"/><path d="M40 49 q 2.5 1.6 5 0" fill="none" stroke-width="2.2"/><path d="M55 49 q 2.5 1.6 5 0" fill="none" stroke-width="2.2"/><path d="M50 49 L50 56 Q50 58.5 52.5 57.2" fill="none" stroke-width="2.2"/><path d="M38 54 C 34 60 35 70 40 77 L44 72 L48 79 L52 72 L56 79 L60 77 C 65 70 66 60 62 54 C 57 61 43 61 38 54 Z" fill="#f4c830"/></g></svg>';
+const MAGE_SVG='<svg viewBox="0 0 100 100">'
++'<path d="M32 84 C32 62 50 58 50 58 C50 58 68 62 68 84 Z" fill="#f4c830" stroke="#c89a1e" stroke-width="1.6"/>'                                   // robe
++'<circle cx="50" cy="54" r="13" fill="#ffeec2" stroke="#c89a1e" stroke-width="1.6"/>'                                                             // face
++'<circle cx="45.5" cy="53" r="2.2" fill="#1a1726"/><circle cx="54.5" cy="53" r="2.2" fill="#1a1726"/>'                                            // eyes
++'<path d="M41 72 Q50 80 59 72 Q50 75 41 72 Z" fill="#fff7e6"/>'                                                                                   // beard
++'<path d="M29 42 Q50 39 71 42 Q60 18 65 9 Q47 26 29 42 Z" fill="#3a4f9e" stroke="#f4c830" stroke-width="2.2" stroke-linejoin="round"/>'           // hat
++'<rect x="27" y="38" width="46" height="6" rx="2" fill="#f4c830"/><circle cx="64" cy="11" r="3.2" fill="#fff7cf"/></svg>';                        // band + tip
 let companion,bubble,botEl;
-E.setSpeaker=w=>{ speaker=w; botEl.innerHTML = w==='sigma'?SIGMA_SVG:FIG.tauBull(companion.dataset.mood||'open'); };
+E.setSpeaker=w=>{ speaker=w; botEl.innerHTML = w==='sigma'?SIGMA_SVG : w==='product'?MAGE_SVG : FIG.tauBull(companion.dataset.mood||'open'); };
 E.mood=m=>{ companion.dataset.mood=m; if(speaker==='tau') botEl.innerHTML=FIG.tauBull(m); };
 E.cheer=()=>{ E.mood('happy'); companion.classList.add('cheer'); setTimeout(()=>companion.classList.remove('cheer'),320); };
 E.oops=()=>{ E.mood('sad'); companion.classList.remove('oops'); void companion.offsetWidth; companion.classList.add('oops'); };   // fail = sad face + shake
@@ -149,7 +158,7 @@ E.runCross=function(o){ // {target, reach, draw(b), msgs:{short,long}, onWin, re
 /* ---------- tray / status / dots / place ---------- */
 let tray,statusEl,dotsEl,kicker,placebanner;
 E.clearTray=()=>tray.innerHTML='';
-E.addBtn=(label,cls,fn)=>{ const b=document.createElement('button'); b.className='btn '+(cls||''); b.innerHTML=label; b.onclick=fn; tray.appendChild(b); return b; };
+E.addBtn=(label,cls,fn,dim)=>{ const b=document.createElement('button'); b.className='btn '+(cls||'')+(dim?' dim':''); b.innerHTML=label; b.onclick=fn; tray.appendChild(b); return b; };   // dim = locked/greyed (still clickable, fn can pop a hint)
 E.trayEl=()=>tray;
 E.status=html=>statusEl.innerHTML=html;
 E.setDots=n=>[...dotsEl.children].forEach((d,i)=>d.classList.toggle('on',i<n));
@@ -205,8 +214,8 @@ E.boot=function(QUEST){ E.QUEST=QUEST;
   // voice pickers (per-role system voices)
   const panel=set.querySelector('.panel'); if(panel && !$('voicePick')){ const vp=document.createElement('div'); vp.id='voicePick'; vp.className='voicepick'; panel.appendChild(vp); }
   A.loadVoices();
-  if(S.audio.vver!==3){ S.audio.vSigma=''; S.audio.vTau=''; S.audio.vver=3; }   // re-pick with current preferred-name defaults (Mark / Zira on PC)
-  if(!S.audio.vSigma)S.audio.vSigma=pickVoice('sigma'); if(!S.audio.vTau)S.audio.vTau=pickVoice('tau'); E.save(); E.fillVoicePickers();
+  if(S.audio.vver!==4){ S.audio.vSigma=''; S.audio.vProduct=''; S.audio.vTau=''; S.audio.vver=4; }   // re-pick with current preferred-name defaults (Product / Zira on PC)
+  if(!S.audio.vSigma)S.audio.vSigma=pickVoice('sigma'); if(!S.audio.vProduct)S.audio.vProduct=pickVoice('product'); if(!S.audio.vTau)S.audio.vTau=pickVoice('tau'); E.save(); E.fillVoicePickers();
   renderXP();
   // quest scroll → start (Tau is the giver now; Sigma appears later)
   E.setSpeaker('tau');
@@ -218,6 +227,8 @@ E.boot=function(QUEST){ E.QUEST=QUEST;
   T2('bkClose','✕ Close','✕ 关闭'); T2('bkReplay','↺ Replay','↺ 重玩'); T2('bkMap','▣ Map','▣ 地图');
   T2('bkNext','More quests soon ▶','更多任务即将到来 ▶'); T2('footTag','the MathO book, made playable','可游玩的 MathO 之书');
   if(cl) cl.textContent='📖 '+L('Codex','典籍');
+  const ml=$('mapLink'); if(ml){ ml.href=(E.lang==='zh'?'../world_zh.html':'../world.html');   // our own map icon (parchment + the golden thread from O), not the real-world map emoji
+    ml.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="2.5" fill="rgba(244,200,48,.1)" stroke="#caa94e" stroke-width="1.4"/><path d="M7 17 C 10 12 9 11 13 11 C 16 11 15 7.5 18 7.5" fill="none" stroke="#f4c830" stroke-width="1.5" stroke-dasharray="0.5 2.5" stroke-linecap="round"/><circle cx="7" cy="17" r="1.8" fill="#f4c830"/></svg><span>'+L('Map','地图')+'</span>'; }   // map reachable at every step
   if(QUEST.next){ const bn=$('bkNext'); if(bn){ bn.textContent=L('Next chapter ▶','下一章 ▶'); bn.onclick=()=>location.href='play.html?q='+QUEST.next+'&lang='+E.lang; } }   // lead into the next quest
   $('acceptQ').onclick=()=>{ $('scrim').classList.add('hide'); qtrack.classList.add('show'); A.ensure(); if(S.audio.music)E.bgmStart(); E.setSpeaker('tau'); E.start(); };
   // intro background scene

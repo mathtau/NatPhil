@@ -40,6 +40,17 @@ Kills the EN/ZH twin‑file problem and the per‑quest‑file explosion (1 app,
 - **Asset kit** `assets/art/`: animated gold **bull mount**, grass, drifting **fog**, NPC portraits (Sigma, Cara…), monsters (Pi‑the‑Halver, Fogwraiths), tiles (ledge/post/plank). SVG `<symbol>` sprite system; **per‑region palettes** (Cradle green → Coil → Cascade → Cipher).
 - Open decision: **pure SVG kit (I author)** vs **AI‑generated raster backgrounds + SVG sprites**. Recommend SVG‑first (crisp, tiny, themeable, on‑brand); raster only for lush backdrops if wanted.
 
+## Buttons & tray (UI convention — applies to every quest)
+**Fixed positions, never reflow.** A round renders the SAME set of buttons in the SAME order on every `refresh()`. A button not usable in the current state is **locked** (greyed via the `dim` flag), NOT removed or swapped — so nothing jumps around. Locked buttons stay clickable and pop a one‑line hint saying why (e.g. "↺ reshape first", "copy the row first"). Also keep each button's **label a fixed width**: don't change its text between states or the row re‑wraps and shifts — e.g. the copy button is always `✦ Product: copy ✦`, never `copy the row` → `copy again`.
+
+**Button types (same job → same look, across all quests).** Signature: `E.addBtn(label, type, fn, dim)` (`dim=true` greys it but keeps the click for the hint). Types live in `engine.css`:
+- `primary` — the forward/commit action: **Send the herd ▶**, **On to … ▶** (advance), **Claim the Codex 📖**. Gold fill.
+- `magic` — the magic action (**✦ Product: copy ✦**). Violet fill (matches the wizard).
+- `grass` / `wheat` — crop steppers (`+`/`−`); green / amber tint (a crop's `+` and `−` share its colour).
+- `p1`–`p4` — q01 plank steppers, coloured by value (blue / green / gold / orange).
+- `ghost` — secondary & navigation: **◀ Prev step**, **↻ Replay**, **‹ back**, **− a copy**, **↺ reshape the row**. Muted, no fill.
+- `on` — a selected/toggled choice (highlighted); `dim` — locked/greyed.
+
 ## Audio (free / CC0)
 - **SFX:** Kenney.nl (CC0, no attribution) — place‑plank click, success chime/“nom”, fail thud/fall, level‑up fanfare, bracket snap, UI tick.
 - **BGM:** CC0/CC‑BY ambient loops (Kenney music packs / Pixabay / Incompetech CC‑BY w/ credit); a calm per‑region loop.

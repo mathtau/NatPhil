@@ -2,7 +2,7 @@
    Hand-drawn look (wobbly strokes + Caveat font) is deliberate: it invites readers to draw their own.
    SVG (not canvas) so the page prints/exports to PDF crisply at any resolution. */
 (function(){
-const R='#e8402e', B='#2f74d0', G='#2faa4e', INK='#5a564c', AX='#6f6a5e';
+const R='#e8402e', B='#2f74d0', G='#2faa4e', INK='#5a564c', AX='#6f6a5e', DEP='#7c3fd4';   // R=horizontal, B=vertical, DEP(violet)=depth; G stays reserved for the product/total/area
 const COL={1:R,2:B,3:G};
 const rnd=()=>Math.random();
 /* hand-drawn primitives → SVG fragment strings (jitter baked once) */
@@ -22,8 +22,10 @@ const GOLD='#e0a83a';
 function sCell(x,y,c,col){ const d=((rnd()-.5)*3).toFixed(1); return '<g transform="translate('+(x+c/2)+' '+(y+c/2)+') rotate('+d+')"><rect x="'+(-c/2+1.5)+'" y="'+(-c/2+1.5)+'" width="'+(c-3)+'" height="'+(c-3)+'" rx="2.5" fill="'+col+'"/></g>'; }
 function sGrid(x,y,c,cols,rows,col){ let s=''; for(let r=0;r<rows;r++)for(let k=0;k<cols;k++) s+=sCell(x+k*c,y+r*c,c,col); return s; }
 function cEq(cx,cy,parts,sz){ sz=sz||18; let w=parts.reduce((a,p)=>a+p[0].length*sz*0.52,0), x=cx-w/2, s=''; parts.forEach(p=>{ const pw=p[0].length*sz*0.52; s+='<text x="'+(x+pw/2).toFixed(1)+'" y="'+cy+'" font-family="Caveat,cursive" font-size="'+sz+'" fill="'+p[1]+'" text-anchor="middle" dominant-baseline="middle">'+p[0]+'</text>'; x+=pw; }); return s; }
-function pbrace(x1,x2,y,label){ return sLine(x1,y+5,x1,y,INK,1.6)+sLine(x1,y,x2,y,INK,1.6)+sLine(x2,y,x2,y+5,INK,1.6)+sText(label,(x1+x2)/2,y-8,INK,13); }
-const FIGH={dots:48,bars:44,numline:52,commute:78,assoc:106, mjumps:88,marr:68,mrect:58,mrot:70,mdist:52,mgroups:104};   // each ≥ its lowest label so labels aren't clipped
+function pbrace(x1,x2,y,label,col){ col=col||INK; return sLine(x1,y+5,x1,y,col,1.6)+sLine(x1,y,x2,y,col,1.6)+sLine(x2,y,x2,y+5,col,1.6)+sText(label,(x1+x2)/2,y-8,col,13); }
+const FIGH={dots:48,bars:44,numline:52,commute:78,assoc:106, mjumps:88,marr:68,mintro:146,mrect:58,mrot:76,mdist:68,mgroups:98};   // each ≥ its lowest label so labels aren't clipped
+// measured content centre (getBBox) per figure; figSVG pans the 480-wide viewBox so EVERY figure is centred in its frame (re-measure if a figure's layout changes)
+const FIGCX={dots:183,bars:163,numline:240,commute:240,assoc:245, mjumps:243,marr:238,mintro:201,mrect:249,mrot:225,mdist:156,mgroups:246};
 const FIGS={
   dots(){ const s=24,y=30; return sBox(74,y,s,B)+sText('+',106,y,INK,30)
     +sBox(134,y,s,B)+sBox(166,y,s,B)+sText('=',198,y,INK,30)
@@ -38,7 +40,41 @@ const FIGS={
   // ---- multiplication = area (p7 / Quest 2) ----
   marr(){ const c=20,ox=192,oy=4; return sGrid(ox,oy,c,3,2,'#2f74d0')+cEq(240,oy+2*c+16,[['2',R],[' × ',INK],['3',B],[' = ',INK],['6',G]],18); },
   mrect(){ const c=22,ox=200,oy=4; return sGrid(ox,oy,c,3,2,G)+sText('2',ox-12,oy+c,R,16)+sText('3',ox+1.5*c,oy-9,B,16)+cEq(ox+3*c+34,oy+c,[['= 6',G]],18); },
-  mrot(){ const c=18; return sGrid(150,8,c,3,2,G)+sText('=',250,8+c,INK,26)+sGrid(296,8,c,2,3,G); },
+  // 2×2 flow at ONE scale:  ① 3+3 on a line  →  ② two lines of 3  →  ③ add a vertical (y) line so it reads 2×3  →  ④ fill it into blocks.
+  // Colour convention: RED = horizontal (columns / across), BLUE = vertical (rows / up). Columns sit on the bottom throughout.
+  mintro(){ const u=20, xL=30, xR=280;
+    const jump=(xa,xb,y)=>{ const m=(xa+xb)/2;   // a +3 hop is a horizontal move → red (kept low so stacked rows don't collide)
+      return '<path d="M'+xa+' '+(y-3)+' Q '+m+' '+(y-17)+' '+(xb-1)+' '+(y-4)+'" fill="none" stroke="'+R+'" stroke-width="2"/>'
+           +'<path d="M'+(xb-6)+' '+(y-8)+' L'+(xb-1)+' '+(y-4)+' L'+(xb-8)+' '+(y-2)+'" fill="none" stroke="'+R+'" stroke-width="1.6"/>'
+           +sText('+3',m,y-13,R,12); };
+    const line3=(x0,y)=>{ let s=sLine(x0-6,y,x0+3*u+8,y,AX,1.5); for(let i=0;i<=3;i++) s+=sLine(x0+i*u,y-3,x0+i*u,y+3,AX,1.3);   // a horizontal number line of 3, with its red hop
+      return s+jump(x0,x0+3*u,y)+sText('3',x0+3*u+12,y,R,14); };
+    // ① TOP-LEFT — 3 + 3 walked out on one line
+    let s=sAxis(xL,u,6,40)+jump(xL,xL+3*u,40)+jump(xL+3*u,xL+6*u,40)
+      +cEq(xL+6*u+46,40,[['3 + 3',R],[' = ',INK],['6',G]],16);
+    // ② TOP-RIGHT — the very same, drawn as TWO lines of 3, one above the other
+    s+=line3(xR,28)+line3(xR,52); for(let i=0;i<=3;i++) s+=sText(i,xR+i*u,52+13,R,12);   // 0..3 columns (red) under the lower line
+    // ③ BOTTOM-LEFT — the same two lines, plus a vertical (blue) line that counts the rows → it reads 2 × 3
+    const yb=120;
+    s+=sLine(xL,yb,xL,yb-2*u,B,1.6); for(let j=0;j<=2;j++) s+=sLine(xL-3,yb-j*u,xL+3,yb-j*u,B,1.4)+sText(j,xL-12,yb-j*u,B,13);   // y line = rows (blue)
+    s+=line3(xL,yb)+line3(xL,yb-u);                                            // the two red lines of 3, with their hops on rows 0 and 1
+    for(let i=0;i<=3;i++) s+=sText(i,xL+i*u,yb+13,R,13);                        // columns (red) along the bottom (the row-0 line)
+    s+=cEq(xL+3*u+84,yb-u,[['2',B],[' × ',INK],['3',R],[' = ',INK],['6',G]],16);   // bigger gap before the equation
+    // ④ BOTTOM-RIGHT — fill it: the 2 × 3 blocks; columns (red) on the bottom, rows (blue) on the left
+    const y4=yb-2*u; s+=sGrid(xR,y4,u,3,2,G)
+      +sLine(xR,y4,xR,yb,B,3.2)+sText('2',xR-12,y4+u,B,15)                       // rows = 2 (blue, left = vertical)
+      +sLine(xR,yb,xR+3*u,yb,R,3.2)+sText('3',xR+1.5*u,yb+14,R,15)               // columns = 3 (red, bottom = horizontal)
+      +cEq(xR+3*u+34,y4+u,[['= 6',G]],17);
+    return s; },
+  mrot(){ const c=17, y=8;   // turn the rectangle a quarter: 3×2 → 2×3. RED = columns (bottom), BLUE = rows (left).
+    let s=sGrid(150,y,c,3,2,G)
+      +sLine(150,y+2*c,150+3*c,y+2*c,R,3)+sText('3',150+1.5*c,y+2*c+12,R,15)
+      +sLine(150,y,150,y+2*c,B,3)+sText('2',150-11,y+c,B,15);
+    s+=sText('=',244,y+1.5*c,INK,24);
+    s+=sGrid(280,y,c,2,3,G)
+      +sLine(280,y+3*c,280+2*c,y+3*c,R,3)+sText('2',280+c,y+3*c+12,R,15)
+      +sLine(280,y,280,y+3*c,B,3)+sText('3',280-11,y+1.5*c,B,15);
+    return s; },
   // repeated addition on the number line → multiplication (leads in from p1's addition)
   mjumps(){ const x0=74,u=56,y=46; let s=sAxis(x0,u,6,y);
     for(let k=0;k<3;k++){ const xa=x0+k*2*u, xb=x0+(k+1)*2*u, mid=(xa+xb)/2;
@@ -46,35 +82,72 @@ const FIGS={
       s+='<path d="M'+(xb-7)+' '+(y-9)+' L'+(xb-1)+' '+(y-4)+' L'+(xb-9)+' '+(y-2)+'" fill="none" stroke="'+B+'" stroke-width="2"/>';   // arrowhead
       s+=sText('+2',mid,y-24,B,15); }
     return s+cEq(x0+3*u,y+30,[['2 + 2 + 2',B],[' = ',INK],['3',R],['×',INK],['2',B],[' = ',INK],['6',G]],17); },
-  // distributive: shapes in the SAME order as the equation a×(b+c) = a×b + a×c
-  mdist(){ const c=18,oy=8, gb=2, gc=3;
-    let s=sGrid(56,oy,c,gb,2,G)+sGrid(56+gb*c,oy,c,gc,2,GOLD);                       // one field a×(b+c)
-    s+=sText('=',56+(gb+gc)*c+16,oy+c,INK,22);
-    const rx=56+(gb+gc)*c+34;
-    return s+sGrid(rx,oy,c,gb,2,G)+sText('+',rx+gb*c+9,oy+c,INK,22)+sGrid(rx+gb*c+20,oy,c,gc,2,GOLD); },   // a×b + a×c
-  // associative: three factors make a 3D box (volume); group it either way, same 24
-  mgroups(){ const ux=24,dy=19,zx=13,zy=-9, W=3,H=2,D=4, ox=150,oy=40;
-    const X=(i,k)=>ox+i*ux+k*zx, Y=(j,k)=>oy+j*dy+k*zy, pt=(i,j,k)=>X(i,k).toFixed(1)+' '+Y(j,k).toFixed(1);
-    const poly=(p,f)=>'<polygon points="'+p.map(q=>pt(q[0],q[1],q[2])).join(' ')+'" fill="'+f+'" stroke="#46423c" stroke-width="1.4" stroke-linejoin="round"/>';
-    const ln=(a,b)=>'<line x1="'+X(a[0],a[2]).toFixed(1)+'" y1="'+Y(a[1],a[2]).toFixed(1)+'" x2="'+X(b[0],b[2]).toFixed(1)+'" y2="'+Y(b[1],b[2]).toFixed(1)+'" stroke="#46423c" stroke-width="1" opacity=".45"/>';
-    let s=poly([[0,0,0],[W,0,0],[W,0,D],[0,0,D]],'rgba(120,225,165,.5)')          // top
-         +poly([[W,0,0],[W,H,0],[W,H,D],[W,0,D]],'rgba(50,150,80,.6)')            // right
-         +poly([[0,0,0],[W,0,0],[W,H,0],[0,H,0]],'rgba(95,205,140,.85)');         // front
-    for(let i=1;i<W;i++) s+=ln([i,0,0],[i,H,0]); for(let j=1;j<H;j++) s+=ln([0,j,0],[W,j,0]);   // front grid
-    for(let k=1;k<D;k++) s+=ln([W,0,k],[W,H,k]); for(let j=1;j<H;j++) s+=ln([W,j,0],[W,j,D]);   // right grid
-    for(let i=1;i<W;i++) s+=ln([i,0,0],[i,0,D]); for(let k=1;k<D;k++) s+=ln([0,0,k],[W,0,k]);   // top grid
-    s+=sText('3',(X(0,0)+X(W,0))/2,Y(H,0)+15,B,18)+sText('2',X(0,0)-11,(Y(0,0)+Y(H,0))/2,R,18)+sText('4',(X(W,0)+X(W,D))/2+9,(Y(0,0)+Y(0,D))/2-4,G,18);
-    return s+cEq(X(W,D)+54,Y(H,0)-4,[['= 24',G]],20); }
+  // distributive — APART = TOGETHER (same order as the game): two rectangles slide together into one wider field
+  mdist(){ const c=18,oy=8, gb=2, gc=3, gw=gb*c, cw=gc*c, by=oy+2*c+6;   // widths (horizontal) bracketed in RED; heights (vertical) drawn top→bottom in BLUE
+    const bb=(x1,x2,lab)=>sLine(x1,by-5,x1,by,R,1.6)+sLine(x1,by,x2,by,R,1.6)+sLine(x2,by,x2,by-5,R,1.6)+sText(lab,(x1+x2)/2,by+11,R,13);   // bottom width bracket (legs up, label below)
+    const ht=(x)=>sLine(x,oy,x,oy+2*c,B,2.6)+sText('2',x-11,oy+c,B,13);   // left height line + 2
+    const gX=34, plusX=gX+gw+10, wX=gX+gw+32;                                        // LEFT: 2×2 grass  +  2×3 wheat
+    let s=sGrid(gX,oy,c,gb,2,G)+ht(gX)+bb(gX,gX+gw,'2')
+         +sText('+',plusX,oy+c,INK,22)
+         +sGrid(wX,oy,c,gc,2,GOLD)+ht(wX)+bb(wX,wX+cw,'3');   // gold box gets its vertical 2 too
+    const eqX=wX+cw+16; s+=sText('=',eqX,oy+c,INK,22);
+    const rx=eqX+30;                                                                // RIGHT: one field, 2 tall × (2+3) wide — gap after the equals sign
+    return s+sGrid(rx,oy,c,gb,2,G)+sGrid(rx+gw,oy,c,gc,2,GOLD)+ht(rx)+bb(rx,rx+gw+cw,'2+3'); },
+  // associative: the SAME 24-block box, grouped two ways — (2×3)×4 and 2×(3×4). Each edge is coloured like its number (2=red, 3=blue, 4=green).
+  mgroups(){ const ux=18,dy=12,zx=10,zy=-6;
+    const mkbox=(ox,oy,W,H,D,cW,cH,cD,lw,lh,ld)=>{
+      const X=(i,k)=>ox+i*ux+k*zx, Y=(j,k)=>oy+j*dy+k*zy, pt=(i,j,k)=>X(i,k).toFixed(1)+' '+Y(j,k).toFixed(1);
+      const poly=(p,f)=>'<polygon points="'+p.map(q=>pt(q[0],q[1],q[2])).join(' ')+'" fill="'+f+'" stroke="#46423c" stroke-width="1.3" stroke-linejoin="round"/>';
+      const gl=(a,b)=>'<line x1="'+X(a[0],a[2]).toFixed(1)+'" y1="'+Y(a[1],a[2]).toFixed(1)+'" x2="'+X(b[0],b[2]).toFixed(1)+'" y2="'+Y(b[1],b[2]).toFixed(1)+'" stroke="#46423c" stroke-width=".9" opacity=".4"/>';
+      const edge=(a,b,c)=>sLine(X(a[0],a[2]),Y(a[1],a[2]),X(b[0],b[2]),Y(b[1],b[2]),c,3.4);
+      let s=poly([[0,0,0],[W,0,0],[W,0,D],[0,0,D]],'rgba(120,225,165,.5)')        // top
+           +poly([[W,0,0],[W,H,0],[W,H,D],[W,0,D]],'rgba(50,150,80,.55)')          // right
+           +poly([[0,0,0],[W,0,0],[W,H,0],[0,H,0]],'rgba(95,205,140,.85)');        // front
+      for(let i=1;i<W;i++) s+=gl([i,0,0],[i,H,0]); for(let j=1;j<H;j++) s+=gl([0,j,0],[W,j,0]);
+      for(let k=1;k<D;k++) s+=gl([W,0,k],[W,H,k]); for(let j=1;j<H;j++) s+=gl([W,j,0],[W,j,D]);
+      for(let i=1;i<W;i++) s+=gl([i,0,0],[i,0,D]); for(let k=1;k<D;k++) s+=gl([0,0,k],[W,0,k]);
+      s+=edge([0,H,0],[W,H,0],cW)+edge([0,0,0],[0,H,0],cH)+edge([W,0,0],[W,0,D],cD);   // coloured edges: width / height / depth
+      s+=sText(lw,(X(0,0)+X(W,0))/2,Y(H,0)+13,cW,17)                  // width — front bottom
+        +sText(lh,X(0,0)-12,(Y(0,0)+Y(H,0))/2,cH,17)                  // height — front left
+        +sText(ld,X(W,D)+11,Y(0,D)-2,cD,17);    // depth — at the far (back) top-right corner, out on the margin
+      return s; };
+    // LEFT: group the 3×2 front face first → (2 × 3) × 4
+    let s=mkbox(72,52, 3,2,4, R,B,DEP, '3','2','4')+cEq(72+3*ux+4*zx+26,52+2*dy-4,[['= 24',G]],17);   // (2×3): 3 cols=red(bottom), 2 rows=blue(left), 4 depth=violet
+    // RIGHT: group the 3×4 front face first → 2 × (3 × 4). (3×4): 3 ROWS=blue(left, vertical), 4 COLS=red(bottom, horizontal), 2 depth=violet
+    s+=mkbox(300,40, 4,3,2, R,B,DEP, '4','3','2')+cEq(300+4*ux+2*zx+26,40+3*dy-4,[['= 24',G]],17);
+    return s; }
 };
-function figSVG(name){ const W=480,H=FIGH[name]||70; return '<svg class="bkfig" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">'+FIGS[name]()+'</svg>'; }
+function figSVG(name){ const W=480,H=FIGH[name]||70, cx=FIGCX[name]||240; return '<svg class="bkfig" width="544" height="'+(544*H/W).toFixed(1)+'" viewBox="'+(cx-240).toFixed(0)+' 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">'+FIGS[name]()+'</svg>'; }   // pan viewBox to centre content; explicit width/height so it sizes even if page CSS is missing (PNG/PDF export)
 function colorEq(s){ return s.replace(/\d/g,d=>'<span style="color:'+(COL[+d]||INK)+'">'+d+'</span>'); }
 
 const BOOK={};
 /* ---- PNG export: rasterize the page (SVG figures + text) via an <svg><foreignObject> snapshot ---- */
 function ab2b64(buf){ let s='',a=new Uint8Array(buf); for(let i=0;i<a.length;i++) s+=String.fromCharCode(a[i]); return btoa(s); }
-function pageCSS(){ let out=''; const want=['.page','.bkh','.kick','.ttl','.bkrow','.bkfig','.bklaw','.bkeq','.bknote','.corner','.mathtau','.pno','.q','.len'];
-  for(const ss of document.styleSheets){ let rules; try{ rules=ss.cssRules; }catch(_){ continue; } if(!rules) continue;
-    for(const r of rules){ if(r.selectorText && want.some(w=>r.selectorText.indexOf(w)>=0)) out+=r.cssText+'\n'; } } return out; }
+/* Page CSS embedded for export. We do NOT scrape document.styleSheets: reading cssRules of the external
+   engine.css throws a SecurityError in the file:// / webview context, so the scrape returned '' and the
+   PNG/PDF came out completely unstyled (giant brand mark, plain text). This mirrors engine.css's .page block
+   (rem → px so it doesn't depend on a root font-size that the foreignObject doesn't have). */
+const PAGE_CSS=`
+.page{position:relative;width:100%;max-width:580px;margin:auto;min-height:calc(580px * 297 / 210);background:#fdfcf6;color:#23201a;border-radius:4px;padding:10px 12px 12px;font-family:'Patrick Hand','Segoe Print','Bradley Hand','Ma Shan Zheng','KaiTi','STKaiti','Segoe UI',sans-serif;font-size:16px;line-height:1.28;}
+.page .corner{position:absolute;top:0;left:0;border-width:0 0 26px 26px;border-style:solid;border-color:transparent transparent transparent #d4b24a;opacity:.8;}
+.page .pno{position:absolute;bottom:12px;right:20px;font-family:'Caveat','Segoe Print','Bradley Hand','Ma Shan Zheng','KaiTi','STKaiti',cursive;font-size:19px;color:#9a958a;}
+.page .mathtau{position:absolute;top:13px;right:18px;display:flex;align-items:center;gap:6px;}
+.page .mathtau svg{width:24px;height:24px;}
+.page .mathtau span{font-family:'Playfair Display',Georgia,serif;font-weight:600;font-size:16px;color:#a8780f;}
+.bkh{margin:1px 0 5px;}
+.bkh .kick{font-family:'Caveat','Segoe Print','Bradley Hand','Ma Shan Zheng','KaiTi','STKaiti',cursive;font-size:24px;color:#3a3630;line-height:1;}
+.bkh .ttl{font-family:'Caveat','Segoe Print','Bradley Hand','Ma Shan Zheng','KaiTi','STKaiti',cursive;font-weight:700;font-size:35px;color:#1a1712;line-height:1;margin-top:-2px;}
+.bkrow{border-top:1px solid #e7e3d6;padding-top:2px;margin-top:2px;}
+.bkrow:first-of-type{border-top:none;}
+.bkrow p{margin:0 0 2px;}
+.bkfig{display:block;width:100%;max-width:544px;height:auto;margin:1px auto 3px;}
+.bklaw{font-family:'Caveat','Segoe Print','Bradley Hand','Ma Shan Zheng','KaiTi','STKaiti',cursive;font-weight:700;font-size:22px;}
+.bkeq{font-family:'Caveat','Segoe Print','Bradley Hand','Ma Shan Zheng','KaiTi','STKaiti',cursive;font-size:24px;letter-spacing:.02em;}
+.q{color:#2f74d0;font-weight:bold;}.len{color:#e8402e;font-weight:bold;}
+.r{color:#e8402e}.b{color:#2f74d0}.gr{color:#2faa4e}.p{color:#7c3fd4}
+.bknote{margin-top:5px;background:#fbf7e4;border:1px solid #e9dab0;border-left:4px solid #f0c419;border-radius:6px;padding:6px 10px;font-size:14px;color:#4a4436;}
+.bknote b{color:#b5860b;}`;
+function pageCSS(){ return PAGE_CSS; }
 async function embedFont(url){ try{ const css=await fetch(url).then(r=>r.text());
     if(!/@font-face/.test(css)) return '';                                   // not real CSS (error page) → skip, don't corrupt the SVG
     const urls=[...css.matchAll(/url\((https:[^)]+\.woff2)\)/g)].map(m=>m[1]); const map={};
@@ -87,11 +160,21 @@ async function fontCSS(text){   // embed Caveat + Patrick Hand + Ma Shan Zheng, 
   const cn=[...new Set((text||'').replace(/[^一-鿿]/g,''))].join('');
   if(cn) out+=await embedFont('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&text='+encodeURIComponent(cn));
   return out; }
+/* Register the bundled @font-face fonts in the document and AWAIT them before rasterizing.
+   Without this, an SVG-as-<img> often paints before its embedded font is decoded → fallback font in the export. */
+async function ensureFonts(css){
+  if(!css || typeof document==='undefined' || !document.fonts || !window.FontFace) return;
+  const re=/@font-face\{font-family:'([^']+)';font-style:normal;font-weight:(\d+);src:(url\(data:[^)]+\)\s*format\('woff2'\))/g;
+  let m, ps=[];
+  while((m=re.exec(css))){ try{ const ff=new FontFace(m[1], m[3], {weight:m[2], style:'normal'}); document.fonts.add(ff); ps.push(ff.load()); }catch(_){ } }
+  try{ await Promise.all(ps); await document.fonts.ready; }catch(_){ }
+}
 BOOK._renderCanvas=async function(pageEl, scale){ scale=scale||2;
   const W=pageEl.offsetWidth, H=pageEl.offsetHeight;          // border-box incl. padding (scrollWidth clipped the padded edge)
   const clone=pageEl.cloneNode(true); clone.style.boxShadow='none'; clone.style.margin='0'; clone.style.width=W+'px';
   const xml=new XMLSerializer().serializeToString(clone);
-  const fc=BOOK._noFonts?'':(await fontCSS(pageEl.textContent).catch(()=>''));
+  const fc=BOOK._noFonts?'':((typeof window!=='undefined'&&window.BOOK_FONTS)||await fontCSS(pageEl.textContent).catch(()=>''));   // prefer the bundled base64 fonts (exact match, no blocked fetch); fall back to runtime embed
+  await ensureFonts(fc);   // decode the fonts into the document first, so the SVG paints with them (not a fallback)
   const mk=fonts=>'data:image/svg+xml;charset=utf-8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'"><foreignObject x="0" y="0" width="'+W+'" height="'+H+'"><div xmlns="http://www.w3.org/1999/xhtml"><style>*{box-sizing:border-box;margin:0;padding:0;}'+fonts+pageCSS()+'</style>'+xml+'</div></foreignObject></svg>');
   const load=src=>new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=rej; im.src=src; });
   let img; try{ img=await load(mk(fc)); }catch(_){ img=await load(mk('')); }   // if embedded fonts make the data-URI too big/broken, fall back to system fonts
@@ -125,12 +208,12 @@ BOOK.savePDF=async function(pageEl){ try{ const bytes=await BOOK._pdfBytes(pageE
   const a=document.createElement('a'); a.href=url; a.download='origo-addition-p'+(BOOK._page||1)+'.pdf'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),3000); }catch(e){ alert('PDF export failed: '+e.message); } };
 BOOK.render=function(host, spec, lang){ BOOK._page=spec.page;
   const t=s=> (s&&typeof s==='object')?(s[lang]||s.en||''):(s||'');
-  const mark='<div class="mathtau"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="19" fill="#15153a"/><circle cx="20" cy="20" r="14.5" fill="none" stroke="#f0c040" stroke-width=".8" opacity=".45"/><circle cx="20" cy="20" r="9.5" fill="none" stroke="#f0c040" stroke-width="1.3"/><text x="20" y="27" font-family="Georgia,serif" font-style="italic" font-size="18" fill="#f0c040" text-anchor="middle">τ</text></svg><span>MathTau</span></div>';
+  const mark='<div class="mathtau"><svg width="24" height="24" viewBox="0 0 40 40"><circle cx="20" cy="20" r="19" fill="#15153a"/><circle cx="20" cy="20" r="14.5" fill="none" stroke="#f0c040" stroke-width=".8" opacity=".45"/><circle cx="20" cy="20" r="9.5" fill="none" stroke="#f0c040" stroke-width="1.3"/><text x="20" y="27" font-family="Georgia,serif" font-style="italic" font-size="18" fill="#f0c040" text-anchor="middle">τ</text></svg><span>MathTau</span></div>';
   let h='<div class="corner"></div>'+mark+'<div class="pno">'+(lang==='zh'?spec.page:'p.'+spec.page)+'</div>';
   h+='<div class="bkh"><div class="kick">'+t(spec.kicker)+'</div><div class="ttl">'+t(spec.title)+'</div></div>';
   spec.blocks.forEach(b=>{ h+='<div class="bkrow">';
     if(b.top && b.fig) h+=figSVG(b.fig);
-    if(b.law) h+='<div class="bklaw">'+t(b.law)+(b.eq?' &nbsp;<span class="bkeq">'+colorEq(b.eq)+'</span>':'')+'</div>';
+    if(b.law) h+='<div class="bklaw">'+t(b.law)+(b.eq?' &nbsp;<span class="bkeq">'+(b.eq.indexOf('<')>=0?b.eq:colorEq(b.eq))+'</span>':'')+'</div>';   // pre-coloured eq (with spans) passes through; plain eq gets value-based colorEq
     if(b.prose) h+='<p>'+t(b.prose)+'</p>';
     if(!b.top && b.fig) h+=figSVG(b.fig);
     if(b.note) h+='<div class="bknote">'+t(b.note)+'</div>';

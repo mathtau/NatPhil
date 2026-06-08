@@ -19,6 +19,13 @@
   svg{ width:100%; height:auto; display:block; }
   .foot{ margin-top:14px; font-family:'IBM Plex Mono','PingFang SC',monospace; font-size:.78rem; color:#8a8a68; text-align:center; }
   .foot a{ color:#40c8f0; text-decoration:none; } .foot a:hover{ color:#f4c830; }
+  .quests{ width:100%; max-width:560px; margin:18px auto 0; display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+  .quests h6{ width:100%; text-align:center; font-family:'IBM Plex Mono',monospace; font-size:.72rem; letter-spacing:.14em; color:#8a8a68; margin-bottom:4px; font-weight:400; }
+  .quests a,.quests span{ font-family:'IBM Plex Mono',monospace; font-size:.84rem; text-decoration:none; border-radius:9px; padding:8px 13px; border:1px solid; transition:.15s; }
+  .quests a{ color:#f4c830; border-color:rgba(244,200,48,.45); background:rgba(244,200,48,.06); }
+  .quests a:hover{ background:rgba(244,200,48,.16); transform:translateY(-1px); }
+  .quests a.cleared{ color:#50d890; border-color:rgba(80,216,144,.4); background:rgba(80,216,144,.06); }
+  .quests span.lock{ color:#6a6a8a; border-color:#33334e; }
   a.node{ cursor:pointer; } a.node:hover .card{ filter:brightness(1.12); }
   .nm{ font-family:'Playfair Display','PingFang SC',serif; }
   .mono{ font-family:'IBM Plex Mono','PingFang SC',monospace; }
@@ -137,6 +144,8 @@
   </svg>
   </div>
 
+  <nav class="quests" id="questNav"></nav>
+
   <div class="foot" id="legend">✦ 已通关 &nbsp;·&nbsp; ▶ 开放 &nbsp;·&nbsp; 🔒 迷雾中 &nbsp;—&nbsp; <a href="index_zh.html">mathtau.com</a></div>
 
 <script>
@@ -146,6 +155,21 @@
       const fog=document.getElementById('foglayer'); fog.setAttribute('transform','translate(0,-120)'); fog.setAttribute('opacity','.82');
     }
   }catch(e){}
+
+  // 回到已解锁的任务（q01 始终开放；前一关通关后下一关解锁）
+  (function(){
+    const CATALOG=[ {n:'01',t:'加法'}, {n:'02',t:'乘法'} ];
+    let dn={}; try{ dn=(JSON.parse(localStorage.getItem('origo')||'{}').quests)||{}; }catch(e){}
+    let h='<h6>↩ 回到任务</h6>';
+    CATALOG.forEach(function(q,i){
+      const cleared=dn['q'+q.n]==='done';
+      const unlocked = i===0 || dn['q'+CATALOG[i-1].n]==='done' || !!dn['q'+q.n];
+      h+= unlocked
+        ? '<a class="'+(cleared?'cleared':'')+'" href="origo/play.html?q='+q.n+'&lang=zh">'+(cleared?'✦':'▶')+' '+q.t+'</a>'
+        : '<span class="lock">🔒 '+q.t+'</span>';
+    });
+    document.getElementById('questNav').innerHTML=h;
+  })();
 </script>
 </body>
 </html>
