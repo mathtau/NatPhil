@@ -74,6 +74,8 @@ canvas{ width:100%; height:auto; display:block; border-radius:8px; }
 .btn.wheat:hover{ border-color:#f0c24a; color:#ffe0a0; }
 .btn.ghost{ color:var(--muted); border-color:var(--border); background:transparent; }             /* secondary / navigation (back, replay, undo, reshape) */
 .btn.ghost:hover{ color:var(--text); border-color:var(--muted); }
+.btn.choice{ color:#cfe0ff; border-color:#3a5a8a; background:rgba(40,70,130,.22); }                /* a multiple-choice answer — all answers look identical (never telegraph the right one) */
+.btn.choice:hover{ color:#eaf2ff; border-color:#5a82c0; background:rgba(56,92,160,.34); }
 
 .foot{ margin-top:16px; font-family:'IBM Plex Mono',monospace; font-size:.95rem; color:var(--muted); text-align:center; display:flex; gap:6px; align-items:center; justify-content:center; flex-wrap:wrap; }
 .foot a{ color:var(--cyan); text-decoration:none; display:inline-flex; align-items:center; gap:5px; padding:5px 9px; border-radius:8px; border:1px solid transparent; } .foot a:hover{ color:var(--gold); background:rgba(244,200,48,.08); border-color:rgba(244,200,48,.25); }
@@ -147,8 +149,9 @@ html[lang="zh"] .flavor, html[lang="zh"] .placebanner, html[lang="zh"] em, html[
 @media(max-width:520px){ .top h1{font-size:1.3rem} .bubble{font-size:1.05rem} .bot{width:52px;height:52px} }
 
 /* ===== Codex / reclaimed book page (book.js renders into #codexBody; this is the frame) ===== */
-.codex{ position:fixed; inset:0; z-index:55; display:none; align-items:center; justify-content:center; padding:22px;
-  background:rgba(6,6,16,.86); backdrop-filter:blur(4px); overflow-y:auto; }
+.codex{ position:fixed; inset:0; z-index:55; display:none; align-items:center; align-items:safe center; justify-content:center; padding:22px;
+  background:rgba(6,6,16,.86); backdrop-filter:blur(4px); overflow-y:auto; -webkit-overflow-scrolling:touch; }
+@media(max-width:520px){ .codex{ padding:10px 8px; } }   /* phone: a tall page must stay scrollable from the very top (safe center), with tighter gutters */
 .codex.show{ display:flex; animation:fadein .4s ease; }
 @keyframes fadein{ from{opacity:0} to{opacity:1} }
 /* white BOOK paper, faithful to MathO p6; book.js renders the blocks + hand-drawn figures */

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>ORIGO · Q3 Codex preview — Give Numbers Names</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Patrick+Hand&family=Playfair+Display:wght@600;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="engine.css?v=202606096b">
+<style>
+  body{ background:#15152a; margin:0; padding:18px 10px 60px; display:flex; flex-direction:column; align-items:center; gap:14px; }
+  .bar{ font-family:'IBM Plex Mono',monospace; display:flex; gap:8px; }
+  .bar button{ font-family:inherit; font-size:.9rem; padding:8px 16px; border-radius:9px; cursor:pointer;
+    background:#2a2210; color:#f4e4b0; border:1px solid #6a5320; }
+  .bar button.on{ background:linear-gradient(#f4c830,#c89a1e); color:#2a1f06; border:none; font-weight:600; }
+  .note{ font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:#8a8aa0; max-width:560px; text-align:center; }
+</style>
+</head>
+<body>
+  <div class="bar"><button id="bEn" class="on">EN</button><button id="bZh">中文</button></div>
+  <div class="page" id="bookpage"></div>
+  <div class="note">Q3 draft preview. Reflects the live book.js figures. (ZH prose not written yet — the 中文 button currently falls back to the English text.)</div>
+
+<script src="bookfonts.js?v=202606096"></script>
+<script src="book.js?v=202606096"></script>
+<script>
+const SPEC = { page:3, kicker:{en:'Introduction',zh:'入门之'}, title:{en:'Give Numbers Names',zh:'给数起名字'},
+  blocks:[
+    {top:true, fig:'gnname', prose:{en:'A number is easy to work with once you can count it. But what about an amount you cannot count yet? Give it a <b>name</b>: a letter such as <b>x</b>. Now you can reason about it before you know its size, and fill the value in later. The same name always means the same number; a different amount gets a different letter (a, b, c).'}},
+    {law:{en:'Write it short: 5x'}, eq:'5 × <span class="b">x</span> = 5<span class="b">x</span>', fig:'gjux', prose:{en:'Now write with the name. Five of them, x + x + x + x + x, is <b>5x</b>: the number goes in front, and we drop the times-sign because <b>×</b> is the twin of the letter <b>x</b>. Two names together, <b>a × b</b>, become <b>ab</b>, and <b>x</b> on its own means <b>1x</b>.'}},
+    {law:{en:'Fill it in'}, eq:'<span class="b">x</span> = 4,&nbsp; 5<span class="b">x</span> = <span class="gr">20</span>', fig:'gfill', prose:{en:'A name is a slot you fill. Put a value in and read the number back: if <b>x = 4</b>, then <b>5x = 5 × 4 = 20</b>. One line of working now serves every value you choose.'}},
+    {law:{en:'One line for every number'}, eq:'<span class="b">ab</span> = <span class="b">ba</span>', fig:'glaw', prose:{en:'And the prize: a name can speak for <b>every</b> number at once. The laws you proved by counting hold whatever the numbers are: <b>ab = ba</b>, and <b>a(b+c) = ab + ac</b>.'}},
+    {note:{en:'<b>Next.</b> Give two sides the names <b>a</b> and <b>b</b>, and a whole field becomes one rule: its area is <b>ab</b>.'}}
+  ],
+  read:{en:'A letter is a name for a number you haven’t filled in. Write 5x for five of them; fill in a value to read the answer; and one line of letters can speak for every number.'} };
+function show(lang){ BOOK.render(document.getElementById('bookpage'), SPEC, lang);
+  document.getElementById('bEn').classList.toggle('on', lang==='en');
+  document.getElementById('bZh').classList.toggle('on', lang==='zh'); }
+document.getElementById('bEn').onclick=()=>show('en');
+document.getElementById('bZh').onclick=()=>show('zh');
+show('en');
+</script>
+</body>
+</html>

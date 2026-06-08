@@ -228,7 +228,7 @@ function gfield(b,c,a,g,w,copies,opt){ opt=opt||{}; bg(); const ctx=E.ctx,LW=E.L
   wall(ctx, ox+bc*cell, oy-3, gh+6);                  // outer wall — the field's width; tiles past it fall on rock
   if(b>0&&c>0) wall(ctx, ox+b*cell, oy-3, gh+6);      // grass ends here — move on to wheat
   label(ox+bc*cell/2,oy-12, (b>0&&c>0)? g+'+'+w : (c>0? ''+w : ''+g), FIG.C.text);
-  vlabel(ref? ox+bc*cell+16 : ox-14, oy+gh/2, copies);
+  for(let r=0;r<copies;r++) vlabel(ref? ox+bc*cell+16 : ox-16, rowY(r)+cell/2, r+1);   // a row number per copied row, down the LEFT — tallies 积's copies (rows = how many times Product copied)
   return {cell,centers}; }
 // a 5-point sparkle star
 function star(ctx,cx,cy,r,col){ if(r<=0)return; ctx.save(); ctx.fillStyle=col; ctx.beginPath();
@@ -350,7 +350,7 @@ function round3(E){ const a=rnd(2,3), b=rnd(2,3), c=rnd(2,3); const T=a*(b+c), g
 }
 
 const QUEST = {
-  id:'q02', page:7, region:'cradle', bgm:'audio/bgm-cradle.mp3?v=20260606k2',
+  id:'q02', page:7, region:'cradle', bgm:'audio/bgm-cradle.mp3?v=20260606k2', next:'03',
   kicker:{en:'The Cradle',zh:'摇篮'},
   title:{en:'Sowing Steps',zh:'步步播种'},
   meta:{ title:{en:'Sow the Pasture',zh:'播种牧场'}, giver:{en:'Tau the Calf · The Cradle',zh:'小牛 Tau · 摇篮'},

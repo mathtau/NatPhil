@@ -158,7 +158,7 @@
 
   // 回到已解锁的任务（q01 始终开放；前一关通关后下一关解锁）
   (function(){
-    const CATALOG=[ {n:'01',t:'加法'}, {n:'02',t:'乘法'} ];
+    const CATALOG=[ {n:'01',t:'加法'}, {n:'02',t:'乘法'}, {n:'03',t:'给数起名字'} ];
     let dn={}; try{ dn=(JSON.parse(localStorage.getItem('origo')||'{}').quests)||{}; }catch(e){}
     let h='<h6>↩ 回到任务</h6>';
     CATALOG.forEach(function(q,i){

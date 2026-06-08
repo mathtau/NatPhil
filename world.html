@@ -177,7 +177,7 @@
 
   // unlocked-quest shortcuts: jump straight back into any quest you've reached (q01 always open; the next opens once the previous is cleared)
   (function(){
-    const CATALOG=[ {n:'01',t:'Addition'}, {n:'02',t:'Multiplication'} ];
+    const CATALOG=[ {n:'01',t:'Addition'}, {n:'02',t:'Multiplication'}, {n:'03',t:'Give Numbers Names'} ];
     let dn={}; try{ dn=(JSON.parse(localStorage.getItem('origo')||'{}').quests)||{}; }catch(e){}
     let h='<h6>↩ Return to a quest</h6>';
     CATALOG.forEach(function(q,i){
