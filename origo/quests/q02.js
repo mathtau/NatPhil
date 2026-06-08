@@ -281,7 +281,7 @@ function magician(ctx,x,y,s,t){ t=t==null?1:t; const U=s/100, P=Math.PI; ctx.sav
 function runRound(E, cfg){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(cfg.dot); E.cv.onclick=null;
   const B=cfg.B, C=cfg.C, A=cfg.A, N=cfg.N, bc=B+C; let g=0, w=0, k=1;
   E.setPlace(cfg.place); E.tell(cfg.intro);
-  function refresh(){ gfield(B,C,A,g,w,k,{ref:cfg.ref}); waitingHerd(N); magician(E.ctx,78,E.LH*0.42,46,0); label(78,E.LH*0.42+34,t({en:'Product',zh:'“积”'}),'#caa84a',12);   // aligned above the herd (x = herd start)
+  function refresh(){ gfield(B,C,A,g,w,k,{ref:cfg.ref}); waitingHerd(N); magician(E.ctx,78,E.LH*0.42,46,0); label(78,E.LH*0.42+50,t({en:'Product',zh:'积'}),'#caa84a',12);   // gap below the robe/shadow; no quotes on the in-game label (prose keeps “积”)
     const inRow=Math.min(g+w,bc), graze=k*inRow, over=(g+w)>bc, win=(g===B&&w===C&&k===A), row=(B>0&&C>0)? g+'+'+w : (C>0? ''+w : ''+g);
     E.status(t({en:'row ',zh:'行 '})+'<b>'+row+'</b>'+t({en:'  ×  ',zh:'  ×  '})+'<b>'+k+t({en:' copies',zh:' 份'})+'</b>  =  <b'+(win?' class="g"':(graze>N||over)?' class="r"':'')+'>'+graze+'</b> / '+N+(over?t({en:'   (over the wall!)',zh:'   （越墙了！）'}):'')); E.clearTray(); backStep();
     // FIXED button layout — positions never move; buttons not usable in the current state are locked (dimmed). shaping (k===1) = editing the group; else = multiplying.
