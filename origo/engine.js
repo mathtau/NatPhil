@@ -92,7 +92,7 @@ E.fillVoicePickers=function(){ const host=document.getElementById('voicePick'); 
   document.getElementById('vPro').onchange=e=>{ S.audio.vProduct=e.target.value; E.save(); };
   document.getElementById('vTau').onchange=e=>{ S.audio.vTau=e.target.value; E.save(); };
   document.getElementById('vTest').onclick=()=>{ const restore=S.audio.narr; S.audio.narr=true; const prev=speaker;
-    speaker='product'; E.say(E.lang==='zh'?'我是魔法师“乘”！':'I am Product, the multiplying magician!');
+    speaker='product'; E.say(E.lang==='zh'?'我是魔法师“积”！':'I am Product, the multiplying magician!');
     setTimeout(()=>{ speaker='tau'; E.say(E.lang==='zh'?'我是小牛陶！':'And I am Tau the calf!'); speaker=prev; S.audio.narr=restore; },1900); }; };
 
 /* ---------- companion ---------- */
@@ -229,7 +229,7 @@ E.boot=function(QUEST){ E.QUEST=QUEST;
   if(cl) cl.textContent='📖 '+L('Codex','典籍');
   const ml=$('mapLink'); if(ml){ ml.href=(E.lang==='zh'?'../world_zh.html':'../world.html');   // our own map icon (parchment + the golden thread from O), not the real-world map emoji
     ml.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="2.5" fill="rgba(244,200,48,.1)" stroke="#caa94e" stroke-width="1.4"/><path d="M7 17 C 10 12 9 11 13 11 C 16 11 15 7.5 18 7.5" fill="none" stroke="#f4c830" stroke-width="1.5" stroke-dasharray="0.5 2.5" stroke-linecap="round"/><circle cx="7" cy="17" r="1.8" fill="#f4c830"/></svg><span>'+L('Map','地图')+'</span>'; }   // map reachable at every step
-  if(QUEST.next){ const bn=$('bkNext'); if(bn){ bn.textContent=L('Next chapter ▶','下一章 ▶'); bn.onclick=()=>location.href='play.html?q='+QUEST.next+'&lang='+E.lang; } }   // lead into the next quest
+  if(QUEST.next){ const bn=$('bkNext'); if(bn){ bn.textContent=L('Next chapter ▶','下一章 ▶'); bn.onclick=()=>{ if(window.ORIGO_loadQuest) window.ORIGO_loadQuest(QUEST.next); else location.href='play.html?q='+QUEST.next+'&lang='+E.lang; }; } }   // lead into the next quest WITHOUT a page reload, so BGM keeps playing
   $('acceptQ').onclick=()=>{ $('scrim').classList.add('hide'); qtrack.classList.add('show'); A.ensure(); if(S.audio.music)E.bgmStart(); E.setSpeaker('tau'); E.start(); };
   // intro background scene
   QUEST.intro && QUEST.intro(E);
