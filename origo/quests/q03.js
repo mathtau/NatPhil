@@ -91,29 +91,36 @@ function ask(prompt, choices, onRight){
 /* ===== Round 1 — The Tied Sacks: sack 1 is named x; sack 2 is IDENTICAL. Open the twin → grass for 3 calves, so x = 3 (pinned down without ever opening the x-sack). ===== */
 function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(0); E.cv.onclick=null;
   E.setPlace(t({en:'The Tied Sacks',zh:'扎口的袋子'}));
-  const X=3;
-  function scene(open2){ bg(); const LW=E.LW, y=E.LH*0.36, s=80;
-    sack(LW*0.34,y,s,'grass',false,X,'x','#7fb6ff');                 // sack 1 = x, stays tied
-    sack(LW*0.64,y,s,'grass',!!open2,X,'x','#7fb6ff');               // sack 2 = identical (also x); we open THIS one
-    label(LW*0.64,y-s*0.60,t({en:'identical',zh:'一模一样'}),'#8a8a70',13);
-    if(open2){ const cy=y+s*0.64; for(let i=0;i<X;i++) calf(E.ctx,LW*0.64+(i-(X-1)/2)*30,cy,13,true);   // the twin's grass feeds 3 calves
-      label(LW*0.64,cy+24,t({en:'grass for 3 calves',zh:'够 3 头小牛吃'}),'#9fe0a8',13); } }
-  scene(false);
+  const X=3, S=80;
+  const Y=()=>E.LH*0.36, C1=()=>E.LW*0.34, C2=()=>E.LW*0.64, CY=()=>Y()+S*0.64;
+  function herdN(cx,n){ for(let i=0;i<n;i++) calf(E.ctx,cx+(i-(X-1)/2)*30,CY(),13,true); }   // n happy calves the sack feeds
+  function scene(open1,open2,n1){ bg();
+    sack(C1(),Y(),S,'grass',!!open1,X,'x','#7fb6ff');                // sack 1 = x
+    sack(C2(),Y(),S,'grass',!!open2,X,'x','#7fb6ff');               // sack 2 = identical (also x)
+    label(C2(),Y()-S*0.60,t({en:'identical',zh:'一模一样'}),'#8a8a70',13);
+    if(open2) herdN(C2(),X);
+    if(open1) herdN(C1(), n1==null?X:n1);
+    if(open1||open2) label(E.LW*0.49,CY()+26,t({en:'each sack feeds 3 calves',zh:'每袋够 3 头小牛吃'}),'#9fe0a8',13); }
+  scene(false,false);
   E.tell(t({en:'<b>The Tied Sacks.</b> The first sack is our <b>standard</b> grass sack, named <b class="b">x</b>. The second is <b>identical</b> to it. We cannot open the first, but we can open its twin.',zh:'<b>扎口的袋子。</b>第一袋是我们的<b>标准</b>青草袋，叫作 <b class="b">x</b>。第二袋和它<b>一模一样</b>。第一袋打不开，但它的双胞胎能打开。'}));
-  function q1(){ scene(false);
+  function q1(){ scene(false,false);
     ask(t({en:'How can we find what <b class="b">x</b> is, without opening the first sack?',zh:'不打开第一袋，怎么知道 <b class="b">x</b> 是多少？'}),
       [ {t:t({en:'Just guess',zh:'随便猜'}), fb:t({en:'A guess could be wrong, and there is a sure way here.',zh:'猜可能错，而这里有个稳妥的办法。'})},
         {t:t({en:'It stays hidden',zh:'永远不知道'}), fb:t({en:'Its identical twin can be opened.',zh:'它一模一样的双胞胎可以打开。'})},
         {t:t({en:'Open the identical sack',zh:'打开一样的那袋'}), ok:true} ],
-      ()=>{ scene(true); q2(); }); }
-  function q2(){ scene(true);
-    ask(t({en:'The twin opens: <b class="g">grass for 3 calves</b>. The two sacks are <b>identical</b>, so <b class="b">x</b> is worth…?',zh:'双胞胎打开了：<b class="g">够 3 头小牛吃的草</b>。两袋<b>一模一样</b>，所以 <b class="b">x</b> 相当于多少？'}),
-      [ {t:t({en:'6 calves',zh:'6 头'}), fb:t({en:'That is both sacks together. x is one standard sack, and it fed 3.',zh:'那是两袋合起来。x 是一袋标准袋，刚好够 3 头。'})},
-        {t:t({en:'cannot tell',zh:'说不准'}), fb:t({en:'They are identical, so x holds exactly what the twin held.',zh:'它们一模一样，x 装的正是双胞胎装的那么多。'})},
+      ()=>{ scene(false,true); q2(); }); }
+  function q2(){ scene(false,true);
+    ask(t({en:'The twin opens: it <b class="g">feeds 3 calves</b>. The two sacks are <b>identical</b>, so <b class="b">x</b> feeds…?',zh:'双胞胎打开了：它<b class="g">够 3 头小牛吃</b>。两袋<b>一模一样</b>，所以 <b class="b">x</b> 够几头吃？'}),
+      [ {t:t({en:'6 calves',zh:'6 头'}), fb:t({en:'That is both sacks together. x is one standard sack, and it feeds 3.',zh:'那是两袋合起来。x 是一袋标准袋，够 3 头。'})},
+        {t:t({en:'cannot tell',zh:'说不准'}), fb:t({en:'They are identical, so x feeds exactly what the twin fed.',zh:'它们一模一样，x 够吃的正是双胞胎那么多。'})},
         {t:t({en:'3 calves',zh:'3 头'}), ok:true} ],
-      ()=>{ scene(true); win(); }); }
-  function win(){ E.setDots(1); E.tickQ(1); E.award(45); E.status(keq(t({en:'x = 3 calves',zh:'x = 3 头'})));
-    E.tell(t({en:'We pinned down <b class="b">x = 3</b> without opening the first sack at all, just by opening its <b>identical</b> twin: grass for <b>3</b> calves. The same name always stands for the same amount.',zh:'我们一次都没打开第一袋，只打开它<b>一模一样</b>的双胞胎，就把 <b class="b">x = 3</b> 定下来了：够 <b>3</b> 头小牛吃。同一个名字，永远代表同样的量。'}));
+      ()=>reveal()); }
+  function reveal(){ E.busy=true; E.sfx('win');                      // open the x-sack too: its 3 happy calves pop in, confirming x = 3
+    E.anim(820,p=>{ const n=Math.min(X,Math.floor(p*X)+1); scene(true,true,n);
+      for(let i=0;i<n;i++) star(E.ctx,C1()+(i-(X-1)/2)*30,CY()-18,6*(0.5+0.5*Math.sin(p*10+i)),'rgba(255,243,207,.85)'); },
+     ()=>{ scene(true,true,X); E.cheer(); E.pop('nom!'); E.busy=false; win(); }); }
+  function win(){ E.setDots(1); E.tickQ(1); E.award(45); E.status(keq('x = 3'));
+    E.tell(t({en:'We pinned down <b class="b">x = 3</b> by opening only the twin. And sure enough, the first sack <b>feeds the same 3 calves</b>: identical sacks, identical x. One name, one amount.',zh:'我们只打开了双胞胎，就把 <b class="b">x = 3</b> 定了下来。果然，第一袋也<b>够同样的 3 头小牛吃</b>：一样的袋子，一样的 x。一个名字，一个量。'}));
     E.clearTray(); E.addBtn(t({en:'On to the Copy Yard ▶',zh:'前往复制场 ▶'}),'primary',E.advance); E.addBtn(t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep); }
   q1();
 }
