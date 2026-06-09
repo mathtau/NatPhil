@@ -88,36 +88,32 @@ function ask(prompt, choices, onRight){
     if(c.ok){ E.sfx('place'); E.pop('✓'); onRight(); }
     else { E.oops(); E.sfx('fail'); E.pop('✗'); E.tell(c.fb); } }); }); }
 
-/* ===== Round 1 — The Tied Sacks: x is GIVEN (the standard sack). REUSE it for the same sack (→2x), then OPEN one to find x = 4, so 2x = 8. Nothing is a free choice. ===== */
+/* ===== Round 1 — The Tied Sacks: sack 1 is named x; sack 2 is IDENTICAL. Open the twin → grass for 3 calves, so x = 3 (pinned down without ever opening the x-sack). ===== */
 function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(0); E.cv.onclick=null;
   E.setPlace(t({en:'The Tied Sacks',zh:'扎口的袋子'}));
-  const X=4;
-  function tot(s){ E.status(s?'<span style="font-family:\'IBM Plex Mono\',monospace;font-size:1.5rem;color:#f4c830;font-weight:600">'+s+'</span>':''); }
-  function scene(g2,opened){ bg(); const LW=E.LW, y=E.LH*0.42, s=84;
-    sack(LW*0.37,y,s,'grass',!!opened,X,'x','#7fb6ff');          // the STANDARD sack — already named x (given)
-    sack(LW*0.63,y,s,'grass',!!opened,X, g2 ,'#7fb6ff'); }       // a second standard sack (same → also x)
-  scene(null,false); tot('x');
-  E.tell(t({en:'<b>The Tied Sacks.</b> We cannot open them yet, but the quartermaster already calls one <b>standard</b> grass sack <b class="b">x</b>: we do not know the count, yet every standard sack holds the <b>same</b> x.',zh:'<b>扎口的袋子。</b>现在还打不开，但管粮的早把一袋<b>标准</b>青草叫作 <b class="b">x</b>：具体多少不知道，可每一袋标准袋装的都是<b>同样</b>的 x。'}));
-  function q1(){ scene(null,false); tot('x');
-    ask(t({en:'Tau sets down a <b>second standard</b> grass sack, the same as the first. How many bundles does it hold?',zh:'陶又放下<b>第二袋标准</b>青草，和第一袋一样。它装着多少捆？'}),
-      [ {t:t({en:'Guess a number',zh:'猜一个数'}), fb:t({en:'A standard sack cannot be counted yet. But we already know what it equals.',zh:'标准袋现在数不出。但我们已经知道它等于什么了。'})},
-        {t:t({en:'A new name',zh:'起个新名字'}), fb:t({en:'It is the same standard sack, so a new name would pretend it differs. Reuse x.',zh:'它是同样的标准袋，起新名字就等于说它不一样。还是用 x。'})},
-        {t:t({en:'It is x',zh:'就是 x'}), ok:true} ],
-      ()=>{ scene('x',false); tot('x , x'); q2(); }); }
-  function q2(){ scene('x',false); tot('x , x');
-    ask(t({en:'Both sacks are <b class="b">x</b>. So the two standard sacks <b>together</b> hold…?',zh:'两袋都是 <b class="b">x</b>。那两袋标准袋<b>合起来</b>是多少？'}),
-      [ {t:'x + 2', fb:t({en:'That is x and 2 more bundles, not two whole sacks.',zh:'那是 x 再加 2 捆，不是两整袋。'})},
-        {t:t({en:'a number',zh:'一个具体数'}), fb:t({en:'We still do not know x, only that there are two of them.',zh:'我们还不知道 x，只知道有两袋。'})},
-        {t:'2x', ok:true} ],
-      ()=>{ scene('x',false); tot('2x'); q3(); }); }
-  function q3(){ scene('x',false); tot('2x');
-    ask(t({en:'Now <b>open</b> a standard sack: it holds <b>4</b> bundles, so <b class="b">x = 4</b>. Then the two sacks, <b class="b">2x</b>, hold…?',zh:'现在<b>打开</b>一袋标准袋：里面是 <b>4</b> 捆，所以 <b class="b">x = 4</b>。那两袋（<b class="b">2x</b>）一共是多少？'}),
-      [ {t:'6', fb:t({en:'That is 4 + 2. 2x means two whole x’s, so 2 × 4.',zh:'那是 4 + 2。2x 是两整个 x，也就是 2 × 4。'})},
-        {t:'42', fb:t({en:'Those are just the digits stuck together. Work out 2 × 4.',zh:'那只是把数字拼在一起。算一算 2 × 4。'})},
-        {t:'8', ok:true} ],
-      ()=>{ scene('x',true); tot('x = 4 → 2x = 8'); win(); }); }
-  function win(){ E.setDots(1); E.tickQ(1); E.award(45); E.status(keq('x = 4 → 2x = 8'));
-    E.tell(t({en:'See what the name did. We wrote <b class="b">2x</b> for the two sacks <b>before</b> we knew the count, then opened one to find <b class="b">x = 4</b>, so <b class="b">2x = 8</b>. A name holds a number until you are ready to fill it in.',zh:'看看名字的妙处。在还不知道数目时，我们就把两袋写成了 <b class="b">2x</b>；打开一看 <b class="b">x = 4</b>，于是 <b class="b">2x = 8</b>。名字替你把这个数先存着，等你准备好再填进去。'}));
+  const X=3;
+  function scene(open2){ bg(); const LW=E.LW, y=E.LH*0.36, s=80;
+    sack(LW*0.34,y,s,'grass',false,X,'x','#7fb6ff');                 // sack 1 = x, stays tied
+    sack(LW*0.64,y,s,'grass',!!open2,X,'x','#7fb6ff');               // sack 2 = identical (also x); we open THIS one
+    label(LW*0.64,y-s*0.60,t({en:'identical',zh:'一模一样'}),'#8a8a70',13);
+    if(open2){ const cy=y+s*0.64; for(let i=0;i<X;i++) calf(E.ctx,LW*0.64+(i-(X-1)/2)*30,cy,13,true);   // the twin's grass feeds 3 calves
+      label(LW*0.64,cy+24,t({en:'grass for 3 calves',zh:'够 3 头小牛吃'}),'#9fe0a8',13); } }
+  scene(false);
+  E.tell(t({en:'<b>The Tied Sacks.</b> The first sack is our <b>standard</b> grass sack, named <b class="b">x</b>. The second is <b>identical</b> to it. We cannot open the first, but we can open its twin.',zh:'<b>扎口的袋子。</b>第一袋是我们的<b>标准</b>青草袋，叫作 <b class="b">x</b>。第二袋和它<b>一模一样</b>。第一袋打不开，但它的双胞胎能打开。'}));
+  function q1(){ scene(false);
+    ask(t({en:'How can we find what <b class="b">x</b> is, without opening the first sack?',zh:'不打开第一袋，怎么知道 <b class="b">x</b> 是多少？'}),
+      [ {t:t({en:'Just guess',zh:'随便猜'}), fb:t({en:'A guess could be wrong, and there is a sure way here.',zh:'猜可能错，而这里有个稳妥的办法。'})},
+        {t:t({en:'It stays hidden',zh:'永远不知道'}), fb:t({en:'Its identical twin can be opened.',zh:'它一模一样的双胞胎可以打开。'})},
+        {t:t({en:'Open the identical sack',zh:'打开一样的那袋'}), ok:true} ],
+      ()=>{ scene(true); q2(); }); }
+  function q2(){ scene(true);
+    ask(t({en:'The twin opens: <b class="g">grass for 3 calves</b>. The two sacks are <b>identical</b>, so <b class="b">x</b> is worth…?',zh:'双胞胎打开了：<b class="g">够 3 头小牛吃的草</b>。两袋<b>一模一样</b>，所以 <b class="b">x</b> 相当于多少？'}),
+      [ {t:t({en:'6 calves',zh:'6 头'}), fb:t({en:'That is both sacks together. x is one standard sack, and it fed 3.',zh:'那是两袋合起来。x 是一袋标准袋，刚好够 3 头。'})},
+        {t:t({en:'cannot tell',zh:'说不准'}), fb:t({en:'They are identical, so x holds exactly what the twin held.',zh:'它们一模一样，x 装的正是双胞胎装的那么多。'})},
+        {t:t({en:'3 calves',zh:'3 头'}), ok:true} ],
+      ()=>{ scene(true); win(); }); }
+  function win(){ E.setDots(1); E.tickQ(1); E.award(45); E.status(keq(t({en:'x = 3 calves',zh:'x = 3 头'})));
+    E.tell(t({en:'We pinned down <b class="b">x = 3</b> without opening the first sack at all, just by opening its <b>identical</b> twin: grass for <b>3</b> calves. The same name always stands for the same amount.',zh:'我们一次都没打开第一袋，只打开它<b>一模一样</b>的双胞胎，就把 <b class="b">x = 3</b> 定下来了：够 <b>3</b> 头小牛吃。同一个名字，永远代表同样的量。'}));
     E.clearTray(); E.addBtn(t({en:'On to the Copy Yard ▶',zh:'前往复制场 ▶'}),'primary',E.advance); E.addBtn(t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep); }
   q1();
 }
@@ -130,7 +126,7 @@ function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.cv.oncl
     const k=copies||1; for(let i=0;i<k;i++){ const x=LW*0.36+i*Math.min(56,(LW*0.58)/Math.max(k,1)); sack(x,y,56,'grass',false,0,'x','#7fb6ff'); }
     waitingHerd(N); }
   scene(1);
-  E.tell(t({en:'<b>The Copy Yard.</b> The herd is <b>'+N+'</b> calves, each needs one grass sack. <b>Product (积)</b> will <b>copy</b> the <b class="b">x</b>-sack. Tell 积: copy it <b>'+N+'</b> times. Write it.',zh:'<b>复制场。</b>牛群有 <b>'+N+'</b> 头小牛，每头要一袋青草。魔法师<b>“积”</b>会<b>复制</b>这袋 <b class="b">x</b>。告诉“积”：复制 <b>'+N+'</b> 次。把它写出来。'}));
+  E.tell(t({en:'<b>The Copy Yard.</b> The hungry herd needs many sacks. <b>Product (积)</b> will <b>copy</b> the standard <b class="b">x</b>-sack <b>'+N+'</b> times. Tell 积 how, in writing.',zh:'<b>复制场。</b>饿坏的牛群要好多袋。魔法师<b>“积”</b>会把这袋标准的 <b class="b">x</b> <b>复制 '+N+' 次</b>。用文字告诉“积”怎么写。'}));
   ask(t({en:'Write “'+N+' copies of x”:',zh:'写出“'+N+' 份 x”：'}),
     [ {t:'5 × x', fb:t({en:'积 reads the × as the sack-name x and grabs the wrong sack! When a letter is there, drop the ×.',zh:'“积”把 × 当成了袋名 x，抓错袋子！有字母时就把 × 去掉。'})},
       {t:'x5', fb:t({en:'The number goes in front: 5x, not x5.',zh:'数字写在前面：5x，不是 x5。'})},
@@ -149,7 +145,7 @@ function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.cv.oncl
 /* ===== Round 3 — Untie the Sacks: FILL IN the value, read the number back, feed the herd ===== */
 function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(2); E.cv.onclick=null;
   E.setPlace(t({en:'Untie the Sacks',zh:'解开袋子'}));
-  const X=4, N=5, TOTAL=N*X;
+  const X=3, N=5, TOTAL=N*X;
   // the herd to feed = TOTAL calves; grazeWin-style geometry
   function herdGeo(){ const LW=E.LW, cols=Math.min(TOTAL,10), rows=Math.ceil(TOTAL/cols), cell=Math.min(40,(LW-110)/cols,118/rows), gw=cols*cell, ox=(LW-gw)/2+8, oy=E.LH*0.50;
     const centers=[]; for(let i=0;i<TOTAL;i++){ const r=Math.floor(i/cols), c=i%cols; centers.push({x:ox+c*cell+cell/2,y:oy+r*cell+cell/2}); } return {cell,centers}; }
@@ -157,24 +153,24 @@ function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(2); E.cv.oncl
   function openRow(){ bg(); const LW=E.LW, y=E.LH*0.27, sp=Math.min(62,(LW-60)/N); for(let i=0;i<N;i++) sack(LW/2+(i-(N-1)/2)*sp,y,56,'grass',true,X,'x','#7fb6ff'); }
   function feedScene(p){ const LW=E.LW, y=E.LH*0.21, sp=Math.min(56,(LW-70)/N); bg(); for(let i=0;i<N;i++) sack(LW/2+(i-(N-1)/2)*sp,y,48,'grass',true,X,X,'#9fe0a8'); return herdGeo(); }
   openRow();
-  E.tell(t({en:'<b>Untie the Sacks.</b> We opened one at the start, so we know <b class="b">x = 4</b>. Now untie all <b>5</b> for the herd, <b>5x</b> bundles in all.',zh:'<b>解开袋子。</b>开头我们打开过一袋，已经知道 <b class="b">x = 4</b>。现在把全部 <b>5</b> 袋都解开喂牛群，一共 <b>5x</b> 捆。'}));
+  E.tell(t({en:'<b>Untie the Sacks.</b> From the twin we already know <b class="b">x = 3</b> (each sack feeds 3 calves). 积 made <b>5</b> sacks, so they feed <b>5x</b> calves. Untie them all.',zh:'<b>解开袋子。</b>从双胞胎那袋我们已经知道 <b class="b">x = 3</b>（每袋够 3 头小牛吃）。“积”复制出 <b>5</b> 袋，能喂 <b>5x</b> 头小牛。把它们都解开。'}));
   function q1(){ openRow();
-    ask(t({en:'Each sack holds 4, so <b class="b">x = 4</b>. Then <b class="b">5x</b> bundles is…?',zh:'每袋装 4，所以 <b class="b">x = 4</b>。那么 <b class="b">5x</b> 捆是多少？'}),
-      [ {t:'54', fb:t({en:'That just sticks the digits together. 5x means 5 × x.',zh:'那只是把数字拼在一起。5x 是 5 × x。'})},
-        {t:'9', fb:t({en:'That is 5 + 4. We need five lots of 4.',zh:'那是 5 + 4。我们要的是五份 4。'})},
-        {t:'20', ok:true},
-        {t:'24', fb:t({en:'Close. Count again: 5 × 4.',zh:'差一点，再算：5 × 4。'})} ],
-      ()=>{ E.status(keq('5x = 5 × 4 = 20')); grazeWin(feedScene, q2); }); }
+    ask(t({en:'Each sack feeds <b class="b">x = 3</b> calves. So <b class="b">5x</b> calves is…?',zh:'每袋够 <b class="b">x = 3</b> 头小牛吃。那么 <b class="b">5x</b> 头是多少？'}),
+      [ {t:'8', fb:t({en:'That is 5 + 3. We need five lots of 3.',zh:'那是 5 + 3。我们要五份 3。'})},
+        {t:'53', fb:t({en:'That just sticks the digits together. 5x means 5 × x.',zh:'那只是把数字拼在一起。5x 是 5 × x。'})},
+        {t:'35', fb:t({en:'Those digits again. Work out 5 × 3.',zh:'又是拼数字。算一算 5 × 3。'})},
+        {t:'15', ok:true} ],
+      ()=>{ E.status(keq('5x = 5 × 3 = 15')); grazeWin(feedScene, q2); }); }
   function q2(){ const LW=E.LW; const draw=()=>{ feedScene(1); const g=herdGeo(); const r=Math.max(9,Math.min(14,g.cell*0.42)); for(let i=0;i<g.centers.length;i++)calf(E.ctx,g.centers[i].x,g.centers[i].y,r,true); };
     draw();
-    ask(t({en:'Fed! Now a <b>new</b> cart: each sack holds only <b>2</b>, so <b class="b">x = 2</b>. The same rule, <b class="b">5x</b>, gives…?',zh:'喂饱啦！又来一车<b>新的</b>：每袋只有 <b>2</b>，所以 <b class="b">x = 2</b>。同样的 <b class="b">5x</b>，这次是多少？'}),
+    ask(t({en:'Fed! A <b>new</b> cart arrives: each sack feeds only <b>2</b>, so <b class="b">x = 2</b>. The same <b class="b">5x</b> now feeds…?',zh:'喂饱啦！又来一车<b>新的</b>：每袋只够 <b>2</b> 头，所以 <b class="b">x = 2</b>。同样的 <b class="b">5x</b>，这次能喂多少？'}),
       [ {t:'7', fb:t({en:'That is 5 + 2. 5x means 5 × x.',zh:'那是 5 + 2。5x 是 5 × x。'})},
         {t:'52', fb:t({en:'Digits stuck together again. Try 5 × 2.',zh:'又把数字拼起来了。试试 5 × 2。'})},
         {t:'10', ok:true} ],
       ()=>{ draw(); win(); }); }
-  function win(){ E.setDots(3); E.tickQ(3); E.award(60); E.status(keq('x = 4 → 5x = 20 ;  x = 2 → 5x = 10'));
+  function win(){ E.setDots(3); E.tickQ(3); E.award(60); E.status(keq('x = 3 → 5x = 15 ;  x = 2 → 5x = 10'));
     E.cheer(); E.sfx('win');
-    E.tell(t({en:'<b>Same name, any value.</b> Fill in <b class="b">x = 4</b> and 5x is 20; fill in <b class="b">x = 2</b> and 5x is 10. One name did the work of every number. You have earned the page!',zh:'<b>同一个名字，任意取值。</b>填 <b class="b">x = 4</b>，5x 就是 20；填 <b class="b">x = 2</b>，5x 就是 10。一个名字顶得上所有的数。书页到手！'}));
+    E.tell(t({en:'<b>Same name, any value.</b> Fill in <b class="b">x = 3</b> and 5x feeds 15; fill in <b class="b">x = 2</b> and 5x feeds 10. One name did the work of every number. You have earned the page!',zh:'<b>同一个名字，任意取值。</b>填 <b class="b">x = 3</b>，5x 喂 15 头；填 <b class="b">x = 2</b>，5x 喂 10 头。一个名字顶得上所有的数。书页到手！'}));
     E.clearTray(); E.addBtn(t({en:'Claim the Codex page 📖',zh:'领取典籍书页 📖'}),'primary',()=>E.openBook(QUEST.book)); E.addBtn(t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep); }
   q1();
 }
