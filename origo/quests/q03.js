@@ -155,25 +155,23 @@ function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(2); E.cv.oncl
     const centers=[]; for(let i=0;i<total;i++){ const r=Math.floor(i/cols), c=i%cols; centers.push({x:ox+c*cell+cell/2,y:oy+r*cell+cell/2}); } return {cell,centers}; }
   function cart(x){ bg(); const LW=E.LW, y=E.LH*0.24, sp=Math.min(60,(LW-60)/N); for(let i=0;i<N;i++) sack(LW/2+(i-(N-1)/2)*sp,y,52,'grass',true,x,x,'#7fb6ff'); }
   function feedScene(x){ cart(x); return herdGeo(N*x); }
-  function fed(x){ feedScene(x); const g=herdGeo(N*x), r=Math.max(9,Math.min(14,g.cell*0.42)); for(let i=0;i<g.centers.length;i++)calf(E.ctx,g.centers[i].x,g.centers[i].y,r,true); }
-  cart(2);
-  E.tell(t({en:'<b>Cart After Cart.</b> New carts keep arriving, each with a <b>different</b> standard fill. The same rule, <b class="b">5x</b>, feeds them all. Just fill in this cart’s x.',zh:'<b>一车又一车。</b>新车不停地来，每车的标准袋装得<b>不一样</b>多。同一个 <b class="b">5x</b> 都能算，把这车的 x 填进去就行。'}));
-  function q1(){ cart(2);
-    ask(t({en:'This cart: each sack feeds <b class="b">x = 2</b> calves. So <b class="b">5x</b> feeds…?',zh:'这一车：每袋够 <b class="b">x = 2</b> 头。那 <b class="b">5x</b> 够几头？'}),
-      [ {t:'7', fb:t({en:'That is 5 + 2. 5x means 5 × x.',zh:'那是 5 + 2。5x 是 5 × x。'})},
-        {t:'52', fb:t({en:'Digits stuck together. Try 5 × 2.',zh:'把数字拼起来了。试试 5 × 2。'})},
-        {t:'10', ok:true} ],
-      ()=>{ E.status(keq('x = 2 , 5x = 10')); grazeWin(()=>feedScene(2), q2); }); }
-  function q2(){ cart(4);
-    ask(t({en:'Next cart is fuller: <b class="b">x = 4</b>. The very same <b class="b">5x</b> now feeds…?',zh:'下一车装得更满：<b class="b">x = 4</b>。还是那个 <b class="b">5x</b>，这次够几头？'}),
-      [ {t:'9', fb:t({en:'That is 5 + 4. 5x means 5 × x.',zh:'那是 5 + 4。5x 是 5 × x。'})},
-        {t:'54', fb:t({en:'Digits again. Try 5 × 4.',zh:'又拼数字了。试试 5 × 4。'})},
-        {t:'20', ok:true} ],
-      ()=>{ E.status(keq('x = 4 , 5x = 20')); grazeWin(()=>feedScene(4), win); }); }
-  function win(){ fed(4); E.setDots(3); E.tickQ(3); E.award(60); E.status(keq('x = 2 → 10 ;  x = 4 → 20')); E.cheer(); E.sfx('win');
-    E.tell(t({en:'<b>One rule, every number.</b> Change the fill and <b class="b">5x</b> follows: x = 2 feeds 10, x = 4 feeds 20. A single line of letters speaks for them all. You have earned the page!',zh:'<b>一条规则，所有数都行。</b>装得不一样，<b class="b">5x</b> 就跟着变：x = 2 喂 10 头，x = 4 喂 20 头。一行字母，就把它们全说清了。书页到手！'}));
+  function fed(x){ feedScene(x); const g=herdGeo(N*x), r=Math.max(8,Math.min(14,g.cell*0.42)); for(let i=0;i<g.centers.length;i++)calf(E.ctx,g.centers[i].x,g.centers[i].y,r,true); }
+  function svt(x){ E.status('<span style="font-family:\'IBM Plex Mono\',monospace;font-size:1.4rem;color:#f4c830;font-weight:600">x = '+x+'  ,  5x = '+(N*x)+'</span>'); }
+  fed(3); svt(3);
+  // R3 is NOT another 5x sum — it is the POINT of naming: x can be ANY value, and one short rule 5x covers them all.
+  E.tell(t({en:'<b>Cart After Cart.</b> A fresh cart rolls in each morning, every one with a <b>different</b> fill <b class="b">x</b>. Yesterday <b class="b">x</b> was 3; tomorrow it might be 2, or 10. So what single rule can feed <b>every</b> cart?',zh:'<b>一车又一车。</b>每天清晨都来一辆新车，每辆的装填量 <b class="b">x</b> 都<b>不一样</b>。昨天 <b class="b">x</b> 是 3，明天也许是 2，也许是 10。那么，用<b>哪一条</b>规则就能喂遍每一辆车？'}));
+  ask(t({en:'Each morning the fill <b class="b">x</b> is different. What feeds them <b>all</b>?',zh:'每天清晨 <b class="b">x</b> 都不一样。用什么能喂遍<b>所有</b>车？'}),
+    [ {t:t({en:'A new rule each day',zh:'每天换一条规则'}), fb:t({en:'That would be endless rules. The name x already stands for any fill, whatever it turns out to be.',zh:'那要写不完的规则。名字 x 本来就能代表任意一袋，不管它最后是多少。'})},
+      {t:t({en:'Always 15 calves',zh:'永远 15 头'}), fb:t({en:'15 was only when x = 3. A fuller cart feeds more, an emptier one less.',zh:'15 只是 x = 3 那一次。装得多就喂得多，装得少就喂得少。'})},
+      {t:t({en:'The one rule 5x',zh:'就一条：5x'}), ok:true} ],
+    ()=>sweep());
+  function sweep(){ E.busy=true; E.clearTray(); E.sfx('bracket'); E.speakAs('product',t({en:'Multiply!',zh:'乘！'}));   // let x roam: 5x tracks it, cart after cart
+    const vals=[1,2,3,5,8,10], hold=470;
+    E.anim(vals.length*hold,p=>{ const x=vals[Math.min(vals.length-1,Math.floor(p*vals.length))]; fed(x); svt(x); },
+     ()=>{ E.busy=false; fed(10); svt(10); win(); }); }
+  function win(){ E.setDots(3); E.tickQ(3); E.award(60); E.cheer(); E.sfx('win'); E.status(keq('one rule 5x , any x'));
+    E.tell(t({en:'<b>One name, every number.</b> Whatever the fill <b class="b">x</b>, the same <b class="b">5x</b> feeds the cart: <b class="b">x</b> = 2 feeds 10, <b class="b">x</b> = 8 feeds 40, <b class="b">x</b> = 10 feeds 50. Name a number once, and one short rule speaks for them all. You have earned the page!',zh:'<b>一个名字，所有的数。</b>不管装多少 <b class="b">x</b>，都是同一个 <b class="b">5x</b> 在喂：<b class="b">x</b> = 2 喂 10，<b class="b">x</b> = 8 喂 40，<b class="b">x</b> = 10 喂 50。给数起一次名，一条短短的规则就能代表它们全部。书页到手！'}));
     E.clearTray(); E.addBtn(t({en:'Claim the Codex page 📖',zh:'领取典籍书页 📖'}),'primary',()=>E.openBook(QUEST.book)); E.addBtn(t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep); }
-  q1();
 }
 function grazeWin(drawGeo,done){ E.busy=true; E.clearTray(); const total=drawGeo(1).centers.length, geo0=drawGeo(1), r=Math.max(9,Math.min(14,geo0.cell*0.42));
   E.anim(1200,p=>{ const g=drawGeo(1); const k=Math.floor(p*total); for(let i=0;i<k;i++)calf(E.ctx,g.centers[i].x,g.centers[i].y,r,true); },
