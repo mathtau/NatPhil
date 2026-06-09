@@ -132,22 +132,16 @@ function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.cv.oncl
   function yard(){ bg(); const LW=E.LW,y=SY(); magician(E.ctx,LW*0.14,y,50,0); label(LW*0.14,y+52,'积','#caa84a',13);
     for(let i=0;i<N;i++) sack(LW*0.34+i*sp(),y,46,'grass',false,0,'x','#7fb6ff'); return y; }
   function drawFed(){ yard(); const g=herdGeo(), r=Math.max(8,Math.min(13,g.cell*0.42)); for(let i=0;i<g.centers.length;i++)calf(E.ctx,g.centers[i].x,g.centers[i].y,r,true); }   // 5 x-sacks + the 15 calves they feed
-  drawFed(); stat('5 × x');
-  E.tell(t({en:'<b>The Copy Yard.</b> <b>Product (积)</b> copied the standard <b class="b">x</b>-sack <b>5</b> times, and together they <b class="g">feed 15 calves</b>. Five x-sacks is written <b>5 × x</b>. Write it more simply:',zh:'<b>复制场。</b>魔法师<b>“积”</b>把这袋标准的 <b class="b">x</b> <b>复制了 5 次</b>，它们一起<b class="g">喂饱了 15 头小牛</b>。五份 x 写作 <b>5 × x</b>。把它写得更简单：'}));
-  ask(t({en:'Write <b>5 × x</b> more simply:',zh:'把 <b>5 × x</b> 写得更简单：'}),
-    [ {t:'5 × x', fb:t({en:'积 reads the × as the sack-name x and grabs the wrong sack. With a letter, drop the ×.',zh:'“积”把 × 当成袋名 x，抓错袋子。有字母时就把 × 去掉。'})},
-      {t:'x5', fb:t({en:'The number goes in front: 5x.',zh:'数字写在前面：5x。'})},
-      {t:'5x', ok:true} ],
-    ()=>shortened());
-  function shortened(){ E.busy=true; E.sfx('bracket'); E.speakAs('product',t({en:'Multiply!',zh:'乘！'}));
-    E.anim(620,p=>{ drawFed(); for(let i=0;i<N;i++) star(E.ctx,E.LW*0.34+i*sp(),SY()-30,8*(0.5+0.5*Math.sin(p*9+i)),'rgba(255,243,207,.8)'); },
-     ()=>{ E.busy=false; drawFed(); stat('5x = 15');
-       E.tell(t({en:'Shortened: <b class="b">5 × x = 5x</b>, five lots of x. The herd on screen shows <b class="b">5x = 15</b>. So what is one sack, <b class="b">x</b>?',zh:'缩写：<b class="b">5 × x = 5x</b>，五份 x。画面上的牛群告诉我们 <b class="b">5x = 15</b>。那么一袋 <b class="b">x</b> 是多少？'}));
-       ask(t({en:'<b class="b">5x = 15</b>, from <b>5</b> equal sacks. So <b class="b">x</b> = ?',zh:'<b class="b">5x = 15</b>，来自 <b>5</b> 个一样的袋子。那么 <b class="b">x</b> = ?'}),
-         [ {t:'10', fb:t({en:'That is 15 − 5. Share the 15 fairly among the 5 sacks instead.',zh:'那是 15 − 5。把 15 头平分给 5 个袋子才对。'})},
-           {t:'75', fb:t({en:'That is 15 × 5. We are sharing 15, not multiplying again.',zh:'那是 15 × 5。我们在平分 15，不是再乘。'})},
-           {t:'3', ok:true} ],
-         ()=>{ drawFed(); win(); }); }); }
+  // INSTRUCTION (shown, not a choice): 积 copies x five times; 5 × x is written 5x. Then the only graded step is finding x.
+  drawFed(); stat('5 × x = 5x');
+  E.busy=true; E.sfx('bracket'); E.speakAs('product',t({en:'Multiply!',zh:'乘！'}));
+  E.anim(820,p=>{ drawFed(); for(let i=0;i<N;i++) star(E.ctx,E.LW*0.34+i*sp(),SY()-30,8*(0.5+0.5*Math.sin(p*9+i)),'rgba(255,243,207,.8)'); },
+   ()=>{ E.busy=false; drawFed(); stat('5x = 15');
+     ask(t({en:'<b class="b">积</b> copied the standard <b class="b">x</b> five times: <b>5 × x</b>, written simply as <b class="b">5x</b>. The herd shows <b class="b">5x = 15</b>. Share it fairly among the <b>5</b> equal sacks: <b class="b">x</b> = ?',zh:'<b class="b">“积”</b>把标准的 <b class="b">x</b> 复制了五次：<b>5 × x</b>，简写作 <b class="b">5x</b>。牛群显示 <b class="b">5x = 15</b>。平分给 <b>5</b> 个一样的袋子：<b class="b">x</b> = ?'}),
+       [ {t:t({en:'x = 10',zh:'x = 10'}), fb:t({en:'That is 15 − 5. Share the 15 fairly among the 5 sacks instead.',zh:'那是 15 − 5。把 15 头平分给 5 个袋子才对。'})},
+         {t:t({en:'x = 75',zh:'x = 75'}), fb:t({en:'That is 15 × 5. We are sharing 15, not multiplying again.',zh:'那是 15 × 5。我们在平分 15，不是再乘。'})},
+         {t:t({en:'x = 3',zh:'x = 3'}), ok:true} ],
+       ()=>{ drawFed(); win(); }); });
   function win(){ E.setDots(2); E.tickQ(2); E.award(50); E.status(keq('5x = 15 , x = 3'));
     E.tell(t({en:'<b class="b">5x = 15</b>, so sharing back into 5 sacks gives <b class="b">x = 3</b>, the same answer the twin gave. Multiplying by 5 and sharing into 5 undo each other.',zh:'<b class="b">5x = 15</b>，平分回 5 个袋子就得 <b class="b">x = 3</b>，和双胞胎给的答案一样。乘以 5 和平分成 5 份，正好互相抵消。'}));
     E.clearTray(); E.addBtn(t({en:'On to Cart After Cart ▶',zh:'前往一车又一车 ▶'}),'primary',E.advance); E.addBtn(t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep); }
