@@ -77,7 +77,7 @@ function sack(cx,cy,s,kind,opened,count,tag,tagcol){ const ctx=E.ctx; ctx.save()
   // cinched, tied neck
   const neck=kind==='wheat'?'#e0b65a':'#3f9a52'; ctx.fillStyle=neck; ctx.beginPath(); ctx.moveTo(cx-w*0.30,cy-h*0.30); ctx.quadraticCurveTo(cx,cy-h*0.46,cx+w*0.30,cy-h*0.30); ctx.quadraticCurveTo(cx,cy-h*0.18,cx-w*0.30,cy-h*0.30); ctx.fill();
   ctx.strokeStyle='#6a5530'; ctx.lineWidth=2.4; ctx.beginPath(); ctx.ellipse(cx,cy-h*0.30,w*0.30,h*0.05,0,0,7); ctx.stroke();
-  if(tag!=null) label(cx,cy+h*0.5+16,tag,tagcol||'#caa84a',19);
+  if(tag!=null) label(cx,cy+h*0.5+Math.max(16,s*0.30),tag,tagcol||'#caa84a',Math.round(Math.max(20,s*0.5)));   // tag scales with the sack
   ctx.restore(); }
 
 /* ---------- a multiple-choice decision: choices look identical (the right one is never highlighted) ---------- */
