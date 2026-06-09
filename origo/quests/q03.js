@@ -103,12 +103,8 @@ function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(0); E.cv.oncl
     if(open1) herdN(C1(), n1==null?X:n1); }
   scene(false,false);
   E.tell(t({en:'<b>The Tied Sacks.</b> The first sack is our <b>standard</b> grass sack, named <b class="b">x</b>. The second is <b>identical</b> to it. We cannot open the first, but we can open its twin.',zh:'<b>扎口的袋子。</b>第一袋是我们的<b>标准</b>青草袋，叫作 <b class="b">x</b>。第二袋和它<b>一模一样</b>。第一袋打不开，但它的双胞胎能打开。'}));
-  function q1(){ scene(false,false);
-    ask(t({en:'How can we find what <b class="b">x</b> is, without opening the first sack?',zh:'不打开第一袋，怎么知道 <b class="b">x</b> 是多少？'}),
-      [ {t:t({en:'Just guess',zh:'随便猜'}), fb:t({en:'A guess could be wrong, and there is a sure way here.',zh:'猜可能错，而这里有个稳妥的办法。'})},
-        {t:t({en:'It stays hidden',zh:'永远不知道'}), fb:t({en:'Its identical twin can be opened.',zh:'它一模一样的双胞胎可以打开。'})},
-        {t:t({en:'Open the identical sack',zh:'打开一样的那袋'}), ok:true} ],
-      ()=>{ scene(false,true); q2(); }); }
+  function q1(){ scene(false,false); E.clearTray();
+    E.addBtn(t({en:'Open the identical sack',zh:'打开一样的那袋'}),'primary',()=>{ E.sfx('place'); scene(false,true); q2(); }); }
   function q2(){ scene(false,true);
     ask(t({en:'The twin opens: it <b class="g">feeds 3 calves</b>. The two sacks are <b>identical</b>, so <b class="b">x</b> feeds…?',zh:'双胞胎打开了：它<b class="g">够 3 头小牛吃</b>。两袋<b>一模一样</b>，所以 <b class="b">x</b> 够几头吃？'}),
       [ {t:t({en:'x = 6 calves',zh:'x = 6 头'}), fb:t({en:'That is both sacks together. x is one standard sack, and it feeds 3.',zh:'那是两袋合起来。x 是一袋标准袋，够 3 头。'})},
