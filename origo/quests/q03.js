@@ -111,9 +111,9 @@ function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(0); E.cv.oncl
       ()=>{ scene(false,true); q2(); }); }
   function q2(){ scene(false,true);
     ask(t({en:'The twin opens: it <b class="g">feeds 3 calves</b>. The two sacks are <b>identical</b>, so <b class="b">x</b> feeds…?',zh:'双胞胎打开了：它<b class="g">够 3 头小牛吃</b>。两袋<b>一模一样</b>，所以 <b class="b">x</b> 够几头吃？'}),
-      [ {t:t({en:'6 calves',zh:'6 头'}), fb:t({en:'That is both sacks together. x is one standard sack, and it feeds 3.',zh:'那是两袋合起来。x 是一袋标准袋，够 3 头。'})},
+      [ {t:t({en:'x = 6 calves',zh:'x = 6 头'}), fb:t({en:'That is both sacks together. x is one standard sack, and it feeds 3.',zh:'那是两袋合起来。x 是一袋标准袋，够 3 头。'})},
         {t:t({en:'cannot tell',zh:'说不准'}), fb:t({en:'They are identical, so x feeds exactly what the twin fed.',zh:'它们一模一样，x 够吃的正是双胞胎那么多。'})},
-        {t:t({en:'3 calves',zh:'3 头'}), ok:true} ],
+        {t:t({en:'x = 3 calves',zh:'x = 3 头'}), ok:true} ],
       ()=>reveal()); }
   function reveal(){ E.busy=true; E.sfx('win');                      // open the x-sack too: its 3 happy calves pop in, confirming x = 3
     E.anim(820,p=>{ const n=Math.min(X,Math.floor(p*X)+1); scene(true,true,n);
