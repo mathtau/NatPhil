@@ -40,7 +40,7 @@
  --cyan: #40c8f0;
  --green: #50d890;
  --orange: #f08840;
- --pink: #ec4a2a;
+ --pink: #d040a0;
  --red: #e84040;
  --blue: #7ab0ff;
  --purple: #b070f0;
@@ -176,7 +176,7 @@
  .btn.active { border-color: var(--pink); color: var(--pink); }
  .btn.on { border-color: var(--green); color: var(--green); background: rgba(80, 216, 144, .08); }
 
- /* placeholder (for sections not yet drafted) */
+ /* placeholder */
  .placeholder {
  background: var(--surface); border: 1px dashed var(--border);
  border-radius: 10px; padding: 52px; text-align: center;
@@ -282,7 +282,7 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════
- SECTION 1, the spinning arrow + the full-turn cancellation lemma [LIVE FIGURE]
+ SECTION 1, the spinning arrow + the full-turn cancellation lemma
 ═══════════════════════════════════════════════════════════════ -->
 <div class="section" id="s1">
  <div class="sec-head">
@@ -567,7 +567,7 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════
- SECTION 2, Fourier: tune the dial [TO DRAFT]
+ SECTION 2, Fourier: tune the dial
 ═══════════════════════════════════════════════════════════════ -->
 <div class="section" id="s2">
  <div class="sec-head">
@@ -893,7 +893,7 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════
- SECTION 3, Cauchy: the same average, drawn as a circle [TO DRAFT]
+ SECTION 3, Cauchy: the same average, drawn as a circle
 ═══════════════════════════════════════════════════════════════ -->
 <div class="section" id="s3">
  <div class="sec-head">
@@ -1366,7 +1366,7 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════
- SECTION 4, Taylor: the averages were the coefficients [TO DRAFT]
+ SECTION 4, Taylor: the averages were the coefficients
 ═══════════════════════════════════════════════════════════════ -->
 <div class="section" id="s4">
  <div class="sec-head">
@@ -1763,7 +1763,7 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════
- SECTION 5, why τ, and stretching the circle into a line [TO DRAFT]
+ SECTION 5, why τ, and stretching the circle into a line
 ═══════════════════════════════════════════════════════════════ -->
 <div class="section" id="s5">
  <div class="sec-head">
@@ -1883,7 +1883,7 @@ const TAU = 2 * Math.PI;
 const C = {
  bg: '#0a0a1c', surface: '#111128', border: '#22224a', axis: '#38385a',
  text: '#8888a8', gold: '#f4c830', cyan: '#40c8f0', green: '#50d890',
- pink: '#ec4a2a', red: '#e84040', muted: '#60607a',
+ pink: '#d040a0', red: '#e84040', muted: '#60607a',
 };
 
 // ── §1 live figure: the full-turn cancellation lemma ─────────────────
@@ -2820,7 +2820,7 @@ const C = {
  if (!cB && !cW) return;
  const btn = document.getElementById('btnFndPlay');
  let playing = false, raf = null, t0 = 0;
- const RD = '#ec4a2a', CY = C.cyan, GR = C.green, GD = C.gold;
+ const RD = '#e8607a', CY = C.cyan, GR = C.green, GD = C.gold;
  function arrow(ctx, x0, y0, x1, y1, col, w) {
  ctx.strokeStyle = col; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
  const a = Math.atan2(y1 - y0, x1 - x0), h = 8;

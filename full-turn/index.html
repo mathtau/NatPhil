@@ -40,7 +40,7 @@
  --cyan: #40c8f0;
  --green: #50d890;
  --orange: #f08840;
- --pink: #ec4a2a;
+ --pink: #d040a0;
  --red: #e84040;
  --blue: #7ab0ff;
  --purple: #b070f0;
@@ -176,7 +176,7 @@
  .btn.active { border-color: var(--pink); color: var(--pink); }
  .btn.on { border-color: var(--green); color: var(--green); background: rgba(80, 216, 144, .08); }
 
- /* placeholder (for sections not yet drafted) */
+ /* placeholder */
  .placeholder {
  background: var(--surface); border: 1px dashed var(--border);
  border-radius: 10px; padding: 52px; text-align: center;
@@ -288,7 +288,7 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════
- SECTION 1, the spinning arrow + the full-turn cancellation lemma [LIVE FIGURE]
+ SECTION 1, the spinning arrow + the full-turn cancellation lemma
 ═══════════════════════════════════════════════════════════════ -->
 <div class="section" id="s1">
  <div class="sec-head">
@@ -324,7 +324,7 @@
  <em>faint spoke</em> is a position the arrow has already visited, a little
  arrow in its own right waiting to be averaged in. To average a batch of arrows
  you add them tip to tail and divide by how many there are: the
- <em class="mp">vermilion dot</em> is exactly that average so far. Watch its
+ <em class="mp">pink dot</em> is exactly that average so far. Watch its
  <em class="mp">dashed trail</em>, which is the whole point: the average starts
  out on the rim, pinned to the very first position, then spirals steadily inward
  as later positions arrive to cancel the earlier ones. By the end of one full
@@ -345,7 +345,7 @@
  <p class="graph-caption">The <em class="mtau">gold arrow</em> is
  <em class="mg">exp</em>(<em class="m">ik</em><em class="mt">θ</em>); the
  <em>faint spokes</em> are the positions visited so far; the
- <em class="mp">vermilion dot</em> is their average, and its
+ <em class="mp">pink dot</em> is their average, and its
  <em class="mp">dashed trail</em> shows it spiralling in from the rim to the
  centre.</p>
  </div>
@@ -387,7 +387,7 @@
  <strong style="font-weight:600;">Sum</strong>, short for <em>summation</em>:
  it just means add up every arrow. To average <em class="mx">N</em> arrows you
  divide their sum by <em class="mx">N</em>, and you get the
- <em class="mp">vermilion dot</em>, the mean so far. Note so far we have said nothing
+ <em class="mp">pink dot</em>, the mean so far. Note so far we have said nothing
  about where the turn begins or ends, so this holds for any stretch of turning:
  <span style="display:block; text-align:center; margin:9px 0 1px; font-size:1.04rem;">
  <span class="frac" style="font-size:1em;"><span class="num">1</span><span class="den"><em class="mx">N</em></span></span>&thinsp;<span style="font-weight:600;">Sum</span>&thinsp;<em class="mg">exp</em>(<em class="m">ik</em><em class="mt">θ</em>)</span></span>
@@ -454,11 +454,11 @@
  var stages=[
  { label:'move 1 · add the arrows · the plus-signs are the summation',
  html:EXP1+' '+PLUS+' '+EXP2+' '+PLUS+' '+DOTS+' '+PLUS+' '+EXPN },
- { label:'move 2 · divide by N (blue) · plus-signs fold into “Sum” (vermilion)',
+ { label:'move 2 · divide by N (blue) · plus-signs fold into “Sum” (pink)',
  html:'<span class="asm-a">'+NF+'</span>&thinsp;<span class="asm-b">'+SUM+'</span>'+SIG },
  { label:'move 3 · one full turn: N·dθ = τ, so 1/N = (1/τ)·dθ (blue)',
  html:'<span class="asm-a">'+TF+'</span>&thinsp;'+SUM+SIG+'&thinsp;<span class="asm-a">'+DT+'</span>' },
- { label:'Sum → ∫ from 0 to τ (vermilion) · the same summation, simplified',
+ { label:'Sum → ∫ from 0 to τ (pink) · the same summation, simplified',
  html:TF+'&thinsp;'+INT+SIG+'&thinsp;'+DT }
  ];
  var playing=false;
@@ -586,7 +586,7 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════
- SECTION 2, Fourier: tune the dial [TO DRAFT]
+ SECTION 2, Fourier: tune the dial
 ═══════════════════════════════════════════════════════════════ -->
 <div class="section" id="s2">
  <div class="sec-head">
@@ -840,7 +840,7 @@
  <p>That is the Fourier coefficient. There is no cleverness in it beyond §1:
  <em>freeze the arrow you want, average away the rest.</em> Set the strengths on
  the left, choose which one to recover with the dial, and press ▶, the
- <em class="mp">vermilion dot</em> is the running average, and after one full turn it
+ <em class="mp">pink dot</em> is the running average, and after one full turn it
  lands exactly on the strength you dialed for.</p>
 
  <p class="eqcap" style="text-align:center; font-size:.72rem; color:var(--muted); letter-spacing:.05em; margin:16px 0 6px;">THE MOVE, END TO END</p>
@@ -940,7 +940,7 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════
- SECTION 3, Cauchy: the same average, drawn as a circle [TO DRAFT]
+ SECTION 3, Cauchy: the same average, drawn as a circle
 ═══════════════════════════════════════════════════════════════ -->
 <div class="section" id="s3">
  <div class="sec-head">
@@ -1127,7 +1127,7 @@
  <div class="controls" style="justify-content:center; margin:4px 0 0; gap:8px;"><label><em class="mg">a</em><sub>3</sub></label><input type="range" id="slA3" min="-1.5" max="1.5" step="0.1" value="1" style="width:96px;"><span class="val" id="vlA3">1.0</span></div></div>
  </div>
  <p class="graph-caption" style="margin-top:8px;"><strong>The four terms.</strong> Each
- <em class="mp">vermilion dot</em> is that term's average over the turn: the three spinning terms
+ <em class="mp">pink dot</em> is that term's average over the turn: the three spinning terms
  (rates <em class="m">1</em>–<em class="m">3</em>) average to the <strong>origin</strong> whatever
  their coefficient; only the rate-<em class="m">0</em> term (<em class="mtau">gold</em>) survives,
  sitting at <em class="mg">a</em><sub>0</sub>. All six panels share one scale.</p>
@@ -1432,7 +1432,7 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════
- SECTION 4, Taylor: the averages were the coefficients [TO DRAFT]
+ SECTION 4, Taylor: the averages were the coefficients
 ═══════════════════════════════════════════════════════════════ -->
 <div class="section" id="s4">
  <div class="sec-head">
@@ -1723,10 +1723,10 @@
  laid tip-to-tail; their sum (the white dot) is <em class="mf">f</em> on the rim. Freeze the block
  you pick (here block <em class="m">3</em>): it turns <em class="mtau">gold</em> and stands still
  while the rest keep spinning. Press play to walk <em class="mt">θ</em> once around. The
- <em class="mp">vermilion</em> dot is the running average; it spirals onto that block's strength (the
+ <em class="mp">pink</em> dot is the running average; it spirals onto that block's strength (the
  <em class="mtau">gold ring</em>) as the turn completes. Every spinning block averages to
  nothing; only the frozen one survives. The readout prints both as <strong>complex numbers</strong>,
- so you can watch the vermilion average land exactly on the gold strength
+ so you can watch the pink average land exactly on the gold strength
  <em class="mg">a</em><sub><em class="m">k</em></sub><em class="mr">r</em><sup><em class="m">k</em></sup>.
  Hit <strong>🎲 new blocks</strong> to randomize the strengths and see it hold for any function.</p>
  </div>
@@ -1842,7 +1842,7 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════
- SECTION 5, why τ, and stretching the circle into a line [TO DRAFT]
+ SECTION 5, why τ, and stretching the circle into a line
 ═══════════════════════════════════════════════════════════════ -->
 <div class="section" id="s5">
  <div class="sec-head">
@@ -1965,12 +1965,12 @@ const TAU = 2 * Math.PI;
 const C = {
  bg: '#0a0a1c', surface: '#111128', border: '#22224a', axis: '#38385a',
  text: '#8888a8', gold: '#f4c830', cyan: '#40c8f0', green: '#50d890',
- pink: '#ec4a2a', red: '#e84040', muted: '#60607a',
+ pink: '#d040a0', red: '#e84040', muted: '#60607a',
 };
 
 // ── §1 live figure: the full-turn cancellation lemma ─────────────────
 // Left canvas: unit circle, sampled arrow positions e^(inθ) for θ∈[0, sweep],
-// the current gold arrow, and the running-average (centroid) vermilion dot.
+// the current gold arrow, and the running-average (centroid) pink dot.
 // Right canvas: |running average| plotted against θ as it sweeps 0→τ.
 (function () {
  const cv = document.getElementById('cAvg');
@@ -2056,7 +2056,7 @@ const C = {
  }
  ctx.stroke(); ctx.setLineDash([]);
 
- // running-average vermilion dot + its vector (the average so far)
+ // running-average pink dot + its vector (the average so far)
  const a = avgAt(sweep);
  const [ax, ay] = pt(a.re, a.im);
  ctx.strokeStyle = C.pink; ctx.lineWidth = 2;
@@ -2098,7 +2098,7 @@ const C = {
  if (!started) { ctxB.moveTo(px, py); started = true; } else ctxB.lineTo(px, py);
  }
  ctxB.stroke();
- // current endpoint, the same length the vermilion vector has on the left chart
+ // current endpoint, the same length the pink vector has on the left chart
  const aEnd = avgAt(sweep);
  const vEnd = Math.min(1, Math.hypot(aEnd.re, aEnd.im));
  ctxB.fillStyle = C.pink;
@@ -2902,7 +2902,7 @@ const C = {
  if (!cB && !cW) return;
  const btn = document.getElementById('btnFndPlay');
  let playing = false, raf = null, t0 = 0;
- const RD = '#ec4a2a', CY = C.cyan, GR = C.green, GD = C.gold;
+ const RD = '#e8607a', CY = C.cyan, GR = C.green, GD = C.gold;
  function arrow(ctx, x0, y0, x1, y1, col, w) {
  ctx.strokeStyle = col; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
  const a = Math.atan2(y1 - y0, x1 - x0), h = 8;
