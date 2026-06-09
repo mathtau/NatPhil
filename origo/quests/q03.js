@@ -88,35 +88,36 @@ function ask(prompt, choices, onRight){
     if(c.ok){ E.sfx('place'); E.pop('✓'); onRight(); }
     else { E.oops(); E.sfx('fail'); E.pop('✗'); E.tell(c.fb); } }); }); }
 
-/* ===== Round 1 — The Tied Sacks: a NAME lets you plan with the uncountable (combine equals → 2x; keep a different one apart → 2x + y) ===== */
+/* ===== Round 1 — The Tied Sacks: x is GIVEN (the standard sack). REUSE it for the same sack (→2x), then OPEN one to find x = 4, so 2x = 8. Nothing is a free choice. ===== */
 function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(0); E.cv.onclick=null;
   E.setPlace(t({en:'The Tied Sacks',zh:'扎口的袋子'}));
-  function tot(s){ E.status(s?'<span style="font-family:\'IBM Plex Mono\',monospace;font-size:1.5rem;color:#f4c830;font-weight:600">'+s+'</span>':''); }   // the running order, written in names
-  function scene(g1,g2,wh){ bg(); const LW=E.LW, y=E.LH*0.40, s=52;
-    sack(LW*0.30,y,s,'grass',false,0,g1,'#7fb6ff');             // two grass sacks, side by side (the SAME amount)
-    sack(LW*0.46,y,s,'grass',false,0,g2,'#7fb6ff');
-    sack(LW*0.75,y,s,'wheat',false,0,wh,'#ffd27a'); }           // a wheat sack, set apart (a DIFFERENT amount)
-  scene(null,null,null); tot('');
-  E.tell(t({en:'<b>The Tied Sacks.</b> The Fog hid every count. We cannot open them yet, but the herd still has to be fed, so we must plan with what we <b>cannot see</b>.',zh:'<b>扎口的袋子。</b>迷雾把数目都盖住了。现在还打不开，可牛群还得喂，我们只能用<b>看不见</b>的东西来安排。'}));
-  function q1(){ scene(null,null,null); tot('');
-    ask(t({en:'We cannot count a tied sack. To plan the feeding, what do we do with the <b class="g">grass</b> sack?',zh:'扎口的袋子数不出。要安排喂食，这袋<b class="g">青草</b>该怎么办？'}),
-      [ {t:t({en:'Guess a number',zh:'猜一个数'}), fb:t({en:'A guess could be wrong, and we cannot check until we open it.',zh:'猜可能猜错，打开之前没法验证。'})},
-        {t:t({en:'Count it',zh:'数一数'}), fb:t({en:'It is tied shut, so we cannot see inside.',zh:'袋子扎着，看不见里面。'})},
-        {t:t({en:'Name it x',zh:'起名 x'}), ok:true} ],
-      ()=>{ scene('x',null,null); tot('x'); q2(); }); }
-  function q2(){ scene('x',null,null); tot('x');
-    ask(t({en:'Good, <b class="b">x</b> is that sack. The second grass sack holds the <b>same</b>. So the two grass sacks together are…?',zh:'很好，<b class="b">x</b> 就是这袋。第二袋青草装得<b>一样多</b>。那两袋青草加起来是多少？'}),
-      [ {t:'x + y', fb:t({en:'They hold the same, so they share a name. Then it is x + x.',zh:'它们一样多，要用同一个名字。那就是 x + x。'})},
-        {t:'2', fb:t({en:'We still do not know the count, only that there are two of them.',zh:'我们还不知道里面有多少，只知道有两袋。'})},
+  const X=4;
+  function tot(s){ E.status(s?'<span style="font-family:\'IBM Plex Mono\',monospace;font-size:1.5rem;color:#f4c830;font-weight:600">'+s+'</span>':''); }
+  function scene(g2,opened){ bg(); const LW=E.LW, y=E.LH*0.40, s=56;
+    sack(LW*0.40,y,s,'grass',!!opened,X,'x','#7fb6ff');          // the STANDARD sack — already named x (given)
+    sack(LW*0.58,y,s,'grass',!!opened,X, g2 ,'#7fb6ff'); }       // a second standard sack (same → also x)
+  scene(null,false); tot('x');
+  E.tell(t({en:'<b>The Tied Sacks.</b> We cannot open them yet, but the quartermaster already calls one <b>standard</b> grass sack <b class="b">x</b>: we do not know the count, yet every standard sack holds the <b>same</b> x.',zh:'<b>扎口的袋子。</b>现在还打不开，但管粮的早把一袋<b>标准</b>青草叫作 <b class="b">x</b>：具体多少不知道，可每一袋标准袋装的都是<b>同样</b>的 x。'}));
+  function q1(){ scene(null,false); tot('x');
+    ask(t({en:'Tau sets down a <b>second standard</b> grass sack, the same as the first. How many bundles does it hold?',zh:'陶又放下<b>第二袋标准</b>青草，和第一袋一样。它装着多少捆？'}),
+      [ {t:t({en:'Guess a number',zh:'猜一个数'}), fb:t({en:'A standard sack cannot be counted yet. But we already know what it equals.',zh:'标准袋现在数不出。但我们已经知道它等于什么了。'})},
+        {t:t({en:'A new name',zh:'起个新名字'}), fb:t({en:'It is the same standard sack, so a new name would pretend it differs. Reuse x.',zh:'它是同样的标准袋，起新名字就等于说它不一样。还是用 x。'})},
+        {t:t({en:'It is x',zh:'就是 x'}), ok:true} ],
+      ()=>{ scene('x',false); tot('x , x'); q2(); }); }
+  function q2(){ scene('x',false); tot('x , x');
+    ask(t({en:'Both sacks are <b class="b">x</b>. So the two standard sacks <b>together</b> hold…?',zh:'两袋都是 <b class="b">x</b>。那两袋标准袋<b>合起来</b>是多少？'}),
+      [ {t:'x + 2', fb:t({en:'That is x and 2 more bundles, not two whole sacks.',zh:'那是 x 再加 2 捆，不是两整袋。'})},
+        {t:t({en:'a number',zh:'一个具体数'}), fb:t({en:'We still do not know x, only that there are two of them.',zh:'我们还不知道 x，只知道有两袋。'})},
         {t:'2x', ok:true} ],
-      ()=>{ scene('x','x',null); tot('2x'); q3(); }); }
-  function q3(){ scene('x','x',null); tot('2x');
-    ask(t({en:'Two grass sacks make <b class="b">2x</b>. Now a tied <b class="o">wheat</b> sack arrives, a <b>different</b> amount. The whole load is…?',zh:'两袋青草是 <b class="b">2x</b>。又来一袋扎口的<b class="o">麦子</b>，数量<b>不同</b>。整批一共是多少？'}),
-      [ {t:'3x', fb:t({en:'That would say the wheat equals the grass, but it is a different amount.',zh:'那等于说麦子和青草一样多，可它们不一样。'})},
-        {t:'2x + y', ok:true} ],
-      ()=>{ scene('x','x','y'); win(); }); }
-  function win(){ E.setDots(1); E.tickQ(1); E.award(45); E.status(keq('2x + y'));
-    E.tell(t({en:'A <b>name</b> lets you handle what you cannot count. Equal sacks share a name and add up: <b class="b">x + x = 2x</b>. A different sack keeps its own name, so it stays apart: <b class="b">2x + y</b>. The name carried the unknown right through the plan.',zh:'<b>名字</b>让你能处理数不出的东西。一样的袋子用同一个名字，能相加：<b class="b">x + x = 2x</b>。不同的袋子各用各的名字，分得清清楚楚：<b class="b">2x + y</b>。名字把这个未知数一路带进了计划。'}));
+      ()=>{ scene('x',false); tot('2x'); q3(); }); }
+  function q3(){ scene('x',false); tot('2x');
+    ask(t({en:'Now <b>open</b> a standard sack: it holds <b>4</b> bundles, so <b class="b">x = 4</b>. Then the two sacks, <b class="b">2x</b>, hold…?',zh:'现在<b>打开</b>一袋标准袋：里面是 <b>4</b> 捆，所以 <b class="b">x = 4</b>。那两袋（<b class="b">2x</b>）一共是多少？'}),
+      [ {t:'6', fb:t({en:'That is 4 + 2. 2x means two whole x’s, so 2 × 4.',zh:'那是 4 + 2。2x 是两整个 x，也就是 2 × 4。'})},
+        {t:'42', fb:t({en:'Those are just the digits stuck together. Work out 2 × 4.',zh:'那只是把数字拼在一起。算一算 2 × 4。'})},
+        {t:'8', ok:true} ],
+      ()=>{ scene('x',true); tot('x = 4 → 2x = 8'); win(); }); }
+  function win(){ E.setDots(1); E.tickQ(1); E.award(45); E.status(keq('x = 4 → 2x = 8'));
+    E.tell(t({en:'See what the name did. We wrote <b class="b">2x</b> for the two sacks <b>before</b> we knew the count, then opened one to find <b class="b">x = 4</b>, so <b class="b">2x = 8</b>. A name holds a number until you are ready to fill it in.',zh:'看看名字的妙处。在还不知道数目时，我们就把两袋写成了 <b class="b">2x</b>；打开一看 <b class="b">x = 4</b>，于是 <b class="b">2x = 8</b>。名字替你把这个数先存着，等你准备好再填进去。'}));
     E.clearTray(); E.addBtn(t({en:'On to the Copy Yard ▶',zh:'前往复制场 ▶'}),'primary',E.advance); E.addBtn(t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep); }
   q1();
 }
@@ -156,7 +157,7 @@ function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(2); E.cv.oncl
   function openRow(){ bg(); const LW=E.LW, y=E.LH*0.26, sp=Math.min(56,(LW-80)/N); for(let i=0;i<N;i++) sack(LW/2+(i-(N-1)/2)*sp,y,42,'grass',true,X,'x','#7fb6ff'); }
   function feedScene(p){ const LW=E.LW, y=E.LH*0.22, sp=Math.min(50,(LW-80)/N); bg(); for(let i=0;i<N;i++) sack(LW/2+(i-(N-1)/2)*sp,y,38,'grass',true,X,X,'#9fe0a8'); return herdGeo(); }
   openRow();
-  E.tell(t({en:'<b>Untie the Sacks.</b> The Fog lifts and we open them: each holds <b>4</b> bundles. So <b class="b">x = 4</b>. The herd of <b>5x</b> calves is hungry.',zh:'<b>解开袋子。</b>迷雾散了，打开一看：每袋装着 <b>4</b> 捆。所以 <b class="b">x = 4</b>。<b>5x</b> 头小牛饿着呢。'}));
+  E.tell(t({en:'<b>Untie the Sacks.</b> We opened one at the start, so we know <b class="b">x = 4</b>. Now untie all <b>5</b> for the herd, <b>5x</b> bundles in all.',zh:'<b>解开袋子。</b>开头我们打开过一袋，已经知道 <b class="b">x = 4</b>。现在把全部 <b>5</b> 袋都解开喂牛群，一共 <b>5x</b> 捆。'}));
   function q1(){ openRow();
     ask(t({en:'Each sack holds 4, so <b class="b">x = 4</b>. Then <b class="b">5x</b> bundles is…?',zh:'每袋装 4，所以 <b class="b">x = 4</b>。那么 <b class="b">5x</b> 捆是多少？'}),
       [ {t:'54', fb:t({en:'That just sticks the digits together. 5x means 5 × x.',zh:'那只是把数字拼在一起。5x 是 5 × x。'})},
@@ -201,7 +202,7 @@ const QUEST = {
       {note:{en:'<b>Next.</b> Give two sides the names <b>a</b> and <b>b</b>, and a whole field becomes one rule: its area is <b>ab</b>.'}}
     ],
     read:{en:'A letter is a name for a number you haven’t filled in. Write 5x for five of them; fill in a value to read the answer; and one line of letters can speak for every number.'} },
-  intro:(E)=>{ bg(); const LW=E.LW,y=E.LH*0.4; sack(LW*0.4,y,58,'grass',false,0,'x','#7fb6ff'); sack(LW*0.62,y,58,'wheat',false,0,'y','#ffd27a'); }
+  intro:(E)=>{ bg(); const LW=E.LW,y=E.LH*0.4; sack(LW*0.42,y,58,'grass',false,0,'x','#7fb6ff'); sack(LW*0.58,y,58,'grass',false,0,'x','#7fb6ff'); }
 };
 window.QUEST_q03 = QUEST;
 })();
