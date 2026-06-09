@@ -61,7 +61,7 @@ function magician(ctx,x,y,s,tt){ tt=tt==null?1:tt; const U=s/100, P=Math.PI; ctx
 function bundle(ctx,x,y,r,col){ ctx.save(); ctx.strokeStyle=col||'#1c5a2a'; ctx.lineWidth=Math.max(1.4,r*0.22); ctx.lineCap='round';
   [-0.5,0,0.5].forEach(d=>{ ctx.beginPath(); ctx.moveTo(x+d*r*0.5,y+r*0.6); ctx.quadraticCurveTo(x+d*r,y-r*0.2,x+d*r*1.5,y-r); ctx.stroke(); });
   ctx.strokeStyle='#b88a3a'; ctx.lineWidth=Math.max(1.4,r*0.24); ctx.beginPath(); ctx.moveTo(x-r*0.55,y+r*0.45); ctx.lineTo(x+r*0.55,y+r*0.45); ctx.stroke(); ctx.restore(); }
-function sack(cx,cy,s,kind,opened,count,tag,tagcol){ const ctx=E.ctx; ctx.save(); ctx.lineJoin='round';
+function sack(cx,cy,s,kind,opened,count,tag,tagcol,inLabel){ const ctx=E.ctx; ctx.save(); ctx.lineJoin='round';
   const w=s, h=s*1.18;
   ctx.fillStyle='rgba(0,0,0,.16)'; ctx.beginPath(); ctx.ellipse(cx,cy+h*0.5,w*0.40,h*0.07,0,0,7); ctx.fill();
   const g=ctx.createLinearGradient(cx-w/2,0,cx+w/2,0);
@@ -69,11 +69,12 @@ function sack(cx,cy,s,kind,opened,count,tag,tagcol){ const ctx=E.ctx; ctx.save()
   ctx.fillStyle=g; ctx.strokeStyle='#5a4a2a'; ctx.lineWidth=2;
   ctx.beginPath(); ctx.moveTo(cx-w*0.30,cy-h*0.30); ctx.quadraticCurveTo(cx-w*0.52,cy,cx-w*0.34,cy+h*0.40);
   ctx.quadraticCurveTo(cx,cy+h*0.54,cx+w*0.34,cy+h*0.40); ctx.quadraticCurveTo(cx+w*0.52,cy,cx+w*0.30,cy-h*0.30); ctx.closePath(); ctx.fill(); ctx.stroke();
-  if(opened){ const inside=kind==='wheat'?'#7a5a18':'#1c5a2a'; const cols=Math.min(count,2)||1, br=w*0.17;
+  if(opened && inLabel==null){ const inside=kind==='wheat'?'#7a5a18':'#1c5a2a'; const cols=Math.min(count,2)||1, br=w*0.17;
     for(let i=0;i<count;i++){ const r=Math.floor(i/cols), c=i%cols, n=Math.min(count-r*cols,cols), bx=cx+(c-(n-1)/2)*w*0.30, by=cy+h*0.02+r*w*0.26 - (Math.ceil(count/cols)-1)*w*0.10; bundle(ctx,bx,by,br,inside); } }
-  else { ctx.save(); ctx.beginPath(); ctx.moveTo(cx-w*0.30,cy-h*0.30); ctx.quadraticCurveTo(cx-w*0.52,cy,cx-w*0.34,cy+h*0.40); ctx.quadraticCurveTo(cx,cy+h*0.54,cx+w*0.34,cy+h*0.40); ctx.quadraticCurveTo(cx+w*0.52,cy,cx+w*0.30,cy-h*0.30); ctx.closePath(); ctx.clip();
-    ctx.fillStyle='rgba(20,18,40,.22)'; ctx.fillRect(cx-w,cy-h,2*w,2*h); ctx.restore();
-    ctx.fillStyle='rgba(255,255,255,.9)'; ctx.font='bold '+(s*0.46)+'px "IBM Plex Mono",monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('?',cx,cy+h*0.05); }
+  else { if(!opened){ ctx.save(); ctx.beginPath(); ctx.moveTo(cx-w*0.30,cy-h*0.30); ctx.quadraticCurveTo(cx-w*0.52,cy,cx-w*0.34,cy+h*0.40); ctx.quadraticCurveTo(cx,cy+h*0.54,cx+w*0.34,cy+h*0.40); ctx.quadraticCurveTo(cx+w*0.52,cy,cx+w*0.30,cy-h*0.30); ctx.closePath(); ctx.clip();
+      ctx.fillStyle='rgba(20,18,40,.22)'; ctx.fillRect(cx-w,cy-h,2*w,2*h); ctx.restore(); }   // tied = foggy tint; opened sack stays bright
+    const txt=inLabel==null?'?':inLabel; ctx.fillStyle=opened?'#fff0b0':'#cfe6ff';            // revealed VALUE (bright gold) vs the NAME (light blue)
+    ctx.font='bold '+(s*0.5)+'px "IBM Plex Mono",monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(txt,cx,cy+h*0.05); }
   // cinched, tied neck
   const neck=kind==='wheat'?'#e0b65a':'#3f9a52'; ctx.fillStyle=neck; ctx.beginPath(); ctx.moveTo(cx-w*0.30,cy-h*0.30); ctx.quadraticCurveTo(cx,cy-h*0.46,cx+w*0.30,cy-h*0.30); ctx.quadraticCurveTo(cx,cy-h*0.18,cx-w*0.30,cy-h*0.30); ctx.fill();
   ctx.strokeStyle='#6a5530'; ctx.lineWidth=2.4; ctx.beginPath(); ctx.ellipse(cx,cy-h*0.30,w*0.30,h*0.05,0,0,7); ctx.stroke();
@@ -88,35 +89,36 @@ function ask(prompt, choices, onRight){
     if(c.ok){ E.sfx('place'); E.pop('✓'); onRight(); }
     else { E.oops(); E.sfx('fail'); E.pop('✗'); E.tell(c.fb); } }); }); }
 
-/* ===== Round 1 — The Tied Sacks: sack 1 is named x; sack 2 is IDENTICAL. Open the twin → grass for 3 calves, so x = 3 (pinned down without ever opening the x-sack). ===== */
+/* ===== Round 1 — The Tied Sacks: both sacks hold x; open the identical twin → it reads 3 and 3 grasses fly out to feed 3 calves, so x = 3. ===== */
 function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(0); E.cv.onclick=null;
   E.setPlace(t({en:'The Tied Sacks',zh:'扎口的袋子'}));
   const X=3, S=80;
-  const Y=()=>E.LH*0.34, C1=()=>E.LW*0.32, C2=()=>E.LW*0.68, CY=()=>Y()+S*0.76;
-  function herdN(cx,n){ for(let i=0;i<n;i++) calf(E.ctx,cx+(i-(X-1)/2)*30,CY(),12,true); }   // n happy calves the sack feeds
-  function scene(open1,open2,n1){ bg();
-    label(C2(),Y()-S*0.82,t({en:'identical',zh:'一模一样'}),'#8a8a70',12);             // caption above the twin
-    label(C1(),Y()-S*0.58,'x','#7fb6ff',26); label(C2(),Y()-S*0.58,'x','#7fb6ff',26);   // each sack is named x (above, clear of the calves)
-    sack(C1(),Y(),S,'grass',!!open1,X,null,'#7fb6ff');
-    sack(C2(),Y(),S,'grass',!!open2,X,null,'#7fb6ff');
-    if(open2) herdN(C2(),X);
-    if(open1) herdN(C1(), n1==null?X:n1); }
-  scene(false,false);
-  E.tell(t({en:'<b>The Tied Sacks.</b> The first sack is our <b>standard</b> grass sack, named <b class="b">x</b>. The second is <b>identical</b> to it. We cannot open the first, but we can open its twin.',zh:'<b>扎口的袋子。</b>第一袋是我们的<b>标准</b>青草袋，叫作 <b class="b">x</b>。第二袋和它<b>一模一样</b>。第一袋打不开，但它的双胞胎能打开。'}));
-  function q1(){ scene(false,false); E.clearTray();
-    E.addBtn(t({en:'Open the identical sack',zh:'打开一样的那袋'}),'primary',()=>{ E.sfx('place'); scene(false,true); q2(); }); }
-  function q2(){ scene(false,true);
-    ask(t({en:'The twin opens: it <b class="g">feeds 3 calves</b>. The two sacks are <b>identical</b>, so <b class="b">x</b> feeds…?',zh:'双胞胎打开了：它<b class="g">够 3 头小牛吃</b>。两袋<b>一模一样</b>，所以 <b class="b">x</b> 够几头吃？'}),
+  const Y=()=>E.LH*0.34, C1=()=>E.LW*0.32, C2=()=>E.LW*0.68, CY=()=>Y()+S*1.02;
+  const st1={open:false,show:false,fed:0}, st2={open:false,show:false,fed:0};
+  const pos=(cx,i)=>cx+(i-(X-1)/2)*30;
+  function drawSack(cx,st){ sack(cx,Y(),S,'grass',st.open,0,null,null,st.open?String(X):'x');
+    if(st.show) for(let i=0;i<X;i++) calf(E.ctx,pos(cx,i),CY(),12, i<st.fed?true:'open'); }
+  function scene(){ bg(); label(C2(),Y()-S*0.72,t({en:'identical',zh:'一模一样'}),'#8a8a70',13); drawSack(C1(),st1); drawSack(C2(),st2); }
+  // open a sack: it reads 3, and its 3 grasses arc down to meet 3 waiting calves; each calf turns happy as its grass lands
+  function feed(cx,st,done){ E.busy=true; E.sfx('place'); st.open=true; st.show=true;
+    const GAP=230, FLY=440, total=(X-1)*GAP+FLY+220, sx=cx, sy=Y()+S*0.18;
+    E.anim(total,p=>{ const tnow=p*total; let fed=0; for(let i=0;i<X;i++) if(tnow>=i*GAP+FLY) fed++; st.fed=fed; scene();
+      for(let i=0;i<X;i++){ const tp=(tnow-i*GAP)/FLY; if(tp<=0||tp>=1) continue; const tx=pos(cx,i),ty=CY();
+        const gx=sx+(tx-sx)*tp, gy=sy+(ty-sy)*tp-Math.sin(tp*Math.PI)*26; bundle(E.ctx,gx,gy,12,'#1c5a2a');
+        star(E.ctx,gx,gy-15,4*(0.6+0.4*Math.sin(tnow*0.02+i)),'rgba(255,243,207,.85)'); } },
+     ()=>{ st.fed=X; scene(); E.cheer(); E.pop('nom!'); E.busy=false; done(); }); }
+  scene();
+  E.tell(t({en:'<b>The Tied Sacks.</b> Both sacks hold the <b>same</b> standard amount of grass, so we give that amount a <b>name</b>: <b class="b">x</b>. We cannot open the first, but its <b>identical</b> twin we can.',zh:'<b>扎口的袋子。</b>两只袋子装着<b>同样</b>多的标准青草，我们就给这个量起个<b>名字</b>：<b class="b">x</b>。第一袋打不开，但它<b>一模一样</b>的双胞胎能打开。'}));
+  function q1(){ scene(); E.clearTray();
+    E.addBtn(t({en:'Open the identical sack',zh:'打开一样的那袋'}),'primary',()=>feed(C2(),st2,q2)); }
+  function q2(){ scene();
+    ask(t({en:'The twin reads <b class="b">3</b>, and its three grasses fed <b class="g">3 calves</b>. The sacks are <b>identical</b>, so <b class="b">x</b> feeds…?',zh:'双胞胎打开是 <b class="b">3</b>，三捆草喂饱了 <b class="g">3 头小牛</b>。两袋<b>一模一样</b>，所以 <b class="b">x</b> 够几头吃？'}),
       [ {t:t({en:'x = 6 calves',zh:'x = 6 头'}), fb:t({en:'That is both sacks together. x is one standard sack, and it feeds 3.',zh:'那是两袋合起来。x 是一袋标准袋，够 3 头。'})},
         {t:t({en:'cannot tell',zh:'说不准'}), fb:t({en:'They are identical, so x feeds exactly what the twin fed.',zh:'它们一模一样，x 够吃的正是双胞胎那么多。'})},
         {t:t({en:'x = 3 calves',zh:'x = 3 头'}), ok:true} ],
-      ()=>reveal()); }
-  function reveal(){ E.busy=true; E.sfx('win');                      // open the x-sack too: its 3 happy calves pop in, confirming x = 3
-    E.anim(820,p=>{ const n=Math.min(X,Math.floor(p*X)+1); scene(true,true,n);
-      for(let i=0;i<n;i++) star(E.ctx,C1()+(i-(X-1)/2)*30,CY()-18,6*(0.5+0.5*Math.sin(p*10+i)),'rgba(255,243,207,.85)'); },
-     ()=>{ scene(true,true,X); E.cheer(); E.pop('nom!'); E.busy=false; win(); }); }
+      ()=>feed(C1(),st1,win)); }
   function win(){ E.setDots(1); E.tickQ(1); E.award(45); E.status(keq('x = 3'));
-    E.tell(t({en:'We pinned down <b class="b">x = 3</b> by opening only the twin. And sure enough, the first sack <b>feeds the same 3 calves</b>: identical sacks, identical x. One name, one amount.',zh:'我们只打开了双胞胎，就把 <b class="b">x = 3</b> 定了下来。果然，第一袋也<b>够同样的 3 头小牛吃</b>：一样的袋子，一样的 x。一个名字，一个量。'}));
+    E.tell(t({en:'We never opened the first sack, yet we know it: identical to the twin, so <b class="b">x = 3</b>. Its three grasses feed the same <b class="g">3 calves</b>. One name, one amount.',zh:'我们没打开第一袋，却知道了它：和双胞胎一样，所以 <b class="b">x = 3</b>。它的三捆草喂饱同样的 <b class="g">3 头小牛</b>。一个名字，一个量。'}));
     E.clearTray(); E.addBtn(t({en:'On to the Copy Yard ▶',zh:'前往复制场 ▶'}),'primary',E.advance); E.addBtn(t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep); }
   q1();
 }
@@ -130,7 +132,7 @@ function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.cv.oncl
     const c=[]; for(let i=0;i<TOTAL;i++){ const r=Math.floor(i/cols), k=i%cols; c.push({x:ox+k*cell+cell/2,y:oy+r*cell+cell/2}); } return {cell,centers:c}; }
   const sp=()=>Math.min(50,(E.LW*0.6)/N), SY=()=>E.LH*0.30;
   function yard(){ bg(); const LW=E.LW,y=SY(); magician(E.ctx,LW*0.14,y,50,0); label(LW*0.14,y+52,'积','#caa84a',13);
-    for(let i=0;i<N;i++) sack(LW*0.34+i*sp(),y,46,'grass',false,0,'x','#7fb6ff'); return y; }
+    for(let i=0;i<N;i++) sack(LW*0.34+i*sp(),y,46,'grass',false,0,null,null,'x'); return y; }   // x inside each sack (was a ? mark)
   function drawFed(){ yard(); const g=herdGeo(), r=Math.max(8,Math.min(13,g.cell*0.42)); for(let i=0;i<g.centers.length;i++)calf(E.ctx,g.centers[i].x,g.centers[i].y,r,true); }   // 5 x-sacks + the 15 calves they feed
   // INSTRUCTION (shown, not a choice): 积 copies x five times; 5 × x is written 5x. Then the only graded step is finding x.
   drawFed(); stat('5 × x = 5x');
@@ -144,33 +146,43 @@ function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.cv.oncl
        ()=>{ drawFed(); win(); }); });
   function win(){ E.setDots(2); E.tickQ(2); E.award(50); E.status(keq('5x = 15 , x = 3'));
     E.tell(t({en:'<b class="b">5x = 15</b>, so sharing back into 5 sacks gives <b class="b">x = 3</b>, the same answer the twin gave. And see why we write <b class="b">5x</b>, not <b>5 × x</b>: the <b>×</b> looks just like the name <b class="b">x</b>, so we drop it. Five of them is simply <b class="b">5x</b>.',zh:'<b class="b">5x = 15</b>，平分回 5 个袋子就得 <b class="b">x = 3</b>，和双胞胎给的答案一样。看为什么写 <b class="b">5x</b> 而不写 <b>5 × x</b>：那个 <b>×</b> 长得太像名字 <b class="b">x</b> 了，所以省掉它。五份就简写成 <b class="b">5x</b>。'}));
-    E.clearTray(); E.addBtn(t({en:'On to Cart After Cart ▶',zh:'前往一车又一车 ▶'}),'primary',E.advance); E.addBtn(t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep); }
+    E.clearTray(); E.addBtn(t({en:'On to the Field ▶',zh:'前往田地 ▶'}),'primary',E.advance); E.addBtn(t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep); }
 }
 
-/* ===== Round 3 — Cart After Cart: a name works for ANY value (change x, and 5x follows) ===== */
+/* ===== Round 3 — The Measured Field: multiply two NAMED lengths to get an AREA, written short (3 × x = 3x, then a × b = ab). Figure colors: BLUE=height/rows, RED=width, GREEN=area. ===== */
 function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(2); E.cv.onclick=null;
-  E.setPlace(t({en:'Cart After Cart',zh:'一车又一车'}));
-  const N=5;
-  function herdGeo(total){ const LW=E.LW, cols=Math.min(total,10), rows=Math.ceil(total/cols), cell=Math.min(40,(LW-110)/cols,116/rows), gw=cols*cell, ox=(LW-gw)/2+8, oy=E.LH*0.50;
-    const centers=[]; for(let i=0;i<total;i++){ const r=Math.floor(i/cols), c=i%cols; centers.push({x:ox+c*cell+cell/2,y:oy+r*cell+cell/2}); } return {cell,centers}; }
-  function cart(x){ bg(); const LW=E.LW, y=E.LH*0.24, sp=Math.min(60,(LW-60)/N); for(let i=0;i<N;i++) sack(LW/2+(i-(N-1)/2)*sp,y,52,'grass',true,x,x,'#7fb6ff'); }
-  function feedScene(x){ cart(x); return herdGeo(N*x); }
-  function fed(x){ feedScene(x); const g=herdGeo(N*x), r=Math.max(8,Math.min(14,g.cell*0.42)); for(let i=0;i<g.centers.length;i++)calf(E.ctx,g.centers[i].x,g.centers[i].y,r,true); }
-  function svt(x){ E.status('<span style="font-family:\'IBM Plex Mono\',monospace;font-size:1.4rem;color:#f4c830;font-weight:600">x = '+x+'  ,  5x = '+(N*x)+'</span>'); }
-  fed(3); svt(3);
-  // R3 is NOT another 5x sum — it is the POINT of naming: x can be ANY value, and one short rule 5x covers them all.
-  E.tell(t({en:'<b>Cart After Cart.</b> A fresh cart rolls in each morning, every one with a <b>different</b> fill <b class="b">x</b>. Yesterday <b class="b">x</b> was 3; tomorrow it might be 2, or 10. So what single rule can feed <b>every</b> cart?',zh:'<b>一车又一车。</b>每天清晨都来一辆新车，每辆的装填量 <b class="b">x</b> 都<b>不一样</b>。昨天 <b class="b">x</b> 是 3，明天也许是 2，也许是 10。那么，用<b>哪一条</b>规则就能喂遍每一辆车？'}));
-  ask(t({en:'Each morning the fill <b class="b">x</b> is different. What feeds them <b>all</b>?',zh:'每天清晨 <b class="b">x</b> 都不一样。用什么能喂遍<b>所有</b>车？'}),
-    [ {t:t({en:'A new rule each day',zh:'每天换一条规则'}), fb:t({en:'That would be endless rules. The name x already stands for any fill, whatever it turns out to be.',zh:'那要写不完的规则。名字 x 本来就能代表任意一袋，不管它最后是多少。'})},
-      {t:t({en:'Always 15 calves',zh:'永远 15 头'}), fb:t({en:'15 was only when x = 3. A fuller cart feeds more, an emptier one less.',zh:'15 只是 x = 3 那一次。装得多就喂得多，装得少就喂得少。'})},
-      {t:t({en:'The one rule 5x',zh:'就一条：5x'}), ok:true} ],
-    ()=>sweep());
-  function sweep(){ E.busy=true; E.clearTray(); E.sfx('bracket'); E.speakAs('product',t({en:'Multiply!',zh:'乘！'}));   // let x roam: 5x tracks it, cart after cart
-    const vals=[1,2,3,5,8,10], hold=470;
-    E.anim(vals.length*hold,p=>{ const x=vals[Math.min(vals.length-1,Math.floor(p*vals.length))]; fed(x); svt(x); },
-     ()=>{ E.busy=false; fed(10); svt(10); win(); }); }
-  function win(){ E.setDots(3); E.tickQ(3); E.award(60); E.cheer(); E.sfx('win'); E.status(keq('one rule 5x , any x'));
-    E.tell(t({en:'<b>One name, every number.</b> Whatever the fill <b class="b">x</b>, the same <b class="b">5x</b> feeds the cart: <b class="b">x</b> = 2 feeds 10, <b class="b">x</b> = 8 feeds 40, <b class="b">x</b> = 10 feeds 50. Name a number once, and one short rule speaks for them all. You have earned the page!',zh:'<b>一个名字，所有的数。</b>不管装多少 <b class="b">x</b>，都是同一个 <b class="b">5x</b> 在喂：<b class="b">x</b> = 2 喂 10，<b class="b">x</b> = 8 喂 40，<b class="b">x</b> = 10 喂 50。给数起一次名，一条短短的规则就能代表它们全部。书页到手！'}));
+  E.setPlace(t({en:'The Measured Field',zh:'丈量的田'}));
+  const BL='#5b9bff', RD='#ff7a55', GR='#46c46e';
+  function bracket(x1,y1,x2,y2,col){ const ctx=E.ctx; ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=2.6; ctx.lineCap='round';
+    const dx=x2-x1, dy=y2-y1, L=Math.hypot(dx,dy)||1, nx=-dy/L, ny=dx/L, c=8;
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+    ctx.moveTo(x1-nx*c,y1-ny*c); ctx.lineTo(x1+nx*c,y1+ny*c); ctx.moveTo(x2-nx*c,y2-ny*c); ctx.lineTo(x2+nx*c,y2+ny*c); ctx.stroke(); ctx.restore(); }
+  function field(rowsLabel,colsLabel,rowsN,area){ bg(); const ctx=E.ctx;
+    const cx=E.LW*0.54, RW=E.LW*0.30, RH=E.LH*0.46, x0=cx-RW/2, y0=E.LH*0.16, x1=cx+RW/2, y1=y0+RH;
+    ctx.save(); ctx.fillStyle='rgba(70,196,110,.14)'; ctx.strokeStyle='#3f9a52'; ctx.lineWidth=2.6; ctx.fillRect(x0,y0,RW,RH); ctx.strokeRect(x0,y0,RW,RH); ctx.restore();
+    if(rowsN){ ctx.save(); ctx.strokeStyle='rgba(91,155,255,.55)'; ctx.lineWidth=1.5; ctx.setLineDash([6,5]); for(let i=1;i<rowsN;i++){ const yy=y0+RH*i/rowsN; ctx.beginPath(); ctx.moveTo(x0,yy); ctx.lineTo(x1,yy); ctx.stroke(); } ctx.restore(); }
+    bracket(x0-16,y0,x0-16,y1,BL); label(x0-42,(y0+y1)/2,rowsLabel,BL,32);                 // height = rows (blue, vertical)
+    bracket(x0,y1+18,x1,y1+18,RD); label((x0+x1)/2,y1+50,colsLabel,RD,32);                  // width (red, horizontal)
+    label(cx,(y0+y1)/2,area,GR,area==='?'?54:42); }                                         // area (green)
+  // Step A: 3 rows (a number) × x wide (a NAME) → area 3x
+  field('3','x',3,'?');
+  E.tell(t({en:'<b>The Measured Field.</b> This grass field is <b class="b">3</b> rows tall and <b class="r">x</b> wide. Rows times width is the <b class="g">area</b>, the grass it grows. So the area is…?',zh:'<b>丈量的田。</b>这片草田高 <b class="b">3</b> 行，宽 <b class="r">x</b>。行数乘宽度就是<b class="g">面积</b>，也就是它长出的草。那么面积是……？'}));
+  ask(t({en:'<b class="b">3</b> rows, each <b class="r">x</b> wide. The <b class="g">area</b> = ?',zh:'<b class="b">3</b> 行，每行宽 <b class="r">x</b>。<b class="g">面积</b> = ?'}),
+    [ {t:t({en:'area = 3',zh:'面积 = 3'}), fb:t({en:'That is only the height (3 rows). Area needs the width x as well.',zh:'那只是高（3 行）。面积还要乘上宽度 x。'})},
+      {t:t({en:'area = x',zh:'面积 = x'}), fb:t({en:'That is only the width. Area needs the 3 rows as well.',zh:'那只是宽。面积还要乘上 3 行。'})},
+      {t:t({en:'area = 3x',zh:'面积 = 3x'}), ok:true} ],
+    ()=>{ field('3','x',3,'3x'); E.cheer(); E.sfx('place'); E.status(keq('3 × x = 3x'));
+      E.tell(t({en:'Three rows of <b class="r">x</b> make <b class="g">3x</b> grass, just like 5 sacks made 5x. A number times a name, written short.',zh:'三行 <b class="r">x</b> 就是 <b class="g">3x</b> 草，正像 5 袋是 5x。数字乘名字，简写在一起。'}));
+      E.clearTray(); E.addBtn(t({en:'Both sides a name ▶',zh:'两边都起名 ▶'}),'primary',q2); E.addBtn(t({en:'◀ Prev step',zh:'◀ 上一步'}),'ghost',E.prevStep); });
+  // Step B: a rows × b wide → area ab (both NAMES now)
+  function q2(){ field('a','b',null,'?');
+    ask(t({en:'A new field: <b class="b">a</b> rows tall, <b class="r">b</b> wide, both just <b>names</b>. The <b class="g">area</b> = ?',zh:'新的一片：高 <b class="b">a</b> 行，宽 <b class="r">b</b>，两个都只是<b>名字</b>。<b class="g">面积</b> = ?'}),
+      [ {t:t({en:'area = a',zh:'面积 = a'}), fb:t({en:'That is only the height. Area is height times width.',zh:'那只是高。面积是高乘宽。'})},
+        {t:t({en:'area = b',zh:'面积 = b'}), fb:t({en:'That is only the width. Area is height times width.',zh:'那只是宽。面积是高乘宽。'})},
+        {t:t({en:'area = ab',zh:'面积 = ab'}), ok:true} ],
+      ()=>{ field('a','b',null,'ab'); win(); }); }
+  function win(){ E.setDots(3); E.tickQ(3); E.award(60); E.cheer(); E.sfx('win'); E.status(keq('a × b = ab'));
+    E.tell(t({en:'<b>Two names, one area.</b> A field <b class="b">a</b> tall and <b class="r">b</b> wide grows <b class="g">ab</b> grass. Multiplying named lengths makes an area, and we write it short: 3x, ab. You have earned the page!',zh:'<b>两个名字，一块面积。</b>高 <b class="b">a</b>、宽 <b class="r">b</b> 的田长出 <b class="g">ab</b> 草。把起了名的长度相乘就得到面积，简写在一起：3x、ab。书页到手！'}));
     E.clearTray(); E.addBtn(t({en:'Claim the Codex page 📖',zh:'领取典籍书页 📖'}),'primary',()=>E.openBook(QUEST.book)); E.addBtn(t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep); }
 }
 function grazeWin(drawGeo,done){ E.busy=true; E.clearTray(); const total=drawGeo(1).centers.length, geo0=drawGeo(1), r=Math.max(9,Math.min(14,geo0.cell*0.42));
@@ -186,7 +198,7 @@ const QUEST = {
       zh:'"青草装在扎口的袋子里运来了，可<b>迷雾</b>把标签都缠乱了，我数不出每袋里有多少捆！不过魔法师<b>“积”</b>说，现在还不用知道。先给这个未知的数起个<b>名字</b>，复制它，等准备好了再打开袋子。帮我给这批粮食起名、喂饱牛群吧！"'} },
   objs:[ {en:'The Tied Sacks: name what you cannot count',zh:'扎口的袋子：给数不出的起名'},
          {en:'The Copy Yard: write 5x, not 5 × x',zh:'复制场：写 5x，别写 5 × x'},
-         {en:'Cart After Cart: one rule, any value',zh:'一车又一车：一条规则，任意取值'} ],
+         {en:'The Measured Field: lengths make an area (3x, ab)',zh:'丈量的田：长度相乘得面积（3x、ab）'} ],
   rounds:[round1,round2,round3],
   book:{ page:3, kicker:{en:'Introduction',zh:'入门之'}, title:{en:'Give Numbers Names',zh:'给数起名字'},
     blocks:[
