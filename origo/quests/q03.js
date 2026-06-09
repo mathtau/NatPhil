@@ -93,9 +93,9 @@ function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(0); E.cv.oncl
   E.setPlace(t({en:'The Tied Sacks',zh:'扎口的袋子'}));
   const X=4;
   function tot(s){ E.status(s?'<span style="font-family:\'IBM Plex Mono\',monospace;font-size:1.5rem;color:#f4c830;font-weight:600">'+s+'</span>':''); }
-  function scene(g2,opened){ bg(); const LW=E.LW, y=E.LH*0.40, s=56;
-    sack(LW*0.40,y,s,'grass',!!opened,X,'x','#7fb6ff');          // the STANDARD sack — already named x (given)
-    sack(LW*0.58,y,s,'grass',!!opened,X, g2 ,'#7fb6ff'); }       // a second standard sack (same → also x)
+  function scene(g2,opened){ bg(); const LW=E.LW, y=E.LH*0.42, s=84;
+    sack(LW*0.37,y,s,'grass',!!opened,X,'x','#7fb6ff');          // the STANDARD sack — already named x (given)
+    sack(LW*0.63,y,s,'grass',!!opened,X, g2 ,'#7fb6ff'); }       // a second standard sack (same → also x)
   scene(null,false); tot('x');
   E.tell(t({en:'<b>The Tied Sacks.</b> We cannot open them yet, but the quartermaster already calls one <b>standard</b> grass sack <b class="b">x</b>: we do not know the count, yet every standard sack holds the <b>same</b> x.',zh:'<b>扎口的袋子。</b>现在还打不开，但管粮的早把一袋<b>标准</b>青草叫作 <b class="b">x</b>：具体多少不知道，可每一袋标准袋装的都是<b>同样</b>的 x。'}));
   function q1(){ scene(null,false); tot('x');
@@ -126,8 +126,8 @@ function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(0); E.cv.oncl
 function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.cv.onclick=null;
   E.setPlace(t({en:'The Copy Yard',zh:'复制场'}));
   const N=5;
-  function scene(copies){ bg(); const LW=E.LW, y=E.LH*0.42; magician(E.ctx,LW*0.16,y,46,0); label(LW*0.16,y+50,'积','#caa84a',13);
-    const k=copies||1; for(let i=0;i<k;i++){ const x=LW*0.40+i*Math.min(46,(LW*0.55)/Math.max(k,1)); sack(x,y,44,'grass',false,0,'x','#7fb6ff'); }
+  function scene(copies){ bg(); const LW=E.LW, y=E.LH*0.42; magician(E.ctx,LW*0.15,y,56,0); label(LW*0.15,y+58,'积','#caa84a',14);
+    const k=copies||1; for(let i=0;i<k;i++){ const x=LW*0.36+i*Math.min(56,(LW*0.58)/Math.max(k,1)); sack(x,y,56,'grass',false,0,'x','#7fb6ff'); }
     waitingHerd(N); }
   scene(1);
   E.tell(t({en:'<b>The Copy Yard.</b> The herd is <b>'+N+'</b> calves, each needs one grass sack. <b>Product (积)</b> will <b>copy</b> the <b class="b">x</b>-sack. Tell 积: copy it <b>'+N+'</b> times. Write it.',zh:'<b>复制场。</b>牛群有 <b>'+N+'</b> 头小牛，每头要一袋青草。魔法师<b>“积”</b>会<b>复制</b>这袋 <b class="b">x</b>。告诉“积”：复制 <b>'+N+'</b> 次。把它写出来。'}));
@@ -138,8 +138,8 @@ function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.cv.oncl
       {t:'5x', ok:true} ],
     ()=>cast());
   function cast(){ E.busy=true; E.sfx('bracket'); E.speakAs('product',t({en:'Multiply!',zh:'乘！'}));
-    E.anim(700,p=>{ const LW=E.LW,y=E.LH*0.42; const k=1+Math.floor(p*(N-1)); scene(k); magician(E.ctx,LW*0.16,y,48,p);
-      const sp=Math.min(46,(LW*0.55)/N); for(let i=0;i<k;i++){ const sx=LW*0.40+i*sp; star(E.ctx,sx,y-30,7*(0.5+0.5*Math.sin(p*9+i)),'rgba(255,243,207,.8)'); } },
+    E.anim(700,p=>{ const LW=E.LW,y=E.LH*0.42; const k=1+Math.floor(p*(N-1)); scene(k); magician(E.ctx,LW*0.15,y,58,p);
+      const sp=Math.min(56,(LW*0.58)/N); for(let i=0;i<k;i++){ const sx=LW*0.36+i*sp; star(E.ctx,sx,y-34,8*(0.5+0.5*Math.sin(p*9+i)),'rgba(255,243,207,.8)'); } },
      ()=>{ scene(N); E.busy=false; win(); }); }
   function win(){ E.setDots(2); E.tickQ(2); E.award(50); E.status(keq('5x = x+x+x+x+x'));
     E.tell(t({en:'积 copies: <b class="b">5x</b> sacks, that is x + x + x + x + x. <b>Five lots of x</b>, with the number in front and no cross.',zh:'“积”复制出：<b class="b">5x</b> 袋，也就是 x + x + x + x + x。<b>五份 x</b>，数字在前，不写叉号。'}));
@@ -153,9 +153,9 @@ function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(2); E.cv.oncl
   // the herd to feed = TOTAL calves; grazeWin-style geometry
   function herdGeo(){ const LW=E.LW, cols=Math.min(TOTAL,10), rows=Math.ceil(TOTAL/cols), cell=Math.min(40,(LW-110)/cols,118/rows), gw=cols*cell, ox=(LW-gw)/2+8, oy=E.LH*0.50;
     const centers=[]; for(let i=0;i<TOTAL;i++){ const r=Math.floor(i/cols), c=i%cols; centers.push({x:ox+c*cell+cell/2,y:oy+r*cell+cell/2}); } return {cell,centers}; }
-  function sacksRow(){ bg(); const LW=E.LW, y=E.LH*0.26, sp=Math.min(56,(LW-80)/N); for(let i=0;i<N;i++) sack(LW/2+(i-(N-1)/2)*sp,y,42,'grass',true,X,X,'#7fb6ff'); }
-  function openRow(){ bg(); const LW=E.LW, y=E.LH*0.26, sp=Math.min(56,(LW-80)/N); for(let i=0;i<N;i++) sack(LW/2+(i-(N-1)/2)*sp,y,42,'grass',true,X,'x','#7fb6ff'); }
-  function feedScene(p){ const LW=E.LW, y=E.LH*0.22, sp=Math.min(50,(LW-80)/N); bg(); for(let i=0;i<N;i++) sack(LW/2+(i-(N-1)/2)*sp,y,38,'grass',true,X,X,'#9fe0a8'); return herdGeo(); }
+  function sacksRow(){ bg(); const LW=E.LW, y=E.LH*0.27, sp=Math.min(62,(LW-60)/N); for(let i=0;i<N;i++) sack(LW/2+(i-(N-1)/2)*sp,y,56,'grass',true,X,X,'#7fb6ff'); }
+  function openRow(){ bg(); const LW=E.LW, y=E.LH*0.27, sp=Math.min(62,(LW-60)/N); for(let i=0;i<N;i++) sack(LW/2+(i-(N-1)/2)*sp,y,56,'grass',true,X,'x','#7fb6ff'); }
+  function feedScene(p){ const LW=E.LW, y=E.LH*0.21, sp=Math.min(56,(LW-70)/N); bg(); for(let i=0;i<N;i++) sack(LW/2+(i-(N-1)/2)*sp,y,48,'grass',true,X,X,'#9fe0a8'); return herdGeo(); }
   openRow();
   E.tell(t({en:'<b>Untie the Sacks.</b> We opened one at the start, so we know <b class="b">x = 4</b>. Now untie all <b>5</b> for the herd, <b>5x</b> bundles in all.',zh:'<b>解开袋子。</b>开头我们打开过一袋，已经知道 <b class="b">x = 4</b>。现在把全部 <b>5</b> 袋都解开喂牛群，一共 <b>5x</b> 捆。'}));
   function q1(){ openRow();
@@ -202,7 +202,7 @@ const QUEST = {
       {note:{en:'<b>Next.</b> Give two sides the names <b>a</b> and <b>b</b>, and a whole field becomes one rule: its area is <b>ab</b>.'}}
     ],
     read:{en:'A letter is a name for a number you haven’t filled in. Write 5x for five of them; fill in a value to read the answer; and one line of letters can speak for every number.'} },
-  intro:(E)=>{ bg(); const LW=E.LW,y=E.LH*0.4; sack(LW*0.42,y,58,'grass',false,0,'x','#7fb6ff'); sack(LW*0.58,y,58,'grass',false,0,'x','#7fb6ff'); }
+  intro:(E)=>{ bg(); const LW=E.LW,y=E.LH*0.42; sack(LW*0.37,y,82,'grass',false,0,'x','#7fb6ff'); sack(LW*0.63,y,82,'grass',false,0,'x','#7fb6ff'); }
 };
 window.QUEST_q03 = QUEST;
 })();
