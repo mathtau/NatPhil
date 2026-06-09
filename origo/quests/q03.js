@@ -143,7 +143,7 @@ function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.cv.oncl
          {t:t({en:'x = 3',zh:'x = 3'}), ok:true} ],
        ()=>{ drawFed(); win(); }); });
   function win(){ E.setDots(2); E.tickQ(2); E.award(50); E.status(keq('5x = 15 , x = 3'));
-    E.tell(t({en:'<b class="b">5x = 15</b>, so sharing back into 5 sacks gives <b class="b">x = 3</b>, the same answer the twin gave. Multiplying by 5 and sharing into 5 undo each other.',zh:'<b class="b">5x = 15</b>，平分回 5 个袋子就得 <b class="b">x = 3</b>，和双胞胎给的答案一样。乘以 5 和平分成 5 份，正好互相抵消。'}));
+    E.tell(t({en:'<b class="b">5x = 15</b>, so sharing back into 5 sacks gives <b class="b">x = 3</b>, the same answer the twin gave. And see why we write <b class="b">5x</b>, not <b>5 × x</b>: the <b>×</b> looks just like the name <b class="b">x</b>, so we drop it. Five of them is simply <b class="b">5x</b>.',zh:'<b class="b">5x = 15</b>，平分回 5 个袋子就得 <b class="b">x = 3</b>，和双胞胎给的答案一样。看为什么写 <b class="b">5x</b> 而不写 <b>5 × x</b>：那个 <b>×</b> 长得太像名字 <b class="b">x</b> 了，所以省掉它。五份就简写成 <b class="b">5x</b>。'}));
     E.clearTray(); E.addBtn(t({en:'On to Cart After Cart ▶',zh:'前往一车又一车 ▶'}),'primary',E.advance); E.addBtn(t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep); }
 }
 
