@@ -125,59 +125,64 @@ function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(0); E.cv.oncl
   q1();
 }
 
-/* ===== Round 2 — The Copy Yard: WRITE 5x (drop the × so 积 reads it right) ===== */
+/* ===== Round 2 — The Copy Yard: 5 × x shortens to 5x; watch 5x feed the herd (15); then work BACKWARDS to recover x ===== */
 function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.cv.onclick=null;
   E.setPlace(t({en:'The Copy Yard',zh:'复制场'}));
-  const N=5;
-  function scene(copies){ bg(); const LW=E.LW, y=E.LH*0.42; magician(E.ctx,LW*0.15,y,56,0); label(LW*0.15,y+58,'积','#caa84a',14);
-    const k=copies||1; for(let i=0;i<k;i++){ const x=LW*0.36+i*Math.min(56,(LW*0.58)/Math.max(k,1)); sack(x,y,56,'grass',false,0,'x','#7fb6ff'); }
-    waitingHerd(N); }
-  scene(1);
-  E.tell(t({en:'<b>The Copy Yard.</b> The hungry herd needs many sacks. <b>Product (积)</b> will <b>copy</b> the standard <b class="b">x</b>-sack <b>'+N+'</b> times. Tell 积 how, in writing.',zh:'<b>复制场。</b>饿坏的牛群要好多袋。魔法师<b>“积”</b>会把这袋标准的 <b class="b">x</b> <b>复制 '+N+' 次</b>。用文字告诉“积”怎么写。'}));
-  ask(t({en:'Write “'+N+' copies of x”:',zh:'写出“'+N+' 份 x”：'}),
-    [ {t:'5 × x', fb:t({en:'积 reads the × as the sack-name x and grabs the wrong sack! When a letter is there, drop the ×.',zh:'“积”把 × 当成了袋名 x，抓错袋子！有字母时就把 × 去掉。'})},
-      {t:'x5', fb:t({en:'The number goes in front: 5x, not x5.',zh:'数字写在前面：5x，不是 x5。'})},
-      {t:'5 + x', fb:t({en:'That adds 5, it does not make 5 copies.',zh:'那是加 5，不是复制 5 份。'})},
+  const N=5, X=3, TOTAL=N*X;
+  function stat(s){ E.status('<span style="font-family:\'IBM Plex Mono\',monospace;font-size:1.45rem;color:#f4c830;font-weight:600">'+s+'</span>'); }
+  function herdGeo(){ const LW=E.LW, cols=Math.min(TOTAL,10), rows=Math.ceil(TOTAL/cols), cell=Math.min(36,(LW-110)/cols,100/rows), gw=cols*cell, ox=(LW-gw)/2+8, oy=E.LH*0.55;
+    const c=[]; for(let i=0;i<TOTAL;i++){ const r=Math.floor(i/cols), k=i%cols; c.push({x:ox+k*cell+cell/2,y:oy+r*cell+cell/2}); } return {cell,centers:c}; }
+  const sp=()=>Math.min(50,(E.LW*0.6)/N);
+  function yard(k){ bg(); const LW=E.LW,y=E.LH*0.34; magician(E.ctx,LW*0.14,y,50,0); label(LW*0.14,y+52,'积','#caa84a',13);
+    for(let i=0;i<k;i++) sack(LW*0.34+i*sp(),y,48,'grass',false,0,'x','#7fb6ff'); return y; }
+  function feedScene(){ yard(N); return herdGeo(); }
+  yard(1);
+  E.tell(t({en:'<b>The Copy Yard.</b> <b>Product (积)</b> will copy the standard <b class="b">x</b>-sack <b>5</b> times. Five copies is written <b>5 × x</b>. Write it more simply:',zh:'<b>复制场。</b>魔法师<b>“积”</b>要把这袋标准的 <b class="b">x</b> <b>复制 5 次</b>。五份写作 <b>5 × x</b>。把它写得更简单：'}));
+  ask(t({en:'Write <b>5 × x</b> more simply:',zh:'把 <b>5 × x</b> 写得更简单：'}),
+    [ {t:'5 × x', fb:t({en:'积 reads the × as the sack-name x and grabs the wrong sack. With a letter, drop the ×.',zh:'“积”把 × 当成袋名 x，抓错袋子。有字母时就把 × 去掉。'})},
+      {t:'x5', fb:t({en:'The number goes in front: 5x.',zh:'数字写在前面：5x。'})},
       {t:'5x', ok:true} ],
     ()=>cast());
   function cast(){ E.busy=true; E.sfx('bracket'); E.speakAs('product',t({en:'Multiply!',zh:'乘！'}));
-    E.anim(700,p=>{ const LW=E.LW,y=E.LH*0.42; const k=1+Math.floor(p*(N-1)); scene(k); magician(E.ctx,LW*0.15,y,58,p);
-      const sp=Math.min(56,(LW*0.58)/N); for(let i=0;i<k;i++){ const sx=LW*0.36+i*sp; star(E.ctx,sx,y-34,8*(0.5+0.5*Math.sin(p*9+i)),'rgba(255,243,207,.8)'); } },
-     ()=>{ scene(N); E.busy=false; win(); }); }
-  function win(){ E.setDots(2); E.tickQ(2); E.award(50); E.status(keq('5x = x+x+x+x+x'));
-    E.tell(t({en:'积 copies: <b class="b">5x</b> sacks, that is x + x + x + x + x. <b>Five lots of x</b>, with the number in front and no cross.',zh:'“积”复制出：<b class="b">5x</b> 袋，也就是 x + x + x + x + x。<b>五份 x</b>，数字在前，不写叉号。'}));
-    E.clearTray(); E.addBtn(t({en:'On to Untie the Sacks ▶',zh:'前往解开袋子 ▶'}),'primary',E.advance); E.addBtn(t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep); }
+    E.anim(700,p=>{ const k=1+Math.floor(p*(N-1)); const y=yard(k); for(let i=0;i<k;i++) star(E.ctx,E.LW*0.34+i*sp(),y-30,8*(0.5+0.5*Math.sin(p*9+i)),'rgba(255,243,207,.8)'); },
+     ()=>{ E.busy=false; stat('5 × x = 5x'); E.tell(t({en:'Shortened: <b class="b">5 × x = 5x</b>, five lots of x. 积 sends the <b class="b">5x</b> sacks off to feed the herd…',zh:'缩写：<b class="b">5 × x = 5x</b>，五份 x。“积”把这 <b class="b">5x</b> 袋送去喂牛群……'})); grazeWin(feedScene, backward); }); }
+  function backward(){ const draw=()=>{ feedScene(); const g=herdGeo(); const r=Math.max(8,Math.min(13,g.cell*0.42)); for(let i=0;i<g.centers.length;i++)calf(E.ctx,g.centers[i].x,g.centers[i].y,r,true); }; draw();
+    stat(t({en:'5x fed 15 calves',zh:'5x 喂了 15 头'}));
+    ask(t({en:'<b class="b">5x</b> just fed <b>15</b> calves, from <b>5</b> equal sacks. Work <b>backwards</b>: each sack, <b class="b">x</b>, feeds…?',zh:'<b class="b">5x</b> 刚喂了 <b>15</b> 头，用的是 <b>5</b> 个一样的袋子。<b>倒过来</b>想：每袋 <b class="b">x</b> 够几头吃？'}),
+      [ {t:'10', fb:t({en:'That is 15 − 5. Share the 15 calves fairly among the 5 sacks.',zh:'那是 15 − 5。把 15 头平分给 5 个袋子。'})},
+        {t:'75', fb:t({en:'That is 15 × 5. We are sharing 15, not multiplying it.',zh:'那是 15 × 5。我们在平分 15，不是再乘。'})},
+        {t:'3', ok:true} ],
+      ()=>{ draw(); win(); }); }
+  function win(){ E.setDots(2); E.tickQ(2); E.award(50); E.status(keq('5x = 15 , x = 3'));
+    E.tell(t({en:'<b class="b">5x = 15</b>, so working backwards <b class="b">x = 3</b>, the same answer the twin gave. Multiplying by 5 and sharing back into 5 undo each other.',zh:'<b class="b">5x = 15</b>，倒推回去 <b class="b">x = 3</b>，和双胞胎给的答案一样。乘以 5 和平分成 5 份，正好互相抵消。'}));
+    E.clearTray(); E.addBtn(t({en:'On to Cart After Cart ▶',zh:'前往一车又一车 ▶'}),'primary',E.advance); E.addBtn(t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep); }
 }
 
-/* ===== Round 3 — Untie the Sacks: FILL IN the value, read the number back, feed the herd ===== */
+/* ===== Round 3 — Cart After Cart: a name works for ANY value (change x, and 5x follows) ===== */
 function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(2); E.cv.onclick=null;
-  E.setPlace(t({en:'Untie the Sacks',zh:'解开袋子'}));
-  const X=3, N=5, TOTAL=N*X;
-  // the herd to feed = TOTAL calves; grazeWin-style geometry
-  function herdGeo(){ const LW=E.LW, cols=Math.min(TOTAL,10), rows=Math.ceil(TOTAL/cols), cell=Math.min(40,(LW-110)/cols,118/rows), gw=cols*cell, ox=(LW-gw)/2+8, oy=E.LH*0.50;
-    const centers=[]; for(let i=0;i<TOTAL;i++){ const r=Math.floor(i/cols), c=i%cols; centers.push({x:ox+c*cell+cell/2,y:oy+r*cell+cell/2}); } return {cell,centers}; }
-  function sacksRow(){ bg(); const LW=E.LW, y=E.LH*0.27, sp=Math.min(62,(LW-60)/N); for(let i=0;i<N;i++) sack(LW/2+(i-(N-1)/2)*sp,y,56,'grass',true,X,X,'#7fb6ff'); }
-  function openRow(){ bg(); const LW=E.LW, y=E.LH*0.27, sp=Math.min(62,(LW-60)/N); for(let i=0;i<N;i++) sack(LW/2+(i-(N-1)/2)*sp,y,56,'grass',true,X,'x','#7fb6ff'); }
-  function feedScene(p){ const LW=E.LW, y=E.LH*0.21, sp=Math.min(56,(LW-70)/N); bg(); for(let i=0;i<N;i++) sack(LW/2+(i-(N-1)/2)*sp,y,48,'grass',true,X,X,'#9fe0a8'); return herdGeo(); }
-  openRow();
-  E.tell(t({en:'<b>Untie the Sacks.</b> From the twin we already know <b class="b">x = 3</b> (each sack feeds 3 calves). 积 made <b>5</b> sacks, so they feed <b>5x</b> calves. Untie them all.',zh:'<b>解开袋子。</b>从双胞胎那袋我们已经知道 <b class="b">x = 3</b>（每袋够 3 头小牛吃）。“积”复制出 <b>5</b> 袋，能喂 <b>5x</b> 头小牛。把它们都解开。'}));
-  function q1(){ openRow();
-    ask(t({en:'Each sack feeds <b class="b">x = 3</b> calves. So <b class="b">5x</b> calves is…?',zh:'每袋够 <b class="b">x = 3</b> 头小牛吃。那么 <b class="b">5x</b> 头是多少？'}),
-      [ {t:'8', fb:t({en:'That is 5 + 3. We need five lots of 3.',zh:'那是 5 + 3。我们要五份 3。'})},
-        {t:'53', fb:t({en:'That just sticks the digits together. 5x means 5 × x.',zh:'那只是把数字拼在一起。5x 是 5 × x。'})},
-        {t:'35', fb:t({en:'Those digits again. Work out 5 × 3.',zh:'又是拼数字。算一算 5 × 3。'})},
-        {t:'15', ok:true} ],
-      ()=>{ E.status(keq('5x = 5 × 3 = 15')); grazeWin(feedScene, q2); }); }
-  function q2(){ const LW=E.LW; const draw=()=>{ feedScene(1); const g=herdGeo(); const r=Math.max(9,Math.min(14,g.cell*0.42)); for(let i=0;i<g.centers.length;i++)calf(E.ctx,g.centers[i].x,g.centers[i].y,r,true); };
-    draw();
-    ask(t({en:'Fed! A <b>new</b> cart arrives: each sack feeds only <b>2</b>, so <b class="b">x = 2</b>. The same <b class="b">5x</b> now feeds…?',zh:'喂饱啦！又来一车<b>新的</b>：每袋只够 <b>2</b> 头，所以 <b class="b">x = 2</b>。同样的 <b class="b">5x</b>，这次能喂多少？'}),
+  E.setPlace(t({en:'Cart After Cart',zh:'一车又一车'}));
+  const N=5;
+  function herdGeo(total){ const LW=E.LW, cols=Math.min(total,10), rows=Math.ceil(total/cols), cell=Math.min(40,(LW-110)/cols,116/rows), gw=cols*cell, ox=(LW-gw)/2+8, oy=E.LH*0.50;
+    const centers=[]; for(let i=0;i<total;i++){ const r=Math.floor(i/cols), c=i%cols; centers.push({x:ox+c*cell+cell/2,y:oy+r*cell+cell/2}); } return {cell,centers}; }
+  function cart(x){ bg(); const LW=E.LW, y=E.LH*0.24, sp=Math.min(60,(LW-60)/N); for(let i=0;i<N;i++) sack(LW/2+(i-(N-1)/2)*sp,y,52,'grass',true,x,x,'#7fb6ff'); }
+  function feedScene(x){ cart(x); return herdGeo(N*x); }
+  function fed(x){ feedScene(x); const g=herdGeo(N*x), r=Math.max(9,Math.min(14,g.cell*0.42)); for(let i=0;i<g.centers.length;i++)calf(E.ctx,g.centers[i].x,g.centers[i].y,r,true); }
+  cart(2);
+  E.tell(t({en:'<b>Cart After Cart.</b> New carts keep arriving, each with a <b>different</b> standard fill. The same rule, <b class="b">5x</b>, feeds them all. Just fill in this cart’s x.',zh:'<b>一车又一车。</b>新车不停地来，每车的标准袋装得<b>不一样</b>多。同一个 <b class="b">5x</b> 都能算，把这车的 x 填进去就行。'}));
+  function q1(){ cart(2);
+    ask(t({en:'This cart: each sack feeds <b class="b">x = 2</b> calves. So <b class="b">5x</b> feeds…?',zh:'这一车：每袋够 <b class="b">x = 2</b> 头。那 <b class="b">5x</b> 够几头？'}),
       [ {t:'7', fb:t({en:'That is 5 + 2. 5x means 5 × x.',zh:'那是 5 + 2。5x 是 5 × x。'})},
-        {t:'52', fb:t({en:'Digits stuck together again. Try 5 × 2.',zh:'又把数字拼起来了。试试 5 × 2。'})},
+        {t:'52', fb:t({en:'Digits stuck together. Try 5 × 2.',zh:'把数字拼起来了。试试 5 × 2。'})},
         {t:'10', ok:true} ],
-      ()=>{ draw(); win(); }); }
-  function win(){ E.setDots(3); E.tickQ(3); E.award(60); E.status(keq('x = 3 → 5x = 15 ;  x = 2 → 5x = 10'));
-    E.cheer(); E.sfx('win');
-    E.tell(t({en:'<b>Same name, any value.</b> Fill in <b class="b">x = 3</b> and 5x feeds 15; fill in <b class="b">x = 2</b> and 5x feeds 10. One name did the work of every number. You have earned the page!',zh:'<b>同一个名字，任意取值。</b>填 <b class="b">x = 3</b>，5x 喂 15 头；填 <b class="b">x = 2</b>，5x 喂 10 头。一个名字顶得上所有的数。书页到手！'}));
+      ()=>{ E.status(keq('x = 2 , 5x = 10')); grazeWin(()=>feedScene(2), q2); }); }
+  function q2(){ cart(4);
+    ask(t({en:'Next cart is fuller: <b class="b">x = 4</b>. The very same <b class="b">5x</b> now feeds…?',zh:'下一车装得更满：<b class="b">x = 4</b>。还是那个 <b class="b">5x</b>，这次够几头？'}),
+      [ {t:'9', fb:t({en:'That is 5 + 4. 5x means 5 × x.',zh:'那是 5 + 4。5x 是 5 × x。'})},
+        {t:'54', fb:t({en:'Digits again. Try 5 × 4.',zh:'又拼数字了。试试 5 × 4。'})},
+        {t:'20', ok:true} ],
+      ()=>{ E.status(keq('x = 4 , 5x = 20')); grazeWin(()=>feedScene(4), win); }); }
+  function win(){ fed(4); E.setDots(3); E.tickQ(3); E.award(60); E.status(keq('x = 2 → 10 ;  x = 4 → 20')); E.cheer(); E.sfx('win');
+    E.tell(t({en:'<b>One rule, every number.</b> Change the fill and <b class="b">5x</b> follows: x = 2 feeds 10, x = 4 feeds 20. A single line of letters speaks for them all. You have earned the page!',zh:'<b>一条规则，所有数都行。</b>装得不一样，<b class="b">5x</b> 就跟着变：x = 2 喂 10 头，x = 4 喂 20 头。一行字母，就把它们全说清了。书页到手！'}));
     E.clearTray(); E.addBtn(t({en:'Claim the Codex page 📖',zh:'领取典籍书页 📖'}),'primary',()=>E.openBook(QUEST.book)); E.addBtn(t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep); }
   q1();
 }
@@ -194,7 +199,7 @@ const QUEST = {
       zh:'"青草装在扎口的袋子里运来了，可<b>迷雾</b>把标签都缠乱了，我数不出每袋里有多少捆！不过魔法师<b>“积”</b>说，现在还不用知道。先给这个未知的数起个<b>名字</b>，复制它，等准备好了再打开袋子。帮我给这批粮食起名、喂饱牛群吧！"'} },
   objs:[ {en:'The Tied Sacks: name what you cannot count',zh:'扎口的袋子：给数不出的起名'},
          {en:'The Copy Yard: write 5x, not 5 × x',zh:'复制场：写 5x，别写 5 × x'},
-         {en:'Untie the Sacks: fill in the value',zh:'解开袋子：代入取值'} ],
+         {en:'Cart After Cart: one rule, any value',zh:'一车又一车：一条规则，任意取值'} ],
   rounds:[round1,round2,round3],
   book:{ page:3, kicker:{en:'Introduction',zh:'入门之'}, title:{en:'Give Numbers Names',zh:'给数起名字'},
     blocks:[
