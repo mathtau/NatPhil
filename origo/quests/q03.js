@@ -88,32 +88,35 @@ function ask(prompt, choices, onRight){
     if(c.ok){ E.sfx('place'); E.pop('✓'); onRight(); }
     else { E.oops(); E.sfx('fail'); E.pop('✗'); E.tell(c.fb); } }); }); }
 
-/* ===== Round 1 — The Tied Sacks: NAME what you cannot count ===== */
+/* ===== Round 1 — The Tied Sacks: a NAME lets you plan with the uncountable (combine equals → 2x; keep a different one apart → 2x + y) ===== */
 function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(0); E.cv.onclick=null;
   E.setPlace(t({en:'The Tied Sacks',zh:'扎口的袋子'}));
-  const seen=rnd(2,3);                 // the one OPEN sack we can actually count
-  function scene(gName,wName,gOpen,wOpen){ bg(); const LW=E.LW, y=E.LH*0.40, s=58;
-    sack(LW*0.24,y,s,'grass',true,seen,seen,'#9fe0a8');          // an OPEN grass sack: we can count it
-    label(LW*0.24,y-58,t({en:'open: count it',zh:'打开的：能数'}),'#8a8a70',12);
-    sack(LW*0.52,y,s,'grass',!!gOpen,seen,gName,'#7fb6ff');      // a TIED grass sack → name x
-    sack(LW*0.78,y,s,'wheat',!!wOpen,rnd(2,3),wName,'#ffd27a');  // a TIED wheat sack → name y
-    label(LW*0.65,y-58,t({en:'tied: cannot count',zh:'扎口的：数不出'}),'#8a8a70',12); }
-  scene(null,null,false,false);
-  E.tell(t({en:'<b>The Tied Sacks.</b> One sack is open, so we just <b>count</b> it: <b>'+seen+'</b>. But the tied sacks are hidden by Fog. We need to talk about them anyway.',zh:'<b>扎口的袋子。</b>有一袋是打开的，直接<b>数</b>就行：<b>'+seen+'</b>。可扎口的袋子被迷雾盖住了，我们还是得想办法说清它们。'}));
-  function q1(){ scene(null,null,false,false);
-    ask(t({en:'The tied <b class="g">grass</b> sack: we cannot see inside. How do we talk about it?',zh:'扎口的<b class="g">青草</b>袋：看不见里面。该怎么称呼它？'}),
-      [ {t:t({en:'Call it '+seen,zh:'叫它 '+seen}), fb:t({en:'That is the OPEN sack. This one is tied, so you cannot just borrow that count.',zh:'那是打开那袋的数。这一袋是扎着的，不能照搬那个数。'})},
-        {t:t({en:'Guess a number',zh:'猜一个数'}), fb:t({en:'A guess might be wrong, and we cannot check yet.',zh:'猜可能猜错，而且现在没法验证。'})},
+  function tot(s){ E.status(s?'<span style="font-family:\'IBM Plex Mono\',monospace;font-size:1.5rem;color:#f4c830;font-weight:600">'+s+'</span>':''); }   // the running order, written in names
+  function scene(g1,g2,wh){ bg(); const LW=E.LW, y=E.LH*0.40, s=52;
+    sack(LW*0.30,y,s,'grass',false,0,g1,'#7fb6ff');             // two grass sacks, side by side (the SAME amount)
+    sack(LW*0.46,y,s,'grass',false,0,g2,'#7fb6ff');
+    sack(LW*0.75,y,s,'wheat',false,0,wh,'#ffd27a'); }           // a wheat sack, set apart (a DIFFERENT amount)
+  scene(null,null,null); tot('');
+  E.tell(t({en:'<b>The Tied Sacks.</b> The Fog hid every count. We cannot open them yet, but the herd still has to be fed, so we must plan with what we <b>cannot see</b>.',zh:'<b>扎口的袋子。</b>迷雾把数目都盖住了。现在还打不开，可牛群还得喂，我们只能用<b>看不见</b>的东西来安排。'}));
+  function q1(){ scene(null,null,null); tot('');
+    ask(t({en:'We cannot count a tied sack. To plan the feeding, what do we do with the <b class="g">grass</b> sack?',zh:'扎口的袋子数不出。要安排喂食，这袋<b class="g">青草</b>该怎么办？'}),
+      [ {t:t({en:'Guess a number',zh:'猜一个数'}), fb:t({en:'A guess could be wrong, and we cannot check until we open it.',zh:'猜可能猜错，打开之前没法验证。'})},
+        {t:t({en:'Count it',zh:'数一数'}), fb:t({en:'It is tied shut, so we cannot see inside.',zh:'袋子扎着，看不见里面。'})},
         {t:t({en:'Name it x',zh:'起名 x'}), ok:true} ],
-      ()=>{ scene('x',null,false,false); q2(); }); }
-  function q2(){ scene('x',null,false,false);
-    ask(t({en:'Good. <b class="b">x</b> names the grass sack. The tied <b class="o">wheat</b> sack holds a <b>different</b> amount. Its name?',zh:'很好，<b class="b">x</b> 就是这袋青草的名字。扎口的<b class="o">麦子</b>袋装的是<b>另一个</b>数。它叫什么？'}),
-      [ {t:'x', fb:t({en:'x is already the grass. A different amount needs a different letter.',zh:'x 已经是青草了。不同的数要用不同的字母。'})},
-        {t:'y', ok:true},
-        {t:t({en:'also '+seen,zh:'也叫 '+seen}), fb:t({en:'We cannot count a tied sack, so give it a name.',zh:'扎口的袋子数不出，给它起个名字。'})} ],
-      ()=>{ scene('x','y',false,false); win(); }); }
-  function win(){ E.setDots(1); E.tickQ(1); E.award(45); E.status(keq('x , y'));
-    E.tell(t({en:'Named! <b class="b">x</b> for the grass we cannot count, <b class="o">y</b> for the wheat. A letter is a <b>name</b> for a number, even before we open it. (Same amount, same name; a different amount, a different letter.)',zh:'起好名啦！<b class="b">x</b> 是数不出的青草，<b class="o">y</b> 是麦子。字母就是数的<b>名字</b>，哪怕还没打开。（一样的数用一样的名字，不同的数用不同的字母。）'}));
+      ()=>{ scene('x',null,null); tot('x'); q2(); }); }
+  function q2(){ scene('x',null,null); tot('x');
+    ask(t({en:'Good, <b class="b">x</b> is that sack. The second grass sack holds the <b>same</b>. So the two grass sacks together are…?',zh:'很好，<b class="b">x</b> 就是这袋。第二袋青草装得<b>一样多</b>。那两袋青草加起来是多少？'}),
+      [ {t:'x + y', fb:t({en:'They hold the same, so they share a name. Then it is x + x.',zh:'它们一样多，要用同一个名字。那就是 x + x。'})},
+        {t:'2', fb:t({en:'We still do not know the count, only that there are two of them.',zh:'我们还不知道里面有多少，只知道有两袋。'})},
+        {t:'2x', ok:true} ],
+      ()=>{ scene('x','x',null); tot('2x'); q3(); }); }
+  function q3(){ scene('x','x',null); tot('2x');
+    ask(t({en:'Two grass sacks make <b class="b">2x</b>. Now a tied <b class="o">wheat</b> sack arrives, a <b>different</b> amount. The whole load is…?',zh:'两袋青草是 <b class="b">2x</b>。又来一袋扎口的<b class="o">麦子</b>，数量<b>不同</b>。整批一共是多少？'}),
+      [ {t:'3x', fb:t({en:'That would say the wheat equals the grass, but it is a different amount.',zh:'那等于说麦子和青草一样多，可它们不一样。'})},
+        {t:'2x + y', ok:true} ],
+      ()=>{ scene('x','x','y'); win(); }); }
+  function win(){ E.setDots(1); E.tickQ(1); E.award(45); E.status(keq('2x + y'));
+    E.tell(t({en:'A <b>name</b> lets you handle what you cannot count. Equal sacks share a name and add up: <b class="b">x + x = 2x</b>. A different sack keeps its own name, so it stays apart: <b class="b">2x + y</b>. The name carried the unknown right through the plan.',zh:'<b>名字</b>让你能处理数不出的东西。一样的袋子用同一个名字，能相加：<b class="b">x + x = 2x</b>。不同的袋子各用各的名字，分得清清楚楚：<b class="b">2x + y</b>。名字把这个未知数一路带进了计划。'}));
     E.clearTray(); E.addBtn(t({en:'On to the Copy Yard ▶',zh:'前往复制场 ▶'}),'primary',E.advance); E.addBtn(t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep); }
   q1();
 }
