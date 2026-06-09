@@ -108,17 +108,17 @@ function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(0); E.cv.oncl
         star(E.ctx,gx,gy-15,4*(0.6+0.4*Math.sin(tnow*0.02+i)),'rgba(255,243,207,.85)'); } },
      ()=>{ st.fed=X; scene(); E.cheer(); E.pop('nom!'); E.busy=false; done(); }); }
   scene();
-  E.tell(t({en:'<b>The Tied Sacks.</b> Both sacks hold the <b>same</b> standard amount of grass, so we give that amount a <b>name</b>: <b class="b">x</b>. We cannot open the first, but its <b>identical</b> twin we can.',zh:'<b>扎口的袋子。</b>两只袋子装着<b>同样</b>多的标准青草，我们就给这个量起个<b>名字</b>：<b class="b">x</b>。第一袋打不开，但它<b>一模一样</b>的双胞胎能打开。'}));
+  E.tell(t({en:'<b>The Tied Sacks.</b> Both sacks hold the <b>same</b> standard grass, tied in <b>bundles</b>, so we name that amount <b class="b">x</b>. We cannot open the first, but its <b>identical</b> twin we can.',zh:'<b>扎口的袋子。</b>两只袋子装着<b>同样</b>多的标准青草，捆成一<b>捆捆</b>，我们就给这个量起个名字：<b class="b">x</b>。第一袋打不开，但它<b>一模一样</b>的双胞胎能打开。'}));
   function q1(){ scene(); E.clearTray();
     E.addBtn(t({en:'Open the identical sack',zh:'打开一样的那袋'}),'primary',()=>feed(C2(),st2,q2)); }
   function q2(){ scene();
-    ask(t({en:'The twin reads <b class="b">3</b>, and its three grasses fed <b class="g">3 calves</b>. The sacks are <b>identical</b>, so <b class="b">x</b> feeds…?',zh:'双胞胎打开是 <b class="b">3</b>，三捆草喂饱了 <b class="g">3 头小牛</b>。两袋<b>一模一样</b>，所以 <b class="b">x</b> 够几头吃？'}),
-      [ {t:t({en:'x = 6 calves',zh:'x = 6 头'}), fb:t({en:'That is both sacks together. x is one standard sack, and it feeds 3.',zh:'那是两袋合起来。x 是一袋标准袋，够 3 头。'})},
-        {t:t({en:'cannot tell',zh:'说不准'}), fb:t({en:'They are identical, so x feeds exactly what the twin fed.',zh:'它们一模一样，x 够吃的正是双胞胎那么多。'})},
-        {t:t({en:'x = 3 calves',zh:'x = 3 头'}), ok:true} ],
+    ask(t({en:'The twin opens to <b class="b">3</b> bundles, and they fed <b class="g">3 calves</b>. The sacks are <b>identical</b>, so <b class="b">x</b> = ?',zh:'双胞胎打开是 <b class="b">3</b> 捆草，喂饱了 <b class="g">3 头小牛</b>。两袋<b>一模一样</b>，所以 <b class="b">x</b> = ?'}),
+      [ {t:t({en:'x = 6 bundles',zh:'x = 6 捆'}), fb:t({en:'That is both sacks together. x is one sack: 3 bundles.',zh:'那是两袋合起来。x 是一袋：3 捆。'})},
+        {t:t({en:'cannot tell',zh:'说不准'}), fb:t({en:'They are identical, so x holds exactly what the twin held.',zh:'它们一模一样，x 装的正是双胞胎那么多。'})},
+        {t:t({en:'x = 3 bundles',zh:'x = 3 捆'}), ok:true} ],
       ()=>feed(C1(),st1,win)); }
   function win(){ E.setDots(1); E.tickQ(1); E.award(45); E.status(keq('x = 3'));
-    E.tell(t({en:'We never opened the first sack, yet we know it: identical to the twin, so <b class="b">x = 3</b>. Its three grasses feed the same <b class="g">3 calves</b>. One name, one amount.',zh:'我们没打开第一袋，却知道了它：和双胞胎一样，所以 <b class="b">x = 3</b>。它的三捆草喂饱同样的 <b class="g">3 头小牛</b>。一个名字，一个量。'}));
+    E.tell(t({en:'We never opened the first sack, yet we know it: identical to the twin, so <b class="b">x = 3 bundles</b>. Its three bundles feed the same <b class="g">3 calves</b>. One name, one amount.',zh:'我们没打开第一袋，却知道了它：和双胞胎一样，所以 <b class="b">x = 3 捆</b>。它的三捆草喂饱同样的 <b class="g">3 头小牛</b>。一个名字，一个量。'}));
     E.clearTray(); E.addBtn(t({en:'On to the Copy Yard ▶',zh:'前往复制场 ▶'}),'primary',E.advance); E.addBtn(t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep); }
   q1();
 }
