@@ -92,15 +92,15 @@ function ask(prompt, choices, onRight){
 function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(0); E.cv.onclick=null;
   E.setPlace(t({en:'The Tied Sacks',zh:'扎口的袋子'}));
   const X=3, S=80;
-  const Y=()=>E.LH*0.36, C1=()=>E.LW*0.34, C2=()=>E.LW*0.64, CY=()=>Y()+S*0.64;
-  function herdN(cx,n){ for(let i=0;i<n;i++) calf(E.ctx,cx+(i-(X-1)/2)*30,CY(),13,true); }   // n happy calves the sack feeds
+  const Y=()=>E.LH*0.34, C1=()=>E.LW*0.32, C2=()=>E.LW*0.68, CY=()=>Y()+S*0.76;
+  function herdN(cx,n){ for(let i=0;i<n;i++) calf(E.ctx,cx+(i-(X-1)/2)*30,CY(),12,true); }   // n happy calves the sack feeds
   function scene(open1,open2,n1){ bg();
-    sack(C1(),Y(),S,'grass',!!open1,X,'x','#7fb6ff');                // sack 1 = x
-    sack(C2(),Y(),S,'grass',!!open2,X,'x','#7fb6ff');               // sack 2 = identical (also x)
-    label(C2(),Y()-S*0.60,t({en:'identical',zh:'一模一样'}),'#8a8a70',13);
+    label(C2(),Y()-S*0.82,t({en:'identical',zh:'一模一样'}),'#8a8a70',12);             // caption above the twin
+    label(C1(),Y()-S*0.58,'x','#7fb6ff',26); label(C2(),Y()-S*0.58,'x','#7fb6ff',26);   // each sack is named x (above, clear of the calves)
+    sack(C1(),Y(),S,'grass',!!open1,X,null,'#7fb6ff');
+    sack(C2(),Y(),S,'grass',!!open2,X,null,'#7fb6ff');
     if(open2) herdN(C2(),X);
-    if(open1) herdN(C1(), n1==null?X:n1);
-    if(open1||open2) label(E.LW*0.49,CY()+26,t({en:'each sack feeds 3 calves',zh:'每袋够 3 头小牛吃'}),'#9fe0a8',13); }
+    if(open1) herdN(C1(), n1==null?X:n1); }
   scene(false,false);
   E.tell(t({en:'<b>The Tied Sacks.</b> The first sack is our <b>standard</b> grass sack, named <b class="b">x</b>. The second is <b>identical</b> to it. We cannot open the first, but we can open its twin.',zh:'<b>扎口的袋子。</b>第一袋是我们的<b>标准</b>青草袋，叫作 <b class="b">x</b>。第二袋和它<b>一模一样</b>。第一袋打不开，但它的双胞胎能打开。'}));
   function q1(){ scene(false,false);
@@ -147,10 +147,10 @@ function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.cv.oncl
     E.anim(700,p=>{ const k=1+Math.floor(p*(N-1)); const y=yard(k); for(let i=0;i<k;i++) star(E.ctx,E.LW*0.34+i*sp(),y-30,8*(0.5+0.5*Math.sin(p*9+i)),'rgba(255,243,207,.8)'); },
      ()=>{ E.busy=false; stat('5 × x = 5x'); E.tell(t({en:'Shortened: <b class="b">5 × x = 5x</b>, five lots of x. 积 sends the <b class="b">5x</b> sacks off to feed the herd…',zh:'缩写：<b class="b">5 × x = 5x</b>，五份 x。“积”把这 <b class="b">5x</b> 袋送去喂牛群……'})); grazeWin(feedScene, backward); }); }
   function backward(){ const draw=()=>{ feedScene(); const g=herdGeo(); const r=Math.max(8,Math.min(13,g.cell*0.42)); for(let i=0;i<g.centers.length;i++)calf(E.ctx,g.centers[i].x,g.centers[i].y,r,true); }; draw();
-    stat(t({en:'5x fed 15 calves',zh:'5x 喂了 15 头'}));
-    ask(t({en:'<b class="b">5x</b> just fed <b>15</b> calves, from <b>5</b> equal sacks. Work <b>backwards</b>: each sack, <b class="b">x</b>, feeds…?',zh:'<b class="b">5x</b> 刚喂了 <b>15</b> 头，用的是 <b>5</b> 个一样的袋子。<b>倒过来</b>想：每袋 <b class="b">x</b> 够几头吃？'}),
-      [ {t:'10', fb:t({en:'That is 15 − 5. Share the 15 calves fairly among the 5 sacks.',zh:'那是 15 − 5。把 15 头平分给 5 个袋子。'})},
-        {t:'75', fb:t({en:'That is 15 × 5. We are sharing 15, not multiplying it.',zh:'那是 15 × 5。我们在平分 15，不是再乘。'})},
+    stat('5x = 15');
+    ask(t({en:'The herd is full: <b class="b">5x = 15</b> (5 equal sacks fed 15 calves). So <b class="b">x</b> = ?',zh:'牛群吃饱了：<b class="b">5x = 15</b>（5 个一样的袋子喂了 15 头）。那么 <b class="b">x</b> = ?'}),
+      [ {t:'10', fb:t({en:'That is 15 − 5. Share the 15 fairly among the 5 sacks instead.',zh:'那是 15 − 5。把 15 头平分给 5 个袋子才对。'})},
+        {t:'75', fb:t({en:'That is 15 × 5. We are sharing 15, not multiplying again.',zh:'那是 15 × 5。我们在平分 15，不是再乘。'})},
         {t:'3', ok:true} ],
       ()=>{ draw(); win(); }); }
   function win(){ E.setDots(2); E.tickQ(2); E.award(50); E.status(keq('5x = 15 , x = 3'));
