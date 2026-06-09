@@ -23,9 +23,9 @@ function sCell(x,y,c,col){ const d=((rnd()-.5)*3).toFixed(1); return '<g transfo
 function sGrid(x,y,c,cols,rows,col){ let s=''; for(let r=0;r<rows;r++)for(let k=0;k<cols;k++) s+=sCell(x+k*c,y+r*c,c,col); return s; }
 function cEq(cx,cy,parts,sz){ sz=sz||18; let w=parts.reduce((a,p)=>a+p[0].length*sz*0.52,0), x=cx-w/2, s=''; parts.forEach(p=>{ const pw=p[0].length*sz*0.52; s+='<text x="'+(x+pw/2).toFixed(1)+'" y="'+cy+'" font-family="Caveat,cursive" font-size="'+sz+'" fill="'+p[1]+'" text-anchor="middle" dominant-baseline="middle">'+p[0]+'</text>'; x+=pw; }); return s; }
 function pbrace(x1,x2,y,label,col){ col=col||INK; return sLine(x1,y+5,x1,y,col,1.6)+sLine(x1,y,x2,y,col,1.6)+sLine(x2,y,x2,y+5,col,1.6)+sText(label,(x1+x2)/2,y-8,col,13); }
-const FIGH={dots:48,bars:44,numline:52,commute:78,assoc:106, mjumps:88,marr:68,mintro:146,mrect:58,mrot:76,mdist:68,mgroups:98, gnname:64,gjux:80,gfill:50,glaw:60};   // each ≥ its lowest label so labels aren't clipped
+const FIGH={dots:48,bars:44,numline:52,commute:78,assoc:106, mjumps:88,marr:68,mintro:146,mrect:58,mrot:76,mdist:68,mgroups:98, gnname:64,gjux:80,gfill:50,glaw:62,garea:76};   // each ≥ its lowest label so labels aren't clipped
 // measured content centre (getBBox) per figure; figSVG pans the 480-wide viewBox so EVERY figure is centred in its frame (re-measure if a figure's layout changes)
-const FIGCX={dots:183,bars:163,numline:240,commute:240,assoc:245, mjumps:243,marr:238,mintro:201,mrect:249,mrot:225,mdist:156,mgroups:246, gnname:259,gjux:229,gfill:264,glaw:235};
+const FIGCX={dots:183,bars:163,numline:240,commute:240,assoc:245, mjumps:243,marr:238,mintro:201,mrect:249,mrot:225,mdist:156,mgroups:246, gnname:259,gjux:229,gfill:264,glaw:235,garea:264};
 const FIGS={
   dots(){ const s=24,y=30; return sBox(74,y,s,B)+sText('+',106,y,INK,30)
     +sBox(134,y,s,B)+sBox(166,y,s,B)+sText('=',198,y,INK,30)
@@ -130,10 +130,15 @@ const FIGS={
   gfill(){ const y=30;   // x = 4  →  5x = 5×4 = 20
     let s=sText('x',124,y,B,22)+sText('=',142,y,INK,18)+sText('4',160,y,INK,22)+sText('→',192,y,AX,20);
     return s+cEq(322,y,[['5',INK],['x',B],['  =  ',INK],['5',INK],['×',AX],['4',INK],['  =  ',INK],['20',G]],20); },
-  glaw(){ const c=22, ox=160, oy=6;   // a×b rectangle + ab = ba (letters → juxtaposition, no ×)
-    let s=sGrid(ox,oy,c,3,2,'rgba(47,116,208,.45)');
-    s+=sText('a',ox-13,oy+c,B,17)+sText('b',ox+1.5*c,oy-9,B,17);
-    return s+cEq(ox+3*c+54,oy+c,[['ab',B],['  =  ',INK],['ba',B]],20); }
+  glaw(){ const c=22, ox=160, oy=12;   // a×b rectangle: a=height(blue), b=width(red), product=green; ab = ba
+    let s=sGrid(ox,oy,c,3,2,'rgba(47,170,78,.16)');
+    s+=sText('a',ox-13,oy+c,B,17)+sText('b',ox+1.5*c,oy-9,R,17);
+    return s+cEq(ox+3*c+54,oy+c,[['ab',G],['  =  ',INK],['ba',G]],20); },
+  garea(){ const ox=152, oy=4, rw=116, rh=50, rows=3;   // 3 rows tall × x wide → area 3x : blue height, red width, green area
+    let s='<rect x="'+ox+'" y="'+oy+'" width="'+rw+'" height="'+rh+'" fill="rgba(47,170,78,.12)" stroke="'+G+'" stroke-width="1.8"/>';
+    for(let i=1;i<rows;i++){ const yy=(oy+rh*i/rows).toFixed(1); s+='<line x1="'+ox+'" y1="'+yy+'" x2="'+(ox+rw)+'" y2="'+yy+'" stroke="'+B+'" stroke-width="1" stroke-dasharray="5 4" opacity=".55"/>'; }
+    s+=sText('3',ox-14,oy+rh/2,B,20)+sText('x',ox+rw/2,oy+rh+16,R,20)+sText('3x',ox+rw/2,oy+rh/2,G,22);
+    return s+cEq(ox+rw+74,oy+rh/2,[['3',B],['×',AX],['x',R],['  =  ',INK],['3x',G]],19); }
 };
 function figSVG(name){ const W=480,H=FIGH[name]||70, cx=FIGCX[name]||240; return '<svg class="bkfig" width="544" height="'+(544*H/W).toFixed(1)+'" viewBox="'+(cx-240).toFixed(0)+' 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">'+FIGS[name]()+'</svg>'; }   // pan viewBox to centre content; explicit width/height so it sizes even if page CSS is missing (PNG/PDF export)
 function colorEq(s){ return s.replace(/\d/g,d=>'<span style="color:'+(COL[+d]||INK)+'">'+d+'</span>'); }
