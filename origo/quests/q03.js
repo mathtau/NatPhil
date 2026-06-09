@@ -133,17 +133,30 @@ function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.cv.oncl
   const sp=()=>Math.min(50,(E.LW*0.6)/N), SY=()=>E.LH*0.30;
   function yard(){ bg(); const LW=E.LW,y=SY(); magician(E.ctx,LW*0.14,y,50,0); label(LW*0.14,y+52,'积','#caa84a',13);
     for(let i=0;i<N;i++) sack(LW*0.34+i*sp(),y,46,'grass',false,0,null,null,'x'); return y; }   // x inside each sack (was a ? mark)
-  function drawFed(){ yard(); const g=herdGeo(), r=Math.max(8,Math.min(13,g.cell*0.42)); for(let i=0;i<g.centers.length;i++)calf(E.ctx,g.centers[i].x,g.centers[i].y,r,true); }   // 5 x-sacks + the 15 calves they feed
+  function drawHerd(){ yard(); const g=herdGeo(), r=Math.max(8,Math.min(13,g.cell*0.42)); for(let i=0;i<g.centers.length;i++)calf(E.ctx,g.centers[i].x,g.centers[i].y,r,'open'); }   // 5 x-sacks + 15 WAITING calves (fed at the win)
+  // WIN payoff: the 15 calves reform into 5 groups of 3, and each sack rains its 3 bundles down to feed its own group (x = 3 each)
+  const GY0=()=>SY()+E.LH*0.18, GYS=()=>E.LH*0.115, CX=g=>E.LW*0.34+g*sp();
+  function groups(fed){ yard(); for(let g=0;g<N;g++) for(let j=0;j<X;j++) calf(E.ctx,CX(g),GY0()+j*GYS(),10, (g*X+j)<fed?true:'open'); }
+  function recover(){ E.busy=true; E.clearTray(); E.sfx('place'); const grid=herdGeo().centers;
+    const col=[]; for(let g=0;g<N;g++) for(let j=0;j<X;j++) col.push({x:CX(g),y:GY0()+j*GYS(),g});
+    const MOVE=560, sy=SY()+46*0.2, STAG=52, FLY=400, total=MOVE+col.length*STAG+FLY+220;
+    E.anim(total,p=>{ const tnow=p*total; yard();
+      if(tnow<MOVE){ const q=tnow/MOVE, e=q*q*(3-2*q); for(let i=0;i<col.length;i++) calf(E.ctx,grid[i].x+(col[i].x-grid[i].x)*e,grid[i].y+(col[i].y-grid[i].y)*e,10,'open'); }   // reform grid → 5 columns of 3
+      else { const ft=tnow-MOVE; for(let k=0;k<col.length;k++){ if(ft>=k*STAG+FLY) calf(E.ctx,col[k].x,col[k].y,10,true);
+        else { calf(E.ctx,col[k].x,col[k].y,10,'open'); const tp=(ft-k*STAG)/FLY; if(tp>0){ const bx=CX(col[k].g), by=sy+(col[k].y-sy)*tp-Math.sin(tp*Math.PI)*14;
+          bundle(E.ctx,bx,by,10,'#1c5a2a'); star(E.ctx,bx,by-12,3.2*(0.6+0.4*Math.sin(ft*0.02+k)),'rgba(255,243,207,.85)'); } } } }
+      stat('5x = 15'); },
+     ()=>{ E.busy=false; groups(N*X); E.cheer(); E.pop('nom!'); win(); }); }
   // INSTRUCTION (shown, not a choice): 积 copies x five times; 5 × x is written 5x. Then the only graded step is finding x.
-  drawFed(); stat('5 × x = 5x');
+  drawHerd(); stat('5 × x = 5x');
   E.busy=true; E.sfx('bracket'); E.speakAs('product',t({en:'Multiply!',zh:'乘！'}));
-  E.anim(820,p=>{ drawFed(); for(let i=0;i<N;i++) star(E.ctx,E.LW*0.34+i*sp(),SY()-30,8*(0.5+0.5*Math.sin(p*9+i)),'rgba(255,243,207,.8)'); },
-   ()=>{ E.busy=false; drawFed(); stat('5x = 15');
+  E.anim(820,p=>{ drawHerd(); for(let i=0;i<N;i++) star(E.ctx,E.LW*0.34+i*sp(),SY()-30,8*(0.5+0.5*Math.sin(p*9+i)),'rgba(255,243,207,.8)'); },
+   ()=>{ E.busy=false; drawHerd(); stat('5x = 15');
      ask(t({en:'<b class="b">积</b> copied the standard <b class="b">x</b> five times: <b>5 × x</b>, written simply as <b class="b">5x</b>. The herd shows <b class="b">5x = 15</b>. Share it fairly among the <b>5</b> equal sacks: <b class="b">x</b> = ?',zh:'<b class="b">“积”</b>把标准的 <b class="b">x</b> 复制了五次：<b>5 × x</b>，简写作 <b class="b">5x</b>。牛群显示 <b class="b">5x = 15</b>。平分给 <b>5</b> 个一样的袋子：<b class="b">x</b> = ?'}),
        [ {t:t({en:'x = 10',zh:'x = 10'}), fb:t({en:'That is 15 − 5. Share the 15 fairly among the 5 sacks instead.',zh:'那是 15 − 5。把 15 头平分给 5 个袋子才对。'})},
          {t:t({en:'x = 75',zh:'x = 75'}), fb:t({en:'That is 15 × 5. We are sharing 15, not multiplying again.',zh:'那是 15 × 5。我们在平分 15，不是再乘。'})},
          {t:t({en:'x = 3',zh:'x = 3'}), ok:true} ],
-       ()=>{ drawFed(); win(); }); });
+       ()=>recover()); });
   function win(){ E.setDots(2); E.tickQ(2); E.award(50); E.status(keq('5x = 15 , x = 3'));
     E.tell(t({en:'<b class="b">5x = 15</b>, so sharing back into 5 sacks gives <b class="b">x = 3</b>, the same answer the twin gave. And see why we write <b class="b">5x</b>, not <b>5 × x</b>: the <b>×</b> looks just like the name <b class="b">x</b>, so we drop it. Five of them is simply <b class="b">5x</b>.',zh:'<b class="b">5x = 15</b>，平分回 5 个袋子就得 <b class="b">x = 3</b>，和双胞胎给的答案一样。看为什么写 <b class="b">5x</b> 而不写 <b>5 × x</b>：那个 <b>×</b> 长得太像名字 <b class="b">x</b> 了，所以省掉它。五份就简写成 <b class="b">5x</b>。'}));
     E.clearTray(); E.addBtn(t({en:'On to the Field ▶',zh:'前往田地 ▶'}),'primary',E.advance); E.addBtn(t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep); }
@@ -153,19 +166,20 @@ function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.cv.oncl
 function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(2); E.cv.onclick=null;
   E.setPlace(t({en:'The Measured Field',zh:'丈量的田'}));
   const BL='#5b9bff', RD='#ff7a55', GR='#46c46e';
+  function sst(s){ E.status('<span style="font-family:\'IBM Plex Mono\',monospace;font-size:1.4rem;color:#f4c830;font-weight:600">'+s+'</span>'); }
   function bracket(x1,y1,x2,y2,col){ const ctx=E.ctx; ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=2.6; ctx.lineCap='round';
     const dx=x2-x1, dy=y2-y1, L=Math.hypot(dx,dy)||1, nx=-dy/L, ny=dx/L, c=8;
     ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
     ctx.moveTo(x1-nx*c,y1-ny*c); ctx.lineTo(x1+nx*c,y1+ny*c); ctx.moveTo(x2-nx*c,y2-ny*c); ctx.lineTo(x2+nx*c,y2+ny*c); ctx.stroke(); ctx.restore(); }
   function field(rowsLabel,colsLabel,rowsN,area){ bg(); const ctx=E.ctx;
-    const cx=E.LW*0.54, RW=E.LW*0.30, RH=E.LH*0.46, x0=cx-RW/2, y0=E.LH*0.16, x1=cx+RW/2, y1=y0+RH;
+    const cx=E.LW*0.54, RW=E.LW*0.30, RH=E.LH*0.38, gt=E.LH-54, y1=gt-80, y0=y1-RH, x0=cx-RW/2, x1=cx+RW/2;   // bottom sits clear ABOVE the green ground
     ctx.save(); ctx.fillStyle='rgba(70,196,110,.14)'; ctx.strokeStyle='#3f9a52'; ctx.lineWidth=2.6; ctx.fillRect(x0,y0,RW,RH); ctx.strokeRect(x0,y0,RW,RH); ctx.restore();
     if(rowsN){ ctx.save(); ctx.strokeStyle='rgba(91,155,255,.55)'; ctx.lineWidth=1.5; ctx.setLineDash([6,5]); for(let i=1;i<rowsN;i++){ const yy=y0+RH*i/rowsN; ctx.beginPath(); ctx.moveTo(x0,yy); ctx.lineTo(x1,yy); ctx.stroke(); } ctx.restore(); }
     bracket(x0-16,y0,x0-16,y1,BL); label(x0-42,(y0+y1)/2,rowsLabel,BL,32);                 // height = rows (blue, vertical)
-    bracket(x0,y1+18,x1,y1+18,RD); label((x0+x1)/2,y1+50,colsLabel,RD,32);                  // width (red, horizontal)
+    bracket(x0,y1+16,x1,y1+16,RD); label((x0+x1)/2,y1+42,colsLabel,RD,30);                  // width (red, horizontal), clear of the grass
     label(cx,(y0+y1)/2,area,GR,area==='?'?54:42); }                                         // area (green)
   // Step A: 3 rows (a number) × x wide (a NAME) → area 3x
-  field('3','x',3,'?');
+  field('3','x',3,'?'); sst('3 × x = ?');
   E.tell(t({en:'<b>The Measured Field.</b> This grass field is <b class="b">3</b> rows tall and <b class="r">x</b> wide. Rows times width is the <b class="g">area</b>, the grass it grows. So the area is…?',zh:'<b>丈量的田。</b>这片草田高 <b class="b">3</b> 行，宽 <b class="r">x</b>。行数乘宽度就是<b class="g">面积</b>，也就是它长出的草。那么面积是……？'}));
   ask(t({en:'<b class="b">3</b> rows, each <b class="r">x</b> wide. The <b class="g">area</b> = ?',zh:'<b class="b">3</b> 行，每行宽 <b class="r">x</b>。<b class="g">面积</b> = ?'}),
     [ {t:t({en:'area = 3',zh:'面积 = 3'}), fb:t({en:'That is only the height (3 rows). Area needs the width x as well.',zh:'那只是高（3 行）。面积还要乘上宽度 x。'})},
@@ -175,7 +189,7 @@ function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(2); E.cv.oncl
       E.tell(t({en:'Three rows of <b class="r">x</b> make <b class="g">3x</b> grass, just like 5 sacks made 5x. A number times a name, written short.',zh:'三行 <b class="r">x</b> 就是 <b class="g">3x</b> 草，正像 5 袋是 5x。数字乘名字，简写在一起。'}));
       E.clearTray(); E.addBtn(t({en:'Both sides a name ▶',zh:'两边都起名 ▶'}),'primary',q2); E.addBtn(t({en:'◀ Prev step',zh:'◀ 上一步'}),'ghost',E.prevStep); });
   // Step B: a rows × b wide → area ab (both NAMES now)
-  function q2(){ field('a','b',null,'?');
+  function q2(){ field('a','b',null,'?'); sst('a × b = ?');
     ask(t({en:'A new field: <b class="b">a</b> rows tall, <b class="r">b</b> wide, both just <b>names</b>. The <b class="g">area</b> = ?',zh:'新的一片：高 <b class="b">a</b> 行，宽 <b class="r">b</b>，两个都只是<b>名字</b>。<b class="g">面积</b> = ?'}),
       [ {t:t({en:'area = a',zh:'面积 = a'}), fb:t({en:'That is only the height. Area is height times width.',zh:'那只是高。面积是高乘宽。'})},
         {t:t({en:'area = b',zh:'面积 = b'}), fb:t({en:'That is only the width. Area is height times width.',zh:'那只是宽。面积是高乘宽。'})},
