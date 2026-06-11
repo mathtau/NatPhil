@@ -123,9 +123,8 @@ const FIGS={
       + sText(inner,x+bw/2,by+bh/2+1,col,22);
     let s=tag(x1,'?',AX,'rgba(47,116,208,.06)');
     s+='<path d="M'+(x1+bw+8)+' '+ay+' L'+(x2-8)+' '+ay+'" stroke="'+INK+'" stroke-width="1.6" fill="none"/>'
-      +'<path d="M'+(x2-15)+' '+(ay-5)+' L'+(x2-8)+' '+ay+' L'+(x2-15)+' '+(ay+5)+'" fill="none" stroke="'+INK+'" stroke-width="1.6"/>'
-      +sText('fill in later',(x1+bw+x2)/2,ay-13,AX,12);
-    return s+tag(x2,'4',INK,'rgba(47,170,78,.10)'); },
+      +'<path d="M'+(x2-15)+' '+(ay-5)+' L'+(x2-8)+' '+ay+' L'+(x2-15)+' '+(ay+5)+'" fill="none" stroke="'+INK+'" stroke-width="1.6"/>';
+    return s+tag(x2,'4',INK,'rgba(47,170,78,.10)'); },   // language-neutral: the boxes + arrow read in any language; prose carries "fill in later"
   gjux(){ const y1=20, y2=60;   // 5 ×̶ x  →  5x ,  and  5x = x+x+x+x+x
     let s=sText('5',150,y1,INK,24)+sText('×',173,y1,AX,22)+sLine(165,y1+8,181,y1-8,R,1.8)+sText('x',195,y1,B,24);
     s+='<path d="M214 '+y1+' L248 '+y1+'" stroke="'+INK+'" stroke-width="1.7" fill="none"/><path d="M242 '+(y1-5)+' L248 '+y1+' L242 '+(y1+5)+'" fill="none" stroke="'+INK+'" stroke-width="1.7"/>';
