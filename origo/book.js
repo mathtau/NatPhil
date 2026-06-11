@@ -23,9 +23,9 @@ function sCell(x,y,c,col){ const d=((rnd()-.5)*3).toFixed(1); return '<g transfo
 function sGrid(x,y,c,cols,rows,col){ let s=''; for(let r=0;r<rows;r++)for(let k=0;k<cols;k++) s+=sCell(x+k*c,y+r*c,c,col); return s; }
 function cEq(cx,cy,parts,sz){ sz=sz||18; let w=parts.reduce((a,p)=>a+p[0].length*sz*0.52,0), x=cx-w/2, s=''; parts.forEach(p=>{ const pw=p[0].length*sz*0.52; s+='<text x="'+(x+pw/2).toFixed(1)+'" y="'+cy+'" font-family="Caveat,cursive" font-size="'+sz+'" fill="'+p[1]+'" text-anchor="middle" dominant-baseline="middle">'+p[0]+'</text>'; x+=pw; }); return s; }
 function pbrace(x1,x2,y,label,col){ col=col||INK; return sLine(x1,y+5,x1,y,col,1.6)+sLine(x1,y,x2,y,col,1.6)+sLine(x2,y,x2,y+5,col,1.6)+sText(label,(x1+x2)/2,y-8,col,13); }
-const FIGH={dots:48,bars:44,numline:52,commute:78,assoc:106, mjumps:88,marr:68,mintro:146,mrect:58,mrot:76,mdist:68,mgroups:98, gnname:64,gjux:80,gfill:50,glaw:62,garea:76};   // each ≥ its lowest label so labels aren't clipped
+const FIGH={dots:48,bars:44,numline:52,commute:78,assoc:106, mjumps:88,marr:68,mintro:146,mrect:58,mrot:76,mdist:68,mgroups:98, gnname:64,gjux:80,gfill:50,glaw:76,garea:76};   // each ≥ its lowest label so labels aren't clipped
 // measured content centre (getBBox) per figure; figSVG pans the 480-wide viewBox so EVERY figure is centred in its frame (re-measure if a figure's layout changes)
-const FIGCX={dots:183,bars:163,numline:240,commute:240,assoc:245, mjumps:243,marr:238,mintro:201,mrect:249,mrot:225,mdist:156,mgroups:246, gnname:259,gjux:229,gfill:264,glaw:235,garea:264};
+const FIGCX={dots:183,bars:163,numline:240,commute:240,assoc:245, mjumps:243,marr:238,mintro:201,mrect:249,mrot:225,mdist:156,mgroups:246, gnname:249,gjux:229,gfill:264,glaw:266,garea:264};
 const FIGS={
   dots(){ const s=24,y=30; return sBox(74,y,s,B)+sText('+',106,y,INK,30)
     +sBox(134,y,s,B)+sBox(166,y,s,B)+sText('=',198,y,INK,30)
@@ -117,11 +117,15 @@ const FIGS={
     s+=mkbox(300,40, 4,3,2, R,B,DEP, '4','3','2')+cEq(300+4*ux+2*zx+26,40+3*dy-4,[['= 24',G]],17);
     return s; },
   // ---- p3 "Give Numbers Names" (letters as names; juxtaposition 5x). Letters (names) = blue. ----
-  gnname(){ const oy=8, cw=56, ch=48;   // a name card "x"  =  it could be any number
-    let s='<rect x="138" y="'+oy+'" width="'+cw+'" height="'+ch+'" rx="9" fill="rgba(47,116,208,.08)" stroke="'+B+'" stroke-width="1.7"/>'+sText('x',138+cw/2,oy+ch/2,B,30);
-    s+=sText('=',210,oy+ch/2,INK,24);
-    ['3','7','12'].forEach((n,i)=>{ const x=232+i*44; s+='<rect x="'+x+'" y="'+(oy+7)+'" width="34" height="34" rx="7" fill="none" stroke="'+AX+'" stroke-width="1.3" opacity=".75"/>'+sText(n,x+17,oy+24,INK,16); });
-    return s+sText('…',232+3*44+5,oy+24,AX,20); },
+  gnname(){ const by=22, bw=52, bh=40, x1=146, x2=300, ay=22+20;   // name it x now (unknown ?) → fill the amount in later
+    const tag=(x,inner,col,fill)=> sText('x',x+bw/2,by-10,B,18)
+      + '<rect x="'+x+'" y="'+by+'" width="'+bw+'" height="'+bh+'" rx="9" fill="'+fill+'" stroke="'+B+'" stroke-width="1.7"/>'
+      + sText(inner,x+bw/2,by+bh/2+1,col,22);
+    let s=tag(x1,'?',AX,'rgba(47,116,208,.06)');
+    s+='<path d="M'+(x1+bw+8)+' '+ay+' L'+(x2-8)+' '+ay+'" stroke="'+INK+'" stroke-width="1.6" fill="none"/>'
+      +'<path d="M'+(x2-15)+' '+(ay-5)+' L'+(x2-8)+' '+ay+' L'+(x2-15)+' '+(ay+5)+'" fill="none" stroke="'+INK+'" stroke-width="1.6"/>'
+      +sText('fill in later',(x1+bw+x2)/2,ay-13,AX,12);
+    return s+tag(x2,'4',INK,'rgba(47,170,78,.10)'); },
   gjux(){ const y1=20, y2=60;   // 5 ×̶ x  →  5x ,  and  5x = x+x+x+x+x
     let s=sText('5',150,y1,INK,24)+sText('×',173,y1,AX,22)+sLine(165,y1+8,181,y1-8,R,1.8)+sText('x',195,y1,B,24);
     s+='<path d="M214 '+y1+' L248 '+y1+'" stroke="'+INK+'" stroke-width="1.7" fill="none"/><path d="M242 '+(y1-5)+' L248 '+y1+' L242 '+(y1+5)+'" fill="none" stroke="'+INK+'" stroke-width="1.7"/>';
@@ -130,10 +134,10 @@ const FIGS={
   gfill(){ const y=30;   // x = 4  →  5x = 5×4 = 20
     let s=sText('x',124,y,B,22)+sText('=',142,y,INK,18)+sText('4',160,y,INK,22)+sText('→',192,y,AX,20);
     return s+cEq(322,y,[['5',INK],['x',B],['  =  ',INK],['5',INK],['×',AX],['4',INK],['  =  ',INK],['20',G]],20); },
-  glaw(){ const c=22, ox=160, oy=12;   // a×b rectangle: a=height(blue), b=width(red), product=green; ab = ba
-    let s=sGrid(ox,oy,c,3,2,'rgba(47,170,78,.16)');
-    s+=sText('a',ox-13,oy+c,B,17)+sText('b',ox+1.5*c,oy-9,R,17);
-    return s+cEq(ox+3*c+54,oy+c,[['ab',G],['  =  ',INK],['ba',G]],20); },
+  glaw(){ const ox=162, oy=4, rw=108, rh=54;   // a×b SOLID rectangle (no grid → a,b are lengths, not integers): a=height(blue), b=width(red), area=green; ab = ba
+    let s='<rect x="'+ox+'" y="'+oy+'" width="'+rw+'" height="'+rh+'" fill="rgba(47,170,78,.12)" stroke="'+G+'" stroke-width="1.8"/>';
+    s+=sText('a',ox-14,oy+rh/2,B,20)+sText('b',ox+rw/2,oy+rh+16,R,20)+sText('ab',ox+rw/2,oy+rh/2,G,22);
+    return s+cEq(ox+rw+70,oy+rh/2,[['ab',G],['  =  ',INK],['ba',G]],19); },
   garea(){ const ox=152, oy=4, rw=116, rh=50, rows=3;   // 3 rows tall × x wide → area 3x : blue height, red width, green area
     let s='<rect x="'+ox+'" y="'+oy+'" width="'+rw+'" height="'+rh+'" fill="rgba(47,170,78,.12)" stroke="'+G+'" stroke-width="1.8"/>';
     for(let i=1;i<rows;i++){ const yy=(oy+rh*i/rows).toFixed(1); s+='<line x1="'+ox+'" y1="'+yy+'" x2="'+(ox+rw)+'" y2="'+yy+'" stroke="'+B+'" stroke-width="1" stroke-dasharray="5 4" opacity=".55"/>'; }
