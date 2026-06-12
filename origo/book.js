@@ -23,9 +23,9 @@ function sCell(x,y,c,col){ const d=((rnd()-.5)*3).toFixed(1); return '<g transfo
 function sGrid(x,y,c,cols,rows,col){ let s=''; for(let r=0;r<rows;r++)for(let k=0;k<cols;k++) s+=sCell(x+k*c,y+r*c,c,col); return s; }
 function cEq(cx,cy,parts,sz){ sz=sz||18; let w=parts.reduce((a,p)=>a+p[0].length*sz*0.52,0), x=cx-w/2, s=''; parts.forEach(p=>{ const pw=p[0].length*sz*0.52; s+='<text x="'+(x+pw/2).toFixed(1)+'" y="'+cy+'" font-family="Caveat,cursive" font-size="'+sz+'" fill="'+p[1]+'" text-anchor="middle" dominant-baseline="middle">'+p[0]+'</text>'; x+=pw; }); return s; }
 function pbrace(x1,x2,y,label,col){ col=col||INK; return sLine(x1,y+5,x1,y,col,1.6)+sLine(x1,y,x2,y,col,1.6)+sLine(x2,y,x2,y+5,col,1.6)+sText(label,(x1+x2)/2,y-8,col,13); }
-const FIGH={dots:48,bars:44,numline:52,commute:78,assoc:106, mjumps:88,marr:68,mintro:146,mrect:58,mrot:76,mdist:68,mgroups:98, gnname:64,gjux:80,gfill:50,glaw:76,garea:76};   // each ≥ its lowest label so labels aren't clipped
+const FIGH={dots:48,bars:44,numline:52,commute:78,assoc:106, mjumps:88,marr:68,mintro:146,mrect:58,mrot:76,mdist:68,mgroups:98, gnname:64,gjux:80,gfill:50,glaw:76,garea:76, acmp:80,aunit:84,aflip:94};   // each ≥ its lowest label so labels aren't clipped
 // measured content centre (getBBox) per figure; figSVG pans the 480-wide viewBox so EVERY figure is centred in its frame (re-measure if a figure's layout changes)
-const FIGCX={dots:183,bars:163,numline:240,commute:240,assoc:245, mjumps:243,marr:238,mintro:201,mrect:249,mrot:225,mdist:156,mgroups:246, gnname:249,gjux:229,gfill:264,glaw:266,garea:264};
+const FIGCX={dots:183,bars:163,numline:240,commute:240,assoc:245, mjumps:243,marr:238,mintro:201,mrect:249,mrot:225,mdist:156,mgroups:246, gnname:249,gjux:229,gfill:264,glaw:266,garea:264, acmp:271,aunit:255,aflip:264};
 const FIGS={
   dots(){ const s=24,y=30; return sBox(74,y,s,B)+sText('+',106,y,INK,30)
     +sBox(134,y,s,B)+sBox(166,y,s,B)+sText('=',198,y,INK,30)
@@ -141,7 +141,28 @@ const FIGS={
     let s='<rect x="'+ox+'" y="'+oy+'" width="'+rw+'" height="'+rh+'" fill="rgba(47,170,78,.12)" stroke="'+G+'" stroke-width="1.8"/>';
     for(let i=1;i<rows;i++){ const yy=(oy+rh*i/rows).toFixed(1); s+='<line x1="'+ox+'" y1="'+yy+'" x2="'+(ox+rw)+'" y2="'+yy+'" stroke="'+B+'" stroke-width="1" stroke-dasharray="5 4" opacity=".55"/>'; }
     s+=sText('3',ox-14,oy+rh/2,B,20)+sText('x',ox+rw/2,oy+rh+16,R,20)+sText('3x',ox+rw/2,oy+rh/2,G,22);
-    return s+cEq(ox+rw+74,oy+rh/2,[['3',B],['×',AX],['x',R],['  =  ',INK],['3x',G]],19); }
+    return s+cEq(ox+rw+74,oy+rh/2,[['3',B],['×',AX],['x',R],['  =  ',INK],['3x',G]],19); },
+  // ---- p4 "Comparing Area and Length" : area x = green, length y = blue, unit "1" = red ----
+  acmp(){ const sy=12, sq=62, ox=150, lx=300, ly=12+31;   // green square x  vs  blue line y  — which is bigger?
+    let s='<rect x="'+ox+'" y="'+sy+'" width="'+sq+'" height="'+sq+'" rx="3" fill="rgba(47,170,78,.18)" stroke="'+G+'" stroke-width="1.8"/>'+sText('x',ox+sq/2,sy+sq/2,G,22);
+    s+=sText('?',254,ly,AX,30);
+    s+=sLine(lx,ly,lx+92,ly,B,4)+sDot(lx,ly,4,B)+sDot(lx+92,ly,4,B)+sText('y',lx+46,ly+20,B,20);
+    return s; },
+  aunit(){ const sy=14, sq=50, ox=178, lx=302, lly=14+25;   // unit square (1×1) and unit line (1) → x = y
+    let s='<rect x="'+ox+'" y="'+sy+'" width="'+sq+'" height="'+sq+'" rx="3" fill="rgba(47,170,78,.16)" stroke="'+G+'" stroke-width="1.8"/>'+sText('x',ox+sq/2,sy+sq/2,G,20);
+    s+=pbrace(ox,ox+sq,sy+sq+12,'1',R);
+    s+=sLine(ox-9,sy,ox-9,sy+sq,R,1.6)+sLine(ox-12,sy,ox-6,sy,R,1.6)+sLine(ox-12,sy+sq,ox-6,sy+sq,R,1.6)+sText('1',ox-20,sy+sq/2,R,13);
+    s+=sLine(lx,lly,lx+sq,lly,B,4)+sDot(lx,lly,4,B)+sDot(lx+sq,lly,4,B)+sText('y',lx+sq/2,lly-12,B,18);
+    return s+pbrace(lx,lx+sq,lly+12,'1',R); },
+  aflip(){ const sy=8, sq=40;   // same square + same line, two different units → the verdict flips
+    const scene=(ox,stickH,verd)=>{
+      let s='<rect x="'+ox+'" y="'+sy+'" width="'+sq+'" height="'+sq+'" rx="3" fill="rgba(47,170,78,.16)" stroke="'+G+'" stroke-width="1.6"/>'+sText('x',ox+sq/2,sy+sq/2,G,15);
+      const ux=ox+sq+16, top=sy+(sq-stickH)/2;
+      s+=sLine(ux,top,ux,top+stickH,R,3.5)+sDot(ux,top,2.5,R)+sDot(ux,top+stickH,2.5,R)+sText('1',ux+9,sy+sq/2,R,12);
+      s+=sLine(ox,sy+sq+12,ox+sq,sy+sq+12,B,3.5)+sDot(ox,sy+sq+12,2.5,B)+sDot(ox+sq,sy+sq+12,2.5,B)+sText('y',ox+sq/2,sy+sq+22,B,13);
+      return s+cEq(ox+sq/2+8,sy+sq+40,verd,16); };
+    let s=scene(150,16,[['x',G],[' > ',INK],['y',B]]);   // short unit → x > y
+    return s+scene(312,40,[['x',G],[' < ',INK],['y',B]]); }   // long unit → x < y
 };
 function figSVG(name){ const W=480,H=FIGH[name]||70, cx=FIGCX[name]||240; return '<svg class="bkfig" width="544" height="'+(544*H/W).toFixed(1)+'" viewBox="'+(cx-240).toFixed(0)+' 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">'+FIGS[name]()+'</svg>'; }   // pan viewBox to centre content; explicit width/height so it sizes even if page CSS is missing (PNG/PDF export)
 function colorEq(s){ return s.replace(/\d/g,d=>'<span style="color:'+(COL[+d]||INK)+'">'+d+'</span>'); }
