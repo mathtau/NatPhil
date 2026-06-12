@@ -248,6 +248,31 @@
 <main>
 
 <!-- ═══════════════════════════════════════════════════════════════
+ 59 秒讲解，按设备自动切换竖屏（手机）/ 横屏（桌面）
+═══════════════════════════════════════════════════════════════ -->
+<div class="short-vid" id="shortVidWrap">
+  <video id="shortVid" controls playsinline preload="metadata" aria-label="59 秒讲解：泰勒、柯西、傅里叶"></video>
+  <p class="short-vid-cap">59 秒精简版，然后继续读完整推导。</p>
+</div>
+<style>
+  .short-vid{max-width:760px;margin:4px auto 34px;text-align:center;}
+  .short-vid video{width:100%;max-height:80vh;border-radius:14px;border:1px solid var(--border,#22224a);
+    background:#0c0c1e;box-shadow:0 18px 48px -20px rgba(0,0,0,.6);display:block;margin:0 auto;}
+  .short-vid.portrait video{max-width:430px;}
+  .short-vid-cap{color:var(--muted,#8888a8);font-size:.86rem;font-style:italic;margin-top:9px;}
+</style>
+<script>
+(function(){
+  var wrap=document.getElementById('shortVidWrap'), v=document.getElementById('shortVid'), base='fullturn_short_zh';
+  var mq=window.matchMedia('(max-aspect-ratio: 1/1)');
+  function pick(){ var portrait=mq.matches, file='video/'+base+(portrait?'_vertical':'_landscape')+'.mp4';
+    if(v.getAttribute('src')!==file){ v.setAttribute('src',file); v.load(); }
+    wrap.classList.toggle('portrait',portrait); }
+  pick(); mq.addEventListener ? mq.addEventListener('change',pick) : mq.addListener(pick);
+})();
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════
  PRELUDE, three rooms, one door
 ═══════════════════════════════════════════════════════════════ -->
 <div class="section" id="prelude">
