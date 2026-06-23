@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1999,7 +1999,9 @@ function initOverlay() {
 
 /* init */
 initSeq();
-applyLang("zh");                       // 默认中文
+// follow the language of the entry point: the linking page passes ?lang=en|zh; default to English when absent/unknown
+const _entryLang = new URLSearchParams(location.search).get('lang');
+applyLang(_entryLang === 'zh' ? 'zh' : 'en');
 setComet(0); setDot(0);
 numEl.textContent = "·";
 newStory();                            // 预备第一篇（在“轻触开始”遮罩后面）
