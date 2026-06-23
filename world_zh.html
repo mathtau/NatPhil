@@ -148,6 +148,7 @@
 
   <div class="foot" id="legend">✦ 已通关 &nbsp;·&nbsp; ▶ 开放 &nbsp;·&nbsp; 🔒 迷雾中 &nbsp;—&nbsp; <a href="index_zh.html">mathtau.com</a></div>
 
+<script src="origo/quests/manifest.js"></script>
 <script>
   try{
     if(localStorage.getItem('mtZone_origin1')==='done'){
@@ -158,7 +159,7 @@
 
   // 回到已解锁的任务（q01 始终开放；前一关通关后下一关解锁）
   (function(){
-    const CATALOG=[ {n:'01',t:'加法'}, {n:'02',t:'乘法'}, {n:'03',t:'给数起名字'} ];
+    const CATALOG=(window.MANIFEST||[]).map(function(q){ return {n:q.n, t:(q.t&&q.t.zh)||q.n}; });   // order/titles from quests/manifest.js (single source)
     let dn={}; try{ dn=(JSON.parse(localStorage.getItem('origo')||'{}').quests)||{}; }catch(e){}
     let h='<h6>↩ 回到任务</h6>';
     CATALOG.forEach(function(q,i){

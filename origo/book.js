@@ -23,9 +23,9 @@ function sCell(x,y,c,col){ const d=((rnd()-.5)*3).toFixed(1); return '<g transfo
 function sGrid(x,y,c,cols,rows,col){ let s=''; for(let r=0;r<rows;r++)for(let k=0;k<cols;k++) s+=sCell(x+k*c,y+r*c,c,col); return s; }
 function cEq(cx,cy,parts,sz){ sz=sz||18; let w=parts.reduce((a,p)=>a+p[0].length*sz*0.52,0), x=cx-w/2, s=''; parts.forEach(p=>{ const pw=p[0].length*sz*0.52; s+='<text x="'+(x+pw/2).toFixed(1)+'" y="'+cy+'" font-family="Caveat,cursive" font-size="'+sz+'" fill="'+p[1]+'" text-anchor="middle" dominant-baseline="middle">'+p[0]+'</text>'; x+=pw; }); return s; }
 function pbrace(x1,x2,y,label,col){ col=col||INK; return sLine(x1,y+5,x1,y,col,1.6)+sLine(x1,y,x2,y,col,1.6)+sLine(x2,y,x2,y+5,col,1.6)+sText(label,(x1+x2)/2,y-8,col,13); }
-const FIGH={dots:48,bars:44,numline:52,commute:78,assoc:106, mjumps:88,marr:68,mintro:146,mrect:58,mrot:76,mdist:68,mgroups:98, gnname:64,gjux:80,gfill:50,glaw:76,garea:76, acmp:80,aunit:84,aflip:94};   // each ≥ its lowest label so labels aren't clipped
+const FIGH={dots:48,bars:44,numline:52,commute:78,assoc:106, mjumps:88,marr:68,mintro:146,mrect:58,mrot:76,mdist:68,mgroups:98, gnname:64,gjux:80,gfill:50,glaw:76,garea:76, acmp:76,aunit:86,aflip:92};   // each ≥ its lowest label so labels aren't clipped
 // measured content centre (getBBox) per figure; figSVG pans the 480-wide viewBox so EVERY figure is centred in its frame (re-measure if a figure's layout changes)
-const FIGCX={dots:183,bars:163,numline:240,commute:240,assoc:245, mjumps:243,marr:238,mintro:201,mrect:249,mrot:225,mdist:156,mgroups:246, gnname:249,gjux:229,gfill:264,glaw:266,garea:264, acmp:271,aunit:255,aflip:264};
+const FIGCX={dots:183,bars:163,numline:240,commute:240,assoc:245, mjumps:243,marr:238,mintro:201,mrect:249,mrot:225,mdist:156,mgroups:246, gnname:249,gjux:229,gfill:264,glaw:266,garea:264, acmp:232,aunit:234,aflip:236};
 const FIGS={
   dots(){ const s=24,y=30; return sBox(74,y,s,B)+sText('+',106,y,INK,30)
     +sBox(134,y,s,B)+sBox(166,y,s,B)+sText('=',198,y,INK,30)
@@ -142,27 +142,26 @@ const FIGS={
     for(let i=1;i<rows;i++){ const yy=(oy+rh*i/rows).toFixed(1); s+='<line x1="'+ox+'" y1="'+yy+'" x2="'+(ox+rw)+'" y2="'+yy+'" stroke="'+B+'" stroke-width="1" stroke-dasharray="5 4" opacity=".55"/>'; }
     s+=sText('3',ox-14,oy+rh/2,B,20)+sText('x',ox+rw/2,oy+rh+16,R,20)+sText('3x',ox+rw/2,oy+rh/2,G,22);
     return s+cEq(ox+rw+74,oy+rh/2,[['3',B],['×',AX],['x',R],['  =  ',INK],['3x',G]],19); },
-  // ---- p4 "Comparing Area and Length" : area x = green, length y = blue, unit "1" = red ----
-  acmp(){ const sy=12, sq=62, ox=150, lx=300, ly=12+31;   // green square x  vs  blue line y  — which is bigger?
-    let s='<rect x="'+ox+'" y="'+sy+'" width="'+sq+'" height="'+sq+'" rx="3" fill="rgba(47,170,78,.18)" stroke="'+G+'" stroke-width="1.8"/>'+sText('x',ox+sq/2,sy+sq/2,G,22);
-    s+=sText('?',254,ly,AX,30);
-    s+=sLine(lx,ly,lx+92,ly,B,4)+sDot(lx,ly,4,B)+sDot(lx+92,ly,4,B)+sText('y',lx+46,ly+20,B,20);
-    return s; },
-  aunit(){ const sy=14, sq=50, ox=178, lx=302, lly=14+25;   // unit square (1×1) and unit line (1) → x = y
-    let s='<rect x="'+ox+'" y="'+sy+'" width="'+sq+'" height="'+sq+'" rx="3" fill="rgba(47,170,78,.16)" stroke="'+G+'" stroke-width="1.8"/>'+sText('x',ox+sq/2,sy+sq/2,G,20);
-    s+=pbrace(ox,ox+sq,sy+sq+12,'1',R);
-    s+=sLine(ox-9,sy,ox-9,sy+sq,R,1.6)+sLine(ox-12,sy,ox-6,sy,R,1.6)+sLine(ox-12,sy+sq,ox-6,sy+sq,R,1.6)+sText('1',ox-20,sy+sq/2,R,13);
-    s+=sLine(lx,lly,lx+sq,lly,B,4)+sDot(lx,lly,4,B)+sDot(lx+sq,lly,4,B)+sText('y',lx+sq/2,lly-12,B,18);
-    return s+pbrace(lx,lx+sq,lly+12,'1',R); },
-  aflip(){ const sy=8, sq=40;   // same square + same line, two different units → the verdict flips
-    const scene=(ox,stickH,verd)=>{
-      let s='<rect x="'+ox+'" y="'+sy+'" width="'+sq+'" height="'+sq+'" rx="3" fill="rgba(47,170,78,.16)" stroke="'+G+'" stroke-width="1.6"/>'+sText('x',ox+sq/2,sy+sq/2,G,15);
-      const ux=ox+sq+16, top=sy+(sq-stickH)/2;
-      s+=sLine(ux,top,ux,top+stickH,R,3.5)+sDot(ux,top,2.5,R)+sDot(ux,top+stickH,2.5,R)+sText('1',ux+9,sy+sq/2,R,12);
-      s+=sLine(ox,sy+sq+12,ox+sq,sy+sq+12,B,3.5)+sDot(ox,sy+sq+12,2.5,B)+sDot(ox+sq,sy+sq+12,2.5,B)+sText('y',ox+sq/2,sy+sq+22,B,13);
-      return s+cEq(ox+sq/2+8,sy+sq+40,verd,16); };
-    let s=scene(150,16,[['x',G],[' > ',INK],['y',B]]);   // short unit → x > y
-    return s+scene(312,40,[['x',G],[' < ',INK],['y',B]]); }   // long unit → x < y
+  // ---- p4 "Comparing Area and Length" : area x = green, length y = blue, unit "1" = red. y is a VERTICAL line so it reads against the square's side. ----
+  acmp(){ const sy=12, sq=60, ox=150, A='#2faa4e', L='#2f74d0';   // area x (square) vs length y (vertical line) — which is bigger?
+    let s='<rect x="'+ox+'" y="'+sy+'" width="'+sq+'" height="'+sq+'" rx="3" fill="rgba(47,170,78,.18)" stroke="'+A+'" stroke-width="1.8"/>'+sText('x',ox+sq/2,sy+sq/2,A,22);
+    s+=sText('?',ox+sq+34,sy+sq/2,AX,30);
+    const lx=ox+sq+88; return s+sLine(lx,sy,lx,sy+sq,L,4)+sDot(lx,sy,4,L)+sDot(lx,sy+sq,4,L)+sText('y',lx+16,sy+sq/2,L,20); },
+  aunit(){ const sy=14, sq=52, ox=172, A='#2faa4e', L='#2f74d0';   // unit square (1×1) + a unit-long VERTICAL line y (same height as the side) → x = y
+    let s='<rect x="'+ox+'" y="'+sy+'" width="'+sq+'" height="'+sq+'" rx="3" fill="rgba(47,170,78,.16)" stroke="'+A+'" stroke-width="1.8"/>'+sText('x',ox+sq/2,sy+sq/2,A,20);
+    const by=sy+sq+6; s+=sLine(ox,by,ox+sq,by,R,1.6)+sLine(ox,by,ox,by-5,R,1.6)+sLine(ox+sq,by,ox+sq,by-5,R,1.6)+sText('1',ox+sq/2,by+12,R,13);   // bottom side = 1
+    const vx=ox-6; s+=sLine(vx,sy,vx,sy+sq,R,1.6)+sLine(vx,sy,vx+5,sy,R,1.6)+sLine(vx,sy+sq,vx+5,sy+sq,R,1.6)+sText('1',vx-10,sy+sq/2,R,13);   // left side = 1
+    const lx=ox+sq+72; s+=sLine(lx,sy,lx,sy+sq,L,4)+sDot(lx,sy,4,L)+sDot(lx,sy+sq,4,L)+sText('y',lx,sy-9,L,18);   // y vertical = 1
+    const yx=lx+7; return s+sLine(yx,sy,yx,sy+sq,R,1.6)+sLine(yx,sy,yx-5,sy,R,1.6)+sLine(yx,sy+sq,yx-5,sy+sq,R,1.6)+sText('1',yx+10,sy+sq/2,R,13); },
+  aflip(){ const A='#2faa4e', L='#2f74d0', Q=34, base=66, mid=236;   // BOTH panels are x = y. Left: y SMALL; right: y BIG. Unit "1" sized so x = y either way → looks do not decide. The "1" sits on the OUTER side of each group; a divider splits the two.
+    const unit=(ux,U,dx)=>'<line x1="'+ux+'" y1="'+(base-U)+'" x2="'+ux+'" y2="'+base+'" stroke="'+R+'" stroke-width="4" stroke-linecap="round"/>'+sText('1',ux+dx,base-U/2,R,12);
+    const sq=(x)=>'<rect x="'+x+'" y="'+(base-Q)+'" width="'+Q+'" height="'+Q+'" rx="3" fill="rgba(47,170,78,.16)" stroke="'+A+'" stroke-width="1.6"/>'+sText('x',x+Q/2,base-Q/2,A,14);
+    const yln=(x,Ly,dx)=>sLine(x,base-Ly,x,base,L,3.5)+sDot(x,base-Ly,2.6,L)+sDot(x,base,2.6,L)+sText('y',x+dx,base-Ly+3,L,13);
+    const verd=[['x',A],[' = ',INK],['y',L]];
+    let s=unit(124,56,-10)+sq(142)+yln(190,21,10);                                   // LEFT: 1 (outer) | x | y , y small
+    s+='<line x1="'+mid+'" y1="6" x2="'+mid+'" y2="'+(base+8)+'" stroke="'+AX+'" stroke-width="1" stroke-dasharray="3 4" opacity=".55"/>';   // divider
+    s+=sq(278)+yln(326,53,-10)+unit(354,22,10);                                       // RIGHT: x | y | 1 (outer) , y big
+    return s+cEq(157,base+20,verd,15)+cEq(316,base+20,verd,15); },
 };
 function figSVG(name){ const W=480,H=FIGH[name]||70, cx=FIGCX[name]||240; return '<svg class="bkfig" width="544" height="'+(544*H/W).toFixed(1)+'" viewBox="'+(cx-240).toFixed(0)+' 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">'+FIGS[name]()+'</svg>'; }   // pan viewBox to centre content; explicit width/height so it sizes even if page CSS is missing (PNG/PDF export)
 function colorEq(s){ return s.replace(/\d/g,d=>'<span style="color:'+(COL[+d]||INK)+'">'+d+'</span>'); }

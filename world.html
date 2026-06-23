@@ -166,6 +166,7 @@
 
   <div class="foot" id="legend">✦ cleared &nbsp;·&nbsp; ▶ open &nbsp;·&nbsp; 🔒 in the Fog &nbsp;—&nbsp; <a href="index.html">mathtau.com</a></div>
 
+<script src="origo/quests/manifest.js"></script>
 <script>
   // mark progress + recede the fog a little once the Origin Plains is cleared
   try{
@@ -177,7 +178,7 @@
 
   // unlocked-quest shortcuts: jump straight back into any quest you've reached (q01 always open; the next opens once the previous is cleared)
   (function(){
-    const CATALOG=[ {n:'01',t:'Addition'}, {n:'02',t:'Multiplication'}, {n:'03',t:'Give Numbers Names'} ];
+    const CATALOG=(window.MANIFEST||[]).map(function(q){ return {n:q.n, t:(q.t&&q.t.en)||q.n}; });   // order/titles come from quests/manifest.js (single source)
     let dn={}; try{ dn=(JSON.parse(localStorage.getItem('origo')||'{}').quests)||{}; }catch(e){}
     let h='<h6>↩ Return to a quest</h6>';
     CATALOG.forEach(function(q,i){

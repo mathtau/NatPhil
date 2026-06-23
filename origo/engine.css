@@ -18,6 +18,9 @@ body{ background:radial-gradient(1200px 700px at 70% -12%,rgba(176,112,240,.14),
 .dots{ display:flex; gap:7px; justify-content:center; margin-top:6px; }
 .dots i{ width:9px;height:9px;border-radius:50%;background:var(--border);transition:.3s; } .dots i.on{ background:var(--gold);transform:scale(1.25); }
 .stage{ width:100%; max-width:640px; }
+/* reward bigger screens: let the board grow on tablets/desktops (mobile stays full-width) — never force a larger device */
+@media(min-width:760px){ .stage{ max-width:720px; } }
+@media(min-width:1100px){ .stage{ max-width:860px; } }
 
 .placebanner{ text-align:center; font-family:'Playfair Display',serif; font-style:italic; color:var(--gold); font-size:1.05rem; opacity:0; height:0; margin:0; }
 .placebanner.show{ animation:placein 2.6s ease forwards; height:auto; margin:2px 0 6px; }
@@ -61,7 +64,8 @@ canvas{ width:100%; height:auto; display:block; border-radius:8px; }
 .btn.plank{ font-size:1.2rem; min-width:56px; }
 .btn.p1{ border-color:var(--blue); color:var(--blue); } .btn.p2{ border-color:var(--green); color:var(--green); }
 .btn.p3{ border-color:var(--gold); color:var(--gold); } .btn.p4{ border-color:var(--orange); color:var(--orange); }
-.btn.primary{ border-color:rgba(244,200,48,.55); color:var(--gold); background:rgba(244,200,48,.08); }
+.btn.primary{ border-color:transparent; color:#241b06; background:var(--gold); font-weight:600; }   /* solid gold CTA, dark text */
+.btn.primary:hover{ border-color:transparent; color:#241b06; background:#ffd84a; }
 .btn.on{ background:rgba(244,200,48,.16); border-color:var(--gold); color:var(--gold); }
 .btn:disabled{ opacity:.4; cursor:default; }
 .btn.dim{ opacity:.32; } .btn.dim:hover{ border-color:var(--border); color:var(--text); }   /* locked button — visible but inactive */
@@ -74,8 +78,19 @@ canvas{ width:100%; height:auto; display:block; border-radius:8px; }
 .btn.wheat:hover{ border-color:#f0c24a; color:#ffe0a0; }
 .btn.ghost{ color:var(--muted); border-color:var(--border); background:transparent; }             /* secondary / navigation (back, replay, undo, reshape) */
 .btn.ghost:hover{ color:var(--text); border-color:var(--muted); }
-.btn.choice{ color:#cfe0ff; border-color:#3a5a8a; background:rgba(40,70,130,.22); }                /* a multiple-choice answer — all answers look identical (never telegraph the right one) */
-.btn.choice:hover{ color:#eaf2ff; border-color:#5a82c0; background:rgba(56,92,160,.34); }
+/* answers: SOLID muted background + WHITE text. The object tint lives in the fill, not the text, so the wording stays calm and legible.
+   Safe vs telegraphing — when both kinds appear as options, the fill colour matches the object, not the correct answer. */
+.btn.choice{ color:#fff; border-color:transparent; background:#3c4866; }                              /* default / neutral solid */
+.btn.choice:hover{ color:#fff; border-color:transparent; background:#49587c; }
+.btn.choice.cg{ color:#fff; border-color:transparent; background:#2f8f50; }                           /* field / area */
+.btn.choice.cg:hover{ color:#fff; border-color:transparent; background:#37a35e; }
+.btn.choice.cb{ color:#fff; border-color:transparent; background:#2f6fc0; }                           /* rope / length */
+.btn.choice.cb:hover{ color:#fff; border-color:transparent; background:#3a81d6; }
+.btn.choice.cr{ color:#fff; border-color:transparent; background:#cf4a35; }                           /* unit */
+.btn.choice.cr:hover{ color:#fff; border-color:transparent; background:#e2573f; }
+.btn.choice.cn{ color:#fff; border-color:transparent; background:#5c5749; }                           /* neutral / "can't tell" */
+.btn.choice.cn:hover{ color:#fff; border-color:transparent; background:#6f6957; }
+.wsay{ color:#c0a6ef; }   /* a Fogwraith's taunt in the speech bubble */
 
 .foot{ margin-top:16px; font-family:'IBM Plex Mono',monospace; font-size:.95rem; color:var(--muted); text-align:center; display:flex; gap:6px; align-items:center; justify-content:center; flex-wrap:wrap; }
 .foot a{ color:var(--cyan); text-decoration:none; display:inline-flex; align-items:center; gap:5px; padding:5px 9px; border-radius:8px; border:1px solid transparent; } .foot a:hover{ color:var(--gold); background:rgba(244,200,48,.08); border-color:rgba(244,200,48,.25); }
@@ -132,6 +147,8 @@ canvas{ width:100%; height:auto; display:block; border-radius:8px; }
 .scroll .giver{ text-align:center; font-family:'IBM Plex Mono',monospace; font-size:.7rem; letter-spacing:.12em; text-transform:uppercase; color:#6a5320; margin-bottom:13px; }
 .scroll .flavor{ font-style:italic; font-size:1.05rem; line-height:1.5; margin-bottom:13px; }
 .scroll .flavor b{ color:#8a1f10; font-style:normal; }
+/* object-colored flavor words, in PARCHMENT-safe dark shades (the bright bubble colours wash out on cream; gold→amber so calves still read) */
+.scroll .flavor b.b{ color:#1d5fb0 } .scroll .flavor b.g{ color:#2c7a3e } .scroll .flavor b.o{ color:#c0660e } .scroll .flavor b.r{ color:#b3271a } .scroll .flavor b.p{ color:#6a2db0 } .scroll .flavor b.y{ color:#9a6a08 }
 /* never italicise Chinese — slanted CJK looks broken */
 html[lang="zh"] .flavor, html[lang="zh"] .placebanner, html[lang="zh"] em, html[lang="zh"] i{ font-style:normal !important; }
 .scroll .objs{ list-style:none; border-top:1px solid rgba(90,70,20,.4); padding-top:11px; margin-bottom:16px; font-size:1rem; }
@@ -141,11 +158,13 @@ html[lang="zh"] .flavor, html[lang="zh"] .placebanner, html[lang="zh"] em, html[
 .scroll .readaloud:hover{ background:rgba(58,44,18,.16); color:#3a2c12; }
 .scroll .accept{ display:block; width:100%; padding:15px; border:none; border-radius:8px; cursor:pointer; background:linear-gradient(#f4c830,#c89a1e); color:#2a1f06; font-family:'IBM Plex Mono',monospace; font-size:1.1rem; font-weight:600; }
 .scroll .accept:hover{ filter:brightness(1.08); }
-.qtrack{ position:fixed; top:12px; right:12px; z-index:25; width:220px; display:none; background:rgba(10,10,28,.9); border:1px solid var(--border); border-left:3px solid var(--gold); border-radius:8px; padding:9px 11px; font-family:'IBM Plex Mono',monospace; font-size:.74rem; box-shadow:0 8px 24px -8px #000; }
+/* in-flow banner by default (never overlaps the centered stage at any width/zoom) */
+.qtrack{ display:none; width:100%; max-width:640px; margin:0 auto 10px; background:rgba(10,10,28,.9); border:1px solid var(--border); border-left:3px solid var(--gold); border-radius:8px; padding:9px 11px; font-family:'IBM Plex Mono',monospace; font-size:.74rem; box-shadow:0 8px 24px -8px #000; }
 .qtrack.show{ display:block; }
 .qtrack h5{ color:var(--gold); font-size:.74rem; font-weight:500; margin-bottom:6px; }
 .qtrack .o{ color:#9a9ab8; line-height:1.5; margin:2px 0; transition:.3s; } .qtrack .o.done{ color:var(--green); }
-@media(max-width:700px){ .qtrack{ position:static; width:100%; max-width:640px; margin:0 auto 10px; } }
+/* float into the side margin ONLY when the viewport is wide enough to clear the centered stage (max 860px) — otherwise overlap */
+@media(min-width:1330px){ .qtrack.show{ position:fixed; top:12px; right:12px; z-index:25; width:220px; max-width:none; margin:0; } }
 @media(max-width:520px){ .top h1{font-size:1.3rem} .bubble{font-size:1.05rem} .bot{width:52px;height:52px} }
 
 /* ===== Codex / reclaimed book page (book.js renders into #codexBody; this is the frame) ===== */

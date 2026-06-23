@@ -6,6 +6,7 @@ const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
 const t=s=>E.t(s);
 const keq=(expr)=>'<span class="keq">'+expr+' <span class="tk">✓</span></span>';
 const GREEN='#3fae54', GOLD='#e0a83a';
+const RED_AXIS='#e06060', BLUE_AXIS='#5b9bff';   // RED=horizontal(cols/width), BLUE=vertical(rows/height)
 function backStep(){ if(E.round>0) E.addBtn(t({en:'◀ Prev step',zh:'◀ 上一步'}),'ghost',E.prevStep); }   // replay an earlier step (no EXP — already cleared)
 
 /* ---- grass-tile field drawing (area = the product) ---- */
@@ -37,16 +38,19 @@ function calf(ctx,x,y,r,fed){ const mood=fed===true?'happy':fed===false?'sad':fe
   if(img.complete && img.naturalWidth){ ctx.save(); if(mood==='sad')ctx.globalAlpha=.5; try{ ctx.drawImage(img,x-s/2,y-s/2,s,s); }catch(_){ } ctx.restore(); }
   else { ctx.save(); ctx.fillStyle=mood==='sad'?'rgba(126,122,104,.6)':'#f4c830'; ctx.beginPath(); ctx.arc(x,y,r,0,7); ctx.fill(); ctx.restore(); } }   // fallback dot until the emblem decodes
 function drawHungry(n){ if(n<=0)return; const ctx=E.ctx,LW=E.LW,LH=E.LH; const sp=Math.min(26,(LW-150)/Math.max(n,1)); for(let i=0;i<n;i++) calf(ctx,112+i*sp,LH-24,11,false); }
-// the whole herd, waiting eagerly on the ground before they're sent to the field
-function waitingHerd(n){ if(n<=0)return; const ctx=E.ctx,LW=E.LW,LH=E.LH; const x0=78, sp=Math.min(26,(LW-90-x0)/Math.max(n-1,1)), r=Math.min(11,sp*0.42);   // a row along the ground, just right of Tau
-  for(let i=0;i<n;i++) calf(ctx,x0+i*sp,LH-26,r,'open'); }   // waiting = neutral (not smiling yet)
+// the whole herd, waiting on the ground GROUPED LIKE THE LAND: `per` per group (= the field's columns) with a gap between groups,
+// so a 2×3 field shows as 2 groups of 3 — the herd literally previews the rows × columns the player is building.
+function waitingHerd(n, per){ if(n<=0)return; const ctx=E.ctx,LW=E.LW,LH=E.LH; const x0=72, y=LH-26; per=(per>0?per:5);
+  const gaps=Math.ceil(n/per)-1;
+  const sp=Math.min(24,(LW-86-x0)/Math.max(n-1+gaps*0.8,1)), r=Math.min(11,sp*0.42);
+  let x=x0; for(let i=0;i<n;i++){ calf(ctx,x,y,r,'open'); x+=sp + (((i+1)%per===0 && i<n-1)? sp*0.8 : 0); } }   // +0.8·sp gap between groups
 
 // single field: rows × cols → returns geometry {cell, centers[]} so the herd can graze it
 function field(rows,cols,opt){ opt=opt||{}; bg(); const LW=E.LW,LH=E.LH;
   const cell=Math.min(46,(LW-130)/Math.max(cols,1),182/Math.max(rows,1));
   const gw=cols*cell, gh=rows*cell, ox=(LW-gw)/2+14, oy=Math.max(44,(LH-66-gh)/2);
   gridAt(ox,oy,cell,cols,rows,()=>GREEN,opt.grow,null);
-  if(cols)label(ox+gw/2,oy-13,cols); if(rows)vlabel(ox-15,oy+gh/2,rows);
+  if(cols)label(ox+gw/2,oy-13,cols,RED_AXIS); if(rows)vlabel(ox-15,oy+gh/2,rows,BLUE_AXIS);   // RED=cols(horizontal), BLUE=rows(vertical)
   const centers=[]; for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)centers.push({x:ox+c*cell+cell/2,y:oy+r*cell+cell/2});
   return {cell,centers}; }
 
@@ -68,7 +72,7 @@ function twoPens(a,gW,cW,opt){ opt=opt||{}; bg(); const LW=E.LW,LH=E.LH,ctx=E.ct
   for(let r=0;r<a;r++)for(let c=0;c<gMax;c++){ const x=ox+c*cell,y=oy+r*cell; if(c<gW){ tile(ctx,x,y,cell,GREEN,opt.grow); centers.push({x:x+cell/2,y:y+cell/2}); } else outl(ctx,x,y,cell,GREEN); }
   for(let r=0;r<a;r++)for(let c=0;c<cMax;c++){ const x=oxC+c*cell,y=oy+r*cell; if(c<cW){ tile(ctx,x,y,cell,GOLD,opt.grow); centers.push({x:x+cell/2,y:y+cell/2}); } else outl(ctx,x,y,cell,GOLD); }
   fence(ctx, ox+wG+gap/2, oy-6, gh+12);
-  if(a)vlabel(ox-15,oy+gh/2,a);
+  if(a)vlabel(ox-15,oy+gh/2,a,BLUE_AXIS);   // BLUE=rows(vertical)
   label(ox+wG/2, oy+gh+18, t({en:'grass',zh:'青草'}), GREEN, 14);
   label(oxC+wC/2, oy+gh+18, t({en:'wheat',zh:'麦子'}), GOLD, 14);
   return {cell,centers}; }
@@ -82,7 +86,7 @@ function pair(refR,refC,bR,bC,opt){ opt=opt||{}; bg(); const ctx=E.ctx,LW=E.LW,L
   const wRef=refC*cell,wB=drawCols*cell,hRef=refR*cell,hB=bR*cell, totalW=wRef+gap+wB, ox=(LW-totalW)/2+12, midY=Math.max(60,(LH-54)/2);
   const oxR=ox, oyR=midY-hRef/2, oxB=ox+wRef+gap, oyB=midY-hB/2;
   ctx.save(); ctx.globalAlpha=.4; gridAt(oxR,oyR,cell,refC,refR,()=>GREEN,opt.grow,null); ctx.restore();   // the meadow, faded (how it grazed wide)
-  label(oxR+wRef/2,oyR-12,refC); vlabel(oxR-14,oyR+hRef/2,refR);
+  label(oxR+wRef/2,oyR-12,refC,RED_AXIS); vlabel(oxR-14,oyR+hRef/2,refR,BLUE_AXIS);   // RED=cols(horizontal), BLUE=rows(vertical)
   // the strip's terrain: grassy land `bound` cols wide, then a cliff edge
   const bx=oxB+bound*cell;
   ctx.save();
@@ -94,7 +98,7 @@ function pair(refR,refC,bR,bC,opt){ opt=opt||{}; bg(); const ctx=E.ctx,LW=E.LW,L
   for(let r=0;r<bR;r++)for(let c=0;c<drawCols;c++){ const x=oxB+c*cell,y=oyB+r*cell;
     if(c<bC){ if(c>=bound){ rock(ctx,x,y,cell); } else { tile(ctx,x,y,cell,GREEN,opt.grow); } }              // past the wall = bare rock (no grass, no calf)
     else if(c<bound){ outl(ctx,x,y,cell,GREEN); } }                                                          // unfilled strip cell
-  label(oxB+bound*cell/2,oyB-12,bound); vlabel(oxB+wB+14,oyB+hB/2,bR);                                       // strip width on top; row label on the outer edge
+  label(oxB+bound*cell/2,oyB-12,bound,RED_AXIS); vlabel(oxB+wB+14,oyB+hB/2,bR,BLUE_AXIS);   // RED=cols(horizontal), BLUE=rows(vertical)
   if(bR*bC===refR*refC && bC<=bound) label(ox+wRef+gap/2, midY, '=', FIG.C.green, 30);                       // '=' only once they truly match — no clutter beforehand
   const centers=[]; for(let r=0;r<bR;r++)for(let c=0;c<Math.min(bC,bound);c++)centers.push({x:oxB+c*cell+cell/2,y:oyB+r*cell+cell/2});   // calves only on the grass (in-bounds) tiles
   return {cell,centers}; }
@@ -119,7 +123,7 @@ function walled(rows,cols,W,H,opt){ opt=opt||{}; bg(); const ctx=E.ctx,LW=E.LW,L
   for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){ const x=ox+c*cell,y=oy+r*cell;
     if(c>=W||r>=H){ rock(ctx,x,y,cell); }                                                  // past the wall = bare rock: no grass, no calf
     else { tile(ctx,x,y,cell,GREEN,opt.grow); centers.push({x:x+cell/2,y:y+cell/2}); } }
-  if(cols)label(ox+cols*cell/2,oy-13,cols); if(rows)vlabel(ox-15,oy+rows*cell/2,rows);
+  if(cols)label(ox+cols*cell/2,oy-13,cols,RED_AXIS); if(rows)vlabel(ox-15,oy+rows*cell/2,rows,BLUE_AXIS);   // RED=cols(horizontal), BLUE=rows(vertical)
   return {cell,centers}; }
 
 // R3 Part 1: two crop plots side by side, split by a vertical fence — grass (gR×gC, target a×b) + wheat (wR×wC, target a×c). Grow each with rows & cols.
@@ -134,8 +138,8 @@ function p1(a,gR,gC,wR,wC,b,c,opt){ opt=opt||{}; bg(); const ctx=E.ctx,LW=E.LW,L
       else if(r<a&&cc<Tc){ outl(ctx,x,y,cell,col); } } }
   plot(ox,gR,gC,b,GREEN,'rgba(63,174,84,.10)'); plot(wx,wR,wC,c,GOLD,'rgba(224,168,58,.13)');
   fence(ctx, ox+gw+gap/2, oy-5, gh+10);
-  if(gC)label(ox+gC*cell/2,oy-12,gC,GREEN); if(gR)vlabel(ox-14,oy+gR*cell/2,gR);
-  if(wC)label(wx+wC*cell/2,oy-12,wC,GOLD); if(wR)vlabel(wx+wC2*cell+14,oy+wR*cell/2,wR);
+  if(gC)label(ox+gC*cell/2,oy-12,gC,RED_AXIS); if(gR)vlabel(ox-14,oy+gR*cell/2,gR,BLUE_AXIS);   // RED=cols(horizontal), BLUE=rows(vertical)
+  if(wC)label(wx+wC*cell/2,oy-12,wC,RED_AXIS); if(wR)vlabel(wx+wC2*cell+14,oy+wR*cell/2,wR,BLUE_AXIS);
   label(ox+gw/2,oy+gh+18,t({en:'grass',zh:'青草'}),GREEN,13); label(wx+ww/2,oy+gh+18,t({en:'wheat',zh:'麦子'}),GOLD,13);
   return {cell,centers}; }
 
@@ -169,7 +173,7 @@ function p2(a,rowG,rowW,nRows,b,c,opt){ opt=opt||{}; bg(); const ctx=E.ctx,LW=E.
   if(lock){ const wy=oy+cell; ctx.save();                                                                   // wall below the single row — no copying down until it's formed
     const wg=ctx.createLinearGradient(0,wy,0,wy+22); wg.addColorStop(0,'rgba(8,6,14,.55)'); wg.addColorStop(1,'rgba(8,6,14,0)'); ctx.fillStyle=wg; ctx.fillRect(rx-6,wy,bc*cell+12,22);
     ctx.strokeStyle='#8a6f3a'; ctx.lineWidth=4; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(rx-6,wy); ctx.lineTo(rx+bc*cell+6,wy); ctx.stroke(); ctx.restore(); }
-  vlabel(rx-13,oy+(nRows*cell)/2,nRows); label(rx+bc*cell/2,oy-11,rowG+'+'+rowW);
+  vlabel(rx-13,oy+(nRows*cell)/2,nRows,BLUE_AXIS); label(rx+bc*cell/2,oy-11,rowG+'+'+rowW,RED_AXIS);   // RED=cols(horizontal), BLUE=rows(vertical)
   label(rx+rightW/2,oy+gh+16,a+'×('+b+'+'+c+')',FIG.C.text,13);
   return {cell,centers}; }
 
@@ -203,6 +207,7 @@ function river(ctx,x,y,w,h){ ctx.save();
 /* ===== THE Quest-2 mechanic: build ONE row (the group), then "Product" the magician copies it down ===== */
 // `copies` rows, each = g grass + w wheat. Field is b+c wide × a tall. Cells past the b+c width spill onto ROCK (no calf).
 // opt.grow = grow-in; opt.ref = {r,c} draws a faded r×c reference field + "=" to the left (used for commutativity).
+// Returns geometry incl. ox, oy, bc, rowsShown, riverH for bbox computation.
 function gfield(b,c,a,g,w,copies,opt){ opt=opt||{}; bg(); const ctx=E.ctx,LW=E.LW,LH=E.LH;
   const bc=b+c, rowW=Math.max(g+w,bc), rowsShown=Math.max(copies,a);
   const ref=opt.ref, refC=ref?ref.c:0, refC2=ref?(ref.c2||0):0, refR=ref?ref.r:0, eqGap=ref?50:0;   // ref = faded watermark: r×c green (+ optional r×c2 gold), then ref.op ('+'/'=') to the main field
@@ -229,7 +234,7 @@ function gfield(b,c,a,g,w,copies,opt){ opt=opt||{}; bg(); const ctx=E.ctx,LW=E.L
   if(b>0&&c>0) wall(ctx, ox+b*cell, oy-3, gh+6);      // grass ends here — move on to wheat
   label(ox+bc*cell/2,oy-12, (b>0&&c>0)? g+'+'+w : (c>0? ''+w : ''+g), FIG.C.text);
   for(let r=0;r<copies;r++) vlabel(ref? ox+bc*cell+16 : ox-16, rowY(r)+cell/2, r+1);   // a row number per copied row, down the LEFT — tallies 积's copies (rows = how many times Product copied)
-  return {cell,centers}; }
+  return {cell, centers, ox, oy, bc, rowsShown, riverH}; }   // expose geometry for bbox / scene tap
 // a 5-point sparkle star
 function star(ctx,cx,cy,r,col){ if(r<=0)return; ctx.save(); ctx.fillStyle=col; ctx.beginPath();
   for(let i=0;i<5;i++){ const a=-Math.PI/2+i*2*Math.PI/5; ctx.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r); const a2=a+Math.PI/5; ctx.lineTo(cx+Math.cos(a2)*r*0.45,cy+Math.sin(a2)*r*0.45); }
@@ -240,15 +245,17 @@ function magician(ctx,x,y,s,t){ t=t==null?1:t; const U=s/100, P=Math.PI; ctx.sav
   const robePath=()=>{ ctx.beginPath(); ctx.moveTo(x-10*U,y+4*U); ctx.quadraticCurveTo(x-30*U,y+24*U,x-36*U,y+56*U);
     ctx.quadraticCurveTo(x-22*U,y+66*U,x-12*U,y+59*U); ctx.quadraticCurveTo(x,y+68*U,x+12*U,y+59*U);
     ctx.quadraticCurveTo(x+22*U,y+66*U,x+36*U,y+56*U); ctx.quadraticCurveTo(x+30*U,y+24*U,x+10*U,y+4*U); ctx.closePath(); };
-  const robe=ctx.createLinearGradient(x-34*U,0,x+34*U,0); robe.addColorStop(0,'#ffe9a0'); robe.addColorStop(.5,'#f4c830'); robe.addColorStop(1,'#bd8c12');
-  ctx.fillStyle=robe; ctx.strokeStyle='#8a6410'; ctx.lineWidth=2*U; robePath(); ctx.fill(); ctx.stroke();
+  const robe=ctx.createLinearGradient(x-34*U,0,x+34*U,0); robe.addColorStop(0,'#9bf0c8'); robe.addColorStop(.5,'#34b06a'); robe.addColorStop(1,'#136b42');   // GREEN robe — Product wears the multiplication colour, distinct from gold calves
+  ctx.fillStyle=robe; ctx.strokeStyle='#0e5a34'; ctx.lineWidth=2*U; robePath(); ctx.fill(); ctx.stroke();
   ctx.save(); robePath(); ctx.clip();
-  ctx.fillStyle='rgba(110,74,10,.22)'; ctx.fillRect(x+4*U,y,40*U,70*U);
-  ctx.fillStyle='rgba(255,250,225,.28)'; ctx.fillRect(x-36*U,y,17*U,70*U);
-  ctx.strokeStyle='rgba(110,74,10,.25)'; ctx.lineWidth=1.4*U; ctx.beginPath(); ctx.moveTo(x,y+8*U); ctx.lineTo(x,y+58*U); ctx.stroke();
-  star(ctx,x-14*U,y+34*U,3*U,'rgba(255,247,207,.85)'); star(ctx,x+13*U,y+44*U,2.4*U,'rgba(255,247,207,.7)'); ctx.restore();
-  ctx.fillStyle='#e3ad28'; ctx.strokeStyle='#8a6410'; ctx.lineWidth=1.4*U; ctx.beginPath(); ctx.ellipse(x,y+5*U,11*U,3.6*U,0,0,7); ctx.fill(); ctx.stroke();   // collar
-  ctx.fillStyle='#f4c830'; ctx.beginPath(); ctx.arc(x-25*U,y+40*U,5.5*U,0,7); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.arc(x+24*U,y+30*U,5.5*U,0,7); ctx.fill(); ctx.stroke();   // hands
+  ctx.fillStyle='rgba(16,70,40,.24)'; ctx.fillRect(x+4*U,y,40*U,70*U);
+  ctx.fillStyle='rgba(235,255,245,.26)'; ctx.fillRect(x-36*U,y,17*U,70*U);
+  ctx.strokeStyle='rgba(16,70,40,.28)'; ctx.lineWidth=1.4*U; ctx.beginPath(); ctx.moveTo(x,y+8*U); ctx.lineTo(x,y+58*U); ctx.stroke();
+  star(ctx,x-14*U,y+34*U,3*U,'rgba(255,247,207,.9)'); star(ctx,x+13*U,y+44*U,2.4*U,'rgba(255,247,207,.75)'); ctx.restore();
+  ctx.fillStyle='#2f9a58'; ctx.strokeStyle='#0e5a34'; ctx.lineWidth=1.4*U; ctx.beginPath(); ctx.ellipse(x,y+5*U,11*U,3.6*U,0,0,7); ctx.fill(); ctx.stroke();   // collar
+  const sym=(E.lang==='zh')?'积':'×';   // Product's monogram: the × multiply-sign in EN, his name 积 in ZH (no Chinese char on the English build)
+  ctx.save(); ctx.fillStyle='#ffe9a0'; ctx.strokeStyle='rgba(40,22,74,.75)'; ctx.lineWidth=3*U; ctx.font='bold '+(22*U)+'px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.strokeText(sym,x,y+28*U); ctx.fillText(sym,x,y+28*U); ctx.restore();
+  ctx.fillStyle='#eccb8e'; ctx.beginPath(); ctx.arc(x-25*U,y+40*U,5.5*U,0,7); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.arc(x+24*U,y+30*U,5.5*U,0,7); ctx.fill(); ctx.stroke();   // hands (skin, not gold)
   const cy=y-18*U, hr=17*U;
   const skin=ctx.createRadialGradient(x-5*U,cy-6*U,2*U,x,cy,hr*1.15); skin.addColorStop(0,'#fff3d6'); skin.addColorStop(1,'#eccb8e');
   ctx.fillStyle=skin; ctx.strokeStyle='#b98c2a'; ctx.lineWidth=1.6*U; ctx.beginPath(); ctx.arc(x,cy,hr,0,7); ctx.fill(); ctx.stroke();
@@ -276,28 +283,74 @@ function magician(ctx,x,y,s,t){ t=t==null?1:t; const U=s/100, P=Math.PI; ctx.sav
   star(ctx,x-30*U,y-26*U,3*U*(0.4+0.6*Math.abs(Math.sin(t*3.14+1))),'rgba(255,243,207,.8)');
   star(ctx,x+38*U,y+12*U,2.2*U*(0.4+0.6*Math.abs(Math.sin(t*3.14+2))),'rgba(255,243,207,.7)');
   ctx.restore(); }
-/* ONE shared round: build a ROW (the group), then Product copies it — one row at a time — and you send the herd.
-   Copying is always available, so the count can be wrong: too few → calves go hungry, too many → tiles wasted. */
-function runRound(E, cfg){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(cfg.dot); E.cv.onclick=null;
+/* ONE shared round: build a ROW (the group), then Product copies it — one row at a time — and you tap the field to send the herd.
+   Copying is always available, so the count can be wrong: too few → calves go hungry, too many → tiles wasted.
+   Direct-manipulation: the player TAPS THE FIELD itself (E.scene tap actor) instead of a tray answer-button. */
+function runRound(E, cfg){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(cfg.dot); E.sceneStop();
   const B=cfg.B, C=cfg.C, A=cfg.A, N=cfg.N, bc=B+C; let g=0, w=0, k=1;
   E.setPlace(cfg.place); E.tell(cfg.intro);
-  function refresh(){ gfield(B,C,A,g,w,k,{ref:cfg.ref}); waitingHerd(N); magician(E.ctx,78,E.LH*0.42,46,0); label(78,E.LH*0.42+50,t({en:'Product',zh:'积'}),'#caa84a',12);   // gap below the robe/shadow; no quotes on the in-game label (prose keeps “积”)
+  const orbY=E.LH*0.40;             // where the "call Product" bubble sits (and Product appears when called)
+  let lastGeo=null, wH=null, summoned=false;   // lastGeo = last layout; wH = the WIDTH (↔) drag-handle; summoned = Product has been called (then click HIM to copy)
+  function setWidth(W){ W=Math.max(0,Math.min(bc+3,W)); if(C>0){ g=Math.min(W,B); w=W-g; } else { g=W; w=0; } }   // one width sizes the row: grass up to B, then wheat
+  function knob(x,y,sym,hot){ const ctx=E.ctx; ctx.save();   // the draggable gold ↔ grip
+    ctx.shadowColor='rgba(0,0,0,.4)'; ctx.shadowBlur=hot?11:5; ctx.shadowOffsetY=2; ctx.fillStyle=hot?'#ffe79a':'#f4c830'; ctx.strokeStyle='#7a5a10'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(x,y,12,0,7); ctx.fill(); ctx.stroke(); ctx.shadowColor='transparent';
+    ctx.fillStyle='#3a2c08'; ctx.font='bold 14px "IBM Plex Mono",monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(sym,x,y); ctx.restore(); }
+  const CALL1=t({en:'✦ call Product',zh:'✦ 召唤"积"'}), CALL2=t({en:'the magician',zh:'魔法师'});
+  function callBB(){ const ctx=E.ctx; ctx.save(); ctx.font='600 12px "IBM Plex Mono",monospace'; const w=Math.max(ctx.measureText(CALL1).width,ctx.measureText(CALL2).width)+22; ctx.restore(); return {x:12, y:6, w:w, h:38}; }   // two-line bubble, top-left, clear of the centered field
+  function callBubble(){ const ctx=E.ctx, b=callBB(); ctx.save();   // TAP → Product the magician appears (and copies the row once)
+    const tt=performance.now()/700, pulse=0.7+0.3*Math.abs(Math.sin(tt*2));
+    ctx.shadowColor='rgba(154,92,240,'+(0.3*pulse).toFixed(2)+')'; ctx.shadowBlur=12; FIG.rr(ctx,b.x,b.y,b.w,b.h,12); ctx.fillStyle='rgba(56,36,96,.94)'; ctx.fill();
+    ctx.shadowColor='transparent'; ctx.lineWidth=1.6; ctx.strokeStyle='#9a5cf0'; FIG.rr(ctx,b.x,b.y,b.w,b.h,12); ctx.stroke();
+    ctx.fillStyle='#e0c4ff'; ctx.font='600 12px "IBM Plex Mono",monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(CALL1,b.x+b.w/2,b.y+13); ctx.fillText(CALL2,b.x+b.w/2,b.y+27); ctx.restore(); }
+  function magicBubble(txt){ const ctx=E.ctx; ctx.save(); ctx.font='600 13px "IBM Plex Mono",monospace'; const w=ctx.measureText(txt).width+22, x=46, y=E.LH*0.42-58;   // Product's speech bubble while casting
+    ctx.shadowColor='rgba(0,0,0,.4)'; ctx.shadowBlur=8; FIG.rr(ctx,x,y,w,28,14); ctx.fillStyle='rgba(56,36,96,.95)'; ctx.fill(); ctx.shadowColor='transparent';
+    ctx.lineWidth=1.6; ctx.strokeStyle='#b070f0'; FIG.rr(ctx,x,y,w,28,14); ctx.stroke();
+    ctx.fillStyle='rgba(56,36,96,.95)'; ctx.beginPath(); ctx.moveTo(x+16,y+27); ctx.lineTo(x+10,y+38); ctx.lineTo(x+30,y+27); ctx.closePath(); ctx.fill();   // tail to Product's head
+    ctx.fillStyle='#f0e2ff'; ctx.font='600 13px "IBM Plex Mono",monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(txt,x+w/2,y+14); ctx.restore(); }
+
+  const mageX=78, mageY=E.LH*0.42;   // where the wizard stands once summoned
+  function draw(){
+    if(lastGeo && wH && wH.grab){ const {ox,cell}=lastGeo; setWidth(Math.round((wH.pos.x-ox)/cell)); }   // dragging the ↔ handle sizes the row
+    const geo=gfield(B,C,A,g,w,k,{ref:cfg.ref}); lastGeo=geo; try{window._q02_geo=geo;window._q02_st={g:g,w:w,k:k,B:B,C:C,A:A};}catch(_){}
+    waitingHerd(N, bc);   // herd grouped like the land: bc per group → A groups (e.g. 2×3 land → 2 groups of 3)
+    if(summoned) magician(E.ctx,mageX,mageY,46,0);   // once called, the wizard stays — CLICK HIM to copy
+    else callBubble();                               // until called, the "call Product the magician" bubble
     const inRow=Math.min(g+w,bc), graze=k*inRow, over=(g+w)>bc, win=(g===B&&w===C&&k===A), row=(B>0&&C>0)? g+'+'+w : (C>0? ''+w : ''+g);
-    E.status(t({en:'row ',zh:'行 '})+'<b>'+row+'</b>'+t({en:'  ×  ',zh:'  ×  '})+'<b>'+k+t({en:' copies',zh:' 份'})+'</b>  =  <b'+(win?' class="g"':(graze>N||over)?' class="r"':'')+'>'+graze+'</b> / '+N+(over?t({en:'   (over the wall!)',zh:'   （越墙了！）'}):'')); E.clearTray(); backStep();
-    // FIXED button layout — positions never move; buttons not usable in the current state are locked (dimmed). shaping (k===1) = editing the group; else = multiplying.
-    const shaping=(k===1), hintEdit=()=>E.pop(t({en:'↺ reshape first',zh:'先重排此行'})), hintCopy=()=>E.pop(t({en:'copy the row first',zh:'先复制此行'}));
-    if(B>0){ E.addBtn(t({en:'grass +',zh:'青草 +'}),'grass', shaping?(()=>{ if(g<(C>0?B:B+3)){g++;E.sfx('place');refresh();} else E.pop(C>0?t({en:'grass wall: use wheat',zh:'青草到墙了：用麦子'}):t({en:'over the wall!',zh:'越墙了！'})); }):hintEdit, !shaping);
-      E.addBtn(t({en:'grass −',zh:'青草 −'}),'grass', shaping?(()=>{ if(g>0){g--;E.sfx('tick');refresh();} }):hintEdit, !shaping); }
-    if(C>0){ E.addBtn(t({en:'wheat +',zh:'麦子 +'}),'wheat', shaping?(()=>{ if(w<C+3){w++;E.sfx('place');refresh();} else E.pop(t({en:'plenty!',zh:'够了！'})); }):hintEdit, !shaping);
-      E.addBtn(t({en:'wheat −',zh:'麦子 −'}),'wheat', shaping?(()=>{ if(w>0){w--;E.sfx('tick');refresh();} }):hintEdit, !shaping); }
-    E.addBtn(t({en:'✦ Product: copy ✦',zh:'✦ “积”：复制 ✦'}),'magic',()=>{ if(k<A+3){k++; cast();} else E.pop(t({en:'plenty!',zh:'够了！'})); });   // copy: fixed label & spot, never re-wraps
-    E.addBtn(t({en:'− a copy',zh:'− 一份'}),'ghost', shaping?hintCopy:(()=>{ k--; E.sfx('tick'); refresh(); }), shaping);
-    E.addBtn(t({en:'↺ reshape the row',zh:'↺ 重排此行'}),'ghost', shaping?hintCopy:(()=>{ k=1; E.sfx('tick'); refresh(); }), shaping);
-    E.addBtn(t({en:'Send the herd ▶',zh:'放牛 ▶'}),'primary',send); }
+    E.status(t({en:'row ',zh:'行 '})+'<b>'+row+'</b>'+t({en:'  ×  ',zh:'  ×  '})+'<b>'+k+t({en:' copies',zh:' 份'})+'</b>  =  <b'+(win?' class="g"':(graze>N||over)?' class="r"':'')+'>'+graze+'</b> / '+N+(over?t({en:'   (over the wall!)',zh:'   （越墙了！）'}):''));
+    const {ox,oy,cell,bc:gbc}=geo;
+    knob(ox+(g+w)*cell, oy+cell/2, '↔', !!(wH&&wH.grab));
+    label(ox+gbc*cell/2, oy-28, summoned ? t({en:'drag ↔ to size · click Product to copy · then Send the herd',zh:'拖 ↔ 调宽 · 点"积"复制 · 再放牛群'}) : t({en:'drag ↔ to size the row · call Product to copy it',zh:'拖 ↔ 调整此行 · 召唤"积"来复制'}),'rgba(190,220,190,.72)',11); }
+
+  function fieldBBox(){ if(!lastGeo) return {x:E.LW*0.2,y:30,w:E.LW*0.6,h:E.LH*0.55};
+    const {ox,oy,bc:gbc,rowsShown,cell,riverH}=lastGeo; return {x:ox-10,y:oy-10,w:gbc*cell+20,h:rowsShown*(cell+riverH)-riverH+20}; }
+
+  function copyOnce(){ E.sceneStop(); if(k<A+3){ k++; cast(); } else { E.pop(t({en:'plenty!',zh:'够了！'})); rescene(); } }
+  function rescene(){ const geo=gfield(B,C,A,g,w,k,{ref:cfg.ref}); lastGeo=geo; const {ox,oy,cell}=geo;
+    wH={ id:'w', kind:'drag', home:{x:ox+(g+w)*cell, y:oy+cell/2}, bbox:a=>({x:a.pos.x-20,y:a.pos.y-20,w:40,h:40}) };
+    const mage = summoned ? { id:'mage', kind:'tap', bbox:()=>({x:mageX-40,y:mageY-52,w:80,h:112}) }    // click the wizard → copy
+                          : { id:'call', kind:'tap', bbox:()=>{ const b=callBB(); return {x:b.x-4,y:b.y-6,w:b.w+8,h:b.h+12}; } };
+    E.scene({ actors:[ {kind:'tap',id:'field',bbox:fieldBBox,hiCol:'rgba(80,216,144,.4)'}, wH, mage ],
+      draw:draw,
+      onPick:a=>{ if(E.busy)return;
+        if(a.id==='field'){ E.sceneStop(); send(); }
+        else if(a.id==='call'){ summoned=true; copyOnce(); }   // call → he appears (bubble gone) AND copies once
+        else if(a.id==='mage'){ copyOnce(); } },               // click him → copy again
+      onDrop:()=>{ if(E.busy)return; rescene(); } });
+    refreshTray(); }
+
+  function refreshTray(){ E.clearTray(); backStep();
+    const ub=E.addBtn(t({en:'↺ Undo',zh:'↺ 撤销'}),'ghost',()=>{ if(E.busy)return; if(k>1){k--;} else if(g+w>0){g=0;w=0;} else return; E.sfx('tick'); rescene(); });
+    ub.disabled=(k===1 && g+w===0);
+    E.addBtn(t({en:'Send the herd ▶',zh:'放牛群 ▶'}),'primary',()=>{ if(E.busy)return; E.sceneStop(); send(); }); }
+  function refresh(){ rescene(); }
+
   function cast(){ E.busy=true; E.sfx('bracket'); E.pop('✦ copy! ✦'); if(k===2)E.speakAs('product',t({en:'Multiply!',zh:'乘！'}));   // Product speaks on the first summon
-    E.anim(480, p=>{ const geo=gfield(B,C,A,g,w,k,{ref:cfg.ref}); waitingHerd(N); magician(E.ctx,78,E.LH*0.42,48,p);
+    E.anim(620, p=>{ const geo=gfield(B,C,A,g,w,k,{ref:cfg.ref}); waitingHerd(N, bc); magician(E.ctx,78,E.LH*0.42,48,p); magicBubble(t({en:'✦ Multiply! ✦',zh:'✦ 乘！✦'}));   // Product appears + speaks while copying
       const rw=Math.min(g+w,bc); for(let i=Math.max(0,geo.centers.length-rw);i<geo.centers.length;i++){ const cc=geo.centers[i]; star(E.ctx,cc.x,cc.y,geo.cell*0.2*(0.6+0.5*Math.sin(p*9+i)),'rgba(255,243,207,'+(0.75*(1-p)+0.15).toFixed(2)+')'); } },
       ()=>{ E.busy=false; refresh(); }); }
+
   function send(){ if(E.busy)return; const inRow=Math.min(g+w,bc), graze=k*inRow, rockN=k*Math.max(0,(g+w)-bc), draw=grow=>gfield(B,C,A,g,w,k,{grow:grow,ref:cfg.ref});
     if(g===B && w===C && k===A){ grazeWin(draw, ()=>cfg.win()); return; }
     E.busy=true; const geo=draw(1), r=Math.max(9,Math.min(14,geo.cell*0.42)), fed=Math.min(graze,N);
@@ -307,14 +360,16 @@ function runRound(E, cfg){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(cfg.do
       : graze>N ? t({en:'<b class="r">'+(graze-N)+'</b> tiles wasted: too many copies.',zh:'浪费了 <b class="r">'+(graze-N)+'</b> 格：复制太多了。'})
       : t({en:'Right count, but fill the row to its full width, then copy.',zh:'数量对了，把整行铺满，再复制。'});
     E.oops(); E.sfx('fail'); g=0; w=0; k=1; E.tell(msg); E.busy=false; E.afterSpeech(refresh); }
+
   refresh();
 }
 
 /* ===== Round 1 — The Walled Meadow: a row of b grass, copied a times ===== */
-function round1(E){ const pr=[[2,3],[2,4],[3,4],[2,5]][rnd(0,3)]; const a=pr[0], b=pr[1], N=a*b; baseline={a,b,N};
+function round1(E){ const pool=[[2,3],[2,4],[3,4],[2,5],[3,5],[2,6],[3,3]]; const pr=pool[rnd(0,pool.length-1)]; const a=pr[0], b=pr[1], N=a*b; baseline={a,b,N};
+  window._q02_cfg={a,b,N};   // expose for test harness
   runRound(E,{ dot:0, B:b, C:0, A:a, N:N,
     place:t({en:'The Walled Meadow',zh:'围栏草甸'}),
-    intro:t({en:'<b>The Walled Meadow.</b> <b>'+N+'</b> calves wait. <b>Rivers</b> split the meadow into rows, so you can only plant the near bank. Lay <b class="g">'+b+'</b> grass there, then <b>Product</b> the magician copies your row <b>across the rivers</b> to fill the rest.',zh:'<b>围栏草甸。</b><b>'+N+'</b> 头小牛在等。一条条<b>河</b>把草甸分成一行行，你只能在最近的这行种。在这行铺 <b class="g">'+b+'</b> 格青草，然后魔法师<b>“积”</b>把你这行<b>隔河复制</b>，填满其余各行。'}),
+    intro:t({en:'<b>The Walled Meadow.</b> <b>'+N+'</b> <b class="y">calves</b> wait. <b class="b">Rivers</b> split the <b class="g">meadow</b> into rows, so you can only plant the near bank. Lay <b class="g">'+b+'</b> <b class="g">grass</b> there, then <b class="g">Product</b> the magician copies your row across the <b class="b">rivers</b> to fill the rest.',zh:'<b>围栏草甸。</b><b>'+N+'</b> 头小牛在等。一条条<b class="b">河</b>把<b class="g">草甸</b>分成一行行，你只能在最近的这行种。在这行铺 <b class="g">'+b+'</b> 格青草，然后魔法师<b class="g">"积"</b>把你这行隔<b class="b">河</b>复制，填满其余各行。'}),
     win:()=>{ E.setDots(1); E.tickQ(1); E.award(45); E.status(keq(a+' × '+b+' = '+N));
       E.tell(t({en:'A row of <b>'+b+'</b>, copied <b>'+a+'</b> times: <b>'+a+' × '+b+' = '+N+'</b>. That is <b>×</b>: a row, repeated.',zh:'一行 <b>'+b+'</b>，复制 <b>'+a+'</b> 次：<b>'+a+' × '+b+' = '+N+'</b>。这就是 <b>×</b>：一行，重复。'}));
       E.clearTray(); E.addBtn(t({en:'On to the Narrow Strip ▶',zh:'前往窄田 ▶'}),'primary',E.advance); E.addBtn(t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep); } });
@@ -324,7 +379,7 @@ function round1(E){ const pr=[[2,3],[2,4],[3,4],[2,5]][rnd(0,3)]; const a=pr[0],
 function round2(E){ const a=baseline.a, b=baseline.b, N=baseline.N;
   runRound(E,{ dot:1, B:a, C:0, A:b, N:N,
     place:t({en:'The Narrow Strip',zh:'窄田'}),
-    intro:t({en:'<b>The Narrow Strip.</b> The same <b>'+N+'</b> calves, but this strip pens each row to just <b class="g">'+a+'</b> wide (the meadow\'s row was '+b+'). Build the <b>'+a+'</b>-row, then let Product copy it.',zh:'<b>窄田。</b>还是这 <b>'+N+'</b> 头牛，但这片窄田把每行限到只有 <b class="g">'+a+'</b> 宽（草甸的行是 '+b+'）。铺好这 <b>'+a+'</b> 行，再让“积”复制。'}),
+    intro:t({en:'<b>The Narrow Strip.</b> The same <b>'+N+'</b> <b class="y">calves</b>, but this strip pens each row to just <b class="g">'+a+'</b> wide (the <b class="g">meadow</b>\'s row was '+b+'). Build the <b>'+a+'</b>-row, then let <b class="g">Product</b> copy it.',zh:'<b>窄田。</b>还是这 <b>'+N+'</b> 头牛，但这片窄田把每行限到只有 <b class="g">'+a+'</b> 宽（<b class="g">草甸</b>的行是 '+b+'）。铺好这 <b>'+a+'</b> 行，再让<b class="g">"积"</b>复制。'}),
     win:()=>{ E.setDots(2); E.tickQ(2); E.award(50);
       const geo=gfield(a,0,b,a,0,b,{ref:{r:a,c:b}}), rr=Math.max(9,Math.min(14,geo.cell*0.42)); for(let i=0;i<geo.centers.length;i++) calf(E.ctx,geo.centers[i].x,geo.centers[i].y,rr,true);   // meadow a×b  =  strip b×a, side by side
       E.status(keq(a+' × '+b+' = '+b+' × '+a+' = '+N));
@@ -333,17 +388,18 @@ function round2(E){ const a=baseline.a, b=baseline.b, N=baseline.N;
 }
 
 /* ===== Round 3 — The Shared Fence: PART 1 builds a×b (grass) and a×c (wheat) separately and adds them; PART 2 builds a×(b+c) (distributive) ===== */
-function round3(E){ const a=rnd(2,3), b=rnd(2,3), c=rnd(2,3); const T=a*(b+c), gP=a*b, wP=a*c;
+function round3(E){ const a=rnd(2,3), b=rnd(2,4), c=rnd(2,4); const T=a*(b+c), gP=a*b, wP=a*c;
+  window._q02_r3={a,b,c};   // expose for test harness
   const place=t({en:'The Shared Fence',zh:'分配'});
   function grassPhase(){ runRound(E,{ dot:2, B:b, C:0, A:a, N:gP, place:place,
-    intro:t({en:'<b>The Shared Fence, Part 1.</b> Count each crop on its own. First the <b class="g">grass</b>: build a row of <b class="g">'+b+'</b>, then Product copies it <b>'+a+'</b> times → <b class="g">'+a+'×'+b+'</b>.',zh:'<b>分配（第一部分）。</b>把每种植物分开算。先种<b class="g">青草</b>：铺一行 <b class="g">'+b+'</b>，再让“积”复制 <b>'+a+'</b> 次 → <b class="g">'+a+'×'+b+'</b>。'}),
+    intro:t({en:'<b>The Shared Fence, Part 1.</b> Count each crop on its own. First the <b class="g">grass</b>: build a row of <b class="g">'+b+'</b>, then <b class="g">Product</b> copies it <b>'+a+'</b> times → <b class="g">'+a+'×'+b+'</b>.',zh:'<b>分配（第一部分）。</b>把每种植物分开算。先种<b class="g">青草</b>：铺一行 <b class="g">'+b+'</b>，再让<b class="g">"积"</b>复制 <b>'+a+'</b> 次 → <b class="g">'+a+'×'+b+'</b>。'}),
     win:()=>{ E.status(keq(a+' × '+b+' = '+gP)); E.tell(t({en:'<b class="g">Grass</b> done: <b class="g">'+a+'×'+b+' = '+gP+'</b>. Now grow the <b class="o">wheat</b> on its own.',zh:'<b class="g">青草</b>种好：<b class="g">'+a+'×'+b+' = '+gP+'</b>。现在种<b class="o">麦子</b>。'})); E.clearTray(); E.addBtn(t({en:'Now the wheat ▶',zh:'再种麦子 ▶'}),'primary',wheatPhase); E.addBtn(t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep); } }); }
   function wheatPhase(){ runRound(E,{ dot:2, B:0, C:c, A:a, N:wP, place:place, ref:{r:a,c:b,op:'+'},
-    intro:t({en:'Now the <b class="o">wheat</b>, separately (your <b class="g">'+a+'×'+b+'</b> grass stays on the left): build a row of <b class="o">'+c+'</b>, then Product copies it <b>'+a+'</b> times → <b class="o">'+a+'×'+c+'</b>.',zh:'现在单独种<b class="o">麦子</b>：铺一行 <b class="o">'+c+'</b>，再让“积”复制 <b>'+a+'</b> 次 → <b class="o">'+a+'×'+c+'</b>。'}),
+    intro:t({en:'Now the <b class="o">wheat</b>, separately (your <b class="g">'+a+'×'+b+'</b> <b class="g">grass</b> stays on the left): build a row of <b class="o">'+c+'</b>, then <b class="g">Product</b> copies it <b>'+a+'</b> times → <b class="o">'+a+'×'+c+'</b>.',zh:'现在单独种<b class="o">麦子</b>：铺一行 <b class="o">'+c+'</b>，再让<b class="g">"积"</b>复制 <b>'+a+'</b> 次 → <b class="o">'+a+'×'+c+'</b>。'}),
     win:()=>{ const geo=gfield(0,c,a,0,c,a,{ref:{r:a,c:b,op:'+'}}), rr=Math.max(9,Math.min(14,geo.cell*0.42)); for(let i=0;i<geo.centers.length;i++) calf(E.ctx,geo.centers[i].x,geo.centers[i].y,rr,true);   // faded grass a×b  +  wheat a×c
       E.status(keq(a+'×'+b+' + '+a+'×'+c+' = '+gP+' + '+wP+' = '+T)); E.tell(t({en:'<b>Part 1 done.</b> Counted apart and added: <b class="g">'+a+'×'+b+'</b> + <b class="o">'+a+'×'+c+'</b> = <b>'+gP+' + '+wP+' = '+T+'</b>. Now build the same crops as <b>one field</b>.',zh:'<b>第一部分完成。</b>分开数再相加：<b class="g">'+a+'×'+b+'</b> + <b class="o">'+a+'×'+c+'</b> = <b>'+gP+' + '+wP+' = '+T+'</b>。现在把同样的作物拼成<b>一整片田</b>。'})); E.clearTray(); E.addBtn(t({en:'Part 2: one field ▶',zh:'第二部分：合成一片 ▶'}),'primary',combinedPhase); E.addBtn(t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep); } }); }
   function combinedPhase(){ runRound(E,{ dot:2, B:b, C:c, A:a, N:T, place:place,
-    intro:t({en:'<b>Part 2: one field.</b> One row, both crops: <b class="g">'+b+'</b> grass up to the wall, then <b class="o">'+c+'</b> wheat. Product copies it <b>'+a+'</b> times → <b>'+a+'×('+b+'+'+c+')</b>.',zh:'<b>第二部分：一整片。</b>一行，两种植物：先种 <b class="g">'+b+'</b> 格青草到墙为止，接着种<b class="o">'+c+'</b> 格麦子。“积”复制 <b>'+a+'</b> 次 → <b>'+a+'×('+b+'+'+c+')</b>。'}),
+    intro:t({en:'<b>Part 2: one field.</b> One row, both crops: <b class="g">'+b+'</b> <b class="g">grass</b> up to the wall, then <b class="o">'+c+'</b> <b class="o">wheat</b>. <b class="g">Product</b> copies it <b>'+a+'</b> times → <b>'+a+'×('+b+'+'+c+')</b>.',zh:'<b>第二部分：一整片。</b>一行，两种植物：先种 <b class="g">'+b+'</b> 格青草到墙为止，接着种<b class="o">'+c+'</b> 格麦子。<b class="g">"积"</b>复制 <b>'+a+'</b> 次 → <b>'+a+'×('+b+'+'+c+')</b>。'}),
     win:()=>{ E.setDots(3); E.tickQ(3); E.award(60); const geo=gfield(b,c,a,b,c,a,{ref:{r:a,c:b,c2:c,op:'='}}), rr=Math.max(9,Math.min(14,geo.cell*0.42)); for(let i=0;i<geo.centers.length;i++) calf(E.ctx,geo.centers[i].x,geo.centers[i].y,rr,true);   // faded (a×b + a×c)  =  the combined field
       E.status(keq(a+'×'+b+' + '+a+'×'+c+' = '+a+'×('+b+'+'+c+') = '+T)); E.tell(t({en:'Two ways, same <b>'+T+'</b>. <b>Apart</b>: <b class="g">'+a+'×'+b+'</b> + <b class="o">'+a+'×'+c+'</b>. <b>Together</b>: <b>'+a+'×('+b+'+'+c+')</b>. That\'s <b>distributing</b>.',zh:'两种数法，同样的 <b>'+T+'</b>。<b>分开</b>：<b class="g">'+a+'×'+b+'</b> + <b class="o">'+a+'×'+c+'</b>。<b>合并</b>：<b>'+a+'×('+b+'+'+c+')</b>。这就是<b>分配律</b>。'})); E.clearTray(); E.addBtn(t({en:'Claim the Codex page 📖',zh:'领取典籍书页 📖'}),'primary',()=>E.openBook(QUEST.book)); E.addBtn(t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep); } }); }
   grassPhase();
@@ -354,8 +410,8 @@ const QUEST = {
   kicker:{en:'The Cradle',zh:'摇篮'},
   title:{en:'Sowing Steps',zh:'步步播种'},
   meta:{ title:{en:'Sow the Pasture',zh:'播种牧场'}, giver:{en:'Tau the Calf · The Cradle',zh:'小牛 Tau · 摇篮'},
-    flavor:{en:'"We crossed the bridges, thank you! But we need more calves to make a herd. Help me grow a <b>pasture</b>. <b>Rivers</b> cut this land into rows, so you can only plant the near bank, but <b>Product</b> the magician copies your row across the water. A field of grass is <b>rows × columns</b>, an <b>area</b>; plant it well and the whole herd grows strong. Let\'s sow!"',
-      zh:'"我们过桥啦，谢谢你！可我们需要更多小牛才能成为牛群。帮我种一片 <b>牧场</b>吧。<b>河流</b>把这片地分开成为不同的行，你只能在最近的这一行种，好在魔法师<b>“积”</b>能把你这行隔着河复制过去。一片草地就是 <b>行 × 列</b>，也就是<b>面积</b>；种好了，整群牛都会强壮起来。开种吧！"'} },
+    flavor:{en:'"We crossed the bridges, thank you! But a Fogwraith has stirred the <b class="b">rivers</b> and raised walls across the land. Help me grow a <b class="g">pasture</b>. <b class="b">Rivers</b> cut this land into rows, so you can only plant the near bank, but <b class="g">Product</b> the magician copies your row across the <b class="b">water</b>. A field of grass is <b>rows × columns</b>, an <b class="g">area</b>; plant it well and the whole <b class="y">herd</b> grows strong. Let\'s sow!"',
+      zh:'"我们过桥啦，谢谢你！但一只雾妖扰动了<b class="b">河流</b>、立起了一道道墙。帮我种一片 <b class="g">牧场</b>吧。<b class="b">河流</b>把这片地分开成为不同的行，你只能在最近的这一行种，好在魔法师<b class="g">"积"</b>能把你这行隔着<b class="b">河</b>复制过去。一片草地就是 <b>行 × 列</b>，也就是<b class="g">面积</b>；种好了，整<b class="y">牛群</b>都会强壮起来。开种吧！"'} },
   objs:[ {en:'The Walled Meadow: area = rows × columns',zh:'围栏草甸：面积 = 行 × 列'},
          {en:'The Narrow Strip: turning is free',zh:'窄田：转动自由'},
          {en:'The Shared Fence: split a field freely',zh:'分配：自由拆分'} ],
@@ -364,12 +420,12 @@ const QUEST = {
     blocks:[
       {top:true, fig:'mintro', prose:{en:'Take the <b>same</b> jump again, <b class="r">3 + 3</b>, then fold it into two rows and add a line up the side: it reads <b class="b">2</b> × <b class="r">3</b>. Fill it in, and the product is an <b class="gr">area</b>.',zh:'把<b>同样</b>再跳一次，得 <b class="r">3 + 3</b>，叠成两行，旁边加一条竖线，就读作 <b class="b">2</b> × <b class="r">3</b>。填满它，乘积就是<b class="gr">面积</b>。'}},
       {note:{en:'<b>Reading a product as a picture.</b> The <b class="b">first</b> number is the rows, the <b class="r">second</b> the columns: <b class="b">2</b> × <b class="r">3</b> is <b class="b">2</b> rows of <b class="r">3</b>.',zh:'<b>把乘积读成图。</b> <b class="b">第一个</b>数是行数，<b class="r">第二个</b>是列数：<b class="b">2</b> × <b class="r">3</b> 就是 <b class="b">2</b> 行，每行 <b class="r">3</b> 个。'}},
-      {law:{en:'Commutative',zh:'交换律'}, eq:'<span class="b">2</span> × <span class="r">3</span> = <span class="b">3</span> × <span class="r">2</span>', fig:'mrot', prose:{en:'Turn the rectangle a quarter: same area.',zh:'把长方形转一比四圈，面积不变。'}},
+      {law:{en:'Commutative',zh:'交换律'}, eq:'<span class="b">2</span> × <span class="r">3</span> = <span class="b">3</span> × <span class="r">2</span>', fig:'mrot', prose:{en:'Turn the rectangle a quarter: same <b class="g">area</b>.',zh:'把长方形转一比四圈，<b class="g">面积</b>不变。'}},
       {law:{en:'Associative',zh:'组合律'}, eq:'(<span class="b">2</span> × <span class="r">3</span>) × <span class="p">4</span> = <span class="p">2</span> × (<span class="b">3</span> × <span class="r">4</span>)', fig:'mgroups', prose:{en:'Group three factors either way: same result, same <b>24</b>.',zh:'三个数随便先乘哪两个，同一个结果，同样是 <b>24</b>。'}},
       {law:{en:'Distributive',zh:'分配律'}, eq:'<span class="b">2</span>×<span class="r">2</span> + <span class="b">2</span>×<span class="r">3</span> = <span class="b">2</span>×(<span class="r">2</span>+<span class="r">3</span>)', fig:'mdist', prose:{en:'Two rectangles of the same height slide into one: <b>2×2</b> and <b>2×3</b> make <b>2×(2+3)</b>.',zh:'两个等高的长方形拼成一个：<b>2×2</b> 加 <b>2×3</b> 就是 <b>2×(2+3)</b>。'}}
     ],
-    read:{en:'Multiplication is area: rows times columns. Turning is free, and a field splits freely.',zh:'乘法就是面积：行乘以列。转动自由，田也能自由拆分。'} },
-  intro:(E)=>{ field(2,3,{}); }
+    read:{en:'Multiplication is <b class="g">area</b>: rows times columns. Turning is free, and a <b class="g">field</b> splits freely.',zh:'乘法就是<b class="g">面积</b>：行乘以列。转动自由，田也能自由拆分。'} },
+  intro:(E)=>{ const pool=[[2,3],[2,4],[3,4],[2,5],[3,5],[2,6],[3,3]]; const pr=pool[rnd(0,pool.length-1)]; field(pr[0],pr[1],{}); }
 };
 window.QUEST_q02 = QUEST;
 })();

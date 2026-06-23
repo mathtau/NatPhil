@@ -7,7 +7,7 @@
 <link rel="icon" href="../logo.svg?v=20260605">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Patrick+Hand&family=Playfair+Display:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="engine.css?v=202606106">
+<link rel="stylesheet" href="engine.css?v=202606153">
 </head>
 <body data-region="cradle">
 
@@ -51,8 +51,8 @@
 </div>
 <div class="lvlup" id="lvlup"><span></span></div>
 
-<!-- quest scroll -->
-<div class="scrim" id="scrim">
+<!-- quest scroll (starts hidden; revealed only after E.boot populates it, so it never flashes empty while the quest script loads) -->
+<div class="scrim hide" id="scrim">
   <div class="scroll">
     <div class="seal" id="qseal"></div>
     <div class="qtitle" id="qtitleScroll"></div>
@@ -85,13 +85,14 @@
   </div>
 </div>
 
+<script src="quests/manifest.js?v=202606144"></script>
 <script src="figures.js?v=202606063d"></script>
-<script src="bookfonts.js?v=202606121"></script>
-<script src="book.js?v=202606121"></script>
-<script src="engine.js?v=202606121"></script>
+<script src="bookfonts.js?v=202606131"></script>
+<script src="book.js?v=202606131"></script>
+<script src="engine.js?v=202606233"></script>
 <script>
 (function(){
-  var VER='202606121';
+  var VER='202606234';
   // Load a quest module and boot it WITHOUT reloading the page, so the BGM keeps playing across quests
   // (a full navigation would destroy the <audio> element and cut the music — flagged by the user).
   window.ORIGO_loadQuest=function(id){
@@ -100,9 +101,9 @@
     function go(){ var Q=window['QUEST_q'+id];
       if(!Q){ document.getElementById('bubble').innerHTML='<span>Quest q'+id+' not found.</span>'; return; }
       try{ window.E&&E.closeBook&&E.closeBook(); }catch(e){}
-      var sc=document.getElementById('scrim'); if(sc) sc.classList.remove('hide');   // re-show the new quest scroll
       try{ history.replaceState(null,'','play.html?q='+id+lang); }catch(e){}
-      E.boot(Q);
+      E.boot(Q);                                                                     // populate the scroll FIRST...
+      var sc=document.getElementById('scrim'); if(sc) sc.classList.remove('hide');   // ...THEN reveal it, so it never shows empty
     }
     if(window['QUEST_q'+id]){ go(); return; }
     var s=document.createElement('script'); s.src='quests/q'+id+'.js?v='+VER;

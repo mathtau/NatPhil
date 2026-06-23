@@ -50,8 +50,10 @@ E.bgmStart=function(){ if(!S.audio.music) return;
   const tgt=.55; A.bgmEl.play().then(()=>{ if(A.bgmFade)clearInterval(A.bgmFade);
     A.bgmFade=setInterval(()=>{ A.bgmEl.volume=Math.min(tgt,A.bgmEl.volume+.04); if(A.bgmEl.volume>=tgt){ clearInterval(A.bgmFade); A.bgmFade=null; } },60);
   }).catch(()=>{}); };
-E.bgmStop=function(){ if(!A.bgmEl) return; const el=A.bgmEl; if(A.bgmFade)clearInterval(A.bgmFade);
-  A.bgmFade=setInterval(()=>{ el.volume=Math.max(0,el.volume-.06); if(el.volume<=0){ el.pause(); clearInterval(A.bgmFade); A.bgmFade=null; } },50); };
+E.bgmStop=function(){ if(!A.bgmEl) return; const el=A.bgmEl; if(A.bgmFade){ clearInterval(A.bgmFade); A.bgmFade=null; }
+  // track the fade locally: iOS Safari silently ignores writes to el.volume, so gating pause() on reading el.volume back never fires → music never stops on phone.
+  let v=el.volume>0?el.volume:0.55;
+  A.bgmFade=setInterval(()=>{ v=Math.max(0,v-.08); try{ el.volume=v; }catch(_){ } if(v<=0){ el.pause(); clearInterval(A.bgmFade); A.bgmFade=null; } },50); };
 
 /* ---------- narration (TTS) with per-role system voices ---------- */
 const synth=window.speechSynthesis||null; let speaker='tau';
@@ -119,7 +121,8 @@ const BULL_SVG='<svg viewBox="0 0 100 100">'
 +'<circle cx="50" cy="67" r="3" fill="none" stroke="#c89a1e" stroke-width="2"/></svg>';
 const SIGMA_SVG='<svg viewBox="0 0 100 100"><g stroke="#f4c830" stroke-linecap="round" stroke-linejoin="round"><path d="M31 36 C 31 26 40 21 50 21 C 60 21 69 26 69 36 Z" fill="#f4c830"/><path d="M23 37 Q 50 31 77 37" fill="none" stroke-width="3"/><rect x="32" y="32" width="36" height="5.4" fill="#121230"/><polyline points="54,32.8 46,32.8 50,35 46,37.4 54,37.4" fill="none" stroke-width="1.4"/><path d="M37 43 L46 45 L45 47 L37 45 Z" fill="#f4c830"/><path d="M63 43 L54 45 L55 47 L63 45 Z" fill="#f4c830"/><path d="M40 49 q 2.5 1.6 5 0" fill="none" stroke-width="2.2"/><path d="M55 49 q 2.5 1.6 5 0" fill="none" stroke-width="2.2"/><path d="M50 49 L50 56 Q50 58.5 52.5 57.2" fill="none" stroke-width="2.2"/><path d="M38 54 C 34 60 35 70 40 77 L44 72 L48 79 L52 72 L56 79 L60 77 C 65 70 66 60 62 54 C 57 61 43 61 38 54 Z" fill="#f4c830"/></g></svg>';
 const MAGE_SVG='<svg viewBox="0 0 100 100">'
-+'<path d="M32 84 C32 62 50 58 50 58 C50 58 68 62 68 84 Z" fill="#f4c830" stroke="#c89a1e" stroke-width="1.6"/>'                                   // robe
++'<path d="M32 84 C32 62 50 58 50 58 C50 58 68 62 68 84 Z" fill="#34b06a" stroke="#0e5a34" stroke-width="1.6"/>'                                   // GREEN robe — Product = the multiplication colour (synced with the canvas wizard)
++'<text x="50" y="82" font-family="sans-serif" font-size="11" font-weight="bold" fill="#ffe9a0" text-anchor="middle">&#215;</text>'                 // his × monogram
 +'<circle cx="50" cy="54" r="13" fill="#ffeec2" stroke="#c89a1e" stroke-width="1.6"/>'                                                             // face
 +'<circle cx="45.5" cy="53" r="2.2" fill="#1a1726"/><circle cx="54.5" cy="53" r="2.2" fill="#1a1726"/>'                                            // eyes
 +'<path d="M41 72 Q50 80 59 72 Q50 75 41 72 Z" fill="#fff7e6"/>'                                                                                   // beard
@@ -154,6 +157,73 @@ E.runCross=function(o){ // {target, reach, draw(b), msgs:{short,long}, onWin, re
     else { E.sad(); E.sfx('fail'); E.tell(E.t(o.msgs.long)); E.busy=false; E.afterSpeech(o.retry); }
   });
 };
+
+/* ---------- Layer 2 · direct manipulation (tap-pick + drag-to-target) ----------
+   ADDITIVE. A quest calls E.scene({actors, draw, onPick, onDrop}). The engine maps the
+   pointer to logical coords (mouse + touch unified via Pointer Events), hit-tests actor
+   bboxes, tracks drag position + snap zones, and runs a rAF loop that calls the quest's
+   draw() each frame (the quest still paints all its own art). The engine adds the juice:
+   a highlight ring on the hovered/pressed tap target, and a pulsing target ring on the
+   nearest snap zone while dragging. Quests on the old button path are untouched.
+     actor = { kind:'tap'|'drag', bbox(a)->{x,y,w,h},
+               drag:{axis:'x'|'y', clamp:{x0,x1,y0,y1}}, home:{x,y}, snap:[{x,y,r,ok,id}], hiCol }
+   E.scene callbacks: onPick(actor) when a tap resolves; onDrop(actor,zone|null) when a drag is released. */
+let SC=null, RAF=0, DRAG=null, GX=0, GY=0, DMOVED=false;
+function ptOf(ev){ const r=cv.getBoundingClientRect(); return { x:(ev.clientX-r.left)*LW/r.width, y:(ev.clientY-r.top)*LH/r.height }; }
+function bbOf(a){ return a.bbox? a.bbox(a) : null; }
+function inBB(b,x,y){ return !!b && x>=b.x && x<=b.x+b.w && y>=b.y && y<=b.y+b.h; }
+function topAt(x,y){ if(!SC) return null; for(let i=SC.actors.length-1;i>=0;i--){ const a=SC.actors[i]; if(a.off) continue; if(inBB(bbOf(a),x,y)) return a; } return null; }
+function zoneNear(a){ const zs=a.snap; if(!zs) return null; let best=null,bd=1e9; for(const z of zs){ const dx=a.pos.x-z.x, dy=a.pos.y-z.y, dd=dx*dx+dy*dy, R=(z.r||46); if(dd<=R*R&&dd<bd){ bd=dd; best=z; } } return best; }
+function hiRing(b,col){ if(!b)return; const c=ctx,p=7,tt=performance.now()/1000,a=0.55+0.25*Math.sin(tt*4),r=11,x=b.x-p,y=b.y-p,w=b.w+2*p,h=b.h+2*p;
+  c.save(); c.globalAlpha=a; c.strokeStyle=col||'rgba(244,200,48,.95)'; c.lineWidth=2.4; c.shadowColor=col||'rgba(244,200,48,.7)'; c.shadowBlur=12;
+  c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r); c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath(); c.stroke(); c.restore(); }
+function targetRing(z){ const c=ctx,tt=performance.now()/1000,r=(z.ring||30)*(0.9+0.09*Math.sin(tt*5));   // fixed VISUAL radius (z.r is the bigger, forgiving DETECTION radius)
+  c.save(); c.globalAlpha=0.95; c.strokeStyle='rgba(80,216,144,.95)'; c.lineWidth=2.8; c.setLineDash([6,6]); c.shadowColor='rgba(80,216,144,.6)'; c.shadowBlur=15;
+  c.beginPath(); c.arc(z.x,z.y,r,0,7); c.stroke(); c.restore(); }
+function spin(){ if(!SC){ RAF=0; return; } if(SC.draw) SC.draw();
+  if(DRAG){ DRAG.near=zoneNear(DRAG)||null; if(DRAG.near) targetRing(DRAG.near); }   // quest paint can read actor.near to confirm the snap
+  else if(SC.hot && SC.hot.kind!=='drag'){ const h=SC.hot; if(h.hi) h.hi(bbOf(h), h); else hiRing(bbOf(h), h.hiCol); }   // actor.hi() = custom highlight (e.g. a wide region); else the default ring
+  RAF=requestAnimationFrame(spin); }
+E.sceneStop=function(){ if(RAF){ cancelAnimationFrame(RAF); RAF=0; } SC=null; DRAG=null;
+  if(cv){ cv.onpointerdown=cv.onpointermove=cv.onpointerup=cv.onpointercancel=null; cv.style.touchAction=''; cv.style.cursor=''; } };
+E.scene=function(o){ E.sceneStop(); SC=o; SC.actors=SC.actors||[]; SC.hot=null;
+  SC.actors.forEach(a=>{ if(a.kind==='drag'&&!a.pos) a.pos={x:a.home.x,y:a.home.y}; });
+  cv.style.touchAction='none';
+  cv.onpointerdown=ev=>{ if(E.busy||!SC) return; const p=ptOf(ev), a=topAt(p.x,p.y); if(!a) return; ev.preventDefault();
+    if(a.kind==='drag'){ DRAG=a; DMOVED=false; a.grab=true; GX=p.x-a.pos.x; GY=p.y-a.pos.y; cv.style.cursor='grabbing'; try{cv.setPointerCapture(ev.pointerId);}catch(_){ } }
+    else { SC.tapStart=a; SC.hot=a; } };
+  cv.onpointermove=ev=>{ if(!SC) return; const p=ptOf(ev);
+    if(DRAG){ ev.preventDefault(); DMOVED=true; let nx=p.x-GX, ny=p.y-GY; const d=DRAG.drag||{};
+      if(d.axis==='x') ny=DRAG.home.y; else if(d.axis==='y') nx=DRAG.home.x;
+      if(d.clamp){ nx=Math.max(d.clamp.x0,Math.min(d.clamp.x1,nx)); ny=Math.max(d.clamp.y0,Math.min(d.clamp.y1,ny)); }
+      DRAG.pos.x=nx; DRAG.pos.y=ny; }
+    else { SC.hot=topAt(p.x,p.y); cv.style.cursor=SC.hot?(SC.hot.kind==='drag'?'grab':'pointer'):''; } };
+  function up(ev){ if(!SC) return;
+    if(DRAG){ const a=DRAG, tapped=!DMOVED, rx=a.pos.x, ry=a.pos.y; a.grab=false; DRAG=null; cv.style.cursor=''; try{cv.releasePointerCapture(ev.pointerId);}catch(_){ }
+      const z=zoneNear(a); if(z){ if(z.snap!==false){ a.pos.x=z.x; a.pos.y=z.y; } SC.onDrop&&SC.onDrop(a,z,{tapped:false,x:rx,y:ry}); }
+      else { a.pos.x=a.home.x; a.pos.y=a.home.y; SC.onDrop&&SC.onDrop(a,null,{tapped:tapped,x:rx,y:ry}); } }   // info.x/y = release position (before springing home); tapped = released without dragging
+    else if(SC.tapStart){ const p=ptOf(ev), a=topAt(p.x,p.y), t0=SC.tapStart; SC.tapStart=null; SC.hot=null; if(a&&a===t0&&a.kind!=='drag') SC.onPick&&SC.onPick(a); } }
+  cv.onpointerup=up; cv.onpointercancel=up;
+  spin(); };
+
+/* ---- shared decision helpers (used by every quest) ---- */
+function rrPath(c,x,y,w,h,r){ r=Math.min(r,w/2,h/2); c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r); c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath(); }
+E.pillBB=function(cx,cy,txt){ const c=ctx; c.save(); c.font='600 14px "IBM Plex Mono",monospace'; const w=Math.max(104,c.measureText(txt).width+34); c.restore(); return {x:cx-w/2,y:cy-17,w:w,h:34}; };
+/* an on-canvas tappable token — for an ABSTRACT answer with no object to point at (e.g. "Can't tell yet") */
+E.pill=function(cx,cy,txt){ const c=ctx, b=E.pillBB(cx,cy,txt); c.save();
+  c.shadowColor='rgba(0,0,0,.4)'; c.shadowBlur=8; c.shadowOffsetY=3; rrPath(c,b.x,b.y,b.w,b.h,16); c.fillStyle='rgba(36,32,58,.92)'; c.fill();
+  c.shadowColor='transparent'; c.lineWidth=1.6; c.strokeStyle='rgba(244,200,48,.8)'; rrPath(c,b.x,b.y,b.w,b.h,16); c.stroke();
+  c.font='600 14px "IBM Plex Mono",monospace'; c.fillStyle='#f6e6b0'; c.textAlign='center'; c.textBaseline='middle'; c.fillText(txt,cx,cy); c.restore(); };
+/* DIRECT-MANIPULATION choice: the player TAPS the object/token itself (no answer buttons). items:[{bbox,ok,fb,hiCol}].
+   right → mood happy + advance; wrong → oops + feedback, scene stays live to retry. opts.react(ok,item) for per-quest
+   figure reactions (e.g. a villain's mood); opts.fbWrap(fb) to decorate the wrong-answer text; opts.prev=false hides ◀. */
+E.choose=function(prompt, redraw, items, onRight, opts){ opts=opts||{}; E.tell(prompt); E.clearTray();
+  if(opts.prev!==false && E.round>0) E.addBtn(E.t({en:'◀ Prev step',zh:'◀ 上一步'}),'ghost',E.prevStep);
+  E.scene({ actors: items.map((it,i)=>({ id:i, kind:'tap', bbox:it.bbox, hiCol:it.hiCol })), draw:redraw,
+    onPick:function(a){ if(E.busy) return; const it=items[a.id];
+      if(opts.react) opts.react(!!it.ok, it);
+      if(it.ok){ E.mood('happy'); E.sfx('place'); E.pop(opts.okPop?opts.okPop():'✓'); E.sceneStop(); redraw(); onRight(); }
+      else { E.oops(); E.sfx('fail'); E.pop('✗'); const fb=E.t(it.fb); E.tell(opts.fbWrap?opts.fbWrap(fb):fb); } } }); };
 
 /* ---------- tray / status / dots / place ---------- */
 let tray,statusEl,dotsEl,kicker,placebanner;
@@ -229,7 +299,8 @@ E.boot=function(QUEST){ E.QUEST=QUEST;
   if(cl) cl.textContent='📖 '+L('Codex','典籍');
   const ml=$('mapLink'); if(ml){ ml.href=(E.lang==='zh'?'../world_zh.html':'../world.html');   // our own map icon (parchment + the golden thread from O), not the real-world map emoji
     ml.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="2.5" fill="rgba(244,200,48,.1)" stroke="#caa94e" stroke-width="1.4"/><path d="M7 17 C 10 12 9 11 13 11 C 16 11 15 7.5 18 7.5" fill="none" stroke="#f4c830" stroke-width="1.5" stroke-dasharray="0.5 2.5" stroke-linecap="round"/><circle cx="7" cy="17" r="1.8" fill="#f4c830"/></svg><span>'+L('Map','地图')+'</span>'; }   // map reachable at every step
-  if(QUEST.next){ const bn=$('bkNext'); if(bn){ bn.textContent=L('Next chapter ▶','下一章 ▶'); bn.onclick=()=>{ if(window.ORIGO_loadQuest) window.ORIGO_loadQuest(QUEST.next); else location.href='play.html?q='+QUEST.next+'&lang='+E.lang; }; } }   // lead into the next quest WITHOUT a page reload, so BGM keeps playing
+  const NXT = (window.QUEST_NEXT && window.QUEST_NEXT(QUEST.id)) || QUEST.next;   // order comes from quests/manifest.js (single source); QUEST.next is a fallback
+  if(NXT){ const bn=$('bkNext'); if(bn){ bn.textContent=L('Next chapter ▶','下一章 ▶'); bn.onclick=()=>{ if(window.ORIGO_loadQuest) window.ORIGO_loadQuest(NXT); else location.href='play.html?q='+NXT+'&lang='+E.lang; }; } }   // lead into the next quest WITHOUT a page reload, so BGM keeps playing
   $('acceptQ').onclick=()=>{ $('scrim').classList.add('hide'); qtrack.classList.add('show'); A.ensure(); if(S.audio.music)E.bgmStart(); E.setSpeaker('tau'); E.start(); };
   // intro background scene
   QUEST.intro && QUEST.intro(E);

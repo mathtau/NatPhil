@@ -1711,7 +1711,7 @@ function draw1(t, N) {
     if (dA > 0) {
       const [px0, py0] = p1b.px(k * dt, aAcc);
       const [,    py1] = p1b.px(k * dt, aAcc + dA);
-      ctx1b.strokeStyle = blockColor(k, N, 0.92);
+      ctx1b.strokeStyle = posColor(k * dt, 0.92);   // match the left bars: position-fixed hue (NOT block index), so left↔right colors agree every frame
       ctx1b.lineWidth = 4;
       ctx1b.beginPath(); ctx1b.moveTo(px0, py0); ctx1b.lineTo(px0, py1); ctx1b.stroke();
     }
