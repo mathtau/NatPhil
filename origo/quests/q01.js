@@ -123,45 +123,62 @@ function crossTwo(T, top, bot, tReach, tMode, bReach, bMode, show, onWin, onFail
   });
 }
 
-/* ===== Round 2 — The Twin Spans (commutativity, both orders side by side) ===== */
+/* ===== Round 2 — The Twin Spans (commutativity, both orders side by side) — drag a span onto each bridge; drag a placed span OFF to remove it ===== */
 function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.sceneStop();
   let a,b; do{ a=rnd(2,5); b=rnd(2,5); }while(a===b || a+'_'+b===LR2); LR2=a+'_'+b; const T=a+b, maxx=T+1;   // fresh each play (totals 5–9), never repeat the last
+  E.setRange(maxx);
   const posts=[]; for(let i=1;i<T;i++) posts.push(i);
-  const top={fill:null,fed:false}, bot={fill:null,fed:false}; let pick=null;
+  const top={fill:null,fed:false}, bot={fill:null,fed:false};
   const sumT=()=>a+(top.fill||0), sumB=()=>b+(bot.fill||0);
   const pT=()=>top.fill!=null?[a,top.fill]:[a], pB=()=>bot.fill!=null?[b,bot.fill]:[b];
   E.setPlace(t({en:'The Twin Spans',zh:'双生桥'}));
-
   const u=()=>E.PX(1)-E.PX(0);
-  const TOPBAND=[82,162], BOTBAND=[196,E.LH];   // y-bands: which lane a span was dropped on
-  function show(bt,bb){ drawLanes(T,maxx,[
-    {y:94,bot:150, planks:pT(), posts, fed:top.fed, bull:bt, label:(top.fill!=null? a+' + '+top.fill+' = '+sumT() : a+' + ?')},
-    {y:208,bot:262, planks:pB(), posts, fed:bot.fed, bull:bb, label:(bot.fill!=null? b+' + '+bot.fill+' = '+sumB() : b+' + ?')} ]);
-  }
-  const laneOf=y=> (y>=TOPBAND[0]&&y<=TOPBAND[1])?'top' : (y>=BOTBAND[0]&&y<=BOTBAND[1])?'bot' : null;
+  const LY={top:90, bot:204};                              // plank-deck y per lane (where a span sits)
+  const laneOf=y=> y<70 ? null : (y<179 ? 'top' : 'bot');  // every drop on the play area maps to the NEARER lane (no dead zone) → a drop always registers
+  const labT=()=> top.fill!=null? a+' + '+top.fill+' = '+sumT() : a+' + ?';
+  const labB=()=> bot.fill!=null? b+' + '+bot.fill+' = '+sumB() : b+' + ?';
+  // FULL-bridge draw (preset + fill) — for the crossing animation + win
+  function showFull(bt,bb){ drawLanes(T,maxx,[
+    {y:94,bot:150, planks:pT(), posts, fed:top.fed, bull:bt, label:labT()},
+    {y:208,bot:262, planks:pB(), posts, fed:bot.fed, bull:bb, label:labB()} ]); }
 
-  // two draggable addend SPANS (lengths a and b), parked top-right of the lane's calf so they don't overlap it; drag the one that completes each bridge to T
-  const spans=[ {v:a}, {v:b} ].map((s,i)=>({ id:i, v:s.v, kind:'drag', home:{x:E.PX(0)+62, y:22+i*34},
+  // two source SPANS (lengths a and b), parked top-left; drag the one that completes each bridge to T
+  const spans=[ {v:a}, {v:b} ].map((s,i)=>({ id:'s'+i, v:s.v, kind:'drag', home:{x:E.PX(0)+62, y:22+i*34},
     bbox:o=>({x:o.pos.x-4, y:o.pos.y-SPANH/2-4, w:o.v*u()+8, h:SPANH+8}) }));
+  // a draggable PLACED span per filled lane (drag it off its lane to remove) — rebuilt on every change, like round 1
+  let placed=[];
+  function buildPlaced(){ placed=[]; [['top',a,top],['bot',b,bot]].forEach(([lane,preset,L])=>{ if(L.fill!=null) placed.push(
+    { id:'pl_'+lane, kind:'drag', lane:lane, v:L.fill, home:{x:E.PX(preset), y:LY[lane]},
+      bbox:o=>({x:o.pos.x, y:o.pos.y-SPANH/2-5, w:L.fill*u(), h:SPANH+10}) }); }); return placed; }
 
-  function sceneDraw(){ show(null,null);
+  function sceneDraw(){ drawLanes(T,maxx,[                  // preset-only lanes; the fill is drawn as a draggable actor below
+      {y:94,bot:150, planks:[a], posts, fed:false, bull:null, label:labT()},
+      {y:208,bot:262, planks:[b], posts, fed:false, bull:null, label:labB()} ]);
     const drg=spans.find(s=>s.grab);
     if(drg){ const ln=laneOf(drg.pos.y);
-      if(ln){ const preset=ln==='top'?a:b, ly=ln==='top'?90:204, fits=(preset+drg.v===T);
+      if(ln){ const preset=ln==='top'?a:b, ly=LY[ln], fits=(preset+drg.v===T);
         laneHi(ln==='top'?{x:0,y:94,w:E.LW,h:56}:{x:0,y:208,w:E.LW,h:54}, ln==='top'?'80,216,144':'96,150,255');
         const ctx=E.ctx, x0=E.PX(preset), x1=E.PX(preset+drg.v);
         ctx.save(); ctx.globalAlpha=.7; ctx.setLineDash([5,5]); ctx.lineWidth=2.4; ctx.strokeStyle=fits?'rgba(80,216,144,.95)':'rgba(232,64,46,.95)'; ctx.strokeRect(x0,ly-9,Math.max(x1-x0,6),18); ctx.restore(); } }
+    placed.forEach(p=> drawSpan(p.v, p.pos.x, p.pos.y, p.v*u(), !!p.grab));
+    const rem=placed.find(p=>p.grab && laneOf(p.pos.y)!==p.lane);   // a placed span dragged off its lane → will be removed on release
+    if(rem){ const c=E.ctx; c.save(); c.fillStyle='rgba(232,64,46,.95)'; c.font='bold 12px "IBM Plex Mono",monospace'; c.textAlign='center'; c.fillText(t({en:'release to remove',zh:'松手移除'}), rem.pos.x+rem.v*u()/2, rem.pos.y-15); c.restore(); }
     spans.forEach(s=> drawSpan(s.v, s.pos.x, s.pos.y, s.v*u(), !!s.grab)); }
 
   function refreshTray(){ E.status(t({en:'drag each span onto a bridge to reach ',zh:'把每段拖到桥上，凑到 '})+'<b>'+T+'</b>'); E.clearTray();
-    const ub=E.addBtn('↺','ghost',()=>{ if(E.busy)return; top.fill=null; bot.fill=null; E.sfx('place'); refreshTray(); }); ub.disabled=(top.fill==null&&bot.fill==null);
+    const ub=E.addBtn('↺','ghost',()=>{ if(E.busy)return; top.fill=null; bot.fill=null; E.sfx('place'); rescene(); }); ub.disabled=(top.fill==null&&bot.fill==null);
     if(top.fill!=null && bot.fill!=null) E.addBtn(t({en:'Send both ▶',zh:'一起出发 ▶'}),'primary',sendBoth); }
+
+  function onDrop(ac,z,info){ if(E.busy)return;
+    if(ac.lane){ if(info && !info.tapped && laneOf(info.y)!==ac.lane){ (ac.lane==='top'?top:bot).fill=null; E.sfx('fail'); E.pop('−'+ac.v); } rescene(); return; }   // placed span lifted off its lane → remove (otherwise it springs back)
+    const ln=info?laneOf(info.y):null; if(ln){ (ln==='top'?top:bot).fill=ac.v; E.sfx('place'); E.pop('+'+ac.v); } rescene(); }   // source span → fills the nearer lane (you can pick wrong; Send judges)
+  function rescene(){ buildPlaced(); E.scene({ actors:spans.concat(placed), draw:sceneDraw, onDrop:onDrop }); refreshTray(); }
 
   function sendBoth(){ if(E.busy)return; E.sceneStop(); const ts=sumT(), bs=sumB();
     const tM=ts===T?'exact':ts<T?'short':'long', bM=bs===T?'exact':bs<T?'short':'long';
-    crossTwo(T, top, bot, ts, tM, bs, bM, show, win, ()=>{
+    crossTwo(T, top, bot, ts, tM, bs, bM, showFull, win, ()=>{
       E.tell(t({en:'Each bridge must reach exactly <b>'+T+'</b>: top needs <b>'+b+'</b>, bottom needs <b>'+a+'</b>.',zh:'每座桥都要正好到 <b>'+T+'</b>：上桥需要 <b>'+b+'</b>，下桥需要 <b>'+a+'</b>。'}));
-      E.afterSpeech(()=>{ top.fill=null; bot.fill=null; startScene(); }); });
+      E.afterSpeech(()=>{ top.fill=null; bot.fill=null; rescene(); }); });
   }
   function win(){ E.setDots(2); E.tickQ(2); E.award(40);
     E.status(keq(a+' + '+b+' = '+b+' + '+a+' = '+T));
@@ -170,12 +187,9 @@ function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.sceneSt
     E.clearTray(); E.addBtn(t({en:'On to the Pillar Pass ▶',zh:'前往立柱关 ▶'}),'primary',E.advance);
     E.addBtn(t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep);
   }
-  function startScene(){ E.scene({ actors:spans, draw:sceneDraw, onDrop:(ac,z,info)=>{ if(E.busy)return; const ln=info?laneOf(info.y):null; if(!ln) return;
-      const L=ln==='top'?top:bot; L.fill=ac.v; E.sfx('place'); E.pop('+'+ac.v); refreshTray(); } });   // drop ANY span on either bridge (you can pick wrong); Send both judges → a bridge that misses T falls into the Fog
-    refreshTray(); }
-  E.tell(t({en:'<b>The Twin Spans.</b> Top already holds <b class="g">'+a+'</b>, bottom holds <b class="y">'+b+'</b>. <b>Drag</b> the right span onto each bridge so <b>both</b> reach <b>'+T+'</b> — you\'ll see <b class="g">'+a+'+'+b+'</b> = <b class="y">'+b+'+'+a+'</b>.',
-    zh:'<b>双生桥。</b>上桥已有 <b class="g">'+a+'</b>，下桥已有 <b class="y">'+b+'</b>。把对的那段<b>拖</b>到每座桥上，让<b>两座桥</b>都到 <b>'+T+'</b>，可见 <b class="g">'+a+'+'+b+'</b> = <b class="y">'+b+'+'+a+'</b>。'}));
-  startScene();
+  E.tell(t({en:'<b>The Twin Spans.</b> Top already holds <b class="g">'+a+'</b>, bottom holds <b class="y">'+b+'</b>. <b>Drag</b> the right span onto each bridge so <b>both</b> reach <b>'+T+'</b> — you\'ll see <b class="g">'+a+'+'+b+'</b> = <b class="y">'+b+'+'+a+'</b>. Drag a placed span off to remove it.',
+    zh:'<b>双生桥。</b>上桥已有 <b class="g">'+a+'</b>，下桥已有 <b class="y">'+b+'</b>。把对的那段<b>拖</b>到每座桥上，让<b>两座桥</b>都到 <b>'+T+'</b>，可见 <b class="g">'+a+'+'+b+'</b> = <b class="y">'+b+'+'+a+'</b>。把已放的那段拖离即可移除。'}));
+  rescene();
 }
 
 /* ===== Round 3 — The Pillar Pass (associativity via a SUPPORT over a missing post, side by side) ===== */
@@ -188,36 +202,56 @@ function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.fed=false; E.setDots(
   const grpEq=L=> L.grp==='left'?'('+a+'+'+b+')+'+c : a+'+('+b+'+'+c+')';
   const covered=L=> L.grp===L.need;
   E.setPlace(t({en:'The Pillar Pass',zh:'立柱关'})); E.setRange(maxx);
-  const u=()=>E.PX(1)-E.PX(0), TOPBAND=[82,162], BOTBAND=[196,E.LH];
-  const laneOf=y=> (y>=TOPBAND[0]&&y<=TOPBAND[1])?'top' : (y>=BOTBAND[0]&&y<=BOTBAND[1])?'bot' : null;
-  // two draggable SUPPORTS: the (a+b) clamp and the (b+c) clamp; drag the one that braces each bridge's gap
+  const u=()=>E.PX(1)-E.PX(0);
+  const laneOf=y=> y<70 ? null : (y<179 ? 'top' : 'bot');   // every drop maps to the NEARER lane (no dead zone) → a drop always registers
+  // two source SUPPORTS: the (a+b) clamp and the (b+c) clamp; drag the one that braces each bridge's gap
   const braces=[ {grp:'left', label:'('+a+'+'+b+')', w:(a+b)*u()}, {grp:'right', label:'('+b+'+'+c+')', w:(b+c)*u()} ]
-    .map((s,i)=>Object.assign({}, s, { id:i, kind:'drag', home:{x:E.PX(0)+62, y:22+i*34}, bbox:o=>({x:o.pos.x-4, y:o.pos.y-12, w:s.w+8, h:28}) }));
+    .map((s,i)=>Object.assign({}, s, { id:'b'+i, kind:'drag', home:{x:E.PX(0)+62, y:22+i*34}, bbox:o=>({x:o.pos.x-4, y:o.pos.y-12, w:s.w+8, h:28}) }));
+  const sx0=grp=> grp==='left'?E.PX(0):E.PX(a), sx1=grp=> grp==='left'?E.PX(a+b):E.PX(T);
 
-  function show(bt,bb){ drawLanes(T,maxx,[
+  // FULL draw (with the placed brackets) — for the crossing animation + win
+  function showFull(bt,bb){ drawLanes(T,maxx,[
     {y:94,bot:150, planks:[a,b,c], posts:[top.post], gap:covered(top)?null:top.miss, bracket:brk(top), fed:top.fed, bull:bt, label:top.grp?grpEq(top):''},
     {y:208,bot:262, planks:[a,b,c], posts:[bot.post], gap:covered(bot)?null:bot.miss, bracket:brk(bot), fed:bot.fed, bull:bb, label:bot.grp?grpEq(bot):''} ]);
   }
+  // a placed SUPPORT actor per braced lane (drag it off to remove); strut+clamp when settled, just the clamp while grabbed
+  let placed=[];
+  function buildPlaced(){ placed=[]; [['top',top],['bot',bot]].forEach(([lane,L])=>{ if(L.grp){ const w=(L.grp==='left'?(a+b):(b+c))*u();
+    placed.push({ id:'pl_'+lane, kind:'drag', lane:lane, grp:L.grp, label:L.grp==='left'?'('+a+'+'+b+')':'('+b+'+'+c+')', w:w,
+      home:{x:sx0(L.grp), y:(lane==='top'?94:208)+16}, bbox:o=>({x:o.pos.x-4, y:o.pos.y-12, w:w+8, h:28}) }); } }); return placed; }
+  function drawPlacedSupport(ar){ const ctx=E.ctx;
+    if(ar.grab){ drawBrace(ar.label, ar.pos.x, ar.pos.y, ar.w, true); return; }   // grabbed → follows the pointer as a plain clamp
+    const Ly=ar.lane==='top'?94:208, Lbot=ar.lane==='top'?150:262, x0=sx0(ar.grp), x1=sx1(ar.grp), mx=(x0+x1)/2, y=Ly+16;   // settled → strut over the gap + clamp + label
+    ctx.save(); ctx.strokeStyle=FIG.C.purple; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(mx,Ly+5); ctx.lineTo(mx,Lbot); ctx.stroke();
+    ctx.lineWidth=3; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(x0+3,y-7); ctx.lineTo(x0+3,y); ctx.lineTo(x1-3,y); ctx.lineTo(x1-3,y-7); ctx.stroke();
+    ctx.fillStyle=FIG.C.purple; ctx.font='italic 12px Georgia'; ctx.textAlign='center'; ctx.textBaseline='alphabetic'; ctx.fillText(ar.label,mx,y+14); ctx.restore(); }
 
-  function sceneDraw(){ show(null,null);
+  function sceneDraw(){ drawLanes(T,maxx,[                  // lanes WITHOUT the placed bracket (drawn as an actor below); the gap cue shows until the right support covers it
+      {y:94,bot:150, planks:[a,b,c], posts:[top.post], gap:covered(top)?null:top.miss, bracket:null, fed:false, bull:null, label:top.grp?grpEq(top):''},
+      {y:208,bot:262, planks:[a,b,c], posts:[bot.post], gap:covered(bot)?null:bot.miss, bracket:null, fed:false, bull:null, label:bot.grp?grpEq(bot):''} ]);
     const drg=braces.find(s=>s.grab);
     if(drg){ const ln=laneOf(drg.pos.y);
       if(ln){ const L=ln==='top'?top:bot, ly=ln==='top'?90:204, ok=(drg.grp===L.need);
         laneHi(ln==='top'?{x:0,y:94,w:E.LW,h:56}:{x:0,y:208,w:E.LW,h:54}, ln==='top'?'80,216,144':'96,150,255');
         const x0=drg.grp==='left'?E.PX(0):E.PX(a), x1=drg.grp==='left'?E.PX(a+b):E.PX(T);
         const ctx=E.ctx; ctx.save(); ctx.globalAlpha=.7; ctx.setLineDash([5,5]); ctx.lineWidth=2.4; ctx.strokeStyle=ok?'rgba(80,216,144,.95)':'rgba(232,64,46,.95)'; ctx.strokeRect(x0+2,ly-10,(x1-x0)-4,20); ctx.restore(); } }
+    placed.forEach(drawPlacedSupport);
+    const rem=placed.find(p=>p.grab && laneOf(p.pos.y)!==p.lane);
+    if(rem){ const c=E.ctx; c.save(); c.fillStyle='rgba(232,64,46,.95)'; c.font='bold 12px "IBM Plex Mono",monospace'; c.textAlign='center'; c.fillText(t({en:'release to remove',zh:'松手移除'}), rem.pos.x+rem.w/2, rem.pos.y-14); c.restore(); }
     braces.forEach(s=> drawBrace(s.label, s.pos.x, s.pos.y, s.w, !!s.grab)); }
+
   function refreshTray(){ E.status(t({en:'drag a support onto each bridge’s gap',zh:'把支撑拖到每座桥的缺口上'})); E.clearTray();
-    const ub=E.addBtn('↺','ghost',()=>{ if(E.busy)return; top.grp=null; bot.grp=null; E.sfx('place'); refreshTray(); }); ub.disabled=(!top.grp&&!bot.grp);
+    const ub=E.addBtn('↺','ghost',()=>{ if(E.busy)return; top.grp=null; bot.grp=null; E.sfx('place'); rescene(); }); ub.disabled=(!top.grp&&!bot.grp);
     if(top.grp&&bot.grp) E.addBtn(t({en:'Send both ▶',zh:'一起出发 ▶'}),'primary',sendBoth); }
-  function startScene(){ E.scene({ actors:braces, draw:sceneDraw, onDrop:(ac,z,info)=>{ if(E.busy)return; const ln=info?laneOf(info.y):null; if(!ln) return;
-      const L=ln==='top'?top:bot; L.grp=ac.grp; E.sfx('bracket'); refreshTray(); } });   // drop EITHER support on EITHER bridge (you can be wrong); Send judges → an unsupported seam gives way
-    refreshTray(); }
+  function onDrop(ac,z,info){ if(E.busy)return;
+    if(ac.lane){ if(info && !info.tapped && laneOf(info.y)!==ac.lane){ (ac.lane==='top'?top:bot).grp=null; E.sfx('fail'); } rescene(); return; }   // placed support lifted off its lane → remove (otherwise it springs back)
+    const ln=info?laneOf(info.y):null; if(ln){ (ln==='top'?top:bot).grp=ac.grp; E.sfx('bracket'); } rescene(); }   // source support → braces the nearer lane (you can be wrong; Send judges)
+  function rescene(){ buildPlaced(); E.scene({ actors:braces.concat(placed), draw:sceneDraw, onDrop:onDrop }); refreshTray(); }
 
   function sendBoth(){ if(E.busy)return; E.sceneStop();
-    crossTwo(T, top, bot, top.miss, covered(top)?'exact':'short', bot.miss, covered(bot)?'exact':'short', show, win, ()=>{
+    crossTwo(T, top, bot, top.miss, covered(top)?'exact':'short', bot.miss, covered(bot)?'exact':'short', showFull, win, ()=>{
       E.tell(t({en:'A seam with <b class="r">no support</b> gives way! Brace the pair sitting over the gap.',zh:'<b class="r">没支撑</b>的接缝塌了！把跨在缺口上的一对撑住。'}));
-      E.afterSpeech(()=>{ top.grp=null; bot.grp=null; startScene(); }); });
+      E.afterSpeech(()=>{ top.grp=null; bot.grp=null; rescene(); }); });
   }
   function win(){ E.setDots(3); E.tickQ(3); E.award(55); top.fed=bot.fed=true;
     E.status(keq(a+'+('+b+'+'+c+') = ('+a+'+'+b+')+'+c+' = '+T));
@@ -228,7 +262,7 @@ function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.fed=false; E.setDots(
   }
   E.tell(t({en:'<b>The Pillar Pass.</b> Each bridge has planks <b>'+a+' | '+b+' | '+c+'</b>, but one seam has a <b class="r">missing post</b>. <b>Drag the support</b> that braces the gap onto each bridge: <b class="g">'+a+'+('+b+'+'+c+')</b> = <b class="y">('+a+'+'+b+')+'+c+'</b>.',
     zh:'<b>立柱关。</b>每座桥都有木板 <b>'+a+' | '+b+' | '+c+'</b>，但有处接缝<b class="r">缺了立柱</b>。把跨过缺口的那个<b>支撑拖</b>到每座桥上：<b class="g">'+a+'+('+b+'+'+c+')</b> = <b class="y">('+a+'+'+b+')+'+c+'</b>。'}));
-  startScene();
+  rescene();
 }
 
 const QUEST = {
