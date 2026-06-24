@@ -57,8 +57,10 @@ function drawLanes(T, maxx, lanes){ E.setRange(maxx); const ctx=E.ctx, PX=E.PX, 
       ctx.strokeStyle=FIG.C.purple; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(mx,L.y+5); ctx.lineTo(mx,L.bot); ctx.stroke();   // support strut (purple, distinct from the number-planks)
       ctx.strokeStyle=FIG.C.purple; ctx.lineWidth=3; ctx.lineCap='round';
       ctx.beginPath(); ctx.moveTo(PX(k.a)+3,y-7); ctx.lineTo(PX(k.a)+3,y); ctx.lineTo(PX(k.c)-3,y); ctx.lineTo(PX(k.c)-3,y-7); ctx.stroke();
-      ctx.fillStyle=FIG.C.purple; ctx.font='italic 12px Georgia'; ctx.textAlign='center'; ctx.fillText(k.label,mx,y+14); }
-    if(L.label){ ctx.fillStyle=FIG.C.text; ctx.font='13px "IBM Plex Mono",monospace'; ctx.textAlign='center'; ctx.textBaseline='alphabetic'; ctx.fillText(L.label,LW*0.55,L.y-22); }   // centered over the lane, clear of the calf (left) and flag (right)
+      }   // the bracket's text is carried by the lane's in-band equation label below, so it isn't drawn twice
+    if(L.label){ const lx=LW*0.55, ly=L.y+30; ctx.save(); ctx.font='13px "IBM Plex Mono",monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';   // INSIDE the lane band, below the planks — clear of the parked source spans above (which used to overlap it) and of the flag/calf
+      const pw=ctx.measureText(L.label).width+18; ctx.fillStyle='rgba(8,8,20,.72)'; if(ctx.roundRect){ctx.beginPath();ctx.roundRect(lx-pw/2,ly-11,pw,22,8);ctx.fill();}else ctx.fillRect(lx-pw/2,ly-11,pw,22);
+      ctx.fillStyle=FIG.C.text; ctx.fillText(L.label,lx,ly); ctx.restore(); }
     const bb=L.bull||{xv:0,dy:-2};
     FIG.bull(ctx,PX(bb.xv),L.y-15+(bb.dy||0),40,{mood:(bb.dy>20)?'sad':(L.fed?'happy':'open')});   // waiting=open/alert, fed=happy, falling=sad — its OWN eyes, not the avatar's
   });
@@ -224,7 +226,7 @@ function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.fed=false; E.setDots(
     const Ly=ar.lane==='top'?94:208, Lbot=ar.lane==='top'?150:262, x0=sx0(ar.grp), x1=sx1(ar.grp), mx=(x0+x1)/2, y=Ly+16;   // settled → strut over the gap + clamp + label
     ctx.save(); ctx.strokeStyle=FIG.C.purple; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(mx,Ly+5); ctx.lineTo(mx,Lbot); ctx.stroke();
     ctx.lineWidth=3; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(x0+3,y-7); ctx.lineTo(x0+3,y); ctx.lineTo(x1-3,y); ctx.lineTo(x1-3,y-7); ctx.stroke();
-    ctx.fillStyle=FIG.C.purple; ctx.font='italic 12px Georgia'; ctx.textAlign='center'; ctx.textBaseline='alphabetic'; ctx.fillText(ar.label,mx,y+14); ctx.restore(); }
+    ctx.restore(); }   // the (a+b)/(b+c) text is shown by the lane's in-band equation label, not on the clamp (avoids a double label)
 
   function sceneDraw(){ drawLanes(T,maxx,[                  // lanes WITHOUT the placed bracket (drawn as an actor below); the gap cue shows until the right support covers it
       {y:94,bot:150, planks:[a,b,c], posts:[top.post], gap:covered(top)?null:top.miss, bracket:null, fed:false, bull:null, label:top.grp?grpEq(top):''},
