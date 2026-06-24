@@ -17,6 +17,11 @@ body{ background:radial-gradient(1200px 700px at 70% -12%,rgba(176,112,240,.14),
 .top h1{ font-family:'Playfair Display',serif; font-weight:600; font-size:1.5rem; color:var(--gold); margin-top:2px; text-shadow:0 0 36px rgba(244,200,48,.25); }
 .dots{ display:flex; gap:7px; justify-content:center; margin-top:6px; }
 .dots i{ width:9px;height:9px;border-radius:50%;background:var(--border);transition:.3s; } .dots i.on{ background:var(--gold);transform:scale(1.25); }
+.hearts{ display:flex; gap:6px; justify-content:center; align-items:center; margin-top:7px; min-height:20px; }
+.hearts b{ font-size:1.15rem; line-height:1; color:#ff4d63; text-shadow:0 0 8px rgba(255,77,99,.55); transition:opacity .35s, transform .2s; }
+.hearts b.off{ color:#4a3540; text-shadow:none; opacity:.5; }
+.hearts b.lose{ animation:heartLose .6s ease both; }
+@keyframes heartLose{ 0%{ transform:scale(1.7); color:#fff; text-shadow:0 0 16px #fff; } 55%{ transform:scale(.78); } 100%{ transform:scale(1); } }
 .stage{ width:100%; max-width:640px; }
 /* reward bigger screens: let the board grow on tablets/desktops (mobile stays full-width) — never force a larger device */
 @media(min-width:760px){ .stage{ max-width:720px; } }

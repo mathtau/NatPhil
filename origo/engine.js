@@ -152,9 +152,9 @@ E.runCross=function(o){ // {target, reach, draw(b), msgs:{short,long}, onWin, re
   const stopAt = mode==='short'?reach:target;
   E.anim(Math.max(1000,stopAt*340), p=>o.draw({xv:stopAt*p,dy:-2}), ()=>{
     if(mode==='win'){ E.anim(560,p=>{ E.fed=(p>.6); o.draw({xv:target+E.GRASSOFF*p,dy:-2}); }, ()=>{ E.fed=true; o.draw({xv:target+E.GRASSOFF,dy:-2}); E.pop('nom!'); E.cheer(); E.sfx('win'); E.busy=false; o.onWin(); }); }
-    else if(mode==='short'){ E.oops(); E.sfx('fail'); E.tell(E.t(o.msgs.short));
-      E.anim(820,p=>o.draw({xv:stopAt,dy:p*160,rot:p*4}), ()=>{ E.busy=false; E.afterSpeech(o.retry); }); }
-    else { E.sad(); E.sfx('fail'); E.tell(E.t(o.msgs.long)); E.busy=false; E.afterSpeech(o.retry); }
+    else if(mode==='short'){ E.oops(); E.sfx('fail'); E.tell(E.t(o.msgs.short)); const alive=E.loseHeart();
+      E.anim(820,p=>o.draw({xv:stopAt,dy:p*160,rot:p*4}), ()=>{ if(alive){ E.busy=false; E.afterSpeech(o.retry); } }); }   // falling costs a heart; on game over, gameOver() restarts the quest instead of retrying
+    else { E.sad(); E.sfx('fail'); E.tell(E.t(o.msgs.long)); if(E.loseHeart()){ E.busy=false; E.afterSpeech(o.retry); } }
   });
 };
 
@@ -223,16 +223,31 @@ E.choose=function(prompt, redraw, items, onRight, opts){ opts=opts||{}; E.tell(p
     onPick:function(a){ if(E.busy) return; const it=items[a.id];
       if(opts.react) opts.react(!!it.ok, it);
       if(it.ok){ E.mood('happy'); E.sfx('place'); E.pop(opts.okPop?opts.okPop():'✓'); E.sceneStop(); redraw(); onRight(); }
-      else { E.oops(); E.sfx('fail'); E.pop('✗'); const fb=E.t(it.fb); E.tell(opts.fbWrap?opts.fbWrap(fb):fb); } } }); };
+      else { E.oops(); E.sfx('fail'); E.pop('✗'); const fb=E.t(it.fb); E.tell(opts.fbWrap?opts.fbWrap(fb):fb); E.loseHeart(); } } }); };   // a wrong tap costs a heart; the scene stays live to retry (loseHeart takes over on game over)
 
 /* ---------- tray / status / dots / place ---------- */
-let tray,statusEl,dotsEl,kicker,placebanner;
+let tray,statusEl,dotsEl,kicker,placebanner,heartsEl;
 E.clearTray=()=>tray.innerHTML='';
 E.addBtn=(label,cls,fn,dim)=>{ const b=document.createElement('button'); b.className='btn '+(cls||'')+(dim?' dim':''); b.innerHTML=label; b.onclick=fn; tray.appendChild(b); return b; };   // dim = locked/greyed (still clickable, fn can pop a hint)
 E.trayEl=()=>tray;
 E.status=html=>statusEl.innerHTML=html;
 E.setDots=n=>[...dotsEl.children].forEach((d,i)=>d.classList.toggle('on',i<n));
 E.setPlace=name=>{ kicker.textContent='Origo · '+name; placebanner.textContent='✦ '+name+' ✦'; placebanner.classList.remove('show'); void placebanner.offsetWidth; placebanner.classList.add('show'); };
+
+/* ---------- hearts / lives — 3 per quest; a wrong decision costs one; at 0 the quest restarts from round 1 ---------- */
+let lives=3;
+function renderHearts(){ if(!heartsEl) return; heartsEl.innerHTML=''; for(let i=0;i<3;i++){ const b=document.createElement('b'); b.textContent='♥'; if(i>=lives) b.classList.add('off'); heartsEl.appendChild(b); } }
+E.livesLeft=()=>lives;
+// Deduct a heart for a mistake. Returns TRUE if still alive (the caller may let the player retry),
+// FALSE on game over — the caller must NOT run its own retry; gameOver() takes over and restarts the quest.
+E.loseHeart=function(){ if(lives<=0) return false; lives--; renderHearts();
+  if(heartsEl && heartsEl.children[lives]) heartsEl.children[lives].classList.add('lose');
+  if(lives<=0){ E.busy=true; if(E.sceneStop)E.sceneStop(); setTimeout(gameOver,900); return false; }
+  return true; };
+function gameOver(){ if(E.sceneStop)E.sceneStop(); E.busy=true; E.setSpeaker('tau'); E.mood('sad'); E.clearTray();
+  E.tell(E.t({en:'💔 <b>Out of hearts.</b> Mistakes are how we learn — your EXP and pages are safe. Let\'s take this quest from the top.',zh:'💔 <b>三颗心都碎了。</b>犯错正是学习的方式——经验和书页都还在。我们从头再走一遍这一关。'}));
+  E.status(E.t({en:'↻ restarting the quest…',zh:'↻ 正在重新开始本关…'}));
+  setTimeout(()=>{ lives=3; renderHearts(); E.round=0; E.busy=false; E.next(); }, 1700); }   // refill + restart from round 1 (keeps E.done, so cleared steps award no second EXP)
 
 /* ---------- XP / level ---------- */
 function renderXP(){ $('lvlBadge').textContent='Lv.'+S.level; $('xpfillBar').style.width=Math.min(100,S.xp/S.need*100)+'%'; $('xptxt').textContent=S.xp+' / '+S.need; }
@@ -264,7 +279,7 @@ E.boot=function(QUEST){ E.QUEST=QUEST;
   cv=$('cv'); ctx=cv.getContext('2d'); ctx.setTransform(2,0,0,2,0,0); LW=cv.width/2; LH=cv.height/2; E.ctx=ctx; E.LW=LW; E.LH=LH; E.cv=cv;
   E.baseY=LH-78; E.botY=LH; E.setRange(9);
   companion=$('companion'); bubble=$('bubble'); botEl=companion.querySelector('.bot');
-  tray=$('tray'); statusEl=$('status'); dotsEl=$('dots'); kicker=$('kicker'); placebanner=$('placebanner'); qtrack=$('qtrack');
+  tray=$('tray'); statusEl=$('status'); dotsEl=$('dots'); kicker=$('kicker'); placebanner=$('placebanner'); qtrack=$('qtrack'); heartsEl=$('hearts');
   document.body.dataset.region=QUEST.region||'cradle';
   $('h1').textContent=E.t(QUEST.title); kicker.textContent='Origo · '+E.t(QUEST.kicker);
   dotsEl.innerHTML=QUEST.rounds.map(()=>'<i></i>').join('');
@@ -286,7 +301,7 @@ E.boot=function(QUEST){ E.QUEST=QUEST;
   A.loadVoices();
   if(S.audio.vver!==4){ S.audio.vSigma=''; S.audio.vProduct=''; S.audio.vTau=''; S.audio.vver=4; }   // re-pick with current preferred-name defaults (Product / Zira on PC)
   if(!S.audio.vSigma)S.audio.vSigma=pickVoice('sigma'); if(!S.audio.vProduct)S.audio.vProduct=pickVoice('product'); if(!S.audio.vTau)S.audio.vTau=pickVoice('tau'); E.save(); E.fillVoicePickers();
-  renderXP();
+  renderXP(); renderHearts();
   // quest scroll → start (Tau is the giver now; Sigma appears later)
   E.setSpeaker('tau');
   const rq=$('readQuest'); if(rq) rq.onclick=()=>{ E.sayAs('tau', E.t(QUEST.meta.flavor)); $('mNarr').checked=true; };
@@ -305,7 +320,7 @@ E.boot=function(QUEST){ E.QUEST=QUEST;
   // intro background scene
   QUEST.intro && QUEST.intro(E);
 };
-E.start=()=>{ E.round=0; E.done={}; E.next(); };
+E.start=()=>{ E.round=0; E.done={}; lives=3; renderHearts(); E.next(); };   // a fresh 3-heart run each quest
 E.next=()=>{ const r=E.QUEST.rounds[E.round]; if(r){ E.currentRound=()=>E.QUEST.rounds[E.round](E); E.currentRound(); } };
 E.advance=()=>{ E.round++; E.next(); };
 E.award=n=>{ if(E.done[E.round]) return; E.done[E.round]=true; E.gainXP(n); };   // XP only the first clear of a step

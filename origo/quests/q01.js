@@ -119,7 +119,7 @@ function crossTwo(T, top, bot, tReach, tMode, bReach, bMode, show, onWin, onFail
   E.anim(Math.max(1,endT), p=>{ const now=p*endT; show(lane(tStop,tFall,tHit,now), lane(bStop,bFall,bHit,now)); }, ()=>{
     if(both){ E.anim(560,p=>{ top.fed=bot.fed=p>.6; show({xv:T+0.5*p,dy:-2},{xv:T+0.5*p,dy:-2}); },
         ()=>{ top.fed=bot.fed=true; show({xv:T+0.5,dy:-2},{xv:T+0.5,dy:-2}); E.cheer(); E.pop('nom!'); E.sfx('win'); E.busy=false; onWin(); }); }
-    else { E.oops(); E.sfx('fail'); E.busy=false; onFail(); }
+    else { E.oops(); E.sfx('fail'); if(E.loseHeart()){ E.busy=false; onFail(); } }   // a missed crossing costs a heart; on game over the engine restarts the quest
   });
 }
 
