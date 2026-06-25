@@ -90,7 +90,7 @@ const HU='rgba(244,200,48,.95)';   // gold highlight for tappable answer tokens
    opts:[{txt,ok,fb}] laid out in a row at height `y` over the scene `baseDraw`. Right → ✓ + advance; wrong → Tau oops + feedback. */
 function pickPills(prompt, baseDraw, y, opts, onRight){ const n=opts.length, cx=E.LW*0.5, gap=E.LW*0.27;
   const xs = n>=3?[cx-gap,cx,cx+gap]:[cx-gap*0.55,cx+gap*0.55];
-  const draw=()=>{ baseDraw(); opts.forEach((o,i)=>E.pill(xs[i],y,t(o.txt))); };
+  const draw=()=>{ bg(); baseDraw(); opts.forEach((o,i)=>E.pill(xs[i],y,t(o.txt))); };   // bg() each frame so the engine's hot-highlight ring can't accumulate around every pill
   const items=opts.map((o,i)=>({ bbox:()=>E.pillBB(xs[i],y,t(o.txt)), ok:o.ok, fb:o.fb, hiCol:HU }));
   E.choose(prompt, draw, items, onRight); }
 
