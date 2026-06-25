@@ -85,15 +85,15 @@ function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(0); E.sceneSt
     ctx.fillStyle=GOLD; ctx.shadowColor='rgba(244,200,48,.7)'; ctx.shadowBlur=8; ctx.beginPath(); ctx.arc(kx,SLY,11,0,7); ctx.fill(); ctx.restore();
     label(SLX0-4,SLY-20,t({en:'few',zh:'少'}),'#9fb0cc',11); label(SLX1+4,SLY-20,t({en:'many',zh:'多'}),'#9fb0cc',11); }
   function stat(){ E.status('<span style="color:#f4c830">'+t({en:'rings: ',zh:'环数：'})+N+'</span>  <span style="color:#ff6a4d">'+t({en:'step dx = ',zh:'步长 dx = '})+'1/'+N+'</span>'); }
-  function drawCut(){ bg(); N=NfromX(knob.pos.x); rings(N); slider(); stat(); }
+  function drawCut(){ bg(); N=NfromX(knob.pos.x); pSad=Math.max(0,Math.min(1,(N-NMIN)/(GATE-NMIN))); rings(N); slider(); stat(); }   // Pi frets (grin sags) the finer you cut
   const knob={ kind:'drag', home:{x:SLX0,y:SLY}, drag:{axis:'x',clamp:{x0:SLX0,x1:SLX1,y0:SLY,y1:SLY}},
     snap:[{x:(SLX0+SLX1)/2,y:SLY,r:(SLX1-SLX0)/2+80,snap:false}], bbox:a=>({x:a.pos.x-17,y:a.pos.y-17,w:34,h:34}), hiCol:'rgba(244,200,48,.9)' };
-  E.tell(t({en:'<b>Slice the Radius.</b> A new way to the same area. Instead of pizza wedges, split the disk into thin <b class="y">rings</b>, like a tree\'s growth rings. <b>Drag the slider</b> to cut the <b class="r">radius</b> into more, thinner rings — each one step <b class="r">dx</b> wide. Cut it fine, then release.',
-    zh:'<b>切开半径。</b>用另一条路走到同一个面积。这回不切披萨块，而是把圆盘分成一圈圈细<b class="y">环</b>，像树的年轮。<b>拖动滑块</b>，把<b class="r">半径</b>切成更多更细的环——每环宽一步 <b class="r">dx</b>。切细些，再松手。'}));
+  E.tell(t({en:'<b>Slice the Radius.</b> <b class="p">Pi the Halver</b> scoffs that one proof means nothing — <i>“those crumbs measure nothing!”</i> So measure the area a <b>second</b> way and prove him wrong twice. Split the disk into thin <b class="y">rings</b>, like a calf\'s growth rings. <b>Drag the slider</b> to cut the <b class="r">radius</b> into more, thinner rings — each one tiny step <b class="r">dx</b> wide. Cut it fine (watch <b class="p">Pi</b> fret), then release.',
+    zh:'<b>切开半径。</b><b class="p">半圆贩子</b>嗤笑说一种证法算不得数——<i>“这些碎屑量得出什么！”</i>那就用<b>第二种</b>办法再量一遍，把他驳倒两回。把圆盘分成一圈圈细<b class="y">环</b>，像小牛的年轮。<b>拖动滑块</b>，把<b class="r">半径</b>切成更多更细的环——每环宽一小步 <b class="r">dx</b>。切细些（看 <b class="p">Pi</b> 发慌），再松手。'}));
   stat();
   E.scene({ actors:[knob], draw:drawCut, onDrop(a){ if(E.busy)return; N=NfromX(knob.pos.x);
     if(N>=GATE){ E.sfx('place'); ask(); }
-    else { E.oops(); pmood='gloat'; E.status('<span style="color:#ff6a4d">'+t({en:'still chunky — cut into finer rings.',zh:'还太粗——切成更细的环。'})+'</span>'); } } });
+    else { E.oops(); pmood='gloat'; E.status('<span style="color:#caa84a;font-style:italic">“'+t({en:'crumbs!',zh:'碎屑罢了！'})+'”</span> <span style="color:#ff6a4d">'+t({en:'still chunky — cut into finer rings.',zh:'还太粗——切成更细的环。'})+'</span>'); } } });
   function ask(){ E.sceneStop();
     pickPills(t({en:'You cut <b>'+N+'</b> rings, each <b class="r">dx</b> = 1/'+N+' wide. The MORE rings you cut, the step <b class="r">dx</b> gets…',zh:'你切了 <b>'+N+'</b> 个环，每环 <b class="r">dx</b> = 1/'+N+' 宽。环切得<b>越多</b>，步长 <b class="r">dx</b> 就……'}),
       ()=>rings(N), E.LH*0.9,
@@ -126,8 +126,8 @@ function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.sceneSt
       // dashed staging tray
       ctx.save(); ctx.strokeStyle='rgba(200,210,235,.3)'; ctx.setLineDash([5,5]); ctx.strokeRect(SX0(),STY()-12,SLEN(),24); ctx.restore(); }
     else strip(1); }
-  E.tell(t({en:'<b>Unroll a Ring.</b> Pick one <b class="y">ring</b> (the bright one) and unroll it into a straight <b>strip</b>. <b>Drag the ring down</b> to the tray. A ring is a loop of the rim, so unrolled it becomes a thin strip: <b class="r">dx</b> wide, and as long as the ring\'s rim.',
-    zh:'<b>摊开圆环。</b>挑一个<b class="y">环</b>（最亮的那个），把它摊成一条直<b>带</b>。<b>把环往下拖</b>到托盘里。环是一圈圆边，摊开就成一条细带：宽 <b class="r">dx</b>，长就是这个环的一圈周长。'}));
+  E.tell(t({en:'<b>Unroll a Ring.</b> Pick the bright <b class="y">ring</b> — your calf <b class="y">Tau</b> will tug it loose and unroll it into a straight <b>strip</b>. <b>Drag the ring down</b> to the tray. A ring is a loop of the rim, so unrolled it is a thin strip: <b class="r">dx</b> wide, and as long as the ring\'s rim.',
+    zh:'<b>摊开圆环。</b>挑那个亮<b class="y">环</b>——你的小牛 <b class="y">Tau</b> 会把它拽松、摊成一条直<b>带</b>。<b>把环往下拖</b>到托盘里。环是一圈圆边，摊开就成一条细带：宽 <b class="r">dx</b>，长就是这个环的一圈周长。'}));
   E.scene({ actors:[handle], draw:drawPull, onDrop(a,z,info){ if(E.busy)return;
     if(info&&!info.tapped && info.y>E.LH*0.62){ E.busy=true; E.sceneStop(); E.sfx('place'); E.mood('happy'); pmood='hurt';
       E.anim(620,p=>{ unrolled=false; bg(); ringsBg(); strip(p); }, ()=>{ unrolled=true; E.busy=false; decide(); }); }
@@ -177,8 +177,8 @@ function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(2); E.sceneSt
     let hot=-1; if(strip.grab){ const p=strip.pos; if(p.x>TX0()-30&&p.x<TX0()+TXW()+30&&p.y>TYT()-20&&p.y<TYB()+20){ const j=rowOf(p.y); if(!filled[j]) hot=j; } }
     for(let j=0;j<M;j++){ if(filled[j]) drawRow(j,false); else drawRow(j,true,j===hot); }
     if(strip.grab) stripIcon(strip.pos.x,strip.pos.y,false); else stripIcon(home.x,home.y,true); }
-  E.tell(t({en:'<b>Stack to a Triangle.</b> Line your <b class="g">strips</b> up by size: the inner rings are short, the outer ones long. <b>Drag a strip into each row</b>, shortest at the bottom — fill all <b>'+M+'</b> and watch the shape they make.',
-    zh:'<b>摞成三角。</b>把<b class="g">带子</b>按长短排好：内环短、外环长。<b>把带子拖进每一行</b>，最短的放最下——填满全部 <b>'+M+'</b> 条，看它们拼出什么形状。'}));
+  E.tell(t({en:'<b>Stack to a Triangle.</b> <b class="p">Pi</b> still sneers your strips prove nothing. Line them up by size — inner rings short, outer ones long — and <b class="y">Tau</b> stacks them. <b>Drag a strip into each row</b>, shortest at the bottom; fill all <b>'+M+'</b> and watch the shape they make.',
+    zh:'<b>摞成三角。</b><b class="p">Pi</b> 还在冷笑说你的带子证明不了什么。把它们按长短排好——内环短、外环长——让 <b class="y">Tau</b> 摞起来。<b>把带子拖进每一行</b>，最短的放最下；填满全部 <b>'+M+'</b> 条，看它们拼出什么形状。'}));
   buildStat();
   E.scene({ actors:[strip], draw:drawBuild, onDrop(a,z,info){ if(E.busy)return;
     if(info&&!info.tapped){ const p=info; if(p.x>TX0()-30&&p.x<TX0()+TXW()+30&&p.y>TYT()-20&&p.y<TYB()+20){ const j=rowOf(p.y); if(!filled[j]){ filled[j]=true; E.sfx('place'); E.pop('▬'); E.mood('happy'); pmood='hurt'; } } }
