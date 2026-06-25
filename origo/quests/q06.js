@@ -78,11 +78,16 @@ function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(0); E.sceneSt
   const NfromX=x=>Math.max(NMIN,Math.min(NMAX,Math.round(NMIN+(x-SLX0)/(SLX1-SLX0)*(NMAX-NMIN))));
   let N=NMIN, phase='cut';
   function disk(n){ const ctx=E.ctx;
-    for(let i=0;i<n;i++){ const a0=DBASE+i*TAU/n, a1=a0+TAU/n;
+    for(let i=0;i<n;i++){ const a0=DBASE+i*TAU/n, a1=a0+TAU/n, hi=(i===0);   // ONE wedge highlighted so the eye can lock onto a single piece
       ctx.save(); ctx.beginPath(); ctx.moveTo(CX(),CY()); ctx.arc(CX(),CY(),R(),a0,a1); ctx.closePath();
-      ctx.fillStyle=(i%2)?'rgba(80,216,144,.14)':'rgba(80,216,144,.22)'; ctx.fill();   // alternate shade → reads as separate wedges
-      ctx.strokeStyle='rgba(255,106,77,.5)'; ctx.lineWidth=1.1; ctx.beginPath(); ctx.moveTo(CX(),CY()); ctx.lineTo(CX()+R()*Math.cos(a0),CY()+R()*Math.sin(a0)); ctx.stroke(); ctx.restore(); }   // red radius spokes
+      ctx.fillStyle=hi?'rgba(80,216,144,.6)':((i%2)?'rgba(80,216,144,.14)':'rgba(80,216,144,.22)'); ctx.fill();
+      if(hi){ ctx.strokeStyle='#ff8a6a'; ctx.lineWidth=2.6; ctx.lineCap='round'; ctx.shadowColor='rgba(255,138,106,.7)'; ctx.shadowBlur=6;
+        ctx.beginPath(); ctx.moveTo(CX(),CY()); ctx.lineTo(CX()+R()*Math.cos(a0),CY()+R()*Math.sin(a0)); ctx.moveTo(CX(),CY()); ctx.lineTo(CX()+R()*Math.cos(a1),CY()+R()*Math.sin(a1)); ctx.stroke();
+        ctx.shadowBlur=0; ctx.strokeStyle='#ffe9a0'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(CX(),CY(),R(),a0,a1); ctx.stroke(); }   // its two radii + arc, bright
+      else { ctx.strokeStyle='rgba(255,106,77,.5)'; ctx.lineWidth=1.1; ctx.beginPath(); ctx.moveTo(CX(),CY()); ctx.lineTo(CX()+R()*Math.cos(a0),CY()+R()*Math.sin(a0)); ctx.stroke(); }
+      ctx.restore(); }
     ctx.save(); ctx.strokeStyle=GOLD; ctx.lineWidth=3.5; ctx.shadowColor='rgba(244,200,48,.4)'; ctx.shadowBlur=5; ctx.beginPath(); ctx.arc(CX(),CY(),R(),0,7); ctx.stroke(); ctx.restore();   // gold rim
+    const mid=DBASE+0.5*TAU/n, lx=CX()+(R()+22)*Math.cos(mid), ly=CY()+(R()+22)*Math.sin(mid); label(lx,ly,t({en:'one wedge',zh:'一块楔形'}),'#bff0c8',11,true);   // points at the highlighted piece
     odot(); }
   function slider(){ const ctx=E.ctx; ctx.save();
     ctx.strokeStyle='rgba(200,210,235,.35)'; ctx.lineWidth=4; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(SLX0,SLY); ctx.lineTo(SLX1,SLY); ctx.stroke();
@@ -92,7 +97,7 @@ function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(0); E.sceneSt
   function stat(){ E.status('<span style="color:#f4c830">'+t({en:'slices: ',zh:'切片：'})+N+'</span>'+(N>=GATE?'  <span style="color:#50d890">'+t({en:'→ almost triangles',zh:'→ 几乎成三角'})+'</span>':'')); }
   function drawCut(){ bg(); N=NfromX(knob.pos.x); disk(N); slider(); stat(); }
   const knob={ kind:'drag', home:{x:SLX0,y:SLY}, drag:{axis:'x',clamp:{x0:SLX0,x1:SLX1,y0:SLY,y1:SLY}},
-    snap:[{x:(SLX0+SLX1)/2,y:SLY,r:(SLX1-SLX0)/2+80,snap:false}], bbox:a=>({x:a.pos.x-17,y:a.pos.y-17,w:34,h:34}), hiCol:'rgba(244,200,48,.9)' };
+    snap:[{x:SLX1,y:SLY,r:(SLX1-SLX0)+90,snap:false,ring:15}], bbox:a=>({x:a.pos.x-17,y:a.pos.y-17,w:34,h:34}), hiCol:'rgba(244,200,48,.9)' };   // target ring sits at the RIGHT end ("many") — the spot to drag toward
   E.tell(t({en:'<b>The Pizza Cut.</b> Q5 measured the <b class="y">rim</b> — now the <b>inside</b>. You cannot lay a ruler across a round patch, so <b>cut it into wedges</b>. <b>Drag the slider</b> to cut finer and finer; watch each wedge\'s curved edge flatten. <b class="p">Pi the Halver</b> sneers that the inside is his. Cut until the wedges are nearly straight, then release.',
     zh:'<b>披萨切法。</b>Q5 量了<b class="y">圆边</b>——现在量<b>里头</b>。圆乎乎的一片没法直接拿尺量，那就<b>切成楔形块</b>。<b>拖动滑块</b>越切越细，看每块的弯边渐渐变直。<b class="p">半圆贩子</b>冷笑说里头归他。切到楔块几乎笔直，再松手。'}));
   stat();

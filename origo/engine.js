@@ -180,9 +180,10 @@ function hiRing(b,col){ if(!b)return; const c=ctx,p=7,tt=performance.now()/1000,
 function targetRing(z){ const c=ctx,tt=performance.now()/1000,r=(z.ring||30)*(0.9+0.09*Math.sin(tt*5));   // fixed VISUAL radius (z.r is the bigger, forgiving DETECTION radius)
   c.save(); c.globalAlpha=0.95; c.strokeStyle='rgba(80,216,144,.95)'; c.lineWidth=2.8; c.setLineDash([6,6]); c.shadowColor='rgba(80,216,144,.6)'; c.shadowBlur=15;
   c.beginPath(); c.arc(z.x,z.y,r,0,7); c.stroke(); c.restore(); }
-function spin(){ if(!SC){ RAF=0; return; } if(SC.draw) SC.draw();
+function spin(){ if(!SC){ RAF=0; return; } try{ if(SC.draw) SC.draw();
   if(DRAG){ DRAG.near=zoneNear(DRAG)||null; if(DRAG.near) targetRing(DRAG.near); }   // quest paint can read actor.near to confirm the snap
   else if(SC.hot && SC.hot.kind!=='drag'){ const h=SC.hot; if(h.hi) h.hi(bbOf(h), h); else hiRing(bbOf(h), h.hiCol); }   // actor.hi() = custom highlight (e.g. a wide region); else the default ring
+  }catch(e){}   // a transient draw error (e.g. an asset still loading on first paint) must NOT kill the loop and freeze the scene
   RAF=requestAnimationFrame(spin); }
 E.sceneStop=function(){ if(RAF){ cancelAnimationFrame(RAF); RAF=0; } SC=null; DRAG=null;
   if(cv){ cv.onpointerdown=cv.onpointermove=cv.onpointerup=cv.onpointercancel=null; cv.style.touchAction=''; cv.style.cursor=''; } };
@@ -321,7 +322,7 @@ E.boot=function(QUEST){ E.QUEST=QUEST;
   QUEST.intro && QUEST.intro(E);
 };
 E.start=()=>{ E.round=0; E.done={}; lives=3; renderHearts(); E.next(); };   // a fresh 3-heart run each quest
-E.next=()=>{ const r=E.QUEST.rounds[E.round]; if(r){ E.currentRound=()=>{ E.clearTray(); E.QUEST.rounds[E.round](E); }; E.currentRound(); } };   // clear the tray on EVERY round entry/replay, so a previous round's advance button can't linger and skip the next round
+E.next=()=>{ const r=E.QUEST.rounds[E.round]; if(r){ E.currentRound=()=>{ E.busy=false; E.clearTray(); E.QUEST.rounds[E.round](E); }; E.currentRound(); } };   // every round entry/replay: clear stale busy (a leaked anim could leave the scene un-draggable until refresh) + clear the tray so a previous round's advance button can't linger
 E.advance=()=>{ E.round++; E.next(); };
 E.award=n=>{ if(E.done[E.round]) return; E.done[E.round]=true; E.gainXP(n); };   // XP only the first clear of a step
 E.replayStep=()=>{ if(E.currentRound) E.currentRound(); };                       // re-run the SAME step (no XP second time)
