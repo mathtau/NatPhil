@@ -95,9 +95,11 @@ function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(0); E.sceneSt
   E.tell(t({en:'<b>Cut the Radius.</b> Measure the area a <b>second</b> way (<b class="p">Pi</b>: <i>“crumbs!”</i>). The <b class="r">radius</b> from <b class="r">O</b> down to the rim is length <b class="r">1</b>. <b>Drag the slider</b> to cut it into equal steps. <b>N</b> = how many steps you make; <b class="r">dx</b> = the width of one step — one symbol, “delta-x” (Greek δ for a tiny change in x), <b>not</b> d times x. With just a few steps you can see <b>N</b> of them, each <b class="r">dx</b>, fill the whole radius.',
     zh:'<b>切开半径。</b>用<b>第二种</b>办法量面积（<b class="p">Pi</b>：<i>“碎屑！”</i>）。从 <b class="r">O</b> 到圆边的<b class="r">半径</b>是长度 <b class="r">1</b>。<b>拖动滑块</b>把它切成等步。<b>N</b> = 你切了几步；<b class="r">dx</b> = 一步的宽——一个整体符号，「delta-x」（希腊字母 δ，表示 x 的微小变化），<b>不是</b> d 乘 x。只用几步就能看出：<b>N</b> 步、每步 <b class="r">dx</b>，正好填满整条半径。'}));
   stat();
-  E.scene({ actors:[knob], draw:drawCut, onDrop(a){ if(E.busy)return; N=NfromX(knob.pos.x);
-    if(N>=GATE){ E.sfx('place'); ask(); }
-    else { E.oops(); pmood='gloat'; E.status('<span style="color:#caa84a;font-style:italic">“'+t({en:'crumbs!',zh:'碎屑罢了！'})+'”</span> <span style="color:#ff6a4d">'+t({en:'cut the radius into finer steps.',zh:'把半径切成更细的步。'})+'</span>'); } } });
+  E.busy=true; knob.pos={x:SLX0,y:SLY};   // OPENING: demonstrate the cutting — the slider auto-sweeps and the count grows from NMIN up to N
+  E.anim(1500,p=>{ knob.pos.x=SLX0+(SLX1-SLX0)*p; N=NfromX(knob.pos.x); pSad=Math.max(0,Math.min(1,(N-NMIN)/(GATE-NMIN))); bg(); radiusCut(N); slider(); stat(); }, ()=>{ E.busy=false;
+    E.scene({ actors:[knob], draw:drawCut, onDrop(a){ if(E.busy)return; N=NfromX(knob.pos.x);
+      if(N>=GATE){ E.sfx('place'); ask(); }
+      else { E.oops(); pmood='gloat'; E.status('<span style="color:#caa84a;font-style:italic">“'+t({en:'crumbs!',zh:'碎屑罢了！'})+'”</span> <span style="color:#ff6a4d">'+t({en:'cut the radius into finer steps.',zh:'把半径切成更细的步。'})+'</span>'); } } }); });
   function ask(){ E.sceneStop();
     pickPills(t({en:'You cut the <b class="r">radius</b> into <b>'+N+'</b> equal steps, each one <b class="r">dx</b>. End to end, the <b>N</b> steps fill the whole radius <b class="r">1</b>. Using multiplication, that says…',zh:'你把<b class="r">半径</b>切成 <b>'+N+'</b> 等步，每步一个 <b class="r">dx</b>。一段接一段，<b>N</b> 步正好填满整条半径 <b class="r">1</b>。用乘法来说，就是……'}),
       ()=>radiusCut(N), E.LH*0.9,
