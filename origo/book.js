@@ -215,12 +215,13 @@ const FIGS={
     s+=sLine(cx,cy,cx,cy+r,R,3); for(let i=1;i<n;i++){ const y=cy+i*dx; s+=sLine(cx-4,y,cx+4,y,R,1.2); } s+=sLine(cx-5,cy+r,cx+5,cy+r,R,1.3);
     s+=sLine(cx,cy+r-dx,cx,cy+r,'#ff8a6a',4)+sDot(cx,cy,2.4,INK)+sText('dx',cx+15,cy+r-dx/2,R,12)+sText('O',cx-11,cy-2,'#7a6a4a',11);
     s+='<text x="'+cx+'" y="'+(cy+r+15)+'" font-family="Caveat,cursive" font-size="13" fill="'+INK+'" text-anchor="middle">N · <tspan fill="'+R+'">dx</tspan> = <tspan fill="'+R+'">1</tspan></text>'; return s; },
-  dstrip(){ const U=24, TL=150, n=6, dcx=156, dcy=42, dr=U, tx0=198, yT=dcy-U/2, yB=dcy+U/2, bh=U/n; let s='';   // ONE ring uncoils into a bar; the rings stack into a triangle (outer ring = bottom = τ, height = 1)
-    for(let i=1;i<=4;i++){ const ri=dr*i/4; s+='<circle cx="'+dcx+'" cy="'+dcy+'" r="'+ri.toFixed(1)+'" fill="none" stroke="'+(i===4?GOLD:'#caa84a')+'" stroke-width="'+(i===4?2.2:1)+'" opacity="'+(i===4?1:0.5)+'"/>'; }
-    s+=sDot(dcx,dcy,2,INK)+sLine(dcx+dr+6,dcy,tx0-9,dcy,INK,1.4)+'<path d="M'+(tx0-9)+' '+dcy+' l-6 -3.5 l0 7 z" fill="'+INK+'"/>';   // uncoils →
+  dstrip(){ const U=24, TL=150, n=6, dcx=156, dcy=42, dr=U, tx0=198, yT=dcy-U/2, yB=dcy+U/2, bh=U/n; let s='';   // ONE ring uncoils into a bar; the N rings stack into a triangle (outer ring = bottom = τ, height = the radius 1)
+    for(let i=1;i<=n;i++){ const ri=dr*i/n; s+='<circle cx="'+dcx+'" cy="'+dcy+'" r="'+ri.toFixed(1)+'" fill="none" stroke="'+(i===n?GOLD:'#caa84a')+'" stroke-width="'+(i===n?2.2:1)+'" opacity="'+(i===n?1:0.6)+'"/>'; }   // N rings, matching the N bars
+    s+=sLine(dcx,dcy,dcx,dcy-dr,R,2)+sDot(dcx,dcy,2,INK)+sText('1',dcx-9,dcy-dr/2,R,12);   // the radius = 1 (same as the triangle's height)
+    s+=sLine(dcx+dr+3,dcy,tx0-3,dcy,INK,1.4)+'<path d="M'+(tx0-3)+' '+dcy+' l-6 -3.5 l0 7 z" fill="'+INK+'"/>';   // uncoils →
     for(let k=1;k<=n;k++){ const y=yT+(k-1)*bh, L=TL*k/n; s+='<rect x="'+tx0+'" y="'+y.toFixed(1)+'" width="'+L.toFixed(1)+'" height="'+(bh-0.5).toFixed(1)+'" fill="'+G+'" opacity="'+((k%2)?0.32:0.2)+'"/>'; }   // bottom bar (k=n) = the outer ring straightened = τ
     s+=sLine(tx0,yT,tx0,yB,R,2)+sLine(tx0,yB,tx0+TL,yB,GOLD,2.4);
-    s+=sText('1',tx0-9,dcy,R,12)+sText('τ',tx0+TL/2,yB+13,GOLD,13)+sText('dx',tx0+TL+12,yT+bh/2,R,10); return s; },
+    s+=sText('1',tx0-9,dcy,R,12)+sText('τ',tx0+TL/2,yB+13,GOLD,13); return s; },
   dtri(){ const U=24, TL=150, n=6, x0=94, yT=24, yB=yT+U, bh=U/n; let s='';   // two triangles → a τ×1 rectangle (= τ) → two disks ½τ (radius = the height "1")
     for(let k=1;k<=n;k++){ const y=yT+(k-1)*bh, L=TL*k/n; s+='<rect x="'+x0+'" y="'+y.toFixed(1)+'" width="'+L.toFixed(1)+'" height="'+(bh-0.5).toFixed(1)+'" fill="'+G+'" opacity="'+((k%2)?0.3:0.2)+'"/>'; }   // green triangle (one disk)
     for(let k=1;k<=n;k++){ const y=yT+(k-1)*bh, L=TL*(n-k+1)/n; s+='<rect x="'+(x0+TL-L).toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+L.toFixed(1)+'" height="'+(bh-0.5).toFixed(1)+'" fill="'+DEP+'" opacity="'+((k%2)?0.26:0.16)+'"/>'; }   // violet triangle (2nd disk, rotated)
@@ -259,9 +260,9 @@ const PAGE_CSS=`
 .bklaw{font-family:'Caveat','Segoe Print','Bradley Hand','Ma Shan Zheng','KaiTi','STKaiti',cursive;font-weight:700;font-size:22px;}
 .bkeq{font-family:'Caveat','Segoe Print','Bradley Hand','Ma Shan Zheng','KaiTi','STKaiti',cursive;font-size:24px;letter-spacing:.02em;}
 .q{color:#2f74d0;font-weight:bold;}.len{color:#e8402e;font-weight:bold;}
-.r{color:#e8402e}.b{color:#2f74d0}.gr{color:#2faa4e}.g{color:#2faa4e}.y{color:#b5860b}.p{color:#7c3fd4}
+.r{color:#e8402e}.b{color:#2f74d0}.gr{color:#2faa4e}.g{color:#2faa4e}.y{color:#e0a83a}.p{color:#7c3fd4}
 .bknote{margin-top:5px;background:#fbf7e4;border:1px solid #e9dab0;border-left:4px solid #f0c419;border-radius:6px;padding:6px 10px;font-size:14px;color:#4a4436;}
-.bknote b{color:#b5860b;}`;
+.bknote b{color:#e0a83a;}.bknote b.r{color:#e8402e;}.bknote b.p{color:#7c3fd4;}.bknote b.g{color:#2faa4e;}.bknote b.b{color:#2f74d0;}`;
 function pageCSS(){ return PAGE_CSS; }
 async function embedFont(url){ try{ const css=await fetch(url).then(r=>r.text());
     if(!/@font-face/.test(css)) return '';                                   // not real CSS (error page) → skip, don't corrupt the SVG
