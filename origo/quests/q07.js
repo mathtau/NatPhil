@@ -70,7 +70,7 @@ function pickPills(prompt, baseDraw, y, opts, onRight){ const n=opts.length, cx=
 /* ===== Round 1 — Slice the Radius: drag the slider; the radius splits into n rings of width dx ===== */
 function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(0); E.sceneStop(); PIST='loom'; pmood='idle'; pSad=0;
   E.setPlace(t({en:'Cut the Radius',zh:'切开半径'}));
-  const SLX0=E.LW*0.17, SLX1=E.LW*0.7, SLY=E.LH*0.92, NMIN=3, NMAX=24, GATE=10;
+  const SLX0=E.LW*0.17, SLX1=E.LW*0.7, SLY=E.LH*0.92, NMIN=3, NMAX=8, GATE=4;   // FEW big steps so N·dx = 1 is easy to see (the tiny-dx limit comes later)
   const NfromX=x=>Math.max(NMIN,Math.min(NMAX,Math.round(NMIN+(x-SLX0)/(SLX1-SLX0)*(NMAX-NMIN))));
   let N=NMIN;
   function radiusCut(n){ const ctx=E.ctx, ox=CX(), oy=CY(), R0=R(), dx=R0/n;
@@ -92,8 +92,8 @@ function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(0); E.sceneSt
   function drawCut(){ bg(); N=NfromX(knob.pos.x); pSad=Math.max(0,Math.min(1,(N-NMIN)/(GATE-NMIN))); radiusCut(N); slider(); stat(); }   // Pi frets (grin sags) the finer you cut
   const knob={ kind:'drag', home:{x:SLX0,y:SLY}, drag:{axis:'x',clamp:{x0:SLX0,x1:SLX1,y0:SLY,y1:SLY}},
     snap:[{x:SLX1,y:SLY,r:(SLX1-SLX0)+90,snap:false,ring:15}], bbox:a=>({x:a.pos.x-17,y:a.pos.y-17,w:34,h:34}), hiCol:'rgba(244,200,48,.9)' };   // target ring at the RIGHT ("many")
-  E.tell(t({en:'<b>Cut the Radius.</b> <b class="p">Pi</b> scoffs that one proof means nothing — <i>“crumbs!”</i> — so measure the area a <b>second</b> way. First, cut the <b class="r">radius</b> itself: from <b class="r">O</b> straight down to the rim is a length of <b class="r">1</b>. <b>Drag the slider</b> to slice it into <b>N</b> equal steps; each step is one <b class="r">dx</b> — read “delta-x”, a single symbol (a tiny change in x), <b>not</b> d times x. Cut it fine, then release.',
-    zh:'<b>切开半径。</b><b class="p">Pi</b> 嗤笑说一种证法算不得数——<i>“碎屑！”</i>——那就用<b>第二种</b>办法量面积。先切<b class="r">半径</b>本身：从 <b class="r">O</b> 直直向下到圆边，是长度 <b class="r">1</b>。<b>拖动滑块</b>把它切成 <b>N</b> 等步；每步是一个 <b class="r">dx</b>——读作「delta-x」，一个整体符号（x 的微小变化），<b>不是</b> d 乘 x。切细些，再松手。'}));
+  E.tell(t({en:'<b>Cut the Radius.</b> Measure the area a <b>second</b> way (<b class="p">Pi</b>: <i>“crumbs!”</i>). The <b class="r">radius</b> from <b class="r">O</b> down to the rim is length <b class="r">1</b>. <b>Drag the slider</b> to cut it into equal steps. <b>N</b> = how many steps you make; <b class="r">dx</b> = the width of one step — one symbol, “delta-x” (Greek δ for a tiny change in x), <b>not</b> d times x. With just a few steps you can see <b>N</b> of them, each <b class="r">dx</b>, fill the whole radius.',
+    zh:'<b>切开半径。</b>用<b>第二种</b>办法量面积（<b class="p">Pi</b>：<i>“碎屑！”</i>）。从 <b class="r">O</b> 到圆边的<b class="r">半径</b>是长度 <b class="r">1</b>。<b>拖动滑块</b>把它切成等步。<b>N</b> = 你切了几步；<b class="r">dx</b> = 一步的宽——一个整体符号，「delta-x」（希腊字母 δ，表示 x 的微小变化），<b>不是</b> d 乘 x。只用几步就能看出：<b>N</b> 步、每步 <b class="r">dx</b>，正好填满整条半径。'}));
   stat();
   E.scene({ actors:[knob], draw:drawCut, onDrop(a){ if(E.busy)return; N=NfromX(knob.pos.x);
     if(N>=GATE){ E.sfx('place'); ask(); }

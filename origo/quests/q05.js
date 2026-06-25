@@ -120,8 +120,8 @@ function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(0); E.sceneSt
     else { E.oops(); E.sfx('fail'); E.pop('✗'); E.loseHeart(); const far=decoys[a.dec].f>1;
       E.status('<span style="color:#ff6a4d">'+t(far?{en:'too far — that point is more than one rod from O',zh:'太远——这点离 O 超过一根尺'}:{en:'too close — that point is less than one rod from O',zh:'太近——这点离 O 不到一根尺'})+'</span>'); } } });
   function reveal(){ E.busy=true;
-    E.anim(900,p=>{ bg(); odot(); rodRef(RX(),RY()); const ctx=E.ctx; ctx.save(); ctx.strokeStyle=BL; ctx.lineWidth=3; ctx.shadowColor='rgba(58,131,224,.5)'; ctx.shadowBlur=8; ctx.beginPath(); ctx.arc(CX(),CY(),R(),-P/2,-P/2-TAU*p,true); ctx.stroke(); ctx.restore();   // sweep ANTICLOCKWISE (the positive angle direction)
-      const q=ptAt(-P/2-TAU*p); star(ctx,q.x,q.y,5,'rgba(190,225,255,.95)'); }, ()=>{ E.busy=false; win(); }); }
+    E.anim(900,p=>{ bg(); odot(); rodRef(RX(),RY()); const ctx=E.ctx; ctx.save(); ctx.strokeStyle=BL; ctx.lineWidth=3; ctx.shadowColor='rgba(58,131,224,.5)'; ctx.shadowBlur=8; ctx.beginPath(); ctx.arc(CX(),CY(),R(),0,-TAU*p,true); ctx.stroke(); ctx.restore();   // sweep from the +x point (right), ANTICLOCKWISE — like radians
+      const q=ptAt(-TAU*p); star(ctx,q.x,q.y,5,'rgba(190,225,255,.95)'); }, ()=>{ E.busy=false; win(); }); }
   function win(){ bg(); odot(); ring(BL); E.setDots(1); E.tickQ(1); E.award(45); E.cheer(); E.sfx('win');
     E.status(keq(t({en:'All points at distance 1 from Origin (O) = the unit circle',zh:'所有到原点 O 距离为 1 的点 = 单位圆'})));
     E.tell(t({en:'You ringed it all the way round — that gold ring is the <b class="y">unit circle</b>: every point exactly <b class="r">1</b> from <b class="r">O</b>.',zh:'你绕着圈出了一整圈——那圈金环就是<b class="y">单位圆</b>：每个点到 <b class="r">O</b> 都正好是 <b class="r">1</b>。'}));
@@ -131,7 +131,7 @@ function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(0); E.sceneSt
 /* ===== Round 2 — The Six Steps: you can't measure a curve, so BUILD six straight triangles inside the circle (drag a triangle into each gap), then read chord a = 1 and arc a > 1 ===== */
 function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.sceneStop(); PIST='cover'; pmood='idle';
   E.setPlace(t({en:'The Six Steps',zh:'六步环'}));
-  const base=(rnd(0,11)*P/6) - P/2;                         // hexagon orientation, fresh each play
+  const base=0;                         // a vertex sits on the +x point, so two radii run along the horizontal (like radians start)
   const tip=k=>ptAt(base + k*P/3);
   const filled=new Array(6).fill(false);
   const home={x:E.LW*0.84, y:E.LH*0.78};
@@ -190,7 +190,7 @@ function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.sceneSt
 /* ===== Round 3 — The Whole Way Around: six arcs of 1+··· add to τ ≈ 6.28; Tau charges one full turn ===== */
 function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(2); E.sceneStop(); PIST='loom'; pmood='idle'; pSad=0;
   E.setPlace(t({en:'The Whole Turn',zh:'整整一圈'}));
-  const tip=k=>ptAt(-P/2+k*P/3);
+  const tip=k=>ptAt(k*P/3);   // a vertex on the +x point (right); the six tips are the same 6 points either way
   let stolen=false;   // set true when the player picks the HALF (τ=3.14) — Pi grabs half the circle until you choose the full τ
   function drawHex(noO){ bg(); odot(noO,noO); const ctx=E.ctx;
     if(stolen){ const pd=Math.atan2(E.LH*0.24-CY(),E.LW*0.85-CX());   // Pi has snapped the circle to a glowing HALF on his side; the rest is dark
@@ -199,9 +199,9 @@ function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(2); E.sceneSt
       const hl=ptAt(pd,R()*0.5); label(hl.x,hl.y,'π',GOLD,32,true); label(hl.x,hl.y+22,'≈ 3.14',GOLD,13,true);   // Pi's stolen half IS π — only half a turn
       for(let k=0;k<6;k++){ const p=tip(k); ctx.save(); ctx.strokeStyle='rgba(255,106,77,.35)'; ctx.lineWidth=1.4; ctx.beginPath(); ctx.moveTo(CX(),CY()); ctx.lineTo(p.x,p.y); ctx.stroke(); ctx.restore(); } return; }
     const ga=0.07; ctx.save(); ctx.strokeStyle=GOLD; ctx.lineWidth=4; ctx.lineCap='round';   // SIX DISTINCT arcs (small gaps at the tips) — so it reads as six arcs to add
-    for(let k=0;k<6;k++){ const a0=-P/2+k*P/3+ga, a1=-P/2+(k+1)*P/3-ga; ctx.beginPath(); ctx.arc(CX(),CY(),R(),a0,a1); ctx.stroke(); } ctx.restore();
+    for(let k=0;k<6;k++){ const a0=k*P/3+ga, a1=(k+1)*P/3-ga; ctx.beginPath(); ctx.arc(CX(),CY(),R(),a0,a1); ctx.stroke(); } ctx.restore();
     for(let k=0;k<6;k++){ const p=tip(k); ctx.save(); ctx.strokeStyle='rgba(255,106,77,.8)'; ctx.lineWidth=1.8; ctx.beginPath(); ctx.moveTo(CX(),CY()); ctx.lineTo(p.x,p.y); ctx.stroke(); ctx.restore(); }
-    for(let k=0;k<6;k++){ const m=ptAt(-P/2+k*P/3+P/6, R()+17); label(m.x,m.y,'1+···',GOLD,14,true); } }
+    for(let k=0;k<6;k++){ const m=ptAt(k*P/3+P/6, R()+17); label(m.x,m.y,'1+···',GOLD,14,true); } }
   E.tell(t({en:'<b>The Whole Turn.</b> To seal the <b class="p">Rift</b>, <b class="y">Tau</b> must charge one full turn — but how long IS a full turn? Six <b class="y">arcs</b>, each <b>1+···</b>. Add them for the distance <b>all the way around</b>.',zh:'<b>整整一圈。</b>要封住<b class="p">裂隙</b>，<b class="y">Tau</b> 必须冲满一整圈——可一整圈到底有多长？六段<b class="y">弧</b>，每段 <b>1+···</b>。把它们加起来，就是绕<b>一整圈</b>的长度。'}));
   pickPills(t({en:'<b>(1+···) × 6 = <b class="y">τ</b>.</b> So the whole way around, <b class="y">τ</b> = ?',zh:'<b>(1+···) × 6 = <b class="y">τ</b>。</b>那么绕一整圈，<b class="y">τ</b> = ?'}),
     drawHex, E.LH*0.9,
@@ -215,8 +215,8 @@ function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(2); E.sceneSt
       for(let k=0;k<6;k++){ const pp=tip(k); ctx.save(); ctx.strokeStyle='rgba(255,106,77,.5)'; ctx.lineWidth=1.6; ctx.beginPath(); ctx.moveTo(CX(),CY()); ctx.lineTo(pp.x,pp.y); ctx.stroke(); ctx.restore(); }
       const filled=p*6;   // the six arcs add on, one after another → τ
       ctx.save(); ctx.strokeStyle=GOLD; ctx.lineWidth=6; ctx.shadowColor='rgba(244,200,48,.6)'; ctx.shadowBlur=12; ctx.lineCap='round';
-      for(let k=0;k<6;k++){ const f=Math.max(0,Math.min(1,filled-k)); if(f<=0)continue; const a0=-P/2-k*P/3, a1=a0-(P/3)*f; ctx.beginPath(); ctx.arc(CX(),CY(),R(),a0,a1,true); ctx.stroke(); } ctx.restore();   // Tau charges ANTICLOCKWISE (the positive angle direction)
-      const ai=-P/2-Math.min(filled,6)*P/3, q=ptAt(ai); if(img.complete&&img.naturalWidth){ const s=44; try{ ctx.drawImage(img,q.x-s/2,q.y-s/2,s,s); }catch(_){ } } else { star(ctx,q.x,q.y,7,GOLD); }
+      for(let k=0;k<6;k++){ const f=Math.max(0,Math.min(1,filled-k)); if(f<=0)continue; const a0=-k*P/3, a1=a0-(P/3)*f; ctx.beginPath(); ctx.arc(CX(),CY(),R(),a0,a1,true); ctx.stroke(); } ctx.restore();   // Tau charges from the +x point, ANTICLOCKWISE
+      const ai=-Math.min(filled,6)*P/3, q=ptAt(ai); if(img.complete&&img.naturalWidth){ const s=44; try{ ctx.drawImage(img,q.x-s/2,q.y-s/2,s,s); }catch(_){ } } else { star(ctx,q.x,q.y,7,GOLD); }
       label(CX(),CY()-9, Math.min(6,Math.floor(filled+1e-6))+' / 6 arcs', GOLD, 12, true); label(CX(),CY()+12,'τ',GOLD,26,true); }, ()=>{ E.busy=false; win(); }); }
   function win(){ bg(); odot(true,true); ring(GOLD,5);
     const ctx=E.ctx; ctx.save(); ctx.strokeStyle='rgba(255,233,160,.5)'; ctx.setLineDash([5,6]); ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(CX()-R(),CY()); ctx.lineTo(CX()+R(),CY()); ctx.stroke(); ctx.restore();   // split the full turn into its two halves

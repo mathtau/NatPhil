@@ -222,12 +222,13 @@ function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(2); E.sceneSt
   function reformDraw(tt){ const e=tt<0.5?2*tt*tt:1-Math.pow(-2*tt+2,2)/2;   // radial morph: the bar folds back into a circle of the SAME area (e = eased progress; do NOT shadow t())
     bg(); const ctx=E.ctx, cx=BX0()+BW()/2, cyc=(BYT()+BYB())/2, rc=Math.sqrt(BW()*BH()/P), K=84;   // rc gives the circle the same pixel area as the bar
     ctx.save(); ctx.beginPath();
-    for(let i=0;i<=K;i++){ const th=-P/2-i/K*TAU, c=Math.cos(th), s=Math.sin(th);   // anticlockwise from the top
+    for(let i=0;i<=K;i++){ const th=-i/K*TAU, c=Math.cos(th), s=Math.sin(th);   // start at the +x point, anticlockwise
       const tx=Math.abs(c)<1e-6?1e9:(BW()/2)/Math.abs(c), ty=Math.abs(s)<1e-6?1e9:(BH()/2)/Math.abs(s), tm=Math.min(tx,ty);
       const rx=cx+tm*c, ry=cyc+tm*s, x=rx+(cx+rc*c-rx)*e, y=ry+(cyc+rc*s-ry)*e; if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); }
     ctx.closePath(); ctx.fillStyle='rgba(80,216,144,.28)'; ctx.fill(); ctx.strokeStyle=GOLD; ctx.lineWidth=3; ctx.shadowColor='rgba(244,200,48,.5)'; ctx.shadowBlur=6; ctx.stroke(); ctx.restore();
-    if(e>0.55){ ctx.save(); ctx.fillStyle='#0a0a18'; ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(cx,cyc,4,0,7); ctx.fill(); ctx.stroke(); ctx.restore(); }
-    label(cx,cyc-(e>0.5?15:0),'½τ',GOLD,20,true); if(e>0.5) label(cx,cyc+15,t({en:'same area',zh:'面积不变'}),GR,11,true); }
+    if(e>0.5){ ctx.save(); ctx.fillStyle='#0a0a18'; ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(cx,cyc,4,0,7); ctx.fill(); ctx.stroke(); ctx.restore();
+      ctx.save(); ctx.strokeStyle=RD; ctx.lineWidth=2.6; ctx.shadowColor='rgba(255,106,77,.5)'; ctx.shadowBlur=4; ctx.beginPath(); ctx.moveTo(cx,cyc); ctx.lineTo(cx+rc,cyc); ctx.stroke(); ctx.restore(); label(cx+rc*0.5,cyc-9,'1',RD,12,true); }   // a height bar (1) becomes the circle's radius (1)
+    label(cx,cyc-rc*0.45,'½τ',GOLD,18,true); if(e>0.6) label(cx,cyc+rc+13,t({en:'same area = ½τ = π',zh:'面积不变 = ½τ = π'}),GR,12,true); }
   function win(){ claimed=false; PIST='recoil'; pmood='hurt'; pSad=1;
     E.setDots(3); E.tickQ(3); E.award(65); E.cheer(); E.sfx('win');
     E.status(keq('area = ½τ ≈ 3.14 = π'));
