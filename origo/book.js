@@ -23,7 +23,7 @@ function sCell(x,y,c,col){ const d=((rnd()-.5)*3).toFixed(1); return '<g transfo
 function sGrid(x,y,c,cols,rows,col){ let s=''; for(let r=0;r<rows;r++)for(let k=0;k<cols;k++) s+=sCell(x+k*c,y+r*c,c,col); return s; }
 function cEq(cx,cy,parts,sz){ sz=sz||18; let w=parts.reduce((a,p)=>a+p[0].length*sz*0.52,0), x=cx-w/2, s=''; parts.forEach(p=>{ const pw=p[0].length*sz*0.52; s+='<text x="'+(x+pw/2).toFixed(1)+'" y="'+cy+'" font-family="Caveat,cursive" font-size="'+sz+'" fill="'+p[1]+'" text-anchor="middle" dominant-baseline="middle">'+p[0]+'</text>'; x+=pw; }); return s; }
 function pbrace(x1,x2,y,label,col){ col=col||INK; return sLine(x1,y+5,x1,y,col,1.6)+sLine(x1,y,x2,y,col,1.6)+sLine(x2,y,x2,y+5,col,1.6)+sText(label,(x1+x2)/2,y-8,col,13); }
-const FIGH={dots:48,bars:44,numline:52,commute:78,assoc:106, mjumps:88,marr:68,mintro:146,mrect:58,mrot:76,mdist:68,mgroups:98, gnname:64,gjux:80,gfill:50,glaw:76,garea:76, acmp:76,aunit:86,aflip:92, ucirc:86,uhex:114,utau:104, pwedge:94,prect:84,parea:92, drings:88,dstrip:66,dtri:88};   // each ≥ its lowest label so labels aren't clipped
+const FIGH={dots:48,bars:44,numline:52,commute:78,assoc:106, mjumps:88,marr:68,mintro:146,mrect:58,mrot:76,mdist:68,mgroups:98, gnname:64,gjux:80,gfill:50,glaw:76,garea:76, acmp:76,aunit:86,aflip:92, ucirc:86,uhex:114,utau:104, pwedge:94,prect:84,parea:92, drings:88,dstrip:74,dtri:88};   // each ≥ its lowest label so labels aren't clipped
 // measured content centre (getBBox) per figure; figSVG pans the 480-wide viewBox so EVERY figure is centred in its frame (re-measure if a figure's layout changes)
 const FIGCX={dots:183,bars:163,numline:240,commute:240,assoc:245, mjumps:243,marr:238,mintro:201,mrect:249,mrot:225,mdist:156,mgroups:246, gnname:249,gjux:229,gfill:264,glaw:266,garea:264, acmp:232,aunit:234,aflip:236, ucirc:240,uhex:240,utau:240, pwedge:240,prect:240,parea:240, drings:240,dstrip:240,dtri:240};
 const FIGS={
@@ -208,22 +208,26 @@ const FIGS={
     s+='<text x="240" y="'+(yB+18)+'" font-family="Caveat,cursive" font-size="14" fill="#a8780f" text-anchor="middle">same area = ½τ = <tspan fill="'+DEP+'">π</tspan></text>'; return s; },
   /* Q7 codex shares ONE unit U = "1": every circle has radius U, every triangle/rectangle has height U.
      Colours match the game: τ gold, dx/1 red, areas green & violet, π violet. */
-  drings(){ const U=28, cx=240, cy=40, r=U, n=5, dx=r/n; let s='';   // the unit circle, radius (=1) cut down into N steps of dx
-    s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+GOLD+'" stroke-width="2.4"/>';
-    s+=sLine(cx,cy,cx,cy+r,R,3); for(let i=1;i<n;i++){ const y=cy+i*dx; s+=sLine(cx-4,y,cx+4,y,R,1.3); } s+=sLine(cx-5,cy+r,cx+5,cy+r,R,1.4);
+  /* Q7 codex shares ONE unit: every "1" (circle radius, triangle/rectangle height) = U; every "τ" (triangle/rectangle base) = TL.
+     So the circle, triangle, rectangle and the two disks are all drawn at the SAME reference size. */
+  drings(){ const U=24, cx=240, cy=42, r=U, n=5, dx=r/n; let s='';   // the disk = N rings; the radius (=1) is cut into N steps of dx
+    for(let i=1;i<=n;i++){ const ri=r*i/n; s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+ri.toFixed(1)+'" fill="none" stroke="'+(i===n?GOLD:'#caa84a')+'" stroke-width="'+(i===n?2.4:1.1)+'" opacity="'+(i===n?1:(0.35+0.4*i/n)).toFixed(2)+'"/>'; }
+    s+=sLine(cx,cy,cx,cy+r,R,3); for(let i=1;i<n;i++){ const y=cy+i*dx; s+=sLine(cx-4,y,cx+4,y,R,1.2); } s+=sLine(cx-5,cy+r,cx+5,cy+r,R,1.3);
     s+=sLine(cx,cy+r-dx,cx,cy+r,'#ff8a6a',4)+sDot(cx,cy,2.4,INK)+sText('dx',cx+15,cy+r-dx/2,R,12)+sText('O',cx-11,cy-2,'#7a6a4a',11);
     s+='<text x="'+cx+'" y="'+(cy+r+15)+'" font-family="Caveat,cursive" font-size="13" fill="'+INK+'" text-anchor="middle">N · <tspan fill="'+R+'">dx</tspan> = <tspan fill="'+R+'">1</tspan></text>'; return s; },
-  dstrip(){ const U=28, n=6, B=160, x0=240-B/2, yT=22, yB=yT+U, bh=U/n; let s='';   // the rings straighten & stack into a triangle (outer ring = bottom = τ, height = 1)
-    for(let k=1;k<=n;k++){ const y=yT+(k-1)*bh, L=B*k/n; s+='<rect x="'+x0+'" y="'+y+'" width="'+L.toFixed(1)+'" height="'+(bh-0.6).toFixed(1)+'" fill="'+((k%2)?G:'#2faa4e')+'" opacity="'+((k%2)?0.3:0.18)+'"/>'; }
-    s+=sLine(x0,yT,x0,yB,R,2)+sLine(x0,yB,x0+B,yB,GOLD,2.4);
-    s+=sText('1',x0-9,(yT+yB)/2,R,12)+sText('τ',x0+B/2,yB+13,GOLD,13)+sText('dx',x0+B+13,yT+bh/2,R,10); return s; },
-  dtri(){ const U=28, n=6, B=120, x0=92, yT=22, yB=yT+U, bh=U/n; let s='';   // two triangles → a τ×1 rectangle (= τ) → each disk ½τ
-    for(let k=1;k<=n;k++){ const y=yT+(k-1)*bh, L=B*k/n; s+='<rect x="'+x0+'" y="'+y+'" width="'+L.toFixed(1)+'" height="'+(bh-0.6).toFixed(1)+'" fill="'+G+'" opacity="'+((k%2)?0.3:0.2)+'"/>'; }   // green triangle (one disk)
-    for(let k=1;k<=n;k++){ const y=yT+(k-1)*bh, L=B*(n-k+1)/n; s+='<rect x="'+(x0+B-L).toFixed(1)+'" y="'+y+'" width="'+L.toFixed(1)+'" height="'+(bh-0.6).toFixed(1)+'" fill="'+DEP+'" opacity="'+((k%2)?0.28:0.18)+'"/>'; }   // violet triangle (2nd disk, rotated)
-    s+=sLine(x0,yT,x0+B,yT,GOLD,2)+sLine(x0,yB,x0+B,yB,GOLD,2)+sLine(x0,yT,x0,yB,R,2)+sLine(x0+B,yT,x0+B,yB,R,2);
-    s+=sText('1',x0-9,(yT+yB)/2,R,11)+sText('τ',x0+B/2,yB+13,GOLD,13);
-    s+='<text x="'+(x0+B+20)+'" y="'+((yT+yB)/2+1)+'" font-family="Caveat,cursive" font-size="18" fill="'+INK+'" text-anchor="middle" dominant-baseline="middle">=</text>';
-    const c1=x0+B+58, c2=c1+2*U+12, ccy=(yT+yB)/2;   // the two disks, same size (radius U), each ½τ
+  dstrip(){ const U=24, TL=150, n=6, dcx=156, dcy=42, dr=U, tx0=198, yT=dcy-U/2, yB=dcy+U/2, bh=U/n; let s='';   // ONE ring uncoils into a bar; the rings stack into a triangle (outer ring = bottom = τ, height = 1)
+    for(let i=1;i<=4;i++){ const ri=dr*i/4; s+='<circle cx="'+dcx+'" cy="'+dcy+'" r="'+ri.toFixed(1)+'" fill="none" stroke="'+(i===4?GOLD:'#caa84a')+'" stroke-width="'+(i===4?2.2:1)+'" opacity="'+(i===4?1:0.5)+'"/>'; }
+    s+=sDot(dcx,dcy,2,INK)+sLine(dcx+dr+6,dcy,tx0-9,dcy,INK,1.4)+'<path d="M'+(tx0-9)+' '+dcy+' l-6 -3.5 l0 7 z" fill="'+INK+'"/>';   // uncoils →
+    for(let k=1;k<=n;k++){ const y=yT+(k-1)*bh, L=TL*k/n; s+='<rect x="'+tx0+'" y="'+y.toFixed(1)+'" width="'+L.toFixed(1)+'" height="'+(bh-0.5).toFixed(1)+'" fill="'+G+'" opacity="'+((k%2)?0.32:0.2)+'"/>'; }   // bottom bar (k=n) = the outer ring straightened = τ
+    s+=sLine(tx0,yT,tx0,yB,R,2)+sLine(tx0,yB,tx0+TL,yB,GOLD,2.4);
+    s+=sText('1',tx0-9,dcy,R,12)+sText('τ',tx0+TL/2,yB+13,GOLD,13)+sText('dx',tx0+TL+12,yT+bh/2,R,10); return s; },
+  dtri(){ const U=24, TL=150, n=6, x0=94, yT=24, yB=yT+U, bh=U/n; let s='';   // two triangles → a τ×1 rectangle (= τ) → two disks ½τ (radius = the height "1")
+    for(let k=1;k<=n;k++){ const y=yT+(k-1)*bh, L=TL*k/n; s+='<rect x="'+x0+'" y="'+y.toFixed(1)+'" width="'+L.toFixed(1)+'" height="'+(bh-0.5).toFixed(1)+'" fill="'+G+'" opacity="'+((k%2)?0.3:0.2)+'"/>'; }   // green triangle (one disk)
+    for(let k=1;k<=n;k++){ const y=yT+(k-1)*bh, L=TL*(n-k+1)/n; s+='<rect x="'+(x0+TL-L).toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+L.toFixed(1)+'" height="'+(bh-0.5).toFixed(1)+'" fill="'+DEP+'" opacity="'+((k%2)?0.26:0.16)+'"/>'; }   // violet triangle (2nd disk, rotated)
+    s+=sLine(x0,yT,x0+TL,yT,GOLD,2)+sLine(x0,yB,x0+TL,yB,GOLD,2)+sLine(x0,yT,x0,yB,R,2)+sLine(x0+TL,yT,x0+TL,yB,R,2);
+    s+=sText('1',x0-9,(yT+yB)/2,R,11)+sText('τ',x0+TL/2,yB+13,GOLD,13);
+    const eqx=x0+TL+18; s+='<text x="'+eqx+'" y="'+((yT+yB)/2+1)+'" font-family="Caveat,cursive" font-size="18" fill="'+INK+'" text-anchor="middle" dominant-baseline="middle">=</text>';
+    const c1=eqx+16+U, c2=c1+2*U+12, ccy=(yT+yB)/2;   // the two disks, same radius U = the "1" height
     s+='<circle cx="'+c1+'" cy="'+ccy+'" r="'+U+'" fill="'+G+'" opacity="0.26"/><circle cx="'+c1+'" cy="'+ccy+'" r="'+U+'" fill="none" stroke="'+GOLD+'" stroke-width="2"/>';
     s+='<circle cx="'+c2+'" cy="'+ccy+'" r="'+U+'" fill="'+DEP+'" opacity="0.22"/><circle cx="'+c2+'" cy="'+ccy+'" r="'+U+'" fill="none" stroke="'+GOLD+'" stroke-width="2"/>';
     s+=sText('½τ',c1,ccy,GOLD,12)+sText('½τ',c2,ccy,GOLD,12); return s; },

@@ -210,7 +210,7 @@ function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(2); E.sceneSt
 const QUEST = {
   id:'q07', page:11, region:'coil', bgm:'audio/bgm-cradle.mp3?v=20260606k2',
   kicker:{en:'The Coil',zh:'盘卷'},
-  title:{en:'The Disk\'s Area — Donut Rings',zh:'圆盘的面积 · 甜甜圈法'},
+  title:{en:'The Disk\'s Area · Donut Rings',zh:'圆盘的面积 · 甜甜圈法'},
   meta:{ title:{en:'Measure the area — a second way',zh:'再量一次面积'}, giver:{en:'Master Curvo · The Coil',zh:'曲师 Curvo · 盘卷'},
     flavor:{en:'"One proof, <b class="p">Pi</b> sneers, proves nothing — <i>“crumbs measure nothing!”</i> So <b>measure the disk\'s <b class="g">area</b> a SECOND way</b> and beat him twice, meeting the tool that powers everything still to come. Slice the <b class="r">radius</b> into thin <b class="y">rings</b>, each one tiny step <b class="r">dx</b> wide; your calf <b class="y">Tau</b> tugs a ring loose and unrolls it into a strip — <b class="r">dx</b> tall, its rim long — then stacks them all, short to tall, into a <b class="g">triangle</b> (base the <b class="r">radius</b>, height the rim <b class="y">τ</b>). Its area? <b class="y">½τ</b> — the very same as the pizza cut. Two roads, one truth: <b class="p">Pi</b> is driven off, and the little <b class="r">dx</b> is yours to keep."',
       zh:'"一种证法，<b class="p">Pi</b> 冷笑，算不得数——<i>“碎屑量得出什么！”</i>那就<b>用第二种办法再量一遍圆盘的<b class="g">面积</b></b>，把他驳倒两回，顺便认识那件驱动后续一切的工具。把<b class="r">半径</b>切成一圈圈细<b class="y">环</b>，每环宽一小步 <b class="r">dx</b>；你的小牛 <b class="y">Tau</b> 把一个环拽松、摊成一条带——高 <b class="r">dx</b>，长是它的圆边——再把它们从短到长摞成一个<b class="g">三角</b>（底是<b class="r">半径</b>，高是圆边 <b class="y">τ</b>）。面积呢？<b class="y">½τ</b>——和披萨切法分毫不差。两条路，同一个真相：<b class="p">Pi</b> 被赶跑，那小小的 <b class="r">dx</b> 就归你了。"'} },

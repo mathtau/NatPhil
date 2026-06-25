@@ -243,7 +243,7 @@ function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(2); E.sceneSt
 const QUEST = {
   id:'q06', page:10, region:'coil', bgm:'audio/bgm-cradle.mp3?v=20260606k2',
   kicker:{en:'The Coil',zh:'盘卷'},
-  title:{en:'The Disk\'s Area — Pizza Cut',zh:'圆盘的面积 · 披萨切法'},
+  title:{en:'The Disk\'s Area · Pizza Cut',zh:'圆盘的面积 · 披萨切法'},
   meta:{ title:{en:'Measure the circle’s area',zh:'量出圆的面积'}, giver:{en:'Master Curvo · The Coil',zh:'曲师 Curvo · 盘卷'},
     flavor:{en:'"You measured the rim, Pathfinder — once around is <b class="y">τ</b>. Now the harder task: <b>measure the disk\'s <b class="g">area</b></b>, the whole inside. There is no ruler for a round patch, so we <b>form</b> it into a shape we can measure — cut it into wedges and re-lay them as a straight bar. But <b class="p">Pi the Halver</b> will interfere: he snatches <b>half</b> the wedges and calls that length the whole measure, <b class="p">π</b>. Your calf <b class="y">Tau</b> guards the other half — bring it in to prove there are <b>two</b> halves, so the rim is <b class="y">τ</b> and the area is <b class="y">½τ</b>. Measure it true, and the inside is ours again."',
       zh:'"你已经量出了圆边，开拓者——绕一圈是 <b class="y">τ</b>。现在是更难的一关：<b>量出圆盘的<b class="g">面积</b></b>，整片里头。圆乎乎的一片没有尺可量，那就把它<b>拼</b>成能量的形状——切成楔块，重新摆成一根直条。可<b class="p">半圆贩子</b>会来捣乱：他抢走<b>一半</b>楔块，把那段长说成全部的尺度——<b class="p">π</b>。你的小牛 <b class="y">Tau</b> 把另一半护着——把它带进来，证明有<b>两</b>个半边，所以圆边是 <b class="y">τ</b>，面积是 <b class="y">½τ</b>。量个明白，里头就重归我们。"'} },

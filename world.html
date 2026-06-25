@@ -21,7 +21,10 @@
   .foot a{ color:#40c8f0; text-decoration:none; } .foot a:hover{ color:#f4c830; }
   .quests{ width:100%; max-width:560px; margin:18px auto 0; display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
   .quests h6{ width:100%; text-align:center; font-family:'IBM Plex Mono',monospace; font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:#8a8a68; margin-bottom:4px; font-weight:400; }
-  .quests a,.quests span{ font-family:'IBM Plex Mono',monospace; font-size:.84rem; text-decoration:none; border-radius:9px; padding:8px 13px; border:1px solid; transition:.15s; }
+  .quests h6.grp{ font-size:.66rem; color:#9c8a5a; margin-top:6px; margin-bottom:2px; }
+  .quests h6.grp.sep{ margin-top:18px; padding-top:14px; border-top:1px dashed rgba(138,138,104,.28); }
+  .quests .tau{ font-family:'Playfair Display',Georgia,serif; font-style:italic; font-size:1.12em; letter-spacing:0; }
+  .quests a,.quests span.lock{ font-family:'IBM Plex Mono',monospace; font-size:.84rem; text-decoration:none; border-radius:9px; padding:8px 13px; border:1px solid; transition:.15s; }
   .quests a{ color:#f4c830; border-color:rgba(244,200,48,.45); background:rgba(244,200,48,.06); }
   .quests a:hover{ background:rgba(244,200,48,.16); transform:translateY(-1px); }
   .quests a.cleared{ color:#50d890; border-color:rgba(80,216,144,.4); background:rgba(80,216,144,.06); }
@@ -166,7 +169,7 @@
 
   <div class="foot" id="legend">✦ cleared &nbsp;·&nbsp; ▶ open &nbsp;·&nbsp; 🔒 in the Fog &nbsp;—&nbsp; <a href="index.html">mathtau.com</a></div>
 
-<script src="origo/quests/manifest.js"></script>
+<script src="origo/quests/manifest.js?v=202606283"></script>
 <script>
   // mark progress + recede the fog a little once the Origin Plains is cleared
   try{
@@ -178,15 +181,18 @@
 
   // unlocked-quest shortcuts: jump straight back into any quest you've reached (q01 always open; the next opens once the previous is cleared)
   (function(){
-    const CATALOG=(window.MANIFEST||[]).map(function(q){ return {n:q.n, t:(q.t&&q.t.en)||q.n}; });   // order/titles come from quests/manifest.js (single source)
+    const CATALOG=(window.MANIFEST||[]).map(function(q){ return {n:q.n, t:(q.t&&q.t.en)||q.n, act:q.act}; });   // order/titles/act come from quests/manifest.js (single source)
     let dn={}; try{ dn=(JSON.parse(localStorage.getItem('origo')||'{}').quests)||{}; }catch(e){}
-    let h='<h6>↩ Return to a quest</h6>';
+    const ACTLABEL={cradle:'Introduction · The Cradle (beginner)', coil:'Act I · The Coil'};   // group the beginner area apart from the main quests
+    let h='<h6>↩ Return to a quest</h6>', lastAct=null;
     CATALOG.forEach(function(q,i){
+      if(q.act!==lastAct){ h+='<h6 class="grp'+(lastAct?' sep':'')+'">'+(ACTLABEL[q.act]||q.act)+'</h6>'; lastAct=q.act; }
       const cleared=dn['q'+q.n]==='done';
       const unlocked = i===0 || dn['q'+CATALOG[i-1].n]==='done' || !!dn['q'+q.n];
+      const label=q.t.replace(/τ/g,'<span class="tau">τ</span>');   // a serif italic τ reads far better than the mono glyph
       h+= unlocked
-        ? '<a class="'+(cleared?'cleared':'')+'" href="origo/play.html?q='+q.n+'">'+(cleared?'✦':'▶')+' '+q.t+'</a>'
-        : '<span class="lock">🔒 '+q.t+'</span>';
+        ? '<a class="'+(cleared?'cleared':'')+'" href="origo/play.html?q='+q.n+'">'+(cleared?'✦':'▶')+' '+label+'</a>'
+        : '<span class="lock">🔒 '+label+'</span>';
     });
     document.getElementById('questNav').innerHTML=h;
   })();
