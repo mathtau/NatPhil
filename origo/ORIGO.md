@@ -53,7 +53,7 @@ shows an older 4‑act layout — **rebuild it to match this table**.)
 
 ### Locations (per region)
 - **Cradle:** O — the First Point; Tally Meadow; the Grouping Groves.
-- **Coil:** Circle Glade · the Coil · Slope Steps · Calculus Cliffs.
+- **Coil:** Circle Glade · **the Round Kitchen** (Curvo's bakery) · the Coil · Slope Steps · Calculus Cliffs.
 - **Cascade:** Cascade Falls · Limit Ledge · the Turning Tide · Cosine Cove.
 - **Cipher:** Cosine Coast · the Cipher Depths · the Imaginary Shore · Complex Isle.
 - **Catacombs:** the Vault of Lost Pages.
@@ -67,13 +67,13 @@ shows an older 4‑act layout — **rebuild it to match this table**.)
 
 **Quest‑givers / mentors** (one per region, C‑named)
 - **Countess Cara** — Cradle; first‑teacher of marks (count/add/multiply).
-- **Master Curvo, the Cartwright** — Coil; bends circles into curves, slopes, areas (calculus).
+- **Master Curvo, the Baker** — Coil; runs **the Round Kitchen**, where everything worth making is round. Teaches you to **measure round things by baking them**: the crust all the way round (circumference **τ**), how much dough fills a pizza or a donut (area), and later how much filling sits under a curved crust (calculus). Catchphrase: *"measure it all the way round."* (Re-skinned 2026-06-25 from "the Cartwright" — the food theme makes Q6 pizza / Q7 donut cohere and carries into calculus. The calf **Tau** stays as companion.)
 - **Cascadia, the River‑Sage** — Cascade; flow, limits, the turning tide (calculus→cos).
 - **The Ciphress** — Cipher; keeper of hidden/imaginary numbers; guards the Complex plane.
 
 **Foes / monsters** (Chaos's brood — each a misconception or void)
 - **Chaos** — the Unravelling itself; the Fog that uncreates understanding; sealed only by the Great Circle.
-- **Pi the Halver (π)** — recurring comic rival; a smug half‑circle "prophet" who insists half is enough and keeps stealing τ's other half. On‑brand; may turn ally late.
+- **Pi the Halver (π)** — recurring comic rival; a smug half‑circle "prophet" who insists half is enough and keeps stealing τ's other half. On‑brand; may turn ally late. **In the Coil he runs the rival half‑pizza stall next door**, preaching that half a turn (π) is plenty — the foil to Curvo's "measure it all the way round."
 - **The Discontinui** — chasm‑beasts that rip the continuity path (gaps/jumps).
 - **Null & the Void** — twin wraiths of 0 and the undefined (divide‑by‑zero traps).
 - **Infinitum (∞)** — endless serpent; Cascade boss (limits / divergence).

@@ -4,7 +4,7 @@
    them alternating up/down into a bar whose HEIGHT = the radius 1 and whose LONG EDGE = half the rim, ½τ; so
    area = ½τ × 1 = ½τ ≈ 3.14. Pi the Halver claims the inside ("½τ — that's MY number, π!") and is named down by τ.
    Colours follow the Coil: rim/arc/τ GOLD, the unit radius "1" RED, the area GREEN, Pi VIOLET. Every action is a
-   right/wrong decision (hearts apply). Mentor: Master Curvo, the Cartwright. */
+   right/wrong decision (hearts apply). Mentor: Master Curvo, the Baker (the Round Kitchen). */
 (function(){
 const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
 const pick=arr=>arr[rnd(0,arr.length-1)];
@@ -245,8 +245,8 @@ const QUEST = {
   kicker:{en:'The Coil',zh:'盘卷'},
   title:{en:'The Disk\'s Area · Pizza Cut',zh:'圆盘的面积 · 披萨切法'},
   meta:{ title:{en:'Measure the circle’s area',zh:'量出圆的面积'}, giver:{en:'Master Curvo · The Coil',zh:'曲师 Curvo · 盘卷'},
-    flavor:{en:'"You measured the rim, Pathfinder — once around is <b class="y">τ</b>. Now the harder task: <b>measure the disk\'s <b class="g">area</b></b>, the whole inside. There is no ruler for a round patch, so we <b>form</b> it into a shape we can measure — cut it into wedges and re-lay them as a straight bar. But <b class="p">Pi the Halver</b> will interfere: he snatches <b>half</b> the wedges and calls that length the whole measure, <b class="p">π</b>. Your calf <b class="y">Tau</b> guards the other half — bring it in to prove there are <b>two</b> halves, so the rim is <b class="y">τ</b> and the area is <b class="y">½τ</b>. Measure it true, and the inside is ours again."',
-      zh:'"你已经量出了圆边，开拓者——绕一圈是 <b class="y">τ</b>。现在是更难的一关：<b>量出圆盘的<b class="g">面积</b></b>，整片里头。圆乎乎的一片没有尺可量，那就把它<b>拼</b>成能量的形状——切成楔块，重新摆成一根直条。可<b class="p">半圆贩子</b>会来捣乱：他抢走<b>一半</b>楔块，把那段长说成全部的尺度——<b class="p">π</b>。你的小牛 <b class="y">Tau</b> 把另一半护着——把它带进来，证明有<b>两</b>个半边，所以圆边是 <b class="y">τ</b>，面积是 <b class="y">½τ</b>。量个明白，里头就重归我们。"'} },
+    flavor:{en:'"You measured the crust, Pathfinder: once around is <b class="y">τ</b>. Now the harder task, hot from my oven: <b>measure the pizza\'s <b class="g">area</b></b>, the whole inside. There is no ruler for a round patch, so we <b>form</b> it into a shape we can measure: cut it into wedges and re-lay them as a straight bar. But <b class="p">Pi the Halver</b> leans in from his stall, snatching <b>half</b> the wedges and calling that length the whole measure, <b class="p">π</b>. Your calf <b class="y">Tau</b> guards the other half: bring it in to prove there are <b>two</b> halves, so the rim is <b class="y">τ</b> and the area is <b class="y">½τ</b>. Measure it true, and the pizza is ours again."',
+      zh:'"你已经量出了脆边，开拓者：绕一圈是 <b class="y">τ</b>。现在是更难、刚出炉的一关：<b>量出这张披萨的<b class="g">面积</b></b>，整片里头。圆乎乎的一片没有尺可量，那就把它<b>拼</b>成能量的形状：切成楔块，重新摆成一根直条。可<b class="p">半圆贩子</b>从隔壁摊探过身来捣乱：他抢走<b>一半</b>楔块，把那段长说成全部的尺度，<b class="p">π</b>。你的小牛 <b class="y">Tau</b> 把另一半护着：把它带进来，证明有<b>两</b>个半边，所以圆边是 <b class="y">τ</b>，面积是 <b class="y">½τ</b>。量个明白，这张披萨就重归我们。"'} },
   objs:[ {en:'The Pizza Cut: slice the disk into thin triangles',zh:'披萨切法：把圆盘切成薄三角'},
          {en:'Pack the Bar: height h = 1, two bases 2b = τ',zh:'拼成长条：高 h = 1，两底 2b = τ'},
          {en:'The Inside: area = b × h = ½τ = π ≈ 3.14',zh:'圆的里头：面积 = b × h = ½τ = π ≈ 3.14'} ],
