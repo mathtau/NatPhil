@@ -23,7 +23,7 @@ function sCell(x,y,c,col){ const d=((rnd()-.5)*3).toFixed(1); return '<g transfo
 function sGrid(x,y,c,cols,rows,col){ let s=''; for(let r=0;r<rows;r++)for(let k=0;k<cols;k++) s+=sCell(x+k*c,y+r*c,c,col); return s; }
 function cEq(cx,cy,parts,sz){ sz=sz||18; let w=parts.reduce((a,p)=>a+p[0].length*sz*0.52,0), x=cx-w/2, s=''; parts.forEach(p=>{ const pw=p[0].length*sz*0.52; s+='<text x="'+(x+pw/2).toFixed(1)+'" y="'+cy+'" font-family="Caveat,cursive" font-size="'+sz+'" fill="'+p[1]+'" text-anchor="middle" dominant-baseline="middle">'+p[0]+'</text>'; x+=pw; }); return s; }
 function pbrace(x1,x2,y,label,col){ col=col||INK; return sLine(x1,y+5,x1,y,col,1.6)+sLine(x1,y,x2,y,col,1.6)+sLine(x2,y,x2,y+5,col,1.6)+sText(label,(x1+x2)/2,y-8,col,13); }
-const FIGH={dots:48,bars:44,numline:52,commute:78,assoc:106, mjumps:88,marr:68,mintro:146,mrect:58,mrot:76,mdist:68,mgroups:98, gnname:64,gjux:80,gfill:50,glaw:76,garea:76, acmp:76,aunit:86,aflip:92, ucirc:86,uhex:114,utau:98, pwedge:94,prect:84,parea:80, drings:88,dstrip:66,dtri:88};   // each ≥ its lowest label so labels aren't clipped
+const FIGH={dots:48,bars:44,numline:52,commute:78,assoc:106, mjumps:88,marr:68,mintro:146,mrect:58,mrot:76,mdist:68,mgroups:98, gnname:64,gjux:80,gfill:50,glaw:76,garea:76, acmp:76,aunit:86,aflip:92, ucirc:86,uhex:114,utau:104, pwedge:94,prect:84,parea:80, drings:88,dstrip:66,dtri:88};   // each ≥ its lowest label so labels aren't clipped
 // measured content centre (getBBox) per figure; figSVG pans the 480-wide viewBox so EVERY figure is centred in its frame (re-measure if a figure's layout changes)
 const FIGCX={dots:183,bars:163,numline:240,commute:240,assoc:245, mjumps:243,marr:238,mintro:201,mrect:249,mrot:225,mdist:156,mgroups:246, gnname:249,gjux:229,gfill:264,glaw:266,garea:264, acmp:232,aunit:234,aflip:236, ucirc:240,uhex:240,utau:240, pwedge:240,prect:240,parea:240, drings:240,dstrip:240,dtri:240};
 const FIGS={
@@ -176,11 +176,9 @@ const FIGS={
     s+=sText('1',cx+11,(cy+tp(0).y)/2,R,12);                            // a radius = 1
     const a0=tp(0),b0=tp(1); s+=sText('1',(a0.x+b0.x)/2+11,(a0.y+b0.y)/2-2,G,12);   // a chord = 1
     return s; },
-  utau(){ const cx=240, cy=46, r=36;   // the whole way around = τ
+  utau(){ const cx=240, cy=42, r=34;   // the whole way around = τ — clean circle, value (with τ) labelled below
     return '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+GOLD+'" stroke-width="3"/>'
-      + sDot(cx,cy,3,INK)
-      + '<text x="'+cx+'" y="'+(cy+1)+'" font-family="Caveat,cursive" font-size="26" fill="#a8780f" text-anchor="middle" dominant-baseline="middle">τ</text>'
-      + sText('≈ 6.28',cx,cy+r+14,'#a8780f',13); },
+      + '<text x="'+cx+'" y="'+(cy+r+17)+'" font-family="Caveat,cursive" font-size="18" fill="#a8780f" text-anchor="middle" dominant-baseline="middle">τ ≈ 6.28</text>'; },
   pwedge(){ const PI=Math.PI; const cx=196, cy=50, r=30, n=10; let s='';   // cut the disk into wedges → each is a thin triangle
     for(let i=0;i<n;i++){ const a0=-PI/2+i*2*PI/n, a1=a0+2*PI/n;
       const x0=+(cx+r*Math.cos(a0)).toFixed(1), y0=+(cy+r*Math.sin(a0)).toFixed(1), x1=+(cx+r*Math.cos(a1)).toFixed(1), y1=+(cy+r*Math.sin(a1)).toFixed(1);

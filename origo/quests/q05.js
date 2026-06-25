@@ -120,8 +120,8 @@ function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(0); E.sceneSt
     else { E.oops(); E.sfx('fail'); E.pop('✗'); E.loseHeart(); const far=decoys[a.dec].f>1;
       E.status('<span style="color:#ff6a4d">'+t(far?{en:'too far — that point is more than one rod from O',zh:'太远——这点离 O 超过一根尺'}:{en:'too close — that point is less than one rod from O',zh:'太近——这点离 O 不到一根尺'})+'</span>'); } } });
   function reveal(){ E.busy=true;
-    E.anim(900,p=>{ bg(); odot(); rodRef(RX(),RY()); const ctx=E.ctx; ctx.save(); ctx.strokeStyle=BL; ctx.lineWidth=3; ctx.shadowColor='rgba(58,131,224,.5)'; ctx.shadowBlur=8; ctx.beginPath(); ctx.arc(CX(),CY(),R(),-P/2,-P/2+TAU*p); ctx.stroke(); ctx.restore();
-      const q=ptAt(-P/2+TAU*p); star(ctx,q.x,q.y,5,'rgba(190,225,255,.95)'); }, ()=>{ E.busy=false; win(); }); }
+    E.anim(900,p=>{ bg(); odot(); rodRef(RX(),RY()); const ctx=E.ctx; ctx.save(); ctx.strokeStyle=BL; ctx.lineWidth=3; ctx.shadowColor='rgba(58,131,224,.5)'; ctx.shadowBlur=8; ctx.beginPath(); ctx.arc(CX(),CY(),R(),-P/2,-P/2-TAU*p,true); ctx.stroke(); ctx.restore();   // sweep ANTICLOCKWISE (the positive angle direction)
+      const q=ptAt(-P/2-TAU*p); star(ctx,q.x,q.y,5,'rgba(190,225,255,.95)'); }, ()=>{ E.busy=false; win(); }); }
   function win(){ bg(); odot(); ring(BL); E.setDots(1); E.tickQ(1); E.award(45); E.cheer(); E.sfx('win');
     E.status(keq(t({en:'All points at distance 1 from Origin (O) = the unit circle',zh:'所有到原点 O 距离为 1 的点 = 单位圆'})));
     E.tell(t({en:'You ringed it all the way round — that gold ring is the <b class="y">unit circle</b>: every point exactly <b class="r">1</b> from <b class="r">O</b>.',zh:'你绕着圈出了一整圈——那圈金环就是<b class="y">单位圆</b>：每个点到 <b class="r">O</b> 都正好是 <b class="r">1</b>。'}));
@@ -215,8 +215,8 @@ function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(2); E.sceneSt
       for(let k=0;k<6;k++){ const pp=tip(k); ctx.save(); ctx.strokeStyle='rgba(255,106,77,.5)'; ctx.lineWidth=1.6; ctx.beginPath(); ctx.moveTo(CX(),CY()); ctx.lineTo(pp.x,pp.y); ctx.stroke(); ctx.restore(); }
       const filled=p*6;   // the six arcs add on, one after another → τ
       ctx.save(); ctx.strokeStyle=GOLD; ctx.lineWidth=6; ctx.shadowColor='rgba(244,200,48,.6)'; ctx.shadowBlur=12; ctx.lineCap='round';
-      for(let k=0;k<6;k++){ const f=Math.max(0,Math.min(1,filled-k)); if(f<=0)continue; const a0=-P/2+k*P/3, a1=a0+(P/3)*f; ctx.beginPath(); ctx.arc(CX(),CY(),R(),a0,a1); ctx.stroke(); } ctx.restore();
-      const ai=-P/2+Math.min(filled,6)*P/3, q=ptAt(ai); if(img.complete&&img.naturalWidth){ const s=44; try{ ctx.drawImage(img,q.x-s/2,q.y-s/2,s,s); }catch(_){ } } else { star(ctx,q.x,q.y,7,GOLD); }
+      for(let k=0;k<6;k++){ const f=Math.max(0,Math.min(1,filled-k)); if(f<=0)continue; const a0=-P/2-k*P/3, a1=a0-(P/3)*f; ctx.beginPath(); ctx.arc(CX(),CY(),R(),a0,a1,true); ctx.stroke(); } ctx.restore();   // Tau charges ANTICLOCKWISE (the positive angle direction)
+      const ai=-P/2-Math.min(filled,6)*P/3, q=ptAt(ai); if(img.complete&&img.naturalWidth){ const s=44; try{ ctx.drawImage(img,q.x-s/2,q.y-s/2,s,s); }catch(_){ } } else { star(ctx,q.x,q.y,7,GOLD); }
       label(CX(),CY()-9, Math.min(6,Math.floor(filled+1e-6))+' / 6 arcs', GOLD, 12, true); label(CX(),CY()+12,'τ',GOLD,26,true); }, ()=>{ E.busy=false; win(); }); }
   function win(){ bg(); odot(true,true); ring(GOLD,5);
     const ctx=E.ctx; ctx.save(); ctx.strokeStyle='rgba(255,233,160,.5)'; ctx.setLineDash([5,6]); ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(CX()-R(),CY()); ctx.lineTo(CX()+R(),CY()); ctx.stroke(); ctx.restore();   // split the full turn into its two halves
