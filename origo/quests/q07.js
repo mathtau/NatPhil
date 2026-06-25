@@ -113,67 +113,62 @@ function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(0); E.sceneSt
     E.clearTray(); E.addBtn(t({en:'Coil into rings ▶',zh:'盘成环 ▶'}),'primary',E.advance); E.addBtn(t({en:'↺ Replay (no EXP)',zh:'↺ 重玩（无经验）'}),'ghost',E.replayStep); }
 }
 
-/* ===== Round 2 — Unroll a Ring: drag the ring down; it straightens into a strip (width dx, length = rim = r·τ) ===== */
+/* ===== Round 2 — Straighten the OUTER ring into a bar by pulling its two cut-ends to the two ends of the bar.
+   Outer ring: rim = τ (circumference), thickness = dx. Cut at the bottom; unrolled (ccw) the bit just LEFT of the cut
+   goes to the bar's RIGHT end, the bit just RIGHT of the cut goes to the bar's LEFT end. Then: base b = τ, height h = dx. */
 function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.sceneStop(); PIST='loom'; pmood='idle';
-  E.setPlace(t({en:'Unroll a Ring',zh:'摊开圆环'}));
-  const N=8, K=5, rr=()=>R()*K/N, dxpx=()=>R()/N;   // the chosen ring (5th of 8) and its width dx
-  const STY=()=>E.LH*0.82, SX0=()=>E.LW*0.5-E.LW*0.3, SLEN=()=>E.LW*0.6;   // staging strip area at the bottom
-  let unrolled=false, up=0;   // up = unroll progress 0→1
-  const handle={ kind:'drag', home:{x:CX()+rr(), y:CY()}, bbox:a=>({x:a.pos.x-16,y:a.pos.y-16,w:32,h:32}) };
-  function ringsBg(){ const ctx=E.ctx, ox=CX(), oy=CY(), R0=R();
-    for(let i=N;i>=1;i--){ const ri=R0*i/N; ctx.save(); ctx.beginPath(); ctx.arc(ox,oy,ri,0,7);   // filled concentric bands (donut/tree-rings), drawn outer→inner
-      ctx.fillStyle=(i===K)?'rgba(244,200,48,.5)':((i%2)?'rgba(80,216,144,.22)':'rgba(80,216,144,.1)'); ctx.fill();
-      ctx.strokeStyle='rgba(244,200,48,.28)'; ctx.lineWidth=1; ctx.stroke(); ctx.restore(); }
-    ctx.save(); ctx.strokeStyle=GOLD; ctx.lineWidth=3; ctx.shadowColor='rgba(244,200,48,.4)'; ctx.shadowBlur=5; ctx.beginPath(); ctx.arc(ox,oy,R0,0,7); ctx.stroke(); ctx.restore();   // gold rim
-    ctx.save(); ctx.strokeStyle=GOLD; ctx.lineWidth=2.4; ctx.shadowColor='rgba(244,200,48,.7)'; ctx.shadowBlur=6; ctx.beginPath(); ctx.arc(ox,oy,R0*K/N,0,7); ctx.stroke(); ctx.beginPath(); ctx.arc(ox,oy,R0*(K-1)/N,0,7); ctx.stroke(); ctx.restore();   // the chosen ring, bright
-    ctx.save(); ctx.strokeStyle='rgba(255,106,77,.85)'; ctx.lineWidth=2.5; ctx.lineCap='round'; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(ox,oy+R0); ctx.stroke(); ctx.restore();   // THE CUT — O straight down (where the rings unroll)
-    odot(); }
-  function strip(prog,extra){ const ctx=E.ctx; const w=dxpx()*1.6, len=SLEN()*prog, x0=SX0(), y=STY();
-    ctx.save(); ctx.fillStyle='rgba(80,216,144,.26)'; ctx.fillRect(x0,y-w/2,len,w);
-    ctx.strokeStyle=GOLD; ctx.lineWidth=2.6; ctx.beginPath(); ctx.moveTo(x0,y-w/2); ctx.lineTo(x0+len,y-w/2); ctx.moveTo(x0,y+w/2); ctx.lineTo(x0+len,y+w/2); ctx.stroke();   // long edges = the rim (gold)
-    ctx.strokeStyle=RD; ctx.lineWidth=2.2; ctx.beginPath(); ctx.moveTo(x0,y-w/2); ctx.lineTo(x0,y+w/2); ctx.stroke(); ctx.restore();   // the short end = dx (red)
-    if(extra)extra(x0,len,y,w); }
-  function uncoil(p){ const ctx=E.ctx, e=p<0.5?2*p*p:1-Math.pow(-2*p+2,2)/2, cir=rr(), w=dxpx()*1.6, x0=SX0(), len=SLEN(), y=STY(), K2=72;   // the ring opens at the cut (bottom) and straightens into a strip
-    const out=[], inn=[];
-    for(let i=0;i<=K2;i++){ const u=i/K2, th=P/2-u*TAU;   // from the cut at the bottom, anticlockwise
-      const ocx=CX()+(cir+w/2)*Math.cos(th), ocy=CY()+(cir+w/2)*Math.sin(th), icx=CX()+(cir-w/2)*Math.cos(th), icy=CY()+(cir-w/2)*Math.sin(th), lx=x0+u*len;
-      out.push([ocx+(lx-ocx)*e, ocy+((y-w/2)-ocy)*e]); inn.push([icx+(lx-icx)*e, icy+((y+w/2)-icy)*e]); }
-    ctx.save(); ctx.beginPath(); ctx.moveTo(out[0][0],out[0][1]); for(let i=1;i<=K2;i++)ctx.lineTo(out[i][0],out[i][1]); for(let i=K2;i>=0;i--)ctx.lineTo(inn[i][0],inn[i][1]); ctx.closePath(); ctx.fillStyle='rgba(80,216,144,.26)'; ctx.fill();
-    ctx.strokeStyle=GOLD; ctx.lineWidth=2.4; ctx.beginPath(); ctx.moveTo(out[0][0],out[0][1]); for(let i=1;i<=K2;i++)ctx.lineTo(out[i][0],out[i][1]); ctx.moveTo(inn[0][0],inn[0][1]); for(let i=1;i<=K2;i++)ctx.lineTo(inn[i][0],inn[i][1]); ctx.stroke();   // the two rim edges
-    ctx.strokeStyle=RD; ctx.lineWidth=2.4; ctx.beginPath(); ctx.moveTo(out[0][0],out[0][1]); ctx.lineTo(inn[0][0],inn[0][1]); ctx.stroke(); ctx.restore(); odot(); }   // the cut end = dx
-  function drawPull(){ bg(); ringsBg(); const ctx=E.ctx;
-    if(!unrolled){ const hx=handle.grab?handle.pos.x:CX()+rr(), hy=handle.grab?handle.pos.y:CY(); ctx.save(); ctx.fillStyle=RD; ctx.shadowColor='rgba(255,106,77,.7)'; ctx.shadowBlur=8; ctx.beginPath(); ctx.arc(hx,hy,7,0,7); ctx.fill(); ctx.restore();
-      label(CX(),CY()-R()-12,t({en:'drag the ring down ↓',zh:'把环往下拖 ↓'}),'#ffd9b0',12,true);
-      // dashed staging tray
-      ctx.save(); ctx.strokeStyle='rgba(200,210,235,.3)'; ctx.setLineDash([5,5]); ctx.strokeRect(SX0(),STY()-12,SLEN(),24); ctx.restore(); }
-    else strip(1); }
-  E.tell(t({en:'<b>Unroll a Ring.</b> Pick the bright <b class="y">ring</b> — your calf <b class="y">Tau</b> will tug it loose and unroll it into a straight <b>strip</b>. <b>Drag the ring down</b> to the tray. A ring is a loop of the rim, so unrolled it is a thin strip: <b class="r">dx</b> wide, and as long as the ring\'s rim.',
-    zh:'<b>摊开圆环。</b>挑那个亮<b class="y">环</b>——你的小牛 <b class="y">Tau</b> 会把它拽松、摊成一条直<b>带</b>。<b>把环往下拖</b>到托盘里。环是一圈圆边，摊开就成一条细带：宽 <b class="r">dx</b>，长就是这个环的一圈周长。'}));
-  E.scene({ actors:[handle], draw:drawPull, onDrop(a,z,info){ if(E.busy)return;
-    if(info&&!info.tapped && info.y>E.LH*0.62){ E.busy=true; E.sceneStop(); E.sfx('place'); E.mood('happy'); pmood='hurt';
-      E.anim(1000,p=>{ bg(); uncoil(p); }, ()=>{ unrolled=true; E.busy=false; decide(); }); }   // gradually uncoil the ring into the bar
-    else { E.status('<span style="color:#ff6a4d">'+t({en:'drag the ring down to the tray',zh:'把环拖到下面的托盘'})+'</span>'); } } });
-  function base(){ bg(); ringsBg(); strip(1); }
-  function decide(){
-    function q1(){ pickPills(t({en:'The strip\'s short end is the ring\'s thickness — that one tiny step. So its <b>width</b> is…',zh:'带的短边就是环的厚度——那一小步。所以它的<b>宽</b>是……'}),
-        ()=>strip(1,(x0,len,y,w)=>{ label(x0-12,y,'?',RD,15,true); }), E.LH*0.62,
-        [ {txt:{en:'dx',zh:'dx'}, ok:true},
-          {txt:{en:'1',zh:'1'}, fb:{en:'1 is the whole radius. The strip is only one ring thick — dx wide.',zh:'1 是整条半径。带子只有一个环那么厚——宽 dx。'}},
-          {txt:{en:'τ',zh:'τ'}, fb:{en:'τ is the strip\'s length, not its width. The width is the tiny step dx.',zh:'τ 是带子的长，不是宽。宽是那一小步 dx。'}} ], q2); }
-    function q2(){ pickPills(t({en:'The strip\'s <b>length</b> is the ring unrolled — its rim. From Q5, a rim is radius × τ. So this length is…',zh:'带的<b>长</b>是环摊开后的圆边。由 Q5，圆边 = 半径 × τ。所以这个长是……'}),
-        ()=>strip(1,(x0,len,y,w)=>{ label(x0+len/2,y-w/2-12,'?',GOLD,15,true); }), E.LH*0.62,
-        [ {txt:{en:'r·τ',zh:'r·τ'}, ok:true},
-          {txt:{en:'τ',zh:'τ'}, fb:{en:'Only the OUTER ring (r=1) has rim τ. An inner ring of radius r has rim r·τ.',zh:'只有最外环（r=1）的圆边才是 τ。半径为 r 的内环，圆边是 r·τ。'}},
-          {txt:{en:'dx',zh:'dx'}, fb:{en:'dx is the width. The length is the unrolled rim, radius × τ = r·τ.',zh:'dx 是宽。长是摊开的圆边，半径 × τ = r·τ。'}} ], win); }
+  E.setPlace(t({en:'Straighten a Ring',zh:'拉直圆环'}));
+  const N=8, dxpx=()=>R()/N, w=()=>dxpx()*1.7, rr=()=>R();   // the OUTERMOST ring (radius 1, rim τ, thickness dx)
+  const BL=()=>E.LW*0.19, BR=()=>E.LW*0.82, BY=()=>E.LH*0.86;
+  let pL=0, pR=0;   // straighten progress of the left half / right half of the ring
+  const ringPt=(u,off)=>{ const th=P/2-u*TAU, r=rr()+(off||0); return {x:CX()+r*Math.cos(th), y:CY()+r*Math.sin(th)}; };   // u: arc fraction from the cut (bottom), anticlockwise
+  const barPt=(u,off)=>({x:BL()+u*(BR()-BL()), y:BY()+(off||0)});
+  const morphPt=(u,off)=>{ const e=(u<0.5?pR:pL), a=ringPt(u,off), b=barPt(u,off); return {x:a.x+(b.x-a.x)*e, y:a.y+(b.y-a.y)*e}; };
+  function band(){ const ctx=E.ctx, K2=88, out=[], inn=[]; for(let i=0;i<=K2;i++){ const u=i/K2; out.push(morphPt(u,w()/2)); inn.push(morphPt(u,-w()/2)); }
+    ctx.save(); ctx.beginPath(); ctx.moveTo(out[0].x,out[0].y); for(let i=1;i<=K2;i++)ctx.lineTo(out[i].x,out[i].y); for(let i=K2;i>=0;i--)ctx.lineTo(inn[i].x,inn[i].y); ctx.closePath(); ctx.fillStyle='rgba(80,216,144,.3)'; ctx.fill();
+    ctx.strokeStyle=GOLD; ctx.lineWidth=2.6; ctx.beginPath(); ctx.moveTo(out[0].x,out[0].y); for(let i=1;i<=K2;i++)ctx.lineTo(out[i].x,out[i].y); ctx.moveTo(inn[0].x,inn[0].y); for(let i=1;i<=K2;i++)ctx.lineTo(inn[i].x,inn[i].y); ctx.stroke();   // the rim (gold)
+    ctx.strokeStyle=RD; ctx.lineWidth=2.6; ctx.beginPath(); ctx.moveTo(out[0].x,out[0].y); ctx.lineTo(inn[0].x,inn[0].y); ctx.moveTo(out[K2].x,out[K2].y); ctx.lineTo(inn[K2].x,inn[K2].y); ctx.stroke(); ctx.restore(); }   // the two cut ends = dx
+  function innerRings(){ const ctx=E.ctx; for(let i=1;i<N;i++){ const ri=R()*i/N; ctx.save(); ctx.fillStyle=(i%2)?'rgba(80,216,144,.13)':'rgba(80,216,144,.06)'; ctx.beginPath(); ctx.arc(CX(),CY(),ri,0,7); ctx.fill(); ctx.strokeStyle='rgba(244,200,48,.16)'; ctx.lineWidth=1; ctx.stroke(); ctx.restore(); } }
+  function drawAll(extra){ bg(); innerRings(); const ctx=E.ctx; ctx.save(); ctx.strokeStyle='rgba(255,106,77,.7)'; ctx.lineWidth=2; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(CX(),CY()); ctx.lineTo(CX(),CY()+R()); ctx.stroke(); ctx.restore(); odot(); band(); if(extra)extra(); }
+  function ghost(x){ const ctx=E.ctx; ctx.save(); ctx.strokeStyle='rgba(80,216,144,.55)'; ctx.setLineDash([4,4]); ctx.lineWidth=1.6; ctx.strokeRect(x-7,BY()-w()/2-4,14,w()+8); ctx.restore(); }
+  function handAt(p,col){ const ctx=E.ctx; ctx.save(); ctx.fillStyle=col; ctx.shadowColor=col; ctx.shadowBlur=9; ctx.beginPath(); ctx.arc(p.x,p.y,8,0,7); ctx.fill(); ctx.restore(); }
+  E.tell(t({en:'<b>Straighten a Ring.</b> Take the <b>outer</b> <b class="y">ring</b> — its rim is the whole turn <b class="y">τ</b>, and it is <b class="r">dx</b> thick. It is cut at the bottom. <b>Drag the cut-end on the LEFT round to the bar\'s RIGHT end</b> — the ring straightens out.',
+    zh:'<b>拉直圆环。</b>取<b>最外</b>那圈<b class="y">环</b>——它的圆边是整整一圈 <b class="y">τ</b>，厚 <b class="r">dx</b>。它在底部被切开。<b>把切口左边的一端，拖到长条的右端</b>——圆环就被拉直。'}));
+  phaseA();
+  function phaseA(){ const tgt=barPt(1);
+    const h={ kind:'drag', home:ringPt(0.985), bbox:a=>({x:a.pos.x-16,y:a.pos.y-16,w:32,h:32}), hiCol:'rgba(80,216,144,.9)' };
+    E.scene({ actors:[h], draw:()=>drawAll(()=>{ ghost(tgt.x); handAt(h.grab?h.pos:ringPt(0.985),RD); label(CX(),CY()-R()-13,t({en:'drag the LEFT cut-end → bar’s RIGHT end',zh:'把切口左端 → 长条右端'}),'#ffd9b0',11,true); }),
+      onDrop(a,z,info){ if(E.busy)return; if(info && Math.hypot(info.x-tgt.x,info.y-tgt.y)<80){ E.busy=true; E.sceneStop(); E.sfx('place'); E.mood('happy'); pmood='hurt';
+          E.anim(700,p=>{ pL=p<0.5?2*p*p:1-Math.pow(-2*p+2,2)/2; drawAll(); }, ()=>{ pL=1; E.busy=false; phaseB(); }); }
+        else { E.oops(); E.status('<span style="color:#ff6a4d">'+t({en:'pull that end over to the bar’s RIGHT end.',zh:'把那一端拉到长条的右端。'})+'</span>'); } } });
+  }
+  function phaseB(){ const tgt=barPt(0);
+    const h={ kind:'drag', home:ringPt(0.015), bbox:a=>({x:a.pos.x-16,y:a.pos.y-16,w:32,h:32}), hiCol:'rgba(80,216,144,.9)' };
+    E.tell(t({en:'Now the other end. <b>Drag the cut-end on the RIGHT round to the bar\'s LEFT end</b> — and the ring is a straight bar.',zh:'再来另一端。<b>把切口右边的一端，拖到长条的左端</b>——圆环就成了一根直条。'}));
+    E.scene({ actors:[h], draw:()=>drawAll(()=>{ ghost(tgt.x); handAt(h.grab?h.pos:ringPt(0.015),RD); label(CX(),CY()-R()-13,t({en:'drag the RIGHT cut-end → bar’s LEFT end',zh:'把切口右端 → 长条左端'}),'#ffd9b0',11,true); }),
+      onDrop(a,z,info){ if(E.busy)return; if(info && Math.hypot(info.x-tgt.x,info.y-tgt.y)<80){ E.busy=true; E.sceneStop(); E.sfx('place'); E.mood('happy'); pmood='hurt';
+          E.anim(700,p=>{ pR=p<0.5?2*p*p:1-Math.pow(-2*p+2,2)/2; drawAll(); }, ()=>{ pR=1; E.busy=false; decide(); }); }
+        else { E.oops(); E.status('<span style="color:#ff6a4d">'+t({en:'pull that end over to the bar’s LEFT end.',zh:'把那一端拉到长条的左端。'})+'</span>'); } } });
+  }
+  function decide(){ pL=1; pR=1;
+    function q1(){ pickPills(t({en:'The bar IS the outer <b class="y">ring</b> unrolled, so its <b>base</b> (long side) is the ring\'s whole rim. The outer ring\'s rim is <b class="y">τ</b>. So the base <b class="y">b</b> = ?',zh:'这根长条就是最外<b class="y">环</b>摊开后的样子，所以它的<b>底</b>（长边）就是这个环的整条圆边。最外环的圆边是 <b class="y">τ</b>。所以底 <b class="y">b</b> = ?'}),
+        ()=>drawAll(()=>{ label((BL()+BR())/2,BY()-w()/2-12,'b',GOLD,15,true); }), E.LH*0.92,
+        [ {txt:{en:'b = τ',zh:'b = τ'}, ok:true},
+          {txt:{en:'b = dx',zh:'b = dx'}, fb:{en:'dx is the THICKNESS (the short side). The long base is the unrolled rim, τ.',zh:'dx 是厚度（短边）。长底是摊开的圆边，τ。'}},
+          {txt:{en:'b = 1',zh:'b = 1'}, fb:{en:'1 is the radius. The rim of the outer ring is radius × τ = τ.',zh:'1 是半径。最外环的圆边 = 半径 × τ = τ。'}} ], q2); }
+    function q2(){ pickPills(t({en:'And the bar\'s <b>height</b> is the ring\'s thickness — one tiny step. So <b class="r">h</b> = ?',zh:'而长条的<b>高</b>就是环的厚度——一小步。所以 <b class="r">h</b> = ?'}),
+        ()=>drawAll(()=>{ label((BL()+BR())/2,BY()-w()/2-12,'b = τ',GOLD,14,true); label(BL()-13,BY(),'h',RD,14,true); }), E.LH*0.92,
+        [ {txt:{en:'h = dx',zh:'h = dx'}, ok:true},
+          {txt:{en:'h = τ',zh:'h = τ'}, fb:{en:'τ is the long base. The height is the thin thickness — dx.',zh:'τ 是长底。高是那薄薄的厚度——dx。'}},
+          {txt:{en:'h = 1',zh:'h = 1'}, fb:{en:'1 is the radius. The ring is only one step thick: h = dx.',zh:'1 是半径。环只有一步厚：h = dx。'}} ], win); }
     q1();
   }
-  function win(){ E.setDots(2); E.tickQ(2); E.award(45); pmood='hurt'; base();
-    const ctx=E.ctx, x0=SX0(), len=SLEN(), y=STY(), w=dxpx()*1.6; label(x0-13,y,'dx',RD,12,true); label(x0+len/2,y-w/2-12,'r·τ',GOLD,13,true);
+  function win(){ E.setDots(2); E.tickQ(2); E.award(45); pmood='hurt'; drawAll(()=>{ label((BL()+BR())/2,BY()-w()/2-12,'b = τ',GOLD,14,true); label(BL()-13,BY(),'h = dx',RD,12,true); });
     E.cheer(); E.sfx('win');
-    E.status(keq(t({en:'one ring → a strip: dx wide, r·τ long',zh:'一个环 → 一条带：宽 dx，长 r·τ'})));
-    E.tell(t({en:'A <b class="y">ring</b> unrolls into a thin <b class="g">strip</b>: <b class="r">dx</b> wide, and <b class="y">r·τ</b> long (its rim). The inner rings are short, the outer rings long — the very outer one is <b class="y">τ</b>. Stack them all and see what they make.',
-      zh:'一个<b class="y">环</b>摊成一条细<b class="g">带</b>：宽 <b class="r">dx</b>，长 <b class="y">r·τ</b>（它的圆边）。内环短、外环长——最外那条正是 <b class="y">τ</b>。把它们全摞起来，看看拼出什么。'}));
-    E.clearTray(); E.addBtn(t({en:'Stack the strips ▶',zh:'摞起带子 ▶'}),'primary',E.advance); E.addBtn(t({en:'◀ Prev step',zh:'◀ 上一步'}),'ghost',E.prevStep); }
+    E.status(keq(t({en:'outer ring → bar: base τ, height dx',zh:'最外环 → 长条：底 τ，高 dx'})));
+    E.tell(t({en:'The <b>outer</b> <b class="y">ring</b> straightens into a bar: base <b class="y">b</b> = <b class="y">τ</b> (its rim), height <b class="r">h</b> = <b class="r">dx</b> (its thickness). Every inner ring will do the same — shorter, because its rim is smaller. Uncoil them all and see the shape.',
+      zh:'<b>最外</b>那圈<b class="y">环</b>拉直成一根长条：底 <b class="y">b</b> = <b class="y">τ</b>（它的圆边），高 <b class="r">h</b> = <b class="r">dx</b>（它的厚度）。每个内环也一样——只是更短，因为圆边更小。把它们全摊开，看看拼出什么形状。'}));
+    E.clearTray(); E.addBtn(t({en:'Uncoil the other rings ▶',zh:'摊开其余的环 ▶'}),'primary',E.advance); E.addBtn(t({en:'◀ Prev step',zh:'◀ 上一步'}),'ghost',E.prevStep); }
 }
 
 /* ===== Round 3 — Stack to a Triangle: strips inner→outer form a triangle (base 1, height τ); area = ½·1·τ = ½τ ===== */
