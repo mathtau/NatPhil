@@ -163,46 +163,50 @@ const FIGS={
     s+=sq(278)+yln(326,53,-10)+unit(354,22,10);                                       // RIGHT: x | y | 1 (outer) , y big
     return s+cEq(157,base+20,verd,15)+cEq(316,base+20,verd,15); },
   // ---- the unit circle & τ (p9 / Quest 5) ---- circle BLUE, radius/unit "1" RED, chords/arcs GREEN, τ GOLD
-  ucirc(){ const cx=240, cy=44, r=34;   // the unit circle: a radius of 1 to the rim
+  ucirc(){ const cx=240, cy=46, r=36;   // the unit circle: a radius of 1 along the +x (horizontal) — same size as uhex/utau
     return '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+GOLD+'" stroke-width="2.6"/>'
       + sLine(cx,cy,cx+r,cy,R,2.4) + sDot(cx,cy,3,INK) + sDot(cx+r,cy,3,R)
-      + sText('1',cx+r*0.5,cy-9,R,14) + sText('O',cx-10,cy+12,'#7a6a4a',12); },
-  uhex(){ const cx=240, cy=58, r=42, PI=Math.PI; let s='';   // six unit radii → hexagon: chords green = 1, the ring (arcs) blue
+      + sText('1',cx+r*0.5,cy-9,R,14) + sText('O',cx-11,cy+12,'#7a6a4a',12); },
+  uhex(){ const cx=240, cy=58, r=36, PI=Math.PI; let s='';   // six unit radii → hexagon; a vertex sits on the +x point so a radius runs along the horizontal
     s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+GOLD+'" stroke-width="2.2"/>';
-    const tp=k=>({x:+(cx+r*Math.cos(-PI/2+k*PI/3)).toFixed(1), y:+(cy+r*Math.sin(-PI/2+k*PI/3)).toFixed(1)});
+    const tp=k=>({x:+(cx+r*Math.cos(k*PI/3)).toFixed(1), y:+(cy+r*Math.sin(k*PI/3)).toFixed(1)});   // k=0 → the right horizontal point
     for(let k=0;k<6;k++){ const p=tp(k); s+=sLine(cx,cy,p.x,p.y,R,1.7)+sDot(p.x,p.y,2.6,R); }
     for(let k=0;k<6;k++){ const a=tp(k),b=tp((k+1)%6); s+=sLine(a.x,a.y,b.x,b.y,G,2); }
-    s+=sDot(cx,cy,3,INK);
-    s+=sText('1',cx+11,(cy+tp(0).y)/2,R,12);                            // a radius = 1
-    const a0=tp(0),b0=tp(1); s+=sText('1',(a0.x+b0.x)/2+11,(a0.y+b0.y)/2-2,G,12);   // a chord = 1
+    s+=sDot(cx,cy,3,INK)+sDot(cx+r,cy,3.2,R);
+    s+=sText('1',cx+r*0.5,cy-7,R,12);                                  // the horizontal radius = 1
+    const a0=tp(0),b0=tp(1); s+=sText('1',(a0.x+b0.x)/2+11,(a0.y+b0.y)/2,G,12);   // a chord = 1
     return s; },
-  utau(){ const cx=240, cy=42, r=34;   // the whole way around = τ — clean circle, value (with τ) labelled below
+  utau(){ const cx=240, cy=42, r=36;   // the whole way around = τ — same circle, same horizontal radius 1, value below
     return '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+GOLD+'" stroke-width="3"/>'
-      + '<text x="'+cx+'" y="'+(cy+r+17)+'" font-family="Caveat,cursive" font-size="18" fill="#a8780f" text-anchor="middle" dominant-baseline="middle">τ ≈ 6.28</text>'; },
-  pwedge(){ const PI=Math.PI; const cx=196, cy=50, r=30, n=18; let s='';   // cut the disk into many wedges → each is a thin triangle
-    for(let i=0;i<n;i++){ const a0=-PI/2+i*2*PI/n, a1=a0+2*PI/n;
+      + sLine(cx,cy,cx+r,cy,R,2.4) + sDot(cx,cy,3,INK) + sDot(cx+r,cy,3,R)
+      + sText('1',cx+r*0.5,cy-9,R,13) + sText('O',cx-11,cy+12,'#7a6a4a',12)
+      + '<text x="'+cx+'" y="'+(cy+r+18)+'" font-family="Caveat,cursive" font-size="18" fill="#a8780f" text-anchor="middle" dominant-baseline="middle">τ ≈ 6.28</text>'; },
+  /* ALL Q6 figures share one unit U = "1": every circle has radius U, every bar is (π·U)×U — so disk, bar and circle
+     are the SAME area (π·U²) drawn at the SAME reference size, and the wedge/triangle/packing are the same thin shape. */
+  pwedge(){ const PI=Math.PI, U=32, cx=202, cy=50, r=U, n=18; let s='';   // cut the disk into many wedges; pull one out — a thin triangle (same shape)
+    for(let i=0;i<n;i++){ const a0=-PI/2+i*2*PI/n, a1=a0+2*PI/n, hi=(i===0);
       const x0=+(cx+r*Math.cos(a0)).toFixed(1), y0=+(cy+r*Math.sin(a0)).toFixed(1), x1=+(cx+r*Math.cos(a1)).toFixed(1), y1=+(cy+r*Math.sin(a1)).toFixed(1);
-      s+='<path d="M'+cx+' '+cy+' L'+x0+' '+y0+' A'+r+' '+r+' 0 0 1 '+x1+' '+y1+' Z" fill="'+G+'" opacity="'+((i%2)?0.16:0.26)+'"/>';
-      s+=sLine(cx,cy,x0,y0,R,1.1); }
+      s+='<path d="M'+cx+' '+cy+' L'+x0+' '+y0+' A'+r+' '+r+' 0 0 1 '+x1+' '+y1+' Z" fill="'+G+'" opacity="'+(hi?0.55:((i%2)?0.16:0.26))+'"/>';
+      s+=sLine(cx,cy,x0,y0,hi?'#ff8a6a':R,hi?2:1.1); }
     s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+GOLD+'" stroke-width="2.4"/>'+sDot(cx,cy,2.6,INK);
-    s+=sLine(cx+r+8,cy,cx+r+34,cy,INK,2)+'<path d="M'+(cx+r+34)+' '+(cy-5)+' L'+(cx+r+42)+' '+cy+' L'+(cx+r+34)+' '+(cy+5)+' Z" fill="'+INK+'"/>';   // arrow →
-    const tx=cx+r+68, th=42, tw=13;   // one wedge opened up = a thin triangle
-    s+='<path d="M'+tx+' '+(cy-th/2)+' L'+(tx-tw)+' '+(cy+th/2)+' L'+(tx+tw)+' '+(cy+th/2)+' Z" fill="'+G+'" opacity="0.24"/>';
-    s+=sLine(tx,cy-th/2,tx-tw,cy+th/2,R,1.8)+sLine(tx,cy-th/2,tx+tw,cy+th/2,R,1.8)+sLine(tx-tw,cy+th/2,tx+tw,cy+th/2,GOLD,2);
-    s+=sText('triangle',tx,cy+th/2+13,G,12); return s; },
-  prect(){ const x0=168, Wb=144, yT=28, yB=72, M=14; let s='';   // many wedges packed into a bar: height h = 1, two bases 2b = τ
-    s+='<rect x="'+x0+'" y="'+yT+'" width="'+Wb+'" height="'+(yB-yT)+'" fill="'+G+'" opacity="0.18"/>';
-    for(let i=0;i<M;i++){ const x=x0+i*Wb/M, y=(i%2===0)?yB:yT, x2=x0+(i+1)*Wb/M, y2=(i%2===0)?yT:yB; s+=sLine(x,y,x2,y2,R,1.5); }   // zig-zag = the packed wedge sides (radii)
-    s+=sLine(x0,yT,x0+Wb,yT,GOLD,2.4)+sLine(x0,yB,x0+Wb,yB,GOLD,2.4);   // gold long edges = the two bases b (together = the rim τ)
-    s+=sLine(x0,yT,x0,yB,R,2)+sLine(x0+Wb,yT,x0+Wb,yB,R,2);
-    s+=sText('b',x0+Wb/2,yT-9,'#a8780f',14)+sText('b',x0+Wb/2,yB+11,'#a8780f',14)+sText('h',x0-12,(yT+yB)/2,R,13)+sText('2b = τ',x0+Wb+4,(yT+yB)/2,'#a8780f',12); return s; },
-  parea(){ const ccx=150, ccy=42, rc=27, x0=234, Wb=116, yT=ccy-22, yB=ccy+22; let s='';   // the circle and the bar, side by side — same area ½τ = π
-    s+='<circle cx="'+ccx+'" cy="'+ccy+'" r="'+rc+'" fill="'+G+'" opacity="0.26"/><circle cx="'+ccx+'" cy="'+ccy+'" r="'+rc+'" fill="none" stroke="'+GOLD+'" stroke-width="2.4"/>'+sDot(ccx,ccy,2.3,INK);
-    s+=sLine(ccx,ccy,ccx+rc,ccy,R,1.6)+sText('1',ccx+rc*0.5,ccy-7,R,11);   // a radius 1 in the circle
-    s+='<text x="200" y="'+(ccy+1)+'" font-family="Caveat,cursive" font-size="22" fill="'+INK+'" text-anchor="middle" dominant-baseline="middle">=</text>';
-    s+='<rect x="'+x0+'" y="'+yT+'" width="'+Wb+'" height="'+(yB-yT)+'" fill="'+G+'" opacity="0.26"/>'+sLine(x0,yT,x0+Wb,yT,GOLD,2.2)+sLine(x0,yB,x0+Wb,yB,GOLD,2.2)+sLine(x0,yT,x0,yB,R,2)+sLine(x0+Wb,yT,x0+Wb,yB,R,2);
-    s+=sText('½τ',x0+Wb/2,yT-7,'#a8780f',12)+sText('1',x0-9,ccy,R,11);
-    s+='<text x="237" y="'+(yB+18)+'" font-family="Caveat,cursive" font-size="14" fill="#a8780f" text-anchor="middle">same area = ½τ = <tspan fill="'+DEP+'">π</tspan></text>'; return s; },
+    s+=sLine(cx+r+8,cy,cx+r+30,cy,INK,2)+'<path d="M'+(cx+r+30)+' '+(cy-5)+' L'+(cx+r+38)+' '+cy+' L'+(cx+r+30)+' '+(cy+5)+' Z" fill="'+INK+'"/>';   // arrow →
+    const tx=cx+r+58, bw=+(U*Math.sin(PI/n)*1.7).toFixed(1), ay=cy-U*0.5, by=cy+U*0.5, bg=4;   // one wedge, sides = U (a radius), thin, curved base — looks like a slice
+    s+='<path d="M'+tx+' '+ay+' L'+(tx-bw)+' '+by+' Q'+tx+' '+(by+bg)+' '+(tx+bw)+' '+by+' Z" fill="'+G+'" opacity="0.5"/>';
+    s+=sLine(tx,ay,tx-bw,by,'#ff8a6a',1.8)+sLine(tx,ay,tx+bw,by,'#ff8a6a',1.8)+'<path d="M'+(tx-bw)+' '+by+' Q'+tx+' '+(by+bg)+' '+(tx+bw)+' '+by+'" fill="none" stroke="'+GOLD+'" stroke-width="2"/>';
+    s+=sText('one wedge',tx,by+13,G,11); return s; },
+  prect(){ const PI=Math.PI, U=32, Wb=Math.round(PI*U), x0=Math.round(240-Wb/2), yT=26, yB=yT+U, M=12; let s='';   // the same thin wedges packed into a bar: height h = U = 1, two bases 2b = τ
+    for(let k=0;k<M;k++){ const lx=x0+k*Wb/M, rx=x0+(k+1)*Wb/M, mx=(lx+rx)/2, up=(k%2===0), ay=up?yT:yB, by=up?yB:yT;
+      s+='<path d="M'+mx.toFixed(1)+' '+ay+' L'+lx.toFixed(1)+' '+by+' L'+rx.toFixed(1)+' '+by+' Z" fill="'+G+'" opacity="'+((k%2)?0.16:0.26)+'"/>';
+      s+=sLine(mx,ay,lx,by,R,1.3)+sLine(mx,ay,rx,by,R,1.3); }
+    s+=sLine(x0,yT,x0+Wb,yT,GOLD,2.4)+sLine(x0,yB,x0+Wb,yB,GOLD,2.4)+sLine(x0,yT,x0,yB,R,2)+sLine(x0+Wb,yT,x0+Wb,yB,R,2);
+    s+=sText('b',x0+Wb/2,yT-9,'#a8780f',14)+sText('b',x0+Wb/2,yB+11,'#a8780f',14)+sText('h',x0-11,(yT+yB)/2,R,13)+sText('2b = τ',x0+Wb+5,(yT+yB)/2,'#a8780f',11); return s; },
+  parea(){ const PI=Math.PI, U=32, rc=U, ccx=150, ccy=46, Wb=Math.round(PI*U), x0=480-Wb-(ccx-rc), yT=ccy-U/2, yB=ccy+U/2; let s='';   // circle = bar, SAME unit 1, SAME area ½τ = π
+    s+='<circle cx="'+ccx+'" cy="'+ccy+'" r="'+rc+'" fill="'+G+'" opacity="0.26"/><circle cx="'+ccx+'" cy="'+ccy+'" r="'+rc+'" fill="none" stroke="'+GOLD+'" stroke-width="2.4"/>'+sDot(ccx,ccy,2.4,INK);
+    s+=sLine(ccx,ccy,ccx+rc,ccy,R,1.8)+sDot(ccx+rc,ccy,2.4,R)+sText('1',ccx+rc*0.5,ccy-8,R,12);   // horizontal radius 1
+    s+='<text x="'+((ccx+rc+x0)/2).toFixed(0)+'" y="'+(ccy+1)+'" font-family="Caveat,cursive" font-size="22" fill="'+INK+'" text-anchor="middle" dominant-baseline="middle">=</text>';
+    s+='<rect x="'+x0+'" y="'+yT+'" width="'+Wb+'" height="'+U+'" fill="'+G+'" opacity="0.26"/>'+sLine(x0,yT,x0+Wb,yT,GOLD,2.2)+sLine(x0,yB,x0+Wb,yB,GOLD,2.2)+sLine(x0,yT,x0,yB,R,2)+sLine(x0+Wb,yT,x0+Wb,yB,R,2);
+    s+=sText('½τ',x0+Wb/2,yT-7,'#a8780f',12)+sText('1',x0-9,ccy,R,12);
+    s+='<text x="240" y="'+(yB+18)+'" font-family="Caveat,cursive" font-size="14" fill="#a8780f" text-anchor="middle">same area = ½τ = <tspan fill="'+DEP+'">π</tspan></text>'; return s; },
   drings(){ const cx=240, cy=48, r=34, n=6; let s='';   // slice the radius into thin rings, each dx wide
     for(let i=1;i<=n;i++){ const ri=+(r*i/n).toFixed(1); s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+ri+'" fill="none" stroke="'+(i===n?GOLD:'#caa84a')+'" stroke-width="'+(i===n?2.4:1.3)+'" opacity="'+(i===n?1:(0.4+0.4*i/n).toFixed(2))+'"/>'; }
     const dx=r/n; s+=sLine(cx+r-dx,cy,cx+r,cy,R,3)+sLine(cx+r-dx,cy-5,cx+r-dx,cy+5,R,1.5)+sLine(cx+r,cy-5,cx+r,cy+5,R,1.5);

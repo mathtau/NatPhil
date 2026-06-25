@@ -181,13 +181,13 @@ function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.sceneSt
     q1();
   }
   function win(){ E.setDots(2); E.tickQ(2); E.award(45); PIST='recoil'; pmood='hurt'; bg(); odot(); ring(BL,2); for(let k=0;k<6;k++) drawTri(k); E.cheer(); E.sfx('win');
-    E.status(keq(t({en:'chord = 1, arc = 1+⋯',zh:'弦 = 1，弧 = 1+⋯'})));
-    E.tell(t({en:'Six straight <b class="g">triangles</b> now bridge the <b class="y">circle</b>. Each <b class="g">chord</b> is <b>1</b>, and each <b class="y">arc</b> riding over it is <b>1+⋯</b>, a little more — so the curve is just a bit longer than the straight six. Add the arcs and we have the whole way around.',
-      zh:'六个直边<b class="g">三角</b>把<b class="y">圆</b>架了起来。每条<b class="g">弦</b>是 <b>1</b>，跨在上面的每段<b class="y">弧</b>是 <b>1+⋯</b>，多一点点——所以曲线只比直直的六段长一点。把弧加起来，就是绕一整圈。'}));
+    E.status(keq(t({en:'chord = 1, arc = 1+···',zh:'弦 = 1，弧 = 1+···'})));
+    E.tell(t({en:'Six straight <b class="g">triangles</b> now bridge the <b class="y">circle</b>. Each <b class="g">chord</b> is <b>1</b>, and each <b class="y">arc</b> riding over it is <b>1+···</b>, a little more — so the curve is just a bit longer than the straight six. Add the arcs and we have the whole way around.',
+      zh:'六个直边<b class="g">三角</b>把<b class="y">圆</b>架了起来。每条<b class="g">弦</b>是 <b>1</b>，跨在上面的每段<b class="y">弧</b>是 <b>1+···</b>，多一点点——所以曲线只比直直的六段长一点。把弧加起来，就是绕一整圈。'}));
     E.clearTray(); E.addBtn(t({en:'Add them up ▶',zh:'把它们加起来 ▶'}),'primary',E.advance); E.addBtn(t({en:'◀ Prev step',zh:'◀ 上一步'}),'ghost',E.prevStep); }
 }
 
-/* ===== Round 3 — The Whole Way Around: six arcs of 1+⋯ add to τ ≈ 6.28; Tau charges one full turn ===== */
+/* ===== Round 3 — The Whole Way Around: six arcs of 1+··· add to τ ≈ 6.28; Tau charges one full turn ===== */
 function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(2); E.sceneStop(); PIST='loom'; pmood='idle'; pSad=0;
   E.setPlace(t({en:'The Whole Turn',zh:'整整一圈'}));
   const tip=k=>ptAt(-P/2+k*P/3);
@@ -201,9 +201,9 @@ function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(2); E.sceneSt
     const ga=0.07; ctx.save(); ctx.strokeStyle=GOLD; ctx.lineWidth=4; ctx.lineCap='round';   // SIX DISTINCT arcs (small gaps at the tips) — so it reads as six arcs to add
     for(let k=0;k<6;k++){ const a0=-P/2+k*P/3+ga, a1=-P/2+(k+1)*P/3-ga; ctx.beginPath(); ctx.arc(CX(),CY(),R(),a0,a1); ctx.stroke(); } ctx.restore();
     for(let k=0;k<6;k++){ const p=tip(k); ctx.save(); ctx.strokeStyle='rgba(255,106,77,.8)'; ctx.lineWidth=1.8; ctx.beginPath(); ctx.moveTo(CX(),CY()); ctx.lineTo(p.x,p.y); ctx.stroke(); ctx.restore(); }
-    for(let k=0;k<6;k++){ const m=ptAt(-P/2+k*P/3+P/6, R()+17); label(m.x,m.y,'1+⋯',GOLD,14,true); } }
-  E.tell(t({en:'<b>The Whole Turn.</b> To seal the <b class="p">Rift</b>, <b class="y">Tau</b> must charge one full turn — but how long IS a full turn? Six <b class="y">arcs</b>, each <b>1+⋯</b>. Add them for the distance <b>all the way around</b>.',zh:'<b>整整一圈。</b>要封住<b class="p">裂隙</b>，<b class="y">Tau</b> 必须冲满一整圈——可一整圈到底有多长？六段<b class="y">弧</b>，每段 <b>1+⋯</b>。把它们加起来，就是绕<b>一整圈</b>的长度。'}));
-  pickPills(t({en:'<b>(1+⋯) × 6 = <b class="y">τ</b>.</b> So the whole way around, <b class="y">τ</b> = ?',zh:'<b>(1+⋯) × 6 = <b class="y">τ</b>。</b>那么绕一整圈，<b class="y">τ</b> = ?'}),
+    for(let k=0;k<6;k++){ const m=ptAt(-P/2+k*P/3+P/6, R()+17); label(m.x,m.y,'1+···',GOLD,14,true); } }
+  E.tell(t({en:'<b>The Whole Turn.</b> To seal the <b class="p">Rift</b>, <b class="y">Tau</b> must charge one full turn — but how long IS a full turn? Six <b class="y">arcs</b>, each <b>1+···</b>. Add them for the distance <b>all the way around</b>.',zh:'<b>整整一圈。</b>要封住<b class="p">裂隙</b>，<b class="y">Tau</b> 必须冲满一整圈——可一整圈到底有多长？六段<b class="y">弧</b>，每段 <b>1+···</b>。把它们加起来，就是绕<b>一整圈</b>的长度。'}));
+  pickPills(t({en:'<b>(1+···) × 6 = <b class="y">τ</b>.</b> So the whole way around, <b class="y">τ</b> = ?',zh:'<b>(1+···) × 6 = <b class="y">τ</b>。</b>那么绕一整圈，<b class="y">τ</b> = ?'}),
     drawHex, E.LH*0.9,
     [ {txt:{en:'τ = 6',zh:'τ = 6'}, fb:{en:'That is the straight six-sided path. Each arc bulges a bit past its chord, so τ is a bit MORE than 6.',zh:'那是六条直边的路。每段弧都比弦鼓出一点，所以 τ 比 6 多一点。'}},
       {txt:{en:'τ = 6.28…',zh:'τ = 6.28…'}, ok:true},
@@ -237,16 +237,16 @@ const QUEST = {
     flavor:{en:'"Welcome to <b>The Coil</b>, Pathfinder — where the straight world bends into curves. I am <b class="p">Curvo</b>, the Cartwright. At the world\'s heart the Unravelling has torn a <b class="p">Rift</b>, and only the <b class="y">Great Circle</b> — one perfect full turn — can seal it. But the <b class="p">Fog</b> scattered its measure, so <b class="y">Tau</b>\'s charge falls short of all the way round and the <b class="p">Rift</b> gapes. Help me rebuild the humblest circle of all — the <b class="y">unit circle</b>, every point one rod from <b class="r">O</b> — and recover the length of one whole turn: <b class="y">τ</b>. Beware <b class="p">Pi the Halver</b>, who swears half a turn is plenty and circles to keep it from closing. Find <b class="y">τ</b>, drive him off, and Tau can charge the full turn again. Step around it with me!"',
       zh:'"欢迎来到<b>盘卷</b>，开拓者——笔直的世界在这里弯成曲线。我是车师 <b class="p">Curvo</b>。在世界的心脏，「大解体」撕开了一道<b class="p">裂隙</b>，只有<b class="y">大圆</b>——完整的一整圈——才能把它封上。可<b class="p">迷雾</b>把它的尺度打散了，<b class="y">Tau</b> 的冲刺差一点绕不满整圈，<b class="p">裂隙</b>就一直裂着。帮我重建最朴素的一个圆——<b class="y">单位圆</b>，每个点都离 <b class="r">O</b> 一根尺——找回一整圈的长度：<b class="y">τ</b>。小心<b class="p">半圆贩子</b>，他咬定半圈就够，绕着圈不让它合拢。找回 <b class="y">τ</b>、把他赶走，<b class="y">Tau</b> 就能再次冲满整圈。和我一起绕它走一圈吧！"'} },
   objs:[ {en:'Circle Glade: every point one rod from O',zh:'圆环林：每点离 O 一根尺'},
-         {en:'The Six Steps: six unit radii, chord 1, arc 1+⋯',zh:'六步环：六条单位半径，弦 1，弧 1+⋯'},
-         {en:'The Whole Turn: (1+⋯)×6 = τ ≈ 6.28',zh:'整整一圈：(1+⋯)×6 = τ ≈ 6.28'} ],
+         {en:'The Six Steps: six unit radii, chord 1, arc 1+···',zh:'六步环：六条单位半径，弦 1，弧 1+···'},
+         {en:'The Whole Turn: (1+···)×6 = τ ≈ 6.28',zh:'整整一圈：(1+···)×6 = τ ≈ 6.28'} ],
   rounds:[round1,round2,round3],
   book:{ page:5, kicker:{en:'The Coil',zh:'盘卷之'}, title:{en:'Circumference of the Unit Circle',zh:'单位圆的周长'},
     blocks:[
       {top:true, fig:'ucirc', prose:{en:'The <b class="y">unit circle</b> is the most important shape in this book: every point exactly <b class="r">1</b> from the center <b class="r">O</b>. We study only radius <b class="r">1</b>, so a unit-circle "formula" does not carry straight over to circles of other sizes.',
         zh:'<b class="y">单位圆</b>是本书最重要的图形：所有到圆心 <b class="r">O</b> 恰好为 <b class="r">1</b> 的点。本书只讲半径 <b class="r">1</b>，所以单位圆的「公式」不能直接套用到别的大小的圆上。'}},
-      {law:{en:'Step around with six unit radii',zh:'用六条单位半径绕一圈'}, fig:'uhex', prose:{en:'Plant <b class="r">6</b> equal <b class="r">radii</b> from <b class="r">O</b>, each <b class="r">1</b>, evenly spaced, and join neighbouring tips. Each straight green <b class="g">chord</b> is also <b class="r">1</b> (every wedge is an equal-sided triangle). And each curved <b class="y">arc</b> bows just past its chord, so it is <b>1+⋯</b>, a little more than 1.',
-        zh:'从 <b class="r">O</b> 等距插下 <b class="r">6</b> 条相等的<b class="r">半径</b>，各 <b class="r">1</b>，再连相邻端点。每条直的绿<b class="g">弦</b>也是 <b class="r">1</b>（每块楔形都是等边三角形）。而跨在弦上的每段<b class="y">弧</b>向外鼓出一点，所以是 <b>1+⋯</b>，比 1 多一点点。'}},
-      {law:{en:'The whole way around is τ',zh:'绕满一整圈就是 τ'}, eq:'(1+⋯) × <span class="r">6</span> = <span class="y">τ</span> ≈ 6.28', fig:'utau', prose:{en:'Add the six <b class="y">arcs</b>: a little more than 6, about <b>6.28</b>. This is <b class="y">τ</b>, the distance once around the unit circle — the most important constant in this book.',
+      {law:{en:'Step around with six unit radii',zh:'用六条单位半径绕一圈'}, fig:'uhex', prose:{en:'Plant <b class="r">6</b> equal <b class="r">radii</b> from <b class="r">O</b>, each <b class="r">1</b>, evenly spaced, and join neighbouring tips. Each straight green <b class="g">chord</b> is also <b class="r">1</b> (every wedge is an equal-sided triangle). And each curved <b class="y">arc</b> bows just past its chord, so it is <b>1+···</b>, a little more than 1.',
+        zh:'从 <b class="r">O</b> 等距插下 <b class="r">6</b> 条相等的<b class="r">半径</b>，各 <b class="r">1</b>，再连相邻端点。每条直的绿<b class="g">弦</b>也是 <b class="r">1</b>（每块楔形都是等边三角形）。而跨在弦上的每段<b class="y">弧</b>向外鼓出一点，所以是 <b>1+···</b>，比 1 多一点点。'}},
+      {law:{en:'The whole way around is τ',zh:'绕满一整圈就是 τ'}, eq:'(1+···) × <span class="r">6</span> = <span class="y">τ</span> ≈ 6.28', fig:'utau', prose:{en:'Add the six <b class="y">arcs</b>: a little more than 6, about <b>6.28</b>. This is <b class="y">τ</b>, the distance once around the unit circle — the most important constant in this book.',
         zh:'把六段<b class="y">弧</b>加起来：比 6 多一点，大约 <b>6.28</b>。这就是 <b class="y">τ</b>，绕单位圆一整圈的长度——本书最重要的常数。'}},
       {note:{en:'<b>First Law.</b> We write <b class="y">τ</b> for a whole turn and never π. A full turn (τ ≈ 6.28) is the natural unit; π ≈ 3.14 is only <b>half</b> a turn, and half-turns make most later formulas fight you. Whenever you see <b class="y">τ</b>, a circle is hidden nearby.',
         zh:'<b>第一定律。</b>整整一圈我们写 <b class="y">τ</b>，绝不写 π。一整圈（τ ≈ 6.28）才是自然的单位；π ≈ 3.14 只是<b>半圈</b>，而半圈会让后面大多数公式别扭。凡是见到 <b class="y">τ</b>，附近必藏着一个圆。'}}
