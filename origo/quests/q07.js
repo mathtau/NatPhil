@@ -131,6 +131,14 @@ function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.sceneSt
     ctx.strokeStyle=GOLD; ctx.lineWidth=2.6; ctx.beginPath(); ctx.moveTo(x0,y-w/2); ctx.lineTo(x0+len,y-w/2); ctx.moveTo(x0,y+w/2); ctx.lineTo(x0+len,y+w/2); ctx.stroke();   // long edges = the rim (gold)
     ctx.strokeStyle=RD; ctx.lineWidth=2.2; ctx.beginPath(); ctx.moveTo(x0,y-w/2); ctx.lineTo(x0,y+w/2); ctx.stroke(); ctx.restore();   // the short end = dx (red)
     if(extra)extra(x0,len,y,w); }
+  function uncoil(p){ const ctx=E.ctx, e=p<0.5?2*p*p:1-Math.pow(-2*p+2,2)/2, cir=rr(), w=dxpx()*1.6, x0=SX0(), len=SLEN(), y=STY(), K2=72;   // the ring opens at the cut (bottom) and straightens into a strip
+    const out=[], inn=[];
+    for(let i=0;i<=K2;i++){ const u=i/K2, th=P/2-u*TAU;   // from the cut at the bottom, anticlockwise
+      const ocx=CX()+(cir+w/2)*Math.cos(th), ocy=CY()+(cir+w/2)*Math.sin(th), icx=CX()+(cir-w/2)*Math.cos(th), icy=CY()+(cir-w/2)*Math.sin(th), lx=x0+u*len;
+      out.push([ocx+(lx-ocx)*e, ocy+((y-w/2)-ocy)*e]); inn.push([icx+(lx-icx)*e, icy+((y+w/2)-icy)*e]); }
+    ctx.save(); ctx.beginPath(); ctx.moveTo(out[0][0],out[0][1]); for(let i=1;i<=K2;i++)ctx.lineTo(out[i][0],out[i][1]); for(let i=K2;i>=0;i--)ctx.lineTo(inn[i][0],inn[i][1]); ctx.closePath(); ctx.fillStyle='rgba(80,216,144,.26)'; ctx.fill();
+    ctx.strokeStyle=GOLD; ctx.lineWidth=2.4; ctx.beginPath(); ctx.moveTo(out[0][0],out[0][1]); for(let i=1;i<=K2;i++)ctx.lineTo(out[i][0],out[i][1]); ctx.moveTo(inn[0][0],inn[0][1]); for(let i=1;i<=K2;i++)ctx.lineTo(inn[i][0],inn[i][1]); ctx.stroke();   // the two rim edges
+    ctx.strokeStyle=RD; ctx.lineWidth=2.4; ctx.beginPath(); ctx.moveTo(out[0][0],out[0][1]); ctx.lineTo(inn[0][0],inn[0][1]); ctx.stroke(); ctx.restore(); odot(); }   // the cut end = dx
   function drawPull(){ bg(); ringsBg(); const ctx=E.ctx;
     if(!unrolled){ const hx=handle.grab?handle.pos.x:CX()+rr(), hy=handle.grab?handle.pos.y:CY(); ctx.save(); ctx.fillStyle=RD; ctx.shadowColor='rgba(255,106,77,.7)'; ctx.shadowBlur=8; ctx.beginPath(); ctx.arc(hx,hy,7,0,7); ctx.fill(); ctx.restore();
       label(CX(),CY()-R()-12,t({en:'drag the ring down ↓',zh:'把环往下拖 ↓'}),'#ffd9b0',12,true);
@@ -141,7 +149,7 @@ function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.sceneSt
     zh:'<b>摊开圆环。</b>挑那个亮<b class="y">环</b>——你的小牛 <b class="y">Tau</b> 会把它拽松、摊成一条直<b>带</b>。<b>把环往下拖</b>到托盘里。环是一圈圆边，摊开就成一条细带：宽 <b class="r">dx</b>，长就是这个环的一圈周长。'}));
   E.scene({ actors:[handle], draw:drawPull, onDrop(a,z,info){ if(E.busy)return;
     if(info&&!info.tapped && info.y>E.LH*0.62){ E.busy=true; E.sceneStop(); E.sfx('place'); E.mood('happy'); pmood='hurt';
-      E.anim(620,p=>{ unrolled=false; bg(); ringsBg(); strip(p); }, ()=>{ unrolled=true; E.busy=false; decide(); }); }
+      E.anim(1000,p=>{ bg(); uncoil(p); }, ()=>{ unrolled=true; E.busy=false; decide(); }); }   // gradually uncoil the ring into the bar
     else { E.status('<span style="color:#ff6a4d">'+t({en:'drag the ring down to the tray',zh:'把环拖到下面的托盘'})+'</span>'); } } });
   function base(){ bg(); ringsBg(); strip(1); }
   function decide(){
