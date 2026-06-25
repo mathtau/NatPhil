@@ -112,64 +112,64 @@ function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(0); E.sceneSt
     E.clearTray(); E.addBtn(t({en:'Pack the wedges ▶',zh:'拼起楔块 ▶'}),'primary',E.advance); E.addBtn(t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep); }
 }
 
-/* ===== Round 2 — Pack the Bar: drag wedges, alternating up/down, into a rectangle; read height = 1, edge = ½τ ===== */
+/* ===== Round 2 — Pack the Bar: wedges interlock into a bar; cut FINER (slider) so the slanted radius stands up and
+   the bar's height rises to meet the radius. The height = radius equality is SHOWN converging, not asserted. =====
+   Honest geometry: each wedge's slant side is the true radius (fixed length Rlen). With few fat wedges the bar's
+   height = Rlen·cos(π/N) is visibly SHORTER than the radius; as N grows the slants stand vertical and height → radius. */
 function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.sceneStop(); PIST='loom'; pmood='idle';
   E.setPlace(t({en:'Pack the Bar',zh:'拼成长条'}));
-  const M=10;                                                    // M triangles from M+1 alternating vertices → both long edges = the bar width = ½τ
-  const BW=()=>E.LW*0.56, BH=()=>BW()/3.14, BX0=()=>(E.LW-BW())/2, BYT=()=>E.LH*0.4, BYB=()=>BYT()+BH();
-  const vx=i=>BX0()+i*BW()/M, vy=i=>(i%2===0)?BYB():BYT();      // even vertices on the bottom edge, odd on the top
-  const tri=k=>[{x:vx(k),y:vy(k)},{x:vx(k+1),y:vy(k+1)},{x:vx(k+2),y:vy(k+2)}];   // triangle k = V[k],V[k+1],V[k+2]
-  const filled=new Array(M).fill(false);
-  const home={x:E.LW*0.84, y:E.LH*0.82};
-  const wedge={ kind:'drag', home:home, bbox:a=>({x:a.pos.x-24,y:a.pos.y-22,w:48,h:44}) };
-  const slotOf=x=>Math.max(0,Math.min(M-1,Math.floor((x-BX0())/(BW()/M))));
-  function triPath(ctx,k){ const v=tri(k); ctx.beginPath(); ctx.moveTo(v[0].x,v[0].y); ctx.lineTo(v[1].x,v[1].y); ctx.lineTo(v[2].x,v[2].y); ctx.closePath(); }
-  function drawTri(k){ const ctx=E.ctx, v=tri(k); ctx.save();
-    ctx.fillStyle='rgba(80,216,144,.2)'; triPath(ctx,k); ctx.fill();
-    ctx.strokeStyle=RD; ctx.lineWidth=2.2; ctx.lineCap='round';   // the two slanted sides = unit radii (red)
-    ctx.beginPath(); ctx.moveTo(v[0].x,v[0].y); ctx.lineTo(v[1].x,v[1].y); ctx.lineTo(v[2].x,v[2].y); ctx.stroke();
-    ctx.strokeStyle=GOLD; ctx.lineWidth=2.6; ctx.beginPath(); ctx.moveTo(v[0].x,v[0].y); ctx.lineTo(v[2].x,v[2].y); ctx.stroke();   // base = arc piece (gold)
-    ctx.restore(); }
-  function ghostTri(k,hot){ const ctx=E.ctx; ctx.save(); ctx.globalAlpha=hot?0.95:0.4; ctx.setLineDash([5,5]); ctx.strokeStyle=hot?'rgba(80,216,144,.95)':'rgba(170,190,225,.5)'; ctx.lineWidth=hot?2.6:1.4; if(hot){ctx.shadowColor='rgba(80,216,144,.6)';ctx.shadowBlur=10;} triPath(ctx,k); ctx.stroke(); ctx.restore(); }
-  function wedgeIcon(x,y,lab){ const ctx=E.ctx,s=18; ctx.save(); ctx.translate(x,y);
-    ctx.fillStyle='rgba(80,216,144,.22)'; ctx.beginPath(); ctx.moveTo(0,-s); ctx.lineTo(-s*0.5,s*0.6); ctx.lineTo(s*0.5,s*0.6); ctx.closePath(); ctx.fill();
-    ctx.strokeStyle=RD; ctx.lineWidth=2.2; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(0,-s); ctx.lineTo(-s*0.5,s*0.6); ctx.moveTo(0,-s); ctx.lineTo(s*0.5,s*0.6); ctx.stroke();
-    ctx.strokeStyle=GOLD; ctx.lineWidth=2.4; ctx.beginPath(); ctx.moveTo(-s*0.5,s*0.6); ctx.lineTo(s*0.5,s*0.6); ctx.stroke(); ctx.restore();
-    if(lab) label(x,y+s+12,t({en:'drag a wedge',zh:'拖一块楔形'}),'#bfe8cf',11,true); }
-  function frame(){ const ctx=E.ctx; ctx.save(); ctx.strokeStyle='rgba(200,210,235,.28)'; ctx.lineWidth=1.4; ctx.setLineDash([4,5]);
-    ctx.strokeRect(BX0(),BYT(),BW(),BH()); ctx.restore(); }
-  function buildStat(){ const n=filled.filter(Boolean).length; E.status('<span style="color:#f4c830">'+t({en:'wedges packed: ',zh:'已拼楔块：'})+n+' / '+M+'</span>'); }
-  function drawBuild(){ bg(); frame(); const ctx=E.ctx;
-    let hot=-1; if(wedge.grab){ const p=wedge.pos; if(p.x>BX0()-20&&p.x<BX0()+BW()+20&&p.y>BYT()-40&&p.y<BYB()+40){ const k=slotOf(p.x); if(!filled[k]) hot=k; } }
-    for(let k=0;k<M;k++){ if(filled[k]) drawTri(k); else ghostTri(k,k===hot); }
-    if(wedge.grab) wedgeIcon(wedge.pos.x,wedge.pos.y,false); else wedgeIcon(home.x,home.y,true); }
-  E.tell(t({en:'<b>Pack the Bar.</b> Take your thin <b class="g">wedges</b> and lay them in a row, every other one flipped <b>point-up, point-down</b>, so they interlock into a straight bar. <b>Drag a wedge into each slot</b> — fill all <b>'+M+'</b>.',
-    zh:'<b>拼成长条。</b>把你那些细<b class="g">楔块</b>排成一排，一个尖朝上、一个尖朝下交替<b>互扣</b>，拼成一根直条。<b>把楔块拖进每个槽</b>——把全部 <b>'+M+'</b> 个填满。'}));
-  buildStat();
-  E.scene({ actors:[wedge], draw:drawBuild, onDrop(a,z,info){ if(E.busy)return;
-    if(info&&!info.tapped){ const p=info; if(p.x>BX0()-20&&p.x<BX0()+BW()+20&&p.y>BYT()-40&&p.y<BYB()+40){ const k=slotOf(p.x); if(!filled[k]){ filled[k]=true; E.sfx('place'); E.pop('▲'); E.mood('happy'); pmood='hurt'; } } }
-    if(filled.every(Boolean)){ E.sceneStop(); decide(); } else buildStat(); } });
-  function packed(extra){ bg(); frame(); for(let k=0;k<M;k++) drawTri(k); if(extra)extra(); }
-  function decide(){
-    function q1(){ pickPills(t({en:'The wedges pack into a bar. Its <b>HEIGHT</b> is each wedge\'s long side — a unit <b class="r">radius</b>. So the height is…',zh:'楔块拼成一根长条。它的<b>高</b>就是每块楔形的长边——一条单位<b class="r">半径</b>。所以高是……'}),
-        ()=>packed(()=>{ const ctx=E.ctx; ctx.save(); ctx.strokeStyle=RD; ctx.lineWidth=2.4; ctx.beginPath(); ctx.moveTo(BX0()-10,BYT()); ctx.lineTo(BX0()-10,BYB()); ctx.stroke(); ctx.restore(); label(BX0()-26,(BYT()+BYB())/2,'?',RD,16,true); }), E.LH*0.9,
-        [ {txt:{en:'½',zh:'½'}, fb:{en:'Each wedge\'s straight side is a full radius of the unit circle, which is 1.',zh:'每块楔形的直边就是单位圆的整条半径，是 1。'}},
+  const Rlen=()=>E.LH*0.32, baseY=()=>E.LH*0.7;
+  const SLX0=E.LW*0.17, SLX1=E.LW*0.7, SLY=E.LH*0.92, NMIN=4, NMAX=44, GATE=34;
+  const NfromX=x=>Math.max(NMIN,Math.min(NMAX,Math.round(NMIN+(x-SLX0)/(SLX1-SLX0)*(NMAX-NMIN))));
+  let N=NMIN;
+  function geom(n){ const step=Rlen()*Math.sin(P/n), h=Rlen()*Math.cos(P/n), W=n*step, x0=(E.LW-W)/2; return {n,step,h,W,x0,yB:baseY(),yT:baseY()-h}; }
+  const vX=(g,i)=>g.x0+i*g.step, vY=(g,i)=>(i%2===0)?g.yB:g.yT;
+  function bar(g,extra){ const ctx=E.ctx;
+    for(let i=0;i<g.n-1;i++){ ctx.save(); ctx.beginPath(); ctx.moveTo(vX(g,i),vY(g,i)); ctx.lineTo(vX(g,i+1),vY(g,i+1)); ctx.lineTo(vX(g,i+2),vY(g,i+2)); ctx.closePath();   // triangles tile the band
+      ctx.fillStyle='rgba(80,216,144,.22)'; ctx.fill();
+      ctx.strokeStyle=(i===0)?'#ff8a6a':RD; ctx.lineWidth=(i===0)?3:(g.n>18?1:1.8); ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(vX(g,i),vY(g,i)); ctx.lineTo(vX(g,i+1),vY(g,i+1)); ctx.stroke(); ctx.restore(); }   // first slant bright = "the radius"
+    ctx.save(); ctx.strokeStyle=GOLD; ctx.lineWidth=2.6; ctx.beginPath(); ctx.moveTo(g.x0,g.yT); ctx.lineTo(g.x0+g.W,g.yT); ctx.moveTo(g.x0,g.yB); ctx.lineTo(g.x0+g.W,g.yB); ctx.stroke(); ctx.restore();   // gold long edges
+    if(extra)extra(g); }
+  function radRef(g){ const ctx=E.ctx, x=g.x0-20;   // a fixed red "radius = 1" yardstick beside the bar — the bar's height climbs to meet it
+    ctx.save(); ctx.strokeStyle=RD; ctx.setLineDash([4,4]); ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(x,g.yB); ctx.lineTo(x,g.yB-Rlen()); ctx.stroke();
+    ctx.lineWidth=1.4; ctx.setLineDash([]); ctx.beginPath(); ctx.moveTo(x-5,g.yB-Rlen()); ctx.lineTo(x+5,g.yB-Rlen()); ctx.moveTo(x-5,g.yB); ctx.lineTo(x+5,g.yB); ctx.stroke(); ctx.restore();
+    label(x-13,g.yB-Rlen()/2,t({en:'1',zh:'1'}),RD,13,true);
+    if(Rlen()-g.h>4){ ctx.save(); ctx.strokeStyle='rgba(255,106,77,.55)'; ctx.setLineDash([2,3]); ctx.lineWidth=1.4; ctx.beginPath(); ctx.moveTo(x,g.yT); ctx.lineTo(g.x0+g.W*0.5,g.yT); ctx.stroke(); ctx.restore(); } }   // dotted line marks how far the bar-top still falls short
+  function slider(){ const ctx=E.ctx; ctx.save();
+    ctx.strokeStyle='rgba(200,210,235,.35)'; ctx.lineWidth=4; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(SLX0,SLY); ctx.lineTo(SLX1,SLY); ctx.stroke();
+    const kx=knob.pos.x; ctx.strokeStyle=GOLD; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(SLX0,SLY); ctx.lineTo(kx,SLY); ctx.stroke();
+    ctx.fillStyle=GOLD; ctx.shadowColor='rgba(244,200,48,.7)'; ctx.shadowBlur=8; ctx.beginPath(); ctx.arc(kx,SLY,11,0,7); ctx.fill(); ctx.restore();
+    label(SLX0-4,SLY-20,t({en:'few',zh:'少'}),'#9fb0cc',11); label(SLX1+4,SLY-20,t({en:'many',zh:'多'}),'#9fb0cc',11); }
+  function stat(){ const g=geom(N), close=(Rlen()-g.h)<Rlen()*0.01;
+    E.status('<span style="color:#f4c830">'+t({en:'wedges: ',zh:'楔块：'})+N+'</span>'+(close?'  <span style="color:#50d890">'+t({en:'→ height meets the radius',zh:'→ 高已追上半径'})+'</span>':'  <span style="color:#ff6a4d">'+t({en:'height still short of the radius',zh:'高还不到半径'})+'</span>')); }
+  function drawRefine(){ bg(); N=NfromX(knob.pos.x); const g=geom(N); bar(g); radRef(g); slider(); stat(); }
+  const knob={ kind:'drag', home:{x:SLX0,y:SLY}, drag:{axis:'x',clamp:{x0:SLX0,x1:SLX1,y0:SLY,y1:SLY}},
+    snap:[{x:(SLX0+SLX1)/2,y:SLY,r:(SLX1-SLX0)/2+80,snap:false}], bbox:a=>({x:a.pos.x-17,y:a.pos.y-17,w:34,h:34}), hiCol:'rgba(244,200,48,.9)' };
+  E.tell(t({en:'<b>Pack the Bar.</b> Your <b class="g">wedges</b> interlock point-up / point-down into a bar. Each wedge\'s slanted side is a <b class="r">radius</b> — but with only a few fat wedges the bar is lumpy and the leaning <b class="r">radius</b> is clearly longer than the bar\'s <b>height</b> (see the red <b class="r">1</b> yardstick). <b>Drag the slider to cut finer</b>: the slants stand up and the height climbs to meet the <b class="r">radius</b>.',
+    zh:'<b>拼成长条。</b>你的<b class="g">楔块</b>一上一下互扣成一根条。每块楔形的斜边都是一条<b class="r">半径</b>——可只用几块大楔块时，条是凹凸的，那条斜<b class="r">半径</b>明显比条的<b>高</b>要长（看红色 <b class="r">1</b> 标尺）。<b>拖动滑块切得更细</b>：斜边立起来，高就一点点追上<b class="r">半径</b>。'}));
+  stat();
+  E.scene({ actors:[knob], draw:drawRefine, onDrop(a){ if(E.busy)return; N=NfromX(knob.pos.x);
+    if(N>=GATE){ E.sfx('place'); ask(); }
+    else { E.oops(); pmood='gloat'; E.status('<span style="color:#ff6a4d">'+t({en:'still lumpy — cut finer so the height reaches the radius.',zh:'还凹凸——切得更细，让高追上半径。'})+'</span>'); } } });
+  function packed(extra){ bg(); const g=geom(N); bar(g,extra); radRef(g); }
+  function ask(){ E.sceneStop();
+    function q1(){ pickPills(t({en:'Now the wedges are thin, the bar is a clean rectangle and its <b>height</b> has risen to meet the red yardstick — a unit <b class="r">radius</b>. So the height is…',zh:'楔块变细后，长条成了规整的矩形，<b>高</b>也追上了那把红标尺——一条单位<b class="r">半径</b>。所以高是……'}),
+        ()=>{ const g=geom(N); bg(); bar(g); radRef(g); }, E.LH*0.9,
+        [ {txt:{en:'½',zh:'½'}, fb:{en:'The slant is a whole radius of the unit circle, and standing up it equals the height: 1.',zh:'斜边是单位圆的整条半径，立起来就等于高：1。'}},
           {txt:{en:'1',zh:'1'}, ok:true},
           {txt:{en:'τ',zh:'τ'}, fb:{en:'τ is the whole rim. The bar\'s height is just one radius: 1.',zh:'τ 是整条圆边。长条的高只是一条半径：1。'}} ], q2); }
-    function q2(){ pickPills(t({en:'The bar\'s long <b class="y">top edge</b> is made of the wedges\' tiny rim-pieces — exactly <b>half</b> of the whole <b class="y">rim</b> τ. So that edge is…',zh:'长条的长<b class="y">上边</b>由楔块那些贴边的小弧拼成——正好是整条<b class="y">圆边</b> τ 的<b>一半</b>。所以这条边是……'}),
-        ()=>packed(()=>{ const ctx=E.ctx; ctx.save(); ctx.strokeStyle=GOLD; ctx.lineWidth=3; ctx.shadowColor='rgba(244,200,48,.6)'; ctx.shadowBlur=6; ctx.beginPath(); ctx.moveTo(BX0(),BYT()-7); ctx.lineTo(BX0()+BW(),BYT()-7); ctx.stroke(); ctx.restore(); label(BX0()+BW()/2,BYT()-20,'?',GOLD,16,true); }), E.LH*0.9,
+    function q2(){ pickPills(t({en:'The bar\'s long <b class="y">top edge</b> is made of the wedges\' tiny rim-pieces — exactly <b>half</b> the whole <b class="y">rim</b> τ. So that edge is…',zh:'长条的长<b class="y">上边</b>由楔块那些贴边的小弧拼成——正好是整条<b class="y">圆边</b> τ 的<b>一半</b>。所以这条边是……'}),
+        ()=>{ const g=geom(N); bg(); bar(g,(gg)=>label(gg.x0+gg.W/2,gg.yT-12,'?',GOLD,16,true)); }, E.LH*0.9,
         [ {txt:{en:'½τ',zh:'½τ'}, ok:true},
-          {txt:{en:'τ',zh:'τ'}, fb:{en:'τ is the WHOLE rim. The top edge holds only half of it; the bottom edge holds the other half. So the edge is ½τ.',zh:'τ 是整条圆边。上边只占一半，下边占另一半。所以这条边是 ½τ。'}},
+          {txt:{en:'τ',zh:'τ'}, fb:{en:'τ is the WHOLE rim. The top edge holds only half; the bottom edge holds the other half. So the edge is ½τ.',zh:'τ 是整条圆边。上边只占一半，下边占另一半。所以这条边是 ½τ。'}},
           {txt:{en:'1',zh:'1'}, fb:{en:'1 is the height. The long edge is half the rim, ½τ ≈ 3.14.',zh:'1 是高。长边是半条圆边，½τ ≈ 3.14。'}} ], win); }
     q1();
   }
-  function win(){ E.setDots(2); E.tickQ(2); E.award(45); pmood='hurt'; packed(()=>{ const ctx=E.ctx;
-      ctx.save(); ctx.strokeStyle=RD; ctx.lineWidth=2.4; ctx.beginPath(); ctx.moveTo(BX0()-10,BYT()); ctx.lineTo(BX0()-10,BYB()); ctx.stroke(); ctx.restore(); label(BX0()-24,(BYT()+BYB())/2,'1',RD,14,true);
-      ctx.save(); ctx.strokeStyle=GOLD; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(BX0(),BYT()-7); ctx.lineTo(BX0()+BW(),BYT()-7); ctx.stroke(); ctx.restore(); label(BX0()+BW()/2,BYT()-20,'½τ',GOLD,15,true); });
+  function win(){ E.setDots(2); E.tickQ(2); E.award(45); pmood='hurt'; const g=geom(N); bg(); bar(g,(gg)=>label(gg.x0+gg.W/2,gg.yT-12,'½τ',GOLD,15,true)); radRef(g);
     E.cheer(); E.sfx('win');
     E.status(keq(t({en:'a bar: height 1, length ½τ',zh:'一根长条：高 1，长 ½τ'})));
-    E.tell(t({en:'The round patch is now a straight <b class="g">bar</b>! Its <b>height</b> is one <b class="r">radius</b>, <b class="r">1</b>; its <b>long edge</b> is half the <b class="y">rim</b>, <b class="y">½τ</b>. A bar\'s area is just length × height — easy. Read it off.',
-      zh:'圆乎乎的一片，如今成了一根直<b class="g">长条</b>！它的<b>高</b>是一条<b class="r">半径</b>，<b class="r">1</b>；它的<b>长边</b>是半条<b class="y">圆边</b>，<b class="y">½τ</b>。长条的面积就是 长 × 高——很简单。读出来吧。'}));
+    E.tell(t({en:'Cut fine enough, the round patch is a clean <b class="g">bar</b>: its <b>height</b> is one standing <b class="r">radius</b>, <b class="r">1</b>; its <b>long edge</b> is half the <b class="y">rim</b>, <b class="y">½τ</b>. A bar\'s area is just length × height — easy. Read it off.',
+      zh:'切得够细，圆乎乎的一片就成了规整的<b class="g">长条</b>：<b>高</b>是一条立起的<b class="r">半径</b>，<b class="r">1</b>；<b>长边</b>是半条<b class="y">圆边</b>，<b class="y">½τ</b>。长条的面积就是 长 × 高——很简单。读出来吧。'}));
     E.clearTray(); E.addBtn(t({en:'Read the area ▶',zh:'读出面积 ▶'}),'primary',E.advance); E.addBtn(t({en:'◀ Prev step',zh:'◀ 上一步'}),'ghost',E.prevStep); }
 }
 
