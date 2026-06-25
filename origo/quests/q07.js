@@ -69,42 +69,46 @@ function pickPills(prompt, baseDraw, y, opts, onRight){ const n=opts.length, cx=
 
 /* ===== Round 1 — Slice the Radius: drag the slider; the radius splits into n rings of width dx ===== */
 function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(0); E.sceneStop(); PIST='loom'; pmood='idle'; pSad=0;
-  E.setPlace(t({en:'Slice the Radius',zh:'切开半径'}));
-  const SLX0=E.LW*0.17, SLX1=E.LW*0.7, SLY=E.LH*0.92, NMIN=3, NMAX=24, GATE=14;
+  E.setPlace(t({en:'Cut the Radius',zh:'切开半径'}));
+  const SLX0=E.LW*0.17, SLX1=E.LW*0.7, SLY=E.LH*0.92, NMIN=3, NMAX=24, GATE=10;
   const NfromX=x=>Math.max(NMIN,Math.min(NMAX,Math.round(NMIN+(x-SLX0)/(SLX1-SLX0)*(NMAX-NMIN))));
   let N=NMIN;
-  function rings(n){ const ctx=E.ctx;
-    for(let i=1;i<=n;i++){ const rr=R()*i/n; ctx.save(); ctx.strokeStyle=(i===n)?GOLD:'rgba(244,200,48,'+(0.3+0.4*i/n)+')'; ctx.lineWidth=(i===n)?3:1.6; ctx.beginPath(); ctx.arc(CX(),CY(),rr,0,7); ctx.stroke(); ctx.restore(); }
-    const dx=R()/n;   // mark one step dx along the rightward radius (red)
-    ctx.save(); ctx.strokeStyle=RD; ctx.lineWidth=4; ctx.lineCap='butt'; ctx.beginPath(); ctx.moveTo(CX()+R()-dx,CY()); ctx.lineTo(CX()+R(),CY()); ctx.stroke();
-    ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(CX()+R()-dx,CY()-5); ctx.lineTo(CX()+R()-dx,CY()+5); ctx.moveTo(CX()+R(),CY()-5); ctx.lineTo(CX()+R(),CY()+5); ctx.stroke(); ctx.restore();
-    label(CX()+R()-dx/2,CY()-13,'dx',RD,12,true); odot(); }
+  function radiusCut(n){ const ctx=E.ctx, ox=CX(), oy=CY(), R0=R(), dx=R0/n;
+    ctx.save(); ctx.strokeStyle='rgba(244,200,48,.2)'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(ox,oy,R0,0,7); ctx.stroke(); ctx.restore();   // faint unit circle — the radius we are cutting belongs to it
+    ctx.save(); ctx.strokeStyle=RD; ctx.lineWidth=4; ctx.lineCap='butt'; ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(ox,oy+R0); ctx.stroke();   // the radius: from O straight DOWN to the bottom tip — THE CUT
+    ctx.lineWidth=2; for(let i=1;i<n;i++){ const y=oy+i*dx; ctx.beginPath(); ctx.moveTo(ox-5,y); ctx.lineTo(ox+5,y); ctx.stroke(); }   // cut into n steps
+    ctx.beginPath(); ctx.moveTo(ox-6,oy); ctx.lineTo(ox+6,oy); ctx.moveTo(ox-6,oy+R0); ctx.lineTo(ox+6,oy+R0); ctx.stroke(); ctx.restore();
+    ctx.save(); ctx.strokeStyle='#ff8a6a'; ctx.lineWidth=6; ctx.lineCap='round'; ctx.shadowColor='rgba(255,138,106,.7)'; ctx.shadowBlur=6; ctx.beginPath(); ctx.moveTo(ox,oy+R0-dx); ctx.lineTo(ox,oy+R0); ctx.stroke(); ctx.restore();   // one step = dx, highlighted
+    label(ox+20,oy+R0-dx/2,'dx','#ff8a6a',13,true);
+    const xb=ox-22; ctx.save(); ctx.strokeStyle='rgba(244,200,48,.7)'; ctx.lineWidth=1.6; ctx.beginPath(); ctx.moveTo(ox-7,oy); ctx.lineTo(xb,oy); ctx.lineTo(xb,oy+R0); ctx.lineTo(ox-7,oy+R0); ctx.stroke(); ctx.restore();   // brace: the whole radius = 1
+    label(xb-13,oy+R0/2,t({en:'radius 1',zh:'半径 1'}),GOLD,11,true);
+    ctx.save(); ctx.fillStyle='#0a0a18'; ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(ox,oy,4.5,0,7); ctx.fill(); ctx.stroke(); ctx.restore(); label(ox-13,oy-3,'O','#cfe0ff',12,true); }
   function slider(){ const ctx=E.ctx; ctx.save();
     ctx.strokeStyle='rgba(200,210,235,.35)'; ctx.lineWidth=4; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(SLX0,SLY); ctx.lineTo(SLX1,SLY); ctx.stroke();
     const kx=knob.pos.x; ctx.strokeStyle=GOLD; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(SLX0,SLY); ctx.lineTo(kx,SLY); ctx.stroke();
     ctx.fillStyle=GOLD; ctx.shadowColor='rgba(244,200,48,.7)'; ctx.shadowBlur=8; ctx.beginPath(); ctx.arc(kx,SLY,11,0,7); ctx.fill(); ctx.restore();
     label(SLX0-4,SLY-20,t({en:'few',zh:'少'}),'#9fb0cc',11); label(SLX1+4,SLY-20,t({en:'many',zh:'多'}),'#9fb0cc',11); }
-  function stat(){ E.status('<span style="color:#f4c830">'+t({en:'rings: ',zh:'环数：'})+N+'</span>  <span style="color:#ff6a4d">'+t({en:'step dx = ',zh:'步长 dx = '})+'1/'+N+'</span>'); }
-  function drawCut(){ bg(); N=NfromX(knob.pos.x); pSad=Math.max(0,Math.min(1,(N-NMIN)/(GATE-NMIN))); rings(N); slider(); stat(); }   // Pi frets (grin sags) the finer you cut
+  function stat(){ E.status('<span style="color:#f4c830">'+t({en:'pieces: ',zh:'份数：'})+N+'</span>  <span style="color:#ff6a4d">'+t({en:'each step = dx',zh:'每步 = dx'})+'</span>'); }
+  function drawCut(){ bg(); N=NfromX(knob.pos.x); pSad=Math.max(0,Math.min(1,(N-NMIN)/(GATE-NMIN))); radiusCut(N); slider(); stat(); }   // Pi frets (grin sags) the finer you cut
   const knob={ kind:'drag', home:{x:SLX0,y:SLY}, drag:{axis:'x',clamp:{x0:SLX0,x1:SLX1,y0:SLY,y1:SLY}},
-    snap:[{x:(SLX0+SLX1)/2,y:SLY,r:(SLX1-SLX0)/2+80,snap:false}], bbox:a=>({x:a.pos.x-17,y:a.pos.y-17,w:34,h:34}), hiCol:'rgba(244,200,48,.9)' };
-  E.tell(t({en:'<b>Slice the Radius.</b> <b class="p">Pi the Halver</b> scoffs that one proof means nothing — <i>“those crumbs measure nothing!”</i> So measure the area a <b>second</b> way and prove him wrong twice. Split the disk into thin <b class="y">rings</b>, like a calf\'s growth rings. <b>Drag the slider</b> to cut the <b class="r">radius</b> into more, thinner rings — each one tiny step <b class="r">dx</b> wide. Cut it fine (watch <b class="p">Pi</b> fret), then release.',
-    zh:'<b>切开半径。</b><b class="p">半圆贩子</b>嗤笑说一种证法算不得数——<i>“这些碎屑量得出什么！”</i>那就用<b>第二种</b>办法再量一遍，把他驳倒两回。把圆盘分成一圈圈细<b class="y">环</b>，像小牛的年轮。<b>拖动滑块</b>，把<b class="r">半径</b>切成更多更细的环——每环宽一小步 <b class="r">dx</b>。切细些（看 <b class="p">Pi</b> 发慌），再松手。'}));
+    snap:[{x:SLX1,y:SLY,r:(SLX1-SLX0)+90,snap:false,ring:15}], bbox:a=>({x:a.pos.x-17,y:a.pos.y-17,w:34,h:34}), hiCol:'rgba(244,200,48,.9)' };   // target ring at the RIGHT ("many")
+  E.tell(t({en:'<b>Cut the Radius.</b> <b class="p">Pi</b> scoffs that one proof means nothing — <i>“crumbs!”</i> — so measure the area a <b>second</b> way. First, cut the <b class="r">radius</b> itself: from <b class="r">O</b> straight down to the rim is a length of <b class="r">1</b>. <b>Drag the slider</b> to slice it into <b>N</b> equal steps; each step is one <b class="r">dx</b> — read “delta-x”, a single symbol (a tiny change in x), <b>not</b> d times x. Cut it fine, then release.',
+    zh:'<b>切开半径。</b><b class="p">Pi</b> 嗤笑说一种证法算不得数——<i>“碎屑！”</i>——那就用<b>第二种</b>办法量面积。先切<b class="r">半径</b>本身：从 <b class="r">O</b> 直直向下到圆边，是长度 <b class="r">1</b>。<b>拖动滑块</b>把它切成 <b>N</b> 等步；每步是一个 <b class="r">dx</b>——读作「delta-x」，一个整体符号（x 的微小变化），<b>不是</b> d 乘 x。切细些，再松手。'}));
   stat();
   E.scene({ actors:[knob], draw:drawCut, onDrop(a){ if(E.busy)return; N=NfromX(knob.pos.x);
     if(N>=GATE){ E.sfx('place'); ask(); }
-    else { E.oops(); pmood='gloat'; E.status('<span style="color:#caa84a;font-style:italic">“'+t({en:'crumbs!',zh:'碎屑罢了！'})+'”</span> <span style="color:#ff6a4d">'+t({en:'still chunky — cut into finer rings.',zh:'还太粗——切成更细的环。'})+'</span>'); } } });
+    else { E.oops(); pmood='gloat'; E.status('<span style="color:#caa84a;font-style:italic">“'+t({en:'crumbs!',zh:'碎屑罢了！'})+'”</span> <span style="color:#ff6a4d">'+t({en:'cut the radius into finer steps.',zh:'把半径切成更细的步。'})+'</span>'); } } });
   function ask(){ E.sceneStop();
-    pickPills(t({en:'You cut <b>'+N+'</b> rings, each <b class="r">dx</b> = 1/'+N+' wide. The MORE rings you cut, the step <b class="r">dx</b> gets…',zh:'你切了 <b>'+N+'</b> 个环，每环 <b class="r">dx</b> = 1/'+N+' 宽。环切得<b>越多</b>，步长 <b class="r">dx</b> 就……'}),
-      ()=>rings(N), E.LH*0.9,
-      [ {txt:{en:'smaller',zh:'越小'}, ok:true},
-        {txt:{en:'bigger',zh:'越大'}, fb:{en:'More rings share the same radius, so each step dx must get tinier.',zh:'环越多，分同一条半径，每步 dx 必然越小。'}},
-        {txt:{en:'stays 1',zh:'恒为 1'}, fb:{en:'dx is one slice of the radius, 1/'+N+'. Cut more and it shrinks toward nothing.',zh:'dx 是半径的一份，1/'+N+'。切得越多，它越趋近于零。'}} ], win); }
-  function win(){ bg(); rings(N); E.setDots(1); E.tickQ(1); E.award(45); E.cheer(); E.sfx('win');
-    E.status(keq(t({en:'dx = the tiny step, 1/N',zh:'dx = 微小一步，1/N'})));
-    E.tell(t({en:'Each <b class="y">ring</b> is one tiny step <b class="r">dx</b> wide — and the finer you cut, the closer <b class="r">dx</b> creeps to nothing. This little <b class="r">dx</b> is the most important tool in The Coil: hold onto it. Now unroll a single ring.',
-      zh:'每个<b class="y">环</b>宽一小步 <b class="r">dx</b>——切得越细，<b class="r">dx</b> 越贴近于零。这个小小的 <b class="r">dx</b> 是「盘卷」里最重要的工具：记牢它。接下来，把一个环摊开。'}));
-    E.clearTray(); E.addBtn(t({en:'Unroll a ring ▶',zh:'摊开一个环 ▶'}),'primary',E.advance); E.addBtn(t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep); }
+    pickPills(t({en:'You cut the <b class="r">radius</b> into <b>'+N+'</b> equal steps, each one <b class="r">dx</b>. End to end, the <b>N</b> steps fill the whole radius <b class="r">1</b>. Using multiplication, that says…',zh:'你把<b class="r">半径</b>切成 <b>'+N+'</b> 等步，每步一个 <b class="r">dx</b>。一段接一段，<b>N</b> 步正好填满整条半径 <b class="r">1</b>。用乘法来说，就是……'}),
+      ()=>radiusCut(N), E.LH*0.9,
+      [ {txt:{en:'N · dx = 1',zh:'N · dx = 1'}, ok:true},
+        {txt:{en:'N · dx = N',zh:'N · dx = N'}, fb:{en:'N steps of dx add up to the whole radius — and the radius is 1. So N · dx = 1.',zh:'N 步 dx 合起来是整条半径——而半径是 1。所以 N · dx = 1。'}},
+        {txt:{en:'N · dx = dx',zh:'N · dx = dx'}, fb:{en:'All N steps together make the radius 1, not one step. N · dx = 1.',zh:'N 步合起来是半径 1，不是一步。N · dx = 1。'}} ], win); }
+  function win(){ bg(); radiusCut(N); E.setDots(1); E.tickQ(1); E.award(45); E.cheer(); E.sfx('win');
+    E.status(keq(t({en:'N · dx = 1',zh:'N · dx = 1'})));
+    E.tell(t({en:'So the radius <b class="r">1</b> is <b>N</b> tiny steps: <b class="r">N · dx = 1</b>. That little <b class="r">dx</b> — “delta-x”, one symbol — is the key tool of The Coil. Next: swing each step around <b class="r">O</b> to coil the disk into <b class="y">rings</b>.',
+      zh:'于是半径 <b class="r">1</b> 就是 <b>N</b> 小步：<b class="r">N · dx = 1</b>。这个小小的 <b class="r">dx</b>——「delta-x」，一个整体符号——是「盘卷」的关键工具。接下来：把每一步绕 <b class="r">O</b> 旋一圈，把圆盘盘成一圈圈<b class="y">环</b>。'}));
+    E.clearTray(); E.addBtn(t({en:'Coil into rings ▶',zh:'盘成环 ▶'}),'primary',E.advance); E.addBtn(t({en:'↺ Replay (no EXP)',zh:'↺ 重玩（无经验）'}),'ghost',E.replayStep); }
 }
 
 /* ===== Round 2 — Unroll a Ring: drag the ring down; it straightens into a strip (width dx, length = rim = r·τ) ===== */
