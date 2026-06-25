@@ -23,7 +23,7 @@ function sCell(x,y,c,col){ const d=((rnd()-.5)*3).toFixed(1); return '<g transfo
 function sGrid(x,y,c,cols,rows,col){ let s=''; for(let r=0;r<rows;r++)for(let k=0;k<cols;k++) s+=sCell(x+k*c,y+r*c,c,col); return s; }
 function cEq(cx,cy,parts,sz){ sz=sz||18; let w=parts.reduce((a,p)=>a+p[0].length*sz*0.52,0), x=cx-w/2, s=''; parts.forEach(p=>{ const pw=p[0].length*sz*0.52; s+='<text x="'+(x+pw/2).toFixed(1)+'" y="'+cy+'" font-family="Caveat,cursive" font-size="'+sz+'" fill="'+p[1]+'" text-anchor="middle" dominant-baseline="middle">'+p[0]+'</text>'; x+=pw; }); return s; }
 function pbrace(x1,x2,y,label,col){ col=col||INK; return sLine(x1,y+5,x1,y,col,1.6)+sLine(x1,y,x2,y,col,1.6)+sLine(x2,y,x2,y+5,col,1.6)+sText(label,(x1+x2)/2,y-8,col,13); }
-const FIGH={dots:48,bars:44,numline:52,commute:78,assoc:106, mjumps:88,marr:68,mintro:146,mrect:58,mrot:76,mdist:68,mgroups:98, gnname:64,gjux:80,gfill:50,glaw:76,garea:76, acmp:76,aunit:86,aflip:92, ucirc:86,uhex:114,utau:104, pwedge:94,prect:84,parea:80, drings:88,dstrip:66,dtri:88};   // each ≥ its lowest label so labels aren't clipped
+const FIGH={dots:48,bars:44,numline:52,commute:78,assoc:106, mjumps:88,marr:68,mintro:146,mrect:58,mrot:76,mdist:68,mgroups:98, gnname:64,gjux:80,gfill:50,glaw:76,garea:76, acmp:76,aunit:86,aflip:92, ucirc:86,uhex:114,utau:104, pwedge:94,prect:84,parea:92, drings:88,dstrip:66,dtri:88};   // each ≥ its lowest label so labels aren't clipped
 // measured content centre (getBBox) per figure; figSVG pans the 480-wide viewBox so EVERY figure is centred in its frame (re-measure if a figure's layout changes)
 const FIGCX={dots:183,bars:163,numline:240,commute:240,assoc:245, mjumps:243,marr:238,mintro:201,mrect:249,mrot:225,mdist:156,mgroups:246, gnname:249,gjux:229,gfill:264,glaw:266,garea:264, acmp:232,aunit:234,aflip:236, ucirc:240,uhex:240,utau:240, pwedge:240,prect:240,parea:240, drings:240,dstrip:240,dtri:240};
 const FIGS={
@@ -196,11 +196,13 @@ const FIGS={
     s+=sLine(x0,yT,x0+Wb,yT,GOLD,2.4)+sLine(x0,yB,x0+Wb,yB,GOLD,2.4);   // gold long edges = the two bases b (together = the rim τ)
     s+=sLine(x0,yT,x0,yB,R,2)+sLine(x0+Wb,yT,x0+Wb,yB,R,2);
     s+=sText('b',x0+Wb/2,yT-9,'#a8780f',14)+sText('b',x0+Wb/2,yB+11,'#a8780f',14)+sText('h',x0-12,(yT+yB)/2,R,13)+sText('2b = τ',x0+Wb+4,(yT+yB)/2,'#a8780f',12); return s; },
-  parea(){ const x0=168, Wb=144, yT=24, yB=68, mid=(24+68)/2; let s='';   // area = b·h = ½τ·1 = ½τ = π
-    s+='<rect x="'+x0+'" y="'+yT+'" width="'+Wb+'" height="'+(yB-yT)+'" fill="'+G+'" opacity="0.26"/>';
-    s+=sLine(x0,yT,x0+Wb,yT,GOLD,2.4)+sLine(x0,yB,x0+Wb,yB,GOLD,2.4)+sLine(x0,yT,x0,yB,R,2)+sLine(x0+Wb,yT,x0+Wb,yB,R,2);
-    s+='<text x="'+(x0+Wb/2)+'" y="'+(mid-1)+'" font-family="Caveat,cursive" font-size="20" fill="'+DEP+'" text-anchor="middle" dominant-baseline="middle">½τ = π</text>';
-    s+=sText('= area',x0+Wb/2,mid+16,G,12)+sText('b = ½τ',x0+Wb/2,yT-8,'#a8780f',12)+sText('h = 1',x0-15,(yT+yB)/2,R,12); return s; },
+  parea(){ const ccx=150, ccy=42, rc=27, x0=234, Wb=116, yT=ccy-22, yB=ccy+22; let s='';   // the circle and the bar, side by side — same area ½τ = π
+    s+='<circle cx="'+ccx+'" cy="'+ccy+'" r="'+rc+'" fill="'+G+'" opacity="0.26"/><circle cx="'+ccx+'" cy="'+ccy+'" r="'+rc+'" fill="none" stroke="'+GOLD+'" stroke-width="2.4"/>'+sDot(ccx,ccy,2.3,INK);
+    s+=sLine(ccx,ccy,ccx+rc,ccy,R,1.6)+sText('1',ccx+rc*0.5,ccy-7,R,11);   // a radius 1 in the circle
+    s+='<text x="200" y="'+(ccy+1)+'" font-family="Caveat,cursive" font-size="22" fill="'+INK+'" text-anchor="middle" dominant-baseline="middle">=</text>';
+    s+='<rect x="'+x0+'" y="'+yT+'" width="'+Wb+'" height="'+(yB-yT)+'" fill="'+G+'" opacity="0.26"/>'+sLine(x0,yT,x0+Wb,yT,GOLD,2.2)+sLine(x0,yB,x0+Wb,yB,GOLD,2.2)+sLine(x0,yT,x0,yB,R,2)+sLine(x0+Wb,yT,x0+Wb,yB,R,2);
+    s+=sText('½τ',x0+Wb/2,yT-7,'#a8780f',12)+sText('1',x0-9,ccy,R,11);
+    s+='<text x="237" y="'+(yB+18)+'" font-family="Caveat,cursive" font-size="14" fill="#a8780f" text-anchor="middle">same area = ½τ = <tspan fill="'+DEP+'">π</tspan></text>'; return s; },
   drings(){ const cx=240, cy=48, r=34, n=6; let s='';   // slice the radius into thin rings, each dx wide
     for(let i=1;i<=n;i++){ const ri=+(r*i/n).toFixed(1); s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+ri+'" fill="none" stroke="'+(i===n?GOLD:'#caa84a')+'" stroke-width="'+(i===n?2.4:1.3)+'" opacity="'+(i===n?1:(0.4+0.4*i/n).toFixed(2))+'"/>'; }
     const dx=r/n; s+=sLine(cx+r-dx,cy,cx+r,cy,R,3)+sLine(cx+r-dx,cy-5,cx+r-dx,cy+5,R,1.5)+sLine(cx+r,cy-5,cx+r,cy+5,R,1.5);

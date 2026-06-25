@@ -173,10 +173,11 @@ function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.sceneSt
         [ {txt:{en:'2b = τ',zh:'2b = τ'}, ok:true},
           {txt:{en:'b = τ',zh:'b = τ'}, fb:{en:'That is Pi’s trick — calling ONE edge the whole rim. There are two equal edges, so 2b = τ; one base is only half.',zh:'那正是 Pi 的把戏——把一条边当成整条圆边。其实有两条一样的边，所以 2b = τ；一条底只是一半。'}},
           {txt:{en:'b = π is all',zh:'b = π 就是全部'}, fb:{en:'One edge IS π — but it is only HALF. Both edges together are the whole rim: 2b = τ = 2π.',zh:'一条边确实是 π——但只是一半。两条边合起来才是整条圆边：2b = τ = 2π。'}} ], q2); }
-    function q2(){ pickPills(t({en:'Now the <b>height</b>. With so many fine wedges, each red slant <b>stands straight up</b> — and each slant is a unit <b class="r">radius</b> that spans the bar top-to-bottom. So the height <b class="r">h</b> just IS one radius, which on the unit circle is <b class="r">1</b>. So…',
-        zh:'再看<b>高</b>。楔块切得这么细，每条红斜边都<b>立得笔直</b>——而每条斜边都是一条单位<b class="r">半径</b>，正好从条底贯到条顶。所以高 <b class="r">h</b> 就是一条半径，在单位圆上是 <b class="r">1</b>。所以……'}),
-        ()=>draw(1,1, g=>{ const ctx=E.ctx; ctx.save(); ctx.strokeStyle='#ff8a6a'; ctx.lineWidth=4; ctx.lineCap='round'; ctx.shadowColor='rgba(255,138,106,.7)'; ctx.shadowBlur=6; ctx.beginPath(); ctx.moveTo(vX(g,0),vY(g,0)); ctx.lineTo(vX(g,1),vY(g,1)); ctx.stroke(); ctx.restore();   // one slant = a radius, standing ~vertical = the height
-          heightMark(g,'h'); label((vX(g,0)+vX(g,1))/2+20,(g.yT+g.yB)/2,t({en:'a radius',zh:'一条半径'}),'#ff8a6a',11,true); label(g.x0+g.W/2,g.yT-12,'b',GOLD,15,true); label(g.x0+g.W/2,g.yB+14,'b',GOLD,15,true); }), E.LH*0.9,
+    function q2(){ pickPills(t({en:'Now the <b>height</b>. As you cut <b>more and more</b> wedges, the bar\'s height creeps closer and closer to one <b class="r">radius</b> of the unit circle (red) — and a radius is <b class="r">1</b>. With this many pieces the height <b class="r">h</b> is as good as a radius. So <b class="r">h</b> = ?',
+        zh:'再看<b>高</b>。楔块切得<b>越来越多</b>，长条的高就越来越贴近单位圆的一条<b class="r">半径</b>（红色）——而半径是 <b class="r">1</b>。切到这么多块，高 <b class="r">h</b> 已和一条半径无异。所以 <b class="r">h</b> = ?'}),
+        ()=>draw(1,1, g=>{ const ctx=E.ctx, xr=g.x0-40, R=Rlen();   // a true unit RADIUS (vertical, length 1) beside the bar's height — the more pieces, the closer h gets to it
+          ctx.save(); ctx.strokeStyle=RD; ctx.setLineDash([4,4]); ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(xr,g.yB); ctx.lineTo(xr,g.yB-R); ctx.stroke(); ctx.setLineDash([]); ctx.lineWidth=1.4; ctx.beginPath(); ctx.moveTo(xr-5,g.yB-R); ctx.lineTo(xr+5,g.yB-R); ctx.moveTo(xr-5,g.yB); ctx.lineTo(xr+5,g.yB); ctx.stroke(); ctx.restore(); label(xr-13,g.yB-R/2,t({en:'radius 1',zh:'半径 1'}),RD,11,true);
+          heightMark(g,'h'); label(g.x0+g.W/2,g.yT-12,'b',GOLD,15,true); label(g.x0+g.W/2,g.yB+14,'b',GOLD,15,true); }), E.LH*0.9,
         [ {txt:{en:'h = 1',zh:'h = 1'}, ok:true},
           {txt:{en:'h = ½',zh:'h = ½'}, fb:{en:'The whole slant is one radius, and the unit radius is 1 — not half.',zh:'整条斜边是一条半径，单位半径是 1——不是一半。'}},
           {txt:{en:'h = τ',zh:'h = τ'}, fb:{en:'τ is the rim, a length around. The height is just one radius: h = 1.',zh:'τ 是圆边、绕一圈的长。高只是一条半径：h = 1。'}} ], win); }
@@ -218,13 +219,24 @@ function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(2); E.sceneSt
       bar(()=>label((BX0()+BW()/2),(BYT()+BYB())/2,'π?',VIO,20+10*p,true));
       const px=E.LW*0.86-(E.LW*0.86-(BX0()+BW()/2))*p, py=E.LH*0.22+((BYT()+BYB())/2-E.LH*0.22)*p; pi(px,py,28-8*p);
     }, win); }
-  function win(){ claimed=false; PIST='recoil'; pmood='hurt'; pSad=1; bg();
-    bar(()=>{ label(BX0()+BW()/2,(BYT()+BYB())/2-9,'½τ',GOLD,22,true); label(BX0()+BW()/2,(BYT()+BYB())/2+15,'= π ≈ 3.14',VIO,13,true); });
+  function reformDraw(tt){ const e=tt<0.5?2*tt*tt:1-Math.pow(-2*tt+2,2)/2;   // radial morph: the bar folds back into a circle of the SAME area (e = eased progress; do NOT shadow t())
+    bg(); const ctx=E.ctx, cx=BX0()+BW()/2, cyc=(BYT()+BYB())/2, rc=Math.sqrt(BW()*BH()/P), K=84;   // rc gives the circle the same pixel area as the bar
+    ctx.save(); ctx.beginPath();
+    for(let i=0;i<=K;i++){ const th=-P/2-i/K*TAU, c=Math.cos(th), s=Math.sin(th);   // anticlockwise from the top
+      const tx=Math.abs(c)<1e-6?1e9:(BW()/2)/Math.abs(c), ty=Math.abs(s)<1e-6?1e9:(BH()/2)/Math.abs(s), tm=Math.min(tx,ty);
+      const rx=cx+tm*c, ry=cyc+tm*s, x=rx+(cx+rc*c-rx)*e, y=ry+(cyc+rc*s-ry)*e; if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); }
+    ctx.closePath(); ctx.fillStyle='rgba(80,216,144,.28)'; ctx.fill(); ctx.strokeStyle=GOLD; ctx.lineWidth=3; ctx.shadowColor='rgba(244,200,48,.5)'; ctx.shadowBlur=6; ctx.stroke(); ctx.restore();
+    if(e>0.55){ ctx.save(); ctx.fillStyle='#0a0a18'; ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(cx,cyc,4,0,7); ctx.fill(); ctx.stroke(); ctx.restore(); }
+    label(cx,cyc-(e>0.5?15:0),'½τ',GOLD,20,true); if(e>0.5) label(cx,cyc+15,t({en:'same area',zh:'面积不变'}),GR,11,true); }
+  function win(){ claimed=false; PIST='recoil'; pmood='hurt'; pSad=1;
     E.setDots(3); E.tickQ(3); E.award(65); E.cheer(); E.sfx('win');
-    E.status(keq('½τ ≈ 3.14 = π'));
-    E.tell(t({en:'The disk\'s <b class="g">area</b> is <b class="y">½τ</b> ≈ <b>3.14</b> — and yes, that IS <b class="p">π</b>. So <b class="p">Pi the Halver</b> is right that the number is his — but only because the <b>area</b> is HALF the turn. The <b class="y">rim</b> is the whole turn <b class="y">τ</b>; the <b>inside</b> is half of it, <b class="y">½τ</b> = <b class="p">π</b>. Name it <b class="y">½τ</b> and the inside is sealed. He recoils — but vows the next slice is his too.',
-      zh:'圆盘的<b class="g">面积</b>是 <b class="y">½τ</b> ≈ <b>3.14</b>——没错，那正是 <b class="p">π</b>。所以<b class="p">半圆贩子</b>说这个数归他，是对的——但只因为<b>面积</b>恰是整圈的<b>一半</b>。<b class="y">圆边</b>是整整一圈 <b class="y">τ</b>；<b>里头</b>是它的一半，<b class="y">½τ</b> = <b class="p">π</b>。把它写作 <b class="y">½τ</b>，里头就封住了。他退了一步——却扬言下一块也归他。'}));
-    E.clearTray(); E.addBtn(t({en:'Claim the Codex page 📖',zh:'领取典籍书页 📖'}),'primary',()=>E.openBook(QUEST.book)); E.addBtn(t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep); }
+    E.status(keq('area = ½τ ≈ 3.14 = π'));
+    E.tell(t({en:'The disk\'s <b class="g">area</b> is <b class="y">½τ</b> ≈ <b>3.14</b> — and yes, that IS <b class="p">π</b>. <b class="p">Pi the Halver</b> is right the number is his, but only because the <b>area</b> is HALF the turn: the <b class="y">rim</b> is <b class="y">τ</b>, the inside is <b class="y">½τ</b> = <b class="p">π</b>. Watch the bar fold back into the <b class="y">circle</b> — same green, same <b class="g">area</b>.',
+      zh:'圆盘的<b class="g">面积</b>是 <b class="y">½τ</b> ≈ <b>3.14</b>——没错，那正是 <b class="p">π</b>。<b class="p">半圆贩子</b>说这个数归他是对的，但只因为<b>面积</b>恰是整圈的<b>一半</b>：<b class="y">圆边</b>是 <b class="y">τ</b>，里头是 <b class="y">½τ</b> = <b class="p">π</b>。看长条折回成<b class="y">圆</b>——还是那片绿，<b class="g">面积</b>不变。'}));
+    E.busy=true; E.clearTray();
+    E.anim(1700, p=>{ if(p<0.28){ bg(); bar(()=>{ label(BX0()+BW()/2,(BYT()+BYB())/2-9,'½τ',GOLD,22,true); label(BX0()+BW()/2,(BYT()+BYB())/2+15,'= π ≈ 3.14',VIO,13,true); }); } else reformDraw((p-0.28)/0.72); },
+      ()=>{ E.busy=false; reformDraw(1);
+        E.clearTray(); E.addBtn(t({en:'Claim the Codex page 📖',zh:'领取典籍书页 📖'}),'primary',()=>E.openBook(QUEST.book)); E.addBtn(t({en:'↺ Replay (no EXP)',zh:'↺ 重玩（无经验）'}),'ghost',E.replayStep); }); }
 }
 
 const QUEST = {
