@@ -120,7 +120,7 @@ function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(0); E.sceneSt
    edge; bottom half → up-wedges (even i) = bottom edge. tp/bp = the two halves' morph progress (0=disk, 1=bar). */
 function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.sceneStop(); PIST='loom'; pmood='gloat'; pSad=0;
   E.setPlace(t({en:'Pack the Bar',zh:'拼成长条'}));
-  const N=24, DTH=TAU/N;
+  const N=36, DTH=TAU/N;   // many fine wedges → the slants stand ~vertical, so each red slant IS a radius spanning the height
   const DC=()=>({x:E.LW*0.22, y:E.LH*0.42}), DR=()=>E.LH*0.26;     // the wedge-circle, kept on the LEFT
   const Rlen=()=>E.LH*0.26, baseY=()=>E.LH*0.58;                   // bar height = a radius
   function geom(){ const step=Rlen()*Math.sin(P/N), h=Rlen()*Math.cos(P/N), W=N*step, x0=E.LW*0.42; return {step,h,W,x0,yB:baseY(),yT:baseY()-h}; }
@@ -168,9 +168,10 @@ function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.sceneSt
         [ {txt:{en:'2b = τ',zh:'2b = τ'}, ok:true},
           {txt:{en:'b = τ',zh:'b = τ'}, fb:{en:'That is Pi’s trick — calling ONE edge the whole rim. There are two equal edges, so 2b = τ; one base is only half.',zh:'那正是 Pi 的把戏——把一条边当成整条圆边。其实有两条一样的边，所以 2b = τ；一条底只是一半。'}},
           {txt:{en:'b = π is all',zh:'b = π 就是全部'}, fb:{en:'One edge IS π — but it is only HALF. Both edges together are the whole rim: 2b = τ = 2π.',zh:'一条边确实是 π——但只是一半。两条边合起来才是整条圆边：2b = τ = 2π。'}} ], q2); }
-    function q2(){ pickPills(t({en:'Now the <b>height</b>. Each wedge\'s slanted side is a <b class="r">radius</b>, and cut fine they stand straight up — so the bar\'s height <b class="r">h</b> is one radius. On the unit circle that is <b class="r">1</b>. So…',
-        zh:'再看<b>高</b>。每块楔形的斜边是一条<b class="r">半径</b>，切细后立得笔直——所以长条的高 <b class="r">h</b> 就是一条半径。在单位圆上那是 <b class="r">1</b>。所以……'}),
-        ()=>draw(1,1, g=>{ heightMark(g,'h'); label(g.x0+g.W/2,g.yT-12,'b',GOLD,15,true); label(g.x0+g.W/2,g.yB+14,'b',GOLD,15,true); }), E.LH*0.9,
+    function q2(){ pickPills(t({en:'Now the <b>height</b>. With so many fine wedges, each red slant <b>stands straight up</b> — and each slant is a unit <b class="r">radius</b> that spans the bar top-to-bottom. So the height <b class="r">h</b> just IS one radius, which on the unit circle is <b class="r">1</b>. So…',
+        zh:'再看<b>高</b>。楔块切得这么细，每条红斜边都<b>立得笔直</b>——而每条斜边都是一条单位<b class="r">半径</b>，正好从条底贯到条顶。所以高 <b class="r">h</b> 就是一条半径，在单位圆上是 <b class="r">1</b>。所以……'}),
+        ()=>draw(1,1, g=>{ const ctx=E.ctx; ctx.save(); ctx.strokeStyle='#ff8a6a'; ctx.lineWidth=4; ctx.lineCap='round'; ctx.shadowColor='rgba(255,138,106,.7)'; ctx.shadowBlur=6; ctx.beginPath(); ctx.moveTo(vX(g,0),vY(g,0)); ctx.lineTo(vX(g,1),vY(g,1)); ctx.stroke(); ctx.restore();   // one slant = a radius, standing ~vertical = the height
+          heightMark(g,'h'); label((vX(g,0)+vX(g,1))/2+20,(g.yT+g.yB)/2,t({en:'a radius',zh:'一条半径'}),'#ff8a6a',11,true); label(g.x0+g.W/2,g.yT-12,'b',GOLD,15,true); label(g.x0+g.W/2,g.yB+14,'b',GOLD,15,true); }), E.LH*0.9,
         [ {txt:{en:'h = 1',zh:'h = 1'}, ok:true},
           {txt:{en:'h = ½',zh:'h = ½'}, fb:{en:'The whole slant is one radius, and the unit radius is 1 — not half.',zh:'整条斜边是一条半径，单位半径是 1——不是一半。'}},
           {txt:{en:'h = τ',zh:'h = τ'}, fb:{en:'τ is the rim, a length around. The height is just one radius: h = 1.',zh:'τ 是圆边、绕一圈的长。高只是一条半径：h = 1。'}} ], win); }

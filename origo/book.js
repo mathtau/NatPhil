@@ -179,7 +179,7 @@ const FIGS={
   utau(){ const cx=240, cy=42, r=34;   // the whole way around = τ — clean circle, value (with τ) labelled below
     return '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+GOLD+'" stroke-width="3"/>'
       + '<text x="'+cx+'" y="'+(cy+r+17)+'" font-family="Caveat,cursive" font-size="18" fill="#a8780f" text-anchor="middle" dominant-baseline="middle">τ ≈ 6.28</text>'; },
-  pwedge(){ const PI=Math.PI; const cx=196, cy=50, r=30, n=10; let s='';   // cut the disk into wedges → each is a thin triangle
+  pwedge(){ const PI=Math.PI; const cx=196, cy=50, r=30, n=18; let s='';   // cut the disk into many wedges → each is a thin triangle
     for(let i=0;i<n;i++){ const a0=-PI/2+i*2*PI/n, a1=a0+2*PI/n;
       const x0=+(cx+r*Math.cos(a0)).toFixed(1), y0=+(cy+r*Math.sin(a0)).toFixed(1), x1=+(cx+r*Math.cos(a1)).toFixed(1), y1=+(cy+r*Math.sin(a1)).toFixed(1);
       s+='<path d="M'+cx+' '+cy+' L'+x0+' '+y0+' A'+r+' '+r+' 0 0 1 '+x1+' '+y1+' Z" fill="'+G+'" opacity="'+((i%2)?0.16:0.26)+'"/>';
@@ -190,7 +190,7 @@ const FIGS={
     s+='<path d="M'+tx+' '+(cy-th/2)+' L'+(tx-tw)+' '+(cy+th/2)+' L'+(tx+tw)+' '+(cy+th/2)+' Z" fill="'+G+'" opacity="0.24"/>';
     s+=sLine(tx,cy-th/2,tx-tw,cy+th/2,R,1.8)+sLine(tx,cy-th/2,tx+tw,cy+th/2,R,1.8)+sLine(tx-tw,cy+th/2,tx+tw,cy+th/2,GOLD,2);
     s+=sText('triangle',tx,cy+th/2+13,G,12); return s; },
-  prect(){ const x0=168, Wb=144, yT=28, yB=72, M=6; let s='';   // wedges packed into a bar: height h = 1, two bases 2b = τ
+  prect(){ const x0=168, Wb=144, yT=28, yB=72, M=14; let s='';   // many wedges packed into a bar: height h = 1, two bases 2b = τ
     s+='<rect x="'+x0+'" y="'+yT+'" width="'+Wb+'" height="'+(yB-yT)+'" fill="'+G+'" opacity="0.18"/>';
     for(let i=0;i<M;i++){ const x=x0+i*Wb/M, y=(i%2===0)?yB:yT, x2=x0+(i+1)*Wb/M, y2=(i%2===0)?yT:yB; s+=sLine(x,y,x2,y2,R,1.5); }   // zig-zag = the packed wedge sides (radii)
     s+=sLine(x0,yT,x0+Wb,yT,GOLD,2.4)+sLine(x0,yB,x0+Wb,yB,GOLD,2.4);   // gold long edges = the two bases b (together = the rim τ)
