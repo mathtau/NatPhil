@@ -195,9 +195,8 @@ const FIGS={
     s+=sLine(tx,ay,tx-bw,by,'#ff8a6a',1.8)+sLine(tx,ay,tx+bw,by,'#ff8a6a',1.8)+'<path d="M'+(tx-bw)+' '+by+' Q'+tx+' '+(by+bg)+' '+(tx+bw)+' '+by+'" fill="none" stroke="'+GOLD+'" stroke-width="2"/>';
     s+=sText('one wedge',tx,by+13,G,11); return s; },
   prect(){ const PI=Math.PI, U=32, Wb=Math.round(PI*U), x0=Math.round(240-Wb/2), yT=26, yB=yT+U, M=12; let s='';   // the same thin wedges packed into a bar: height h = U = 1, two bases 2b = τ
-    for(let k=0;k<M;k++){ const lx=x0+k*Wb/M, rx=x0+(k+1)*Wb/M, mx=(lx+rx)/2, up=(k%2===0), ay=up?yT:yB, by=up?yB:yT;
-      s+='<path d="M'+mx.toFixed(1)+' '+ay+' L'+lx.toFixed(1)+' '+by+' L'+rx.toFixed(1)+' '+by+' Z" fill="'+G+'" opacity="'+((k%2)?0.16:0.26)+'"/>';
-      s+=sLine(mx,ay,lx,by,R,1.3)+sLine(mx,ay,rx,by,R,1.3); }
+    s+='<rect x="'+x0+'" y="'+yT+'" width="'+Wb+'" height="'+U+'" fill="'+G+'" opacity="0.24"/>';   // solid fill — the wedges interlock with NO gaps
+    for(let i=0;i<M;i++){ const x=x0+i*Wb/M, y=(i%2===0)?yB:yT, x2=x0+(i+1)*Wb/M, y2=(i%2===0)?yT:yB; s+=sLine(x,y,x2,y2,R,1.4); }   // red zig-zag = the packed wedges' shared sides
     s+=sLine(x0,yT,x0+Wb,yT,GOLD,2.4)+sLine(x0,yB,x0+Wb,yB,GOLD,2.4)+sLine(x0,yT,x0,yB,R,2)+sLine(x0+Wb,yT,x0+Wb,yB,R,2);
     s+=sText('b',x0+Wb/2,yT-9,'#a8780f',14)+sText('b',x0+Wb/2,yB+11,'#a8780f',14)+sText('h',x0-11,(yT+yB)/2,R,13)+sText('2b = τ',x0+Wb+5,(yT+yB)/2,'#a8780f',11); return s; },
   parea(){ const PI=Math.PI, U=32, rc=U, ccx=150, ccy=46, Wb=Math.round(PI*U), x0=480-Wb-(ccx-rc), yT=ccy-U/2, yB=ccy+U/2; let s='';   // circle = bar, SAME unit 1, SAME area ½τ = π
