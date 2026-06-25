@@ -7,7 +7,9 @@
     { n:'02', act:'cradle', t:{ en:'Multiplication',     zh:'乘法' } },
     { n:'03', act:'cradle', t:{ en:'Give Numbers Names', zh:'给数起名字' } },
     { n:'04', act:'cradle', t:{ en:'Area vs Length',     zh:'面积与长度' } },
-    { n:'05', act:'coil',   t:{ en:'The Unit Circle & τ', zh:'单位圆与 τ' } }
+    { n:'05', act:'coil',   t:{ en:'The Unit Circle & τ',  zh:'单位圆与 τ' } },
+    { n:'06', act:'coil',   t:{ en:'Disk Area — Pizza Cut',  zh:'圆盘面积 · 披萨法' } },
+    { n:'07', act:'coil',   t:{ en:'Disk Area — Donut Rings', zh:'圆盘面积 · 甜甜圈法' } }
   ];
   // the quest after `id` in canonical order (null if it's the last) — order lives ONLY here
   window.QUEST_NEXT = function(id){ id=String(id).replace(/[^0-9]/g,''); var m=window.MANIFEST;

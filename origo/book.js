@@ -23,9 +23,9 @@ function sCell(x,y,c,col){ const d=((rnd()-.5)*3).toFixed(1); return '<g transfo
 function sGrid(x,y,c,cols,rows,col){ let s=''; for(let r=0;r<rows;r++)for(let k=0;k<cols;k++) s+=sCell(x+k*c,y+r*c,c,col); return s; }
 function cEq(cx,cy,parts,sz){ sz=sz||18; let w=parts.reduce((a,p)=>a+p[0].length*sz*0.52,0), x=cx-w/2, s=''; parts.forEach(p=>{ const pw=p[0].length*sz*0.52; s+='<text x="'+(x+pw/2).toFixed(1)+'" y="'+cy+'" font-family="Caveat,cursive" font-size="'+sz+'" fill="'+p[1]+'" text-anchor="middle" dominant-baseline="middle">'+p[0]+'</text>'; x+=pw; }); return s; }
 function pbrace(x1,x2,y,label,col){ col=col||INK; return sLine(x1,y+5,x1,y,col,1.6)+sLine(x1,y,x2,y,col,1.6)+sLine(x2,y,x2,y+5,col,1.6)+sText(label,(x1+x2)/2,y-8,col,13); }
-const FIGH={dots:48,bars:44,numline:52,commute:78,assoc:106, mjumps:88,marr:68,mintro:146,mrect:58,mrot:76,mdist:68,mgroups:98, gnname:64,gjux:80,gfill:50,glaw:76,garea:76, acmp:76,aunit:86,aflip:92, ucirc:86,uhex:114,utau:98};   // each ≥ its lowest label so labels aren't clipped
+const FIGH={dots:48,bars:44,numline:52,commute:78,assoc:106, mjumps:88,marr:68,mintro:146,mrect:58,mrot:76,mdist:68,mgroups:98, gnname:64,gjux:80,gfill:50,glaw:76,garea:76, acmp:76,aunit:86,aflip:92, ucirc:86,uhex:114,utau:98, pwedge:94,prect:84,parea:80, drings:88,dstrip:66,dtri:88};   // each ≥ its lowest label so labels aren't clipped
 // measured content centre (getBBox) per figure; figSVG pans the 480-wide viewBox so EVERY figure is centred in its frame (re-measure if a figure's layout changes)
-const FIGCX={dots:183,bars:163,numline:240,commute:240,assoc:245, mjumps:243,marr:238,mintro:201,mrect:249,mrot:225,mdist:156,mgroups:246, gnname:249,gjux:229,gfill:264,glaw:266,garea:264, acmp:232,aunit:234,aflip:236, ucirc:240,uhex:240,utau:240};
+const FIGCX={dots:183,bars:163,numline:240,commute:240,assoc:245, mjumps:243,marr:238,mintro:201,mrect:249,mrot:225,mdist:156,mgroups:246, gnname:249,gjux:229,gfill:264,glaw:266,garea:264, acmp:232,aunit:234,aflip:236, ucirc:240,uhex:240,utau:240, pwedge:240,prect:240,parea:240, drings:240,dstrip:240,dtri:240};
 const FIGS={
   dots(){ const s=24,y=30; return sBox(74,y,s,B)+sText('+',106,y,INK,30)
     +sBox(134,y,s,B)+sBox(166,y,s,B)+sText('=',198,y,INK,30)
@@ -181,6 +181,42 @@ const FIGS={
       + sDot(cx,cy,3,INK)
       + '<text x="'+cx+'" y="'+(cy+1)+'" font-family="Caveat,cursive" font-size="26" fill="#a8780f" text-anchor="middle" dominant-baseline="middle">τ</text>'
       + sText('≈ 6.28',cx,cy+r+14,'#a8780f',13); },
+  pwedge(){ const PI=Math.PI; const cx=196, cy=50, r=30, n=10; let s='';   // cut the disk into wedges → each is a thin triangle
+    for(let i=0;i<n;i++){ const a0=-PI/2+i*2*PI/n, a1=a0+2*PI/n;
+      const x0=+(cx+r*Math.cos(a0)).toFixed(1), y0=+(cy+r*Math.sin(a0)).toFixed(1), x1=+(cx+r*Math.cos(a1)).toFixed(1), y1=+(cy+r*Math.sin(a1)).toFixed(1);
+      s+='<path d="M'+cx+' '+cy+' L'+x0+' '+y0+' A'+r+' '+r+' 0 0 1 '+x1+' '+y1+' Z" fill="'+G+'" opacity="'+((i%2)?0.16:0.26)+'"/>';
+      s+=sLine(cx,cy,x0,y0,R,1.1); }
+    s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+GOLD+'" stroke-width="2.4"/>'+sDot(cx,cy,2.6,INK);
+    s+=sLine(cx+r+8,cy,cx+r+34,cy,INK,2)+'<path d="M'+(cx+r+34)+' '+(cy-5)+' L'+(cx+r+42)+' '+cy+' L'+(cx+r+34)+' '+(cy+5)+' Z" fill="'+INK+'"/>';   // arrow →
+    const tx=cx+r+68, th=42, tw=13;   // one wedge opened up = a thin triangle
+    s+='<path d="M'+tx+' '+(cy-th/2)+' L'+(tx-tw)+' '+(cy+th/2)+' L'+(tx+tw)+' '+(cy+th/2)+' Z" fill="'+G+'" opacity="0.24"/>';
+    s+=sLine(tx,cy-th/2,tx-tw,cy+th/2,R,1.8)+sLine(tx,cy-th/2,tx+tw,cy+th/2,R,1.8)+sLine(tx-tw,cy+th/2,tx+tw,cy+th/2,GOLD,2);
+    s+=sText('triangle',tx,cy+th/2+13,G,12); return s; },
+  prect(){ const x0=168, Wb=144, yT=28, yB=72, M=6; let s='';   // wedges packed into a bar: height 1, long edge ½τ
+    s+='<rect x="'+x0+'" y="'+yT+'" width="'+Wb+'" height="'+(yB-yT)+'" fill="'+G+'" opacity="0.18"/>';
+    for(let i=0;i<M;i++){ const x=x0+i*Wb/M, y=(i%2===0)?yB:yT, x2=x0+(i+1)*Wb/M, y2=(i%2===0)?yT:yB; s+=sLine(x,y,x2,y2,R,1.5); }   // zig-zag = the packed wedge sides (radii)
+    s+=sLine(x0,yT,x0+Wb,yT,GOLD,2.4)+sLine(x0,yB,x0+Wb,yB,GOLD,2.4);   // gold long edges = the two rim-halves
+    s+=sLine(x0,yT,x0,yB,R,2)+sLine(x0+Wb,yT,x0+Wb,yB,R,2);
+    s+=sText('½τ',x0+Wb/2,yT-9,'#a8780f',14)+sText('1',x0-12,(yT+yB)/2,R,13); return s; },
+  parea(){ const x0=168, Wb=144, yT=24, yB=68, mid=(24+68)/2; let s='';   // area = ½τ × 1 = ½τ = π
+    s+='<rect x="'+x0+'" y="'+yT+'" width="'+Wb+'" height="'+(yB-yT)+'" fill="'+G+'" opacity="0.26"/>';
+    s+=sLine(x0,yT,x0+Wb,yT,GOLD,2.4)+sLine(x0,yB,x0+Wb,yB,GOLD,2.4)+sLine(x0,yT,x0,yB,R,2)+sLine(x0+Wb,yT,x0+Wb,yB,R,2);
+    s+='<text x="'+(x0+Wb/2)+'" y="'+(mid-1)+'" font-family="Caveat,cursive" font-size="22" fill="'+DEP+'" text-anchor="middle" dominant-baseline="middle">π</text>';
+    s+=sText('= ½τ',x0+Wb/2,mid+16,'#a8780f',12)+sText('½τ',x0+Wb/2,yT-8,'#a8780f',13)+sText('1',x0-12,(yT+yB)/2,R,12); return s; },
+  drings(){ const cx=240, cy=48, r=34, n=6; let s='';   // slice the radius into thin rings, each dx wide
+    for(let i=1;i<=n;i++){ const ri=+(r*i/n).toFixed(1); s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+ri+'" fill="none" stroke="'+(i===n?GOLD:'#caa84a')+'" stroke-width="'+(i===n?2.4:1.3)+'" opacity="'+(i===n?1:(0.4+0.4*i/n).toFixed(2))+'"/>'; }
+    const dx=r/n; s+=sLine(cx+r-dx,cy,cx+r,cy,R,3)+sLine(cx+r-dx,cy-5,cx+r-dx,cy+5,R,1.5)+sLine(cx+r,cy-5,cx+r,cy+5,R,1.5);
+    s+=sDot(cx,cy,2.6,INK)+sText('dx',cx+r-dx/2,cy-11,R,12); return s; },
+  dstrip(){ const x0=152, len=176, y=40, w=18; let s='';   // one ring unrolled → a strip: dx wide, r·τ long
+    s+='<rect x="'+x0+'" y="'+(y-w/2)+'" width="'+len+'" height="'+w+'" fill="'+G+'" opacity="0.22"/>';
+    s+=sLine(x0,y-w/2,x0+len,y-w/2,GOLD,2.2)+sLine(x0,y+w/2,x0+len,y+w/2,GOLD,2.2)+sLine(x0,y-w/2,x0,y+w/2,R,2.2);
+    s+=sText('dx',x0-12,y,R,12)+sText('r·τ',x0+len/2,y-w/2-10,'#a8780f',13); return s; },
+  dtri(){ const x0=176, W=128, yT=26, yB=72; let s='';   // strips stacked → triangle: base 1, height τ, area ½τ = π
+    s+='<path d="M'+x0+' '+yB+' L'+x0+' '+yT+' L'+(x0+W)+' '+yT+' Z" fill="'+G+'" opacity="0.22"/>';
+    s+=sLine(x0,yT,x0,yB,R,2.4)+sLine(x0,yT,x0+W,yT,GOLD,2.6)+sLine(x0,yB,x0+W,yT,INK,1.6);
+    s+=sText('1',x0-11,(yT+yB)/2,R,13)+sText('τ',x0+W/2,yT-10,'#a8780f',16);
+    s+='<text x="'+(x0+W*0.36)+'" y="'+((yT+yB)/2)+'" font-family="Caveat,cursive" font-size="16" fill="#a8780f" text-anchor="middle" dominant-baseline="middle">½τ</text>';
+    s+=sText('= π',x0+W*0.36,(yT+yB)/2+15,DEP,11); return s; },
 };
 function figSVG(name){ const W=480,H=FIGH[name]||70, cx=FIGCX[name]||240; return '<svg class="bkfig" width="544" height="'+(544*H/W).toFixed(1)+'" viewBox="'+(cx-240).toFixed(0)+' 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">'+FIGS[name]()+'</svg>'; }   // pan viewBox to centre content; explicit width/height so it sizes even if page CSS is missing (PNG/PDF export)
 function colorEq(s){ return s.replace(/\d/g,d=>'<span style="color:'+(COL[+d]||INK)+'">'+d+'</span>'); }
