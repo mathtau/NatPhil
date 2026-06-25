@@ -118,7 +118,14 @@ function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.sceneSt
   const STY=()=>E.LH*0.82, SX0=()=>E.LW*0.5-E.LW*0.3, SLEN=()=>E.LW*0.6;   // staging strip area at the bottom
   let unrolled=false, up=0;   // up = unroll progress 0→1
   const handle={ kind:'drag', home:{x:CX()+rr(), y:CY()}, bbox:a=>({x:a.pos.x-16,y:a.pos.y-16,w:32,h:32}) };
-  function ringsBg(){ const ctx=E.ctx; for(let i=1;i<=N;i++){ const ri=R()*i/N; ctx.save(); ctx.strokeStyle=(i===K)?GOLD:'rgba(244,200,48,.22)'; ctx.lineWidth=(i===K)?3.2:1.4; if(i===K){ctx.shadowColor='rgba(244,200,48,.6)';ctx.shadowBlur=8;} ctx.beginPath(); ctx.arc(CX(),CY(),ri,0,7); ctx.stroke(); ctx.restore(); } odot(); }
+  function ringsBg(){ const ctx=E.ctx, ox=CX(), oy=CY(), R0=R();
+    for(let i=N;i>=1;i--){ const ri=R0*i/N; ctx.save(); ctx.beginPath(); ctx.arc(ox,oy,ri,0,7);   // filled concentric bands (donut/tree-rings), drawn outer→inner
+      ctx.fillStyle=(i===K)?'rgba(244,200,48,.5)':((i%2)?'rgba(80,216,144,.22)':'rgba(80,216,144,.1)'); ctx.fill();
+      ctx.strokeStyle='rgba(244,200,48,.28)'; ctx.lineWidth=1; ctx.stroke(); ctx.restore(); }
+    ctx.save(); ctx.strokeStyle=GOLD; ctx.lineWidth=3; ctx.shadowColor='rgba(244,200,48,.4)'; ctx.shadowBlur=5; ctx.beginPath(); ctx.arc(ox,oy,R0,0,7); ctx.stroke(); ctx.restore();   // gold rim
+    ctx.save(); ctx.strokeStyle=GOLD; ctx.lineWidth=2.4; ctx.shadowColor='rgba(244,200,48,.7)'; ctx.shadowBlur=6; ctx.beginPath(); ctx.arc(ox,oy,R0*K/N,0,7); ctx.stroke(); ctx.beginPath(); ctx.arc(ox,oy,R0*(K-1)/N,0,7); ctx.stroke(); ctx.restore();   // the chosen ring, bright
+    ctx.save(); ctx.strokeStyle='rgba(255,106,77,.85)'; ctx.lineWidth=2.5; ctx.lineCap='round'; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(ox,oy); ctx.lineTo(ox,oy+R0); ctx.stroke(); ctx.restore();   // THE CUT — O straight down (where the rings unroll)
+    odot(); }
   function strip(prog,extra){ const ctx=E.ctx; const w=dxpx()*1.6, len=SLEN()*prog, x0=SX0(), y=STY();
     ctx.save(); ctx.fillStyle='rgba(80,216,144,.26)'; ctx.fillRect(x0,y-w/2,len,w);
     ctx.strokeStyle=GOLD; ctx.lineWidth=2.6; ctx.beginPath(); ctx.moveTo(x0,y-w/2); ctx.lineTo(x0+len,y-w/2); ctx.moveTo(x0,y+w/2); ctx.lineTo(x0+len,y+w/2); ctx.stroke();   // long edges = the rim (gold)
