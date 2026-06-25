@@ -120,13 +120,14 @@ function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.sceneSt
   E.setPlace(t({en:'Straighten a Ring',zh:'拉直圆环'}));
   const N=8, C2x=()=>E.LW*0.17, C2y=()=>E.LH*0.34, R0=()=>E.LH*0.22, dxw=()=>R0()/N*1.7, barLen=()=>TAU*R0(), barY=()=>C2y()+R0();
   let p=0;   // straighten progress 0..1 (driven by the drag)
-  const ringPt=(u,off)=>{ const th=P/2-u*TAU, r=R0()+(off||0); return {x:C2x()+r*Math.cos(th), y:C2y()+r*Math.sin(th)}; };   // u: arc fraction from the cut (bottom), anticlockwise
-  const barPt=(u,off)=>({x:C2x()+u*barLen(), y:barY()+(off||0)});   // bar runs RIGHT from the cut; u=0 (right-of-cut) pinned at the left end
-  const morphPt=(u,off)=>{ const a=ringPt(u,off), b=barPt(u,off); return {x:a.x+(b.x-a.x)*p, y:a.y+(b.y-a.y)*p}; };
-  function band(){ const ctx=E.ctx, K2=96, out=[], inn=[]; for(let i=0;i<=K2;i++){ const u=i/K2; out.push(morphPt(u,dxw()/2)); inn.push(morphPt(u,-dxw()/2)); }
-    ctx.save(); ctx.beginPath(); ctx.moveTo(out[0].x,out[0].y); for(let i=1;i<=K2;i++)ctx.lineTo(out[i].x,out[i].y); for(let i=K2;i>=0;i--)ctx.lineTo(inn[i].x,inn[i].y); ctx.closePath(); ctx.fillStyle='rgba(80,216,144,.3)'; ctx.fill();
-    ctx.strokeStyle=GOLD; ctx.lineWidth=2.6; ctx.beginPath(); ctx.moveTo(out[0].x,out[0].y); for(let i=1;i<=K2;i++)ctx.lineTo(out[i].x,out[i].y); ctx.moveTo(inn[0].x,inn[0].y); for(let i=1;i<=K2;i++)ctx.lineTo(inn[i].x,inn[i].y); ctx.stroke();   // the rim (gold)
-    ctx.strokeStyle=RD; ctx.lineWidth=2.6; ctx.beginPath(); ctx.moveTo(out[0].x,out[0].y); ctx.lineTo(inn[0].x,inn[0].y); ctx.moveTo(out[K2].x,out[K2].y); ctx.lineTo(inn[K2].x,inn[K2].y); ctx.stroke(); ctx.restore(); }   // the two cut ends = dx
+  function band(){ const ctx=E.ctx, L=barLen(), l=Math.max(0,Math.min(L,p*L)), r=(L-l)/TAU, x0=C2x(), by=barY(), w=dxw();   // LENGTH-PRESERVING unroll: a straight strip (length l) + the still-coiled remainder as a ring of radius r (circumference L−l). l + (L−l) = L throughout — no stretching.
+    ctx.save();
+    if(l>0.5){ ctx.fillStyle='rgba(80,216,144,.3)'; ctx.fillRect(x0,by-w/2,l,w);   // the part already straightened, lying flat on the bar
+      ctx.strokeStyle=GOLD; ctx.lineWidth=2.6; ctx.beginPath(); ctx.moveTo(x0,by-w/2); ctx.lineTo(x0+l,by-w/2); ctx.moveTo(x0,by+w/2); ctx.lineTo(x0+l,by+w/2); ctx.stroke(); }
+    if(r>0.5){ const cx=x0+l, cyr=by-r;   // the coil still to unroll — radius shrinks so its circumference is exactly the leftover length
+      ctx.fillStyle='rgba(80,216,144,.3)'; ctx.beginPath(); ctx.arc(cx,cyr,r+w/2,0,7,false); ctx.arc(cx,cyr,Math.max(0.1,r-w/2),0,7,true); ctx.fill('evenodd');
+      ctx.strokeStyle=GOLD; ctx.lineWidth=2.4; ctx.beginPath(); ctx.arc(cx,cyr,r+w/2,0,7); ctx.stroke(); if(r-w/2>0.5){ ctx.beginPath(); ctx.arc(cx,cyr,r-w/2,0,7); ctx.stroke(); } }
+    ctx.strokeStyle=RD; ctx.lineWidth=2.6; ctx.beginPath(); ctx.moveTo(x0,by-w/2); ctx.lineTo(x0,by+w/2); ctx.stroke(); ctx.restore(); }   // the cut (dx) pinned at the bar's left
   function innerRings(){ const ctx=E.ctx; for(let i=1;i<N;i++){ const ri=R0()*i/N; ctx.save(); ctx.fillStyle=(i%2)?'rgba(80,216,144,.13)':'rgba(80,216,144,.06)'; ctx.beginPath(); ctx.arc(C2x(),C2y(),ri,0,7); ctx.fill(); ctx.strokeStyle='rgba(244,200,48,.16)'; ctx.lineWidth=1; ctx.stroke(); ctx.restore(); } }
   function odotL(){ const ctx=E.ctx; ctx.save(); ctx.strokeStyle='rgba(255,106,77,.7)'; ctx.lineWidth=2; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(C2x(),C2y()); ctx.lineTo(C2x(),C2y()+R0()); ctx.stroke(); ctx.restore();   // the cut: O straight down
     ctx.save(); ctx.fillStyle='#0a0a18'; ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(C2x(),C2y(),4.5,0,7); ctx.fill(); ctx.stroke(); ctx.restore(); label(C2x()-13,C2y()-3,'O','#cfe0ff',12,true); }
@@ -164,42 +165,41 @@ function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.sceneSt
    rectangle of base τ × height 1 (area τ); each triangle is half → ½τ; deform each back to a disk of area ½τ. ===== */
 function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(2); E.sceneStop(); PIST='loom'; pmood='idle';
   E.setPlace(t({en:'Double the Triangle',zh:'把三角翻一倍'}));
-  const N=8, C2x=()=>E.LW*0.17, C2y=()=>E.LH*0.34, R0=()=>E.LH*0.22;   // SAME geometry as R2: circle on the left, the cut its left edge
-  const RX0=C2x, RH=R0, RW=()=>TAU*R0(), RYT=C2y, RYB=()=>C2y()+R0(), bh=()=>RH()/N;   // triangle/rectangle box: base τ (RW), height 1 (RH)
-  const GRN1='rgba(80,216,144,.30)', GRN2='rgba(80,216,144,.18)', VIO1='rgba(199,155,238,.34)', VIO2='rgba(199,155,238,.2)';
-  function innerRings(a){ const ctx=E.ctx; for(let i=1;i<N;i++){ const ri=R0()*i/N; ctx.save(); ctx.globalAlpha=a; ctx.fillStyle=(i%2)?'rgba(80,216,144,.16)':'rgba(80,216,144,.08)'; ctx.beginPath(); ctx.arc(C2x(),C2y(),ri,0,7); ctx.fill(); ctx.strokeStyle='rgba(244,200,48,.18)'; ctx.lineWidth=1; ctx.stroke(); ctx.restore(); } }
-  function bars(gL,gR){ const ctx=E.ctx, x0=RX0(), yT=RYT();   // gL,gR = grow 0..1 of the left (green) / right (violet) triangle; the OUTER (bottom) green bar is the one from R2 — always present
-    for(let i=0;i<N;i++){ const y=yT+(i+0.5)*bh(), Ll=RW()*(i+1)/N*((i===N-1)?1:gL), Rl=RW()*(N-i-1)/N*gR;
-      if(Ll>0.3){ ctx.fillStyle=(i%2)?GRN1:GRN2; ctx.fillRect(x0,y-bh()/2,Ll,bh()-1.1); }
-      if(Rl>0.3){ ctx.fillStyle=(i%2)?VIO1:VIO2; ctx.fillRect(x0+RW()-Rl,y-bh()/2,Rl,bh()-1.1); } } }
-  function box(gL,gR,extra){ bg(); const a=Math.max(0,1-gL); if(a>0.02) innerRings(a); bars(gL,gR); const ctx=E.ctx;
-    if(a>0.02){ ctx.save(); ctx.fillStyle='#0a0a18'; ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(RX0(),RYT(),4,0,7); ctx.fill(); ctx.stroke(); ctx.restore(); label(RX0()-12,RYT()-3,'O','#cfe0ff',11,true); }   // O stays while the rings are still uncoiling
-    ctx.save(); ctx.strokeStyle=RD; ctx.lineWidth=2.2; ctx.beginPath(); ctx.moveTo(RX0(),RYT()); ctx.lineTo(RX0(),RYB()); ctx.stroke();
-    if(gR>0.99){ ctx.beginPath(); ctx.moveTo(RX0()+RW(),RYT()); ctx.lineTo(RX0()+RW(),RYB()); ctx.stroke(); }
-    ctx.strokeStyle=GOLD; ctx.lineWidth=2.4; ctx.beginPath(); ctx.moveTo(RX0(),RYB()); ctx.lineTo(RX0()+RW(),RYB()); ctx.stroke(); if(gR>0.99){ ctx.beginPath(); ctx.moveTo(RX0(),RYT()); ctx.lineTo(RX0()+RW(),RYT()); ctx.stroke(); } ctx.restore();
-    label(RX0()-13,(RYT()+RYB())/2,'1',RD,13,true); label(RX0()+RW()/2,RYB()+14,'τ',GOLD,16,true); if(extra)extra(); }
-  function disks(p){ const ctx=E.ctx, rc=Math.sqrt(RW()*RH()/2/P), cy=(RYT()+RYB())/2, x1=E.LW*0.33, x2=E.LW*0.67;
-    [[x1,'rgba(80,216,144,.26)'],[x2,'rgba(199,155,238,.28)']].forEach(([cx,fl])=>{ ctx.save(); ctx.globalAlpha=p; ctx.fillStyle=fl; ctx.beginPath(); ctx.arc(cx,cy,rc,0,7); ctx.fill(); ctx.strokeStyle=GOLD; ctx.lineWidth=2.6; ctx.stroke(); ctx.restore(); label(cx,cy,'½τ',GOLD,15,true); }); }
-  E.tell(t({en:'<b>Double the Triangle.</b> Your <b>outer</b> ring is already a bar (base <b class="y">τ</b>), and the inner <b class="y">rings</b> are still on the left. <b>Uncoil the rest</b> — each inner ring straightens the same way (shorter), left-aligned at the cut. They lean into a <b class="g">triangle</b>: base <b class="y">τ</b>, height <b class="r">1</b>.',
-    zh:'<b>把三角翻一倍。</b>你的<b>最外</b>环已经是一根长条（底 <b class="y">τ</b>），内圈的<b class="y">环</b>还在左边。<b>把其余的环也摊开</b>——每个内环用同样的方式拉直（更短），靠切口左对齐。它们斜成一个<b class="g">三角</b>：底 <b class="y">τ</b>，高 <b class="r">1</b>。'}));
-  E.clearTray(); E.addBtn(t({en:'Uncoil the rings ▶',zh:'摊开所有环 ▶'}),'primary',uncoilAll); E.addBtn(t({en:'◀ Prev step',zh:'◀ 上一步'}),'ghost',E.prevStep);
-  box(0,0);
-  function uncoilAll(){ E.busy=true; E.clearTray(); E.sfx('bracket'); E.anim(1100,p=>box(p,0),()=>{ E.busy=false; askTri(); }); }
+  const N=8, C2x=()=>E.LW*0.16, C2y=()=>E.LH*0.34, R0=()=>E.LH*0.2, RW=()=>TAU*R0(), RYB=()=>C2y()+R0(), w=()=>R0()/N;
+  const GRN1='rgba(80,216,144,.32)', GRN2='rgba(80,216,144,.2)', VIO1='rgba(199,155,238,.34)', VIO2='rgba(199,155,238,.22)';
+  // ONE length-preserving roll (same as R2): a strip of length l + a coil of radius rc, l + τ·rc = L always. dir +1 unrolls right, −1 left.
+  function coilStrip(x0,y,L,prog,dir,fill){ const ctx=E.ctx, ww=w(), l=Math.max(0,Math.min(L,prog*L)), rc=(L-l)/TAU;
+    if(l>0.5){ ctx.fillStyle=fill; ctx.fillRect(dir>0?x0:x0-l, y-ww/2, l, ww); }
+    if(rc>0.5){ const cx=dir>0?x0+l:x0-l, cy=dir>0?y-rc:y+rc; ctx.save(); ctx.fillStyle=fill; ctx.beginPath(); ctx.arc(cx,cy,rc+ww/2,0,7,false); ctx.arc(cx,cy,Math.max(0.1,rc-ww/2),0,7,true); ctx.fill('evenodd'); ctx.strokeStyle='rgba(244,200,48,.45)'; ctx.lineWidth=1; ctx.beginPath(); ctx.arc(cx,cy,rc+ww/2,0,7); ctx.stroke(); ctx.restore(); } }
+  function triG(prog){ for(let k=1;k<=N;k++) coilStrip(C2x(), C2y()+R0()*k/N, TAU*R0()*k/N, prog, +1, (k%2)?GRN1:GRN2); }              // green disk (top-left) unrolls RIGHT
+  function triV(prog){ for(let k=1;k<=N;k++) coilStrip(C2x()+RW(), C2y()+R0()*k/N, TAU*R0()*(N-k)/N, prog, -1, (k%2)?VIO1:VIO2); }    // violet disk (bottom-right) unrolls LEFT — the complementary (rotated) triangle
+  function frame(gP,vP,extra){ bg(); triG(gP); if(vP!=null) triV(vP); const ctx=E.ctx;
+    ctx.save(); ctx.strokeStyle=RD; ctx.lineWidth=2.2; ctx.beginPath(); ctx.moveTo(C2x(),C2y()); ctx.lineTo(C2x(),RYB()); ctx.stroke();   // left edge = height 1
+    ctx.strokeStyle=GOLD; ctx.lineWidth=2.4; ctx.beginPath(); ctx.moveTo(C2x(),RYB()); ctx.lineTo(C2x()+RW(),RYB()); ctx.stroke();   // bottom = base τ
+    if(vP!=null && vP>0.99){ ctx.strokeStyle=RD; ctx.beginPath(); ctx.moveTo(C2x()+RW(),C2y()); ctx.lineTo(C2x()+RW(),RYB()); ctx.stroke(); ctx.strokeStyle=GOLD; ctx.beginPath(); ctx.moveTo(C2x(),C2y()); ctx.lineTo(C2x()+RW(),C2y()); ctx.stroke(); } ctx.restore();
+    label(C2x()-13,(C2y()+RYB())/2,'1',RD,13,true); label(C2x()+RW()/2,RYB()+14,'τ',GOLD,16,true); if(extra)extra(); }
+  function twoDisks(){ frame(0,0,()=>{ label(C2x(),C2y(),'½τ',GOLD,15,true); label(C2x()+RW(),RYB(),'½τ',GOLD,15,true); }); }
+  E.tell(t({en:'<b>Double the Triangle.</b> Here are your disk\'s <b class="y">rings</b> on the left. <b>Uncoil them all</b> — each ring straightens the same way (the outer one <b class="y">τ</b> long, inner ones shorter), left-aligned at the cut. They lean into a <b class="g">triangle</b>: base <b class="y">τ</b>, height <b class="r">1</b>.',
+    zh:'<b>把三角翻一倍。</b>左边是你这个圆盘的一圈圈<b class="y">环</b>。<b>把它们全摊开</b>——每个环用同样的方式拉直（最外的长 <b class="y">τ</b>，里面的更短），靠切口左对齐。它们斜成一个<b class="g">三角</b>：底 <b class="y">τ</b>，高 <b class="r">1</b>。'}));
+  E.clearTray(); E.addBtn(t({en:'Uncoil the rings ▶',zh:'摊开所有环 ▶'}),'primary',uncoilGreen); E.addBtn(t({en:'◀ Prev step',zh:'◀ 上一步'}),'ghost',E.prevStep);
+  frame(0,null);
+  function uncoilGreen(){ E.busy=true; E.clearTray(); E.sfx('bracket'); E.anim(1300,p=>frame(p,null),()=>{ E.busy=false; askTri(); }); }
   function askTri(){ pickPills(t({en:'There it is — a <b class="g">triangle</b>, base <b class="y">τ</b>, height <b class="r">1</b>. <b>How big is its area?</b>',zh:'看——一个<b class="g">三角</b>，底 <b class="y">τ</b>、高 <b class="r">1</b>。<b>它的面积有多大？</b>'}),
-      ()=>box(1,0,()=>label(RX0()+RW()*0.3,(RYT()+RYB())/2+1,t({en:'area = ?',zh:'面积 = ?'}),GR,14,true)), E.LH*0.92,
+      ()=>frame(1,null,()=>label(C2x()+RW()*0.3,(C2y()+RYB())/2+1,t({en:'area = ?',zh:'面积 = ?'}),GR,14,true)), E.LH*0.92,
       [ {txt:{en:'not learned yet',zh:'还不会算'}, ok:true},
-        {txt:{en:'½τ',zh:'½τ'}, fb:{en:'That IS the answer — but we have no triangle-area rule yet to prove it. Let us derive it.',zh:'那确实是答案——但我们还没有三角形面积公式来证明它。我们来推一推。'}},
-        {txt:{en:'τ',zh:'τ'}, fb:{en:'τ is the base, a length. We have not learned a triangle\'s AREA yet — so let us build it.',zh:'τ 是底，是长度。我们还没学过三角形的面积——那就动手拼出来。'}} ], second); }
-  function second(){ E.tell(t({en:'Right — no triangle-area rule <i>yet</i>. So <b>make a second copy</b> from another disk and <b>turn it upside-down</b> to fit on top.',zh:'对——我们<i>还没</i>有三角形面积公式。那就用另一个圆盘<b>再做一个</b>，<b>倒过来</b>扣在上面。'}));
-    E.clearTray(); E.addBtn(t({en:'Add the 2nd triangle ▶',zh:'加上第二个三角 ▶'}),'primary',()=>{ E.busy=true; E.clearTray(); E.sfx('place'); E.anim(1000,p=>box(1,p),()=>{ E.busy=false; askRect(); }); }); }
+        {txt:{en:'τ',zh:'τ'}, fb:{en:'τ is the base — a length, not the area. We have no triangle-area rule yet.',zh:'τ 是底——是长度，不是面积。我们还没有三角形面积的公式。'}},
+        {txt:{en:'1',zh:'1'}, fb:{en:'1 is the height — also a length. We have not learned a triangle\'s AREA yet, so let us build it.',zh:'1 是高——也是长度。我们还没学过三角形的面积，那就动手拼出来。'}} ], second); }
+  function second(){ E.tell(t({en:'No triangle-area rule <i>yet</i> — so bring a <b>second disk</b> and unroll it the <b>other way</b> (from the right). Its triangle, upside-down, fits on top to make a <b>rectangle</b>.',zh:'我们<i>还没</i>有三角形面积公式——那就拿来<b>第二个圆盘</b>，从<b>右边反方向</b>摊开。它的三角倒过来扣在上面，拼成一个<b>矩形</b>。'}));
+    E.clearTray(); E.addBtn(t({en:'Add the 2nd disk ▶',zh:'加上第二个圆盘 ▶'}),'primary',()=>{ E.busy=true; E.clearTray(); E.sfx('place'); E.anim(1300,p=>frame(1,p),()=>{ E.busy=false; askRect(); }); }); }
   function askRect(){ pickPills(t({en:'Two equal <b class="g">triangles</b> fill a <b>rectangle</b>: base <b class="y">τ</b>, height <b class="r">1</b>. A rectangle\'s area we DO know — base × height. So this area = ?',zh:'两个相等的<b class="g">三角</b>拼满一个<b>矩形</b>：底 <b class="y">τ</b>，高 <b class="r">1</b>。矩形面积我们会算——底 × 高。所以这面积 = ?'}),
-      ()=>box(1,1), E.LH*0.92,
+      ()=>frame(1,1), E.LH*0.92,
       [ {txt:{en:'τ',zh:'τ'}, ok:true},
         {txt:{en:'½τ',zh:'½τ'}, fb:{en:'½τ is ONE triangle. The whole rectangle is τ × 1 = τ.',zh:'½τ 是一个三角。整个矩形是 τ × 1 = τ。'}},
         {txt:{en:'2τ',zh:'2τ'}, fb:{en:'base × height = τ × 1 = τ.',zh:'底 × 高 = τ × 1 = τ。'}} ], finish); }
-  function finish(){ E.busy=true; E.sceneStop(); PIST='gone'; E.speakAs('tau', t({en:'Halve it — ½τ each!',zh:'对半分——每个 ½τ！'}));
-    E.anim(800,p=>box(1,1,()=>label(RX0()+RW()/2,(RYT()+RYB())/2,'τ',GOLD,16+6*p,true)), ()=>{ E.sfx('bracket'); E.anim(900,p=>{ bg(); const ctx=E.ctx; ctx.save(); ctx.globalAlpha=Math.max(0,1-p*1.4); bars(1,1); ctx.restore(); disks(p); }, win); }); }
-  function win(){ bg(); disks(1);
+  function finish(){ E.busy=true; E.sceneStop(); PIST='gone'; E.speakAs('tau', t({en:'Two halves — ½τ each!',zh:'两半——每个 ½τ！'}));
+    E.anim(950,p=>frame(1,1,()=>{ label(C2x()+RW()*0.34,(C2y()+RYB())/2+7,'½τ',GOLD,14,true); label(C2x()+RW()*0.66,(C2y()+RYB())/2-7,'½τ',VIO,14,true); }),
+      ()=>{ E.sfx('bracket'); E.anim(1100,p=>frame(1-p,1-p), win); }); }   // re-coil BOTH triangles back into two disks (same roll, opposite direction)
+  function win(){ twoDisks();
     E.setDots(3); E.tickQ(3); E.award(70); E.cheer(); E.sfx('win');
     E.status(keq('rectangle = τ → each disk = ½τ = π'));
     E.tell(t({en:'The <b>rectangle</b> is <b class="y">τ</b> × <b class="r">1</b> = <b class="y">τ</b>, made of <b>two equal triangles</b> — so each <b class="g">triangle</b> is <b class="y">½τ</b>. And each triangle was a disk re-laid, so a disk\'s <b class="g">area</b> = <b class="y">½τ</b> = <b class="p">π</b> — the <b>same</b> answer as the pizza cut. Two roads, one truth: <b class="p">Pi the Halver</b> is driven off, and you keep <b class="r">dx</b>, the tiny step that will soon measure the area under <b>any</b> curve.',
