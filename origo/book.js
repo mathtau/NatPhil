@@ -213,13 +213,13 @@ const FIGS={
   dstrip(){ const x0=152, len=176, y=40, w=18; let s='';   // one ring unrolled → a strip: dx wide, r·τ long
     s+='<rect x="'+x0+'" y="'+(y-w/2)+'" width="'+len+'" height="'+w+'" fill="'+G+'" opacity="0.22"/>';
     s+=sLine(x0,y-w/2,x0+len,y-w/2,GOLD,2.2)+sLine(x0,y+w/2,x0+len,y+w/2,GOLD,2.2)+sLine(x0,y-w/2,x0,y+w/2,R,2.2);
-    s+=sText('dx',x0-12,y,R,12)+sText('r·τ',x0+len/2,y-w/2-10,'#a8780f',13); return s; },
-  dtri(){ const x0=176, W=128, yT=26, yB=72; let s='';   // strips stacked → triangle: base 1, height τ, area ½τ = π
-    s+='<path d="M'+x0+' '+yB+' L'+x0+' '+yT+' L'+(x0+W)+' '+yT+' Z" fill="'+G+'" opacity="0.22"/>';
-    s+=sLine(x0,yT,x0,yB,R,2.4)+sLine(x0,yT,x0+W,yT,GOLD,2.6)+sLine(x0,yB,x0+W,yT,INK,1.6);
-    s+=sText('1',x0-11,(yT+yB)/2,R,13)+sText('τ',x0+W/2,yT-10,'#a8780f',16);
-    s+='<text x="'+(x0+W*0.36)+'" y="'+((yT+yB)/2)+'" font-family="Caveat,cursive" font-size="16" fill="#a8780f" text-anchor="middle" dominant-baseline="middle">½τ</text>';
-    s+=sText('= π',x0+W*0.36,(yT+yB)/2+15,DEP,11); return s; },
+    s+=sText('dx',x0-12,y,R,12)+sText('τ',x0+len/2,y-w/2-10,'#a8780f',13); return s; },
+  dtri(){ const x0=110, W=260, yT=22, yB=64; let s='';   // two triangles fill a τ×1 rectangle → each ½τ = π
+    s+='<path d="M'+x0+' '+yT+' L'+x0+' '+yB+' L'+(x0+W)+' '+yB+' Z" fill="'+G+'" opacity="0.26"/>';     // lower-left triangle (green) = one disk
+    s+='<path d="M'+x0+' '+yT+' L'+(x0+W)+' '+yT+' L'+(x0+W)+' '+yB+' Z" fill="'+DEP+'" opacity="0.2"/>';   // upper-right triangle (violet) = the 2nd disk, rotated
+    s+=sLine(x0,yT,x0+W,yT,GOLD,2.2)+sLine(x0,yB,x0+W,yB,GOLD,2.2)+sLine(x0,yT,x0,yB,R,2)+sLine(x0+W,yT,x0+W,yB,R,2)+sLine(x0,yT,x0+W,yB,INK,1.4);
+    s+=sText('1',x0-10,(yT+yB)/2,R,12)+sText('τ',x0+W/2,yB+13,'#a8780f',14);
+    s+=sText('½τ',x0+W*0.2,yB-9,'#a8780f',12)+'<text x="'+(x0+W*0.8)+'" y="'+(yT+12)+'" font-family="Caveat,cursive" font-size="12" fill="'+DEP+'" text-anchor="middle">½τ</text>'; return s; },
 };
 function figSVG(name){ const W=480,H=FIGH[name]||70, cx=FIGCX[name]||240; return '<svg class="bkfig" width="544" height="'+(544*H/W).toFixed(1)+'" viewBox="'+(cx-240).toFixed(0)+' 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">'+FIGS[name]()+'</svg>'; }   // pan viewBox to centre content; explicit width/height so it sizes even if page CSS is missing (PNG/PDF export)
 function colorEq(s){ return s.replace(/\d/g,d=>'<span style="color:'+(COL[+d]||INK)+'">'+d+'</span>'); }
