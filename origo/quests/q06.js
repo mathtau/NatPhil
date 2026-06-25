@@ -112,79 +112,66 @@ function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(0); E.sceneSt
     E.clearTray(); E.addBtn(t({en:'Pack the wedges ▶',zh:'拼起楔块 ▶'}),'primary',E.advance); E.addBtn(t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep); }
 }
 
-/* ===== Round 2 — Pack the Bar: wedges interlock into a bar; cut FINER (slider) so the slanted radius stands up and
-   the bar's height rises to meet the radius. The height = radius equality is SHOWN converging, not asserted. =====
-   Honest geometry: each wedge's slant side is the true radius (fixed length Rlen). With few fat wedges the bar's
-   height = Rlen·cos(π/N) is visibly SHORTER than the radius; as N grows the slants stand vertical and height → radius. */
-function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.sceneStop(); PIST='loom'; pmood='idle'; pSad=0;
+/* ===== Round 2 — Pack the Bar (story: Pi has seized HALF the wedges and laid them as the bar's TOP edge, crowing the
+   whole measure is just π. Your calf Tau guards the other half; in ONE drag you sweep them across the BOTTOM, the shape
+   reforming as you go — revealing TWO equal edges, so 2b = τ: the rim is τ and Pi only ever had half.) =====
+   Wedges come fine (from R1), so each slant stands ~vertical and the height = a radius. Down-wedges (odd i) = Pi's top
+   edge; up-wedges (even i) = Tau's bottom edge, wiped in left→right by the drag. */
+function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.sceneStop(); PIST='loom'; pmood='gloat'; pSad=0;
   E.setPlace(t({en:'Pack the Bar',zh:'拼成长条'}));
-  const Rlen=()=>E.LH*0.32, baseY=()=>E.LH*0.7;
-  const SLX0=E.LW*0.17, SLX1=E.LW*0.7, SLY=E.LH*0.92, NMIN=6, NMAX=44, GATE=34, NT=6;   // NT = wedges in the opening transform
-  const NfromX=x=>Math.max(NMIN,Math.min(NMAX,Math.round(NMIN+(x-SLX0)/(SLX1-SLX0)*(NMAX-NMIN))));
-  let N=NMIN;
-  function geom(n){ const step=Rlen()*Math.sin(P/n), h=Rlen()*Math.cos(P/n), W=n*step, x0=(E.LW-W)/2; return {n,step,h,W,x0,yB:baseY(),yT:baseY()-h}; }
+  const N=24, Rlen=()=>E.LH*0.3, baseY=()=>E.LH*0.66;
+  function geom(){ const step=Rlen()*Math.sin(P/N), h=Rlen()*Math.cos(P/N), W=N*step, x0=(E.LW-W)/2; return {step,h,W,x0,yB:baseY(),yT:baseY()-h}; }
   const vX=(g,i)=>g.x0+i*g.step, vY=(g,i)=>(i%2===0)?g.yB:g.yT;
-  function bar(g,extra){ const ctx=E.ctx;
-    for(let i=0;i<g.n-1;i++){ ctx.save(); ctx.beginPath(); ctx.moveTo(vX(g,i),vY(g,i)); ctx.lineTo(vX(g,i+1),vY(g,i+1)); ctx.lineTo(vX(g,i+2),vY(g,i+2)); ctx.closePath();   // triangles tile the band
-      ctx.fillStyle='rgba(80,216,144,.22)'; ctx.fill();
-      ctx.strokeStyle=(i===0)?'#ff8a6a':RD; ctx.lineWidth=(i===0)?3:(g.n>18?1:1.8); ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(vX(g,i),vY(g,i)); ctx.lineTo(vX(g,i+1),vY(g,i+1)); ctx.stroke(); ctx.restore(); }   // first slant bright = "the radius"
-    ctx.save(); ctx.strokeStyle=GOLD; ctx.lineWidth=2.6; ctx.beginPath(); ctx.moveTo(g.x0,g.yT); ctx.lineTo(g.x0+g.W,g.yT); ctx.moveTo(g.x0,g.yB); ctx.lineTo(g.x0+g.W,g.yB); ctx.stroke(); ctx.restore();   // gold long edges
+  function tri(ctx,g,i,dim){ ctx.save(); ctx.beginPath(); ctx.moveTo(vX(g,i),vY(g,i)); ctx.lineTo(vX(g,i+1),vY(g,i+1)); ctx.lineTo(vX(g,i+2),vY(g,i+2)); ctx.closePath();
+    ctx.fillStyle=dim?'rgba(80,216,144,.1)':'rgba(80,216,144,.22)'; ctx.fill();
+    ctx.strokeStyle=dim?'rgba(255,106,77,.3)':RD; ctx.lineWidth=1.3; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(vX(g,i),vY(g,i)); ctx.lineTo(vX(g,i+1),vY(g,i+1)); ctx.lineTo(vX(g,i+2),vY(g,i+2)); ctx.stroke(); ctx.restore(); }
+  function draw(uptoX, extra){ const ctx=E.ctx, g=geom(); bg();
+    for(let i=1;i<N-1;i+=2) tri(ctx,g,i);                                          // Pi's TOP half (down-wedges) — always there
+    for(let i=0;i<N-1;i+=2){ if(g.x0+(i+1)*g.step<=uptoX) tri(ctx,g,i); }           // Tau's BOTTOM half (up-wedges) — swept in by the drag
+    const bx=Math.max(g.x0,Math.min(uptoX,g.x0+g.W));
+    ctx.save(); ctx.strokeStyle=GOLD; ctx.lineWidth=2.8; ctx.beginPath(); ctx.moveTo(g.x0,g.yT); ctx.lineTo(g.x0+g.W,g.yT); ctx.stroke();   // top edge (Pi's) — full
+    ctx.beginPath(); ctx.moveTo(g.x0,g.yB); ctx.lineTo(bx,g.yB); ctx.stroke(); ctx.restore();                                            // bottom edge — grows with the drag
     if(extra)extra(g); }
-  function radRef(g,lbl){ const ctx=E.ctx, x=g.x0-20;   // a fixed red yardstick beside the bar — the bar's height climbs to meet it; lbl names the height (h) or its value (1)
-    ctx.save(); ctx.strokeStyle=RD; ctx.setLineDash([4,4]); ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(x,g.yB); ctx.lineTo(x,g.yB-Rlen()); ctx.stroke();
-    ctx.lineWidth=1.4; ctx.setLineDash([]); ctx.beginPath(); ctx.moveTo(x-5,g.yB-Rlen()); ctx.lineTo(x+5,g.yB-Rlen()); ctx.moveTo(x-5,g.yB); ctx.lineTo(x+5,g.yB); ctx.stroke(); ctx.restore();
-    label(x-13,g.yB-Rlen()/2,lbl||t({en:'1',zh:'1'}),RD,13,true);
-    if(Rlen()-g.h>4){ ctx.save(); ctx.strokeStyle='rgba(255,106,77,.55)'; ctx.setLineDash([2,3]); ctx.lineWidth=1.4; ctx.beginPath(); ctx.moveTo(x,g.yT); ctx.lineTo(g.x0+g.W*0.5,g.yT); ctx.stroke(); ctx.restore(); } }   // dotted line marks how far the bar-top still falls short
-  function slider(){ const ctx=E.ctx; ctx.save();
-    ctx.strokeStyle='rgba(200,210,235,.35)'; ctx.lineWidth=4; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(SLX0,SLY); ctx.lineTo(SLX1,SLY); ctx.stroke();
-    const kx=knob.pos.x; ctx.strokeStyle=GOLD; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(SLX0,SLY); ctx.lineTo(kx,SLY); ctx.stroke();
-    ctx.fillStyle=GOLD; ctx.shadowColor='rgba(244,200,48,.7)'; ctx.shadowBlur=8; ctx.beginPath(); ctx.arc(kx,SLY,11,0,7); ctx.fill(); ctx.restore();
-    label(SLX0-4,SLY-20,t({en:'few',zh:'少'}),'#9fb0cc',11); label(SLX1+4,SLY-20,t({en:'many',zh:'多'}),'#9fb0cc',11); }
-  function stat(){ const g=geom(N), close=(Rlen()-g.h)<Rlen()*0.01;
-    E.status('<span style="color:#f4c830">'+t({en:'wedges: ',zh:'楔块：'})+N+'</span>'+(close?'  <span style="color:#50d890">'+t({en:'→ height meets the radius',zh:'→ 高已追上半径'})+'</span>':'  <span style="color:#ff6a4d">'+t({en:'height still short of the radius',zh:'高还不到半径'})+'</span>')); }
-  // ---- opening transform: the wedges peel off the CIRCLE and lay flat into the BAR ----
-  function morph(tt){ const t=tt<0.5?2*tt*tt:1-Math.pow(-2*tt+2,2)/2;   // easeInOut
-    bg(); const ctx=E.ctx, gt=geom(NT), dC={x:E.LW*0.5,y:E.LH*0.34}, dRp=E.LH*0.22, lp=(a,b)=>a+(b-a)*t;
-    for(let i=0;i<NT;i++){ const f0=-P/2+i*TAU/NT, f1=-P/2+(i+1)*TAU/NT;
-      const Ax=lp(dC.x+dRp*Math.cos(f0),vX(gt,i)),     Ay=lp(dC.y+dRp*Math.sin(f0),vY(gt,i));
-      const Bx=lp(dC.x,vX(gt,i+1)),                    By=lp(dC.y,vY(gt,i+1));
-      const Cx=lp(dC.x+dRp*Math.cos(f1),vX(gt,i+2)),   Cy=lp(dC.y+dRp*Math.sin(f1),vY(gt,i+2));
-      ctx.save(); ctx.beginPath(); ctx.moveTo(Ax,Ay); ctx.lineTo(Bx,By); ctx.lineTo(Cx,Cy); ctx.closePath(); ctx.fillStyle='rgba(80,216,144,.22)'; ctx.fill();
-      ctx.strokeStyle=RD; ctx.lineWidth=1.6; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(Ax,Ay); ctx.lineTo(Bx,By); ctx.lineTo(Cx,Cy); ctx.stroke();   // the two radii
-      ctx.strokeStyle=GOLD; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(Ax,Ay); ctx.lineTo(Cx,Cy); ctx.stroke(); ctx.restore(); }   // the rim-piece
-    if(t<0.55){ ctx.save(); ctx.globalAlpha=1-t/0.55; label(dC.x-12,dC.y+12,'O','#cfe0ff',12,true); ctx.restore(); } }
-  function drawRefine(){ N=NfromX(knob.pos.x); pSad=Math.max(0,Math.min(1,(N-NMIN)/(GATE-NMIN))); bg(); const g=geom(N); bar(g); radRef(g); slider(); stat(); }   // Pi's grin sags as you cut finer
-  const knob={ kind:'drag', home:{x:SLX0,y:SLY}, drag:{axis:'x',clamp:{x0:SLX0,x1:SLX1,y0:SLY,y1:SLY}},
-    snap:[{x:(SLX0+SLX1)/2,y:SLY,r:(SLX1-SLX0)/2+80,snap:false}], bbox:a=>({x:a.pos.x-17,y:a.pos.y-17,w:34,h:34}), hiCol:'rgba(244,200,48,.9)' };
-  E.tell(t({en:'<b>Pack the Bar.</b> Watch your <b class="g">wedges</b> peel off the <b class="y">circle</b> and lay flat, point-up / point-down, into a straight bar. <b class="p">Pi the Halver</b> loves it lumpy — <i>“a few fat chunks is close enough!”</i> But a coarse bar\'s <b>height</b> falls short of a true <b class="r">radius</b>. <b>Drag the slider to cut finer</b> until the height stands up to meet it — and watch <b class="p">Pi</b> sour.',
-    zh:'<b>拼成长条。</b>看你的<b class="g">楔块</b>从<b class="y">圆</b>上剥下来、一上一下摊平，拼成一根直条。<b class="p">半圆贩子</b>就爱凹凸——<i>“几块大块就差不多啦！”</i>可粗糙的条，<b>高</b>追不上真正的<b class="r">半径</b>。<b>拖动滑块切得更细</b>，直到高立起来追上它——看<b class="p">Pi</b> 拉下脸。'}));
-  E.busy=true;
-  E.anim(1300, p=>morph(p), ()=>{ E.busy=false; stat();
-    E.scene({ actors:[knob], draw:drawRefine, onDrop(a){ if(E.busy)return; N=NfromX(knob.pos.x);
-      if(N>=GATE){ E.sfx('place'); ask(); }
-      else { E.oops(); pmood='gloat'; E.status('<span style="color:#caa84a;font-style:italic">“'+t(pick(PITAUNT))+'”</span> <span style="color:#ff6a4d">'+t({en:'cut finer so the height reaches the radius.',zh:'切得更细，让高追上半径。'})+'</span>'); } } }); });
+  function heightMark(g,lbl){ const ctx=E.ctx, x=g.x0-18; ctx.save(); ctx.strokeStyle=RD; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(x,g.yB); ctx.lineTo(x,g.yT); ctx.stroke();
+    ctx.lineWidth=1.4; ctx.beginPath(); ctx.moveTo(x-5,g.yT); ctx.lineTo(x+5,g.yT); ctx.moveTo(x-5,g.yB); ctx.lineTo(x+5,g.yB); ctx.stroke(); ctx.restore(); label(x-12,(g.yT+g.yB)/2,lbl,RD,13,true); }
+  function broomIcon(x,y){ const ctx=E.ctx; ctx.save(); ctx.translate(x,y);   // Tau's bundle of leftover wedges (the half Pi didn't grab)
+    for(let k=-1;k<=1;k++){ ctx.beginPath(); ctx.moveTo(k*9,-13); ctx.lineTo(k*9-7,11); ctx.lineTo(k*9+7,11); ctx.closePath(); ctx.fillStyle='rgba(80,216,144,.3)'; ctx.fill();
+      ctx.strokeStyle=RD; ctx.lineWidth=1.6; ctx.beginPath(); ctx.moveTo(k*9,-13); ctx.lineTo(k*9-7,11); ctx.moveTo(k*9,-13); ctx.lineTo(k*9+7,11); ctx.stroke(); } ctx.restore(); }
+  const g0=geom(), home={x:g0.x0+8, y:g0.yB+E.LH*0.13};
+  const broom={ kind:'drag', home:home, drag:{axis:'x',clamp:{x0:g0.x0+8,x1:g0.x0+g0.W,y0:home.y,y1:home.y}}, bbox:a=>({x:a.pos.x-22,y:a.pos.y-18,w:44,h:36}), hiCol:'rgba(80,216,144,.9)' };
+  function drawDrag(){ const grabbed=broom.grab, ux=grabbed?broom.pos.x:geom().x0;
+    draw(ux, g=>label(g.x0+g.W/2,g.yT-13,t({en:'“…the length is π!”',zh:'“……这段长就是 π！”'}),VIO,12,true));   // Pi's claim sits on the top edge he made
+    broomIcon(grabbed?broom.pos.x:home.x, grabbed?broom.pos.y:home.y);
+    if(!grabbed) label(home.x, home.y+22, t({en:'drag Tau’s half across →',zh:'把 Tau 的另一半拖过去 →'}),'#bfe8cf',11,true); }
+  E.tell(t({en:'<b>Pack the Bar.</b> You cut the disk into <b class="g">wedges</b> — but <b class="p">Pi the Halver</b> snatched <b>half</b> of them and laid them as the bar\'s <b>top edge</b>, crowing the circle\'s whole measure is just <b class="p">π</b>. Your calf <b class="y">Tau</b> kept the other half safe. <b>Drag Tau\'s half across the bottom</b> — one sweep — and watch the bar reform.',
+    zh:'<b>拼成长条。</b>你把圆盘切成了<b class="g">楔块</b>——可<b class="p">半圆贩子</b>抢走<b>一半</b>，把它们铺成长条的<b>上边</b>，还嚷嚷说整个圆的尺度不过是 <b class="p">π</b>。你的小牛 <b class="y">Tau</b> 把另一半护住了。<b>把 Tau 的另一半沿底边拖过去</b>——一次扫过——看长条重新拼好。'}));
+  E.scene({ actors:[broom], draw:drawDrag, onDrop(a,z,info){ if(E.busy)return; const g=geom();
+    if(info && info.x>=g.x0+g.W*0.8){ E.busy=true; E.sceneStop(); E.sfx('place'); E.mood('happy'); pmood='hurt';
+      E.anim(300, p=>draw(g.x0+g.W*(0.8+0.21*p)), ()=>{ E.busy=false; ask(); }); }
+    else { E.oops(); pmood='gloat'; E.status('<span style="color:#caa84a;font-style:italic">“'+t({en:'half is plenty!',zh:'一半就够啦！'})+'”</span> <span style="color:#ff6a4d">'+t({en:'sweep Tau’s half ALL the way across.',zh:'把 Tau 的另一半一路扫到底。'})+'</span>'); } } });
   function ask(){ E.sceneStop();
-    // q1 — the HEIGHT h. We name it h on the graph (no value shown) and put the letter in the buttons.
-    function q1(){ pickPills(t({en:'Every wedge\'s slanted side <b>was a <b class="r">radius</b></b> — and on the unit circle a radius is <b class="r">1</b> (every point is 1 from <b class="r">O</b>). Cut fine, the wedges stand straight, so the bar\'s <b>height</b> <b class="r">h</b> is exactly that standing radius. So…',
-        zh:'每块楔形的斜边<b>本就是一条<b class="r">半径</b></b>——而单位圆上半径是 <b class="r">1</b>（每点离 <b class="r">O</b> 都是 1）。切细后楔块立直，长条的<b>高</b> <b class="r">h</b> 正是那条立起的半径。所以……'}),
-        ()=>{ const g=geom(N); bg(); bar(g); radRef(g,'h'); }, E.LH*0.9,
-        [ {txt:{en:'h = 1',zh:'h = 1'}, ok:true},
-          {txt:{en:'h = ½',zh:'h = ½'}, fb:{en:'The whole slant is one radius, and the unit radius is 1 — not half of it.',zh:'整条斜边是一条半径，单位半径是 1——不是它的一半。'}},
-          {txt:{en:'h = τ',zh:'h = τ'}, fb:{en:'τ is the whole rim, a length around. The height is just one radius: h = 1.',zh:'τ 是整条圆边、绕一圈的长度。高只是一条半径：h = 1。'}} ], q2); }
-    // q2 — the BASE b, reasoned from the ORIGIN: the wedges' outer ends WERE the rim, and the rim adds up to τ.
-    function q2(){ pickPills(t({en:'Back to the start: the wedges\' tiny outer ends <b>were the circle\'s <b class="y">rim</b></b>, and all together the rim is <b class="y">τ</b>. Unrolled, those same ends now line the bar\'s <b>top and bottom</b> edges — so the two bases <b class="y">b</b> together make <b class="y">τ</b>. Which is true?',
-        zh:'回到起点：楔块那些贴边的小外端<b>本就是圆的<b class="y">边</b></b>，合起来整条边是 <b class="y">τ</b>。摊开后，这些小端如今排在长条的<b>上、下</b>两条边上——所以两条底 <b class="y">b</b> 合起来正好是 <b class="y">τ</b>。哪个对？'}),
-        ()=>{ const g=geom(N); bg(); bar(g,(gg)=>{ label(gg.x0+gg.W/2,gg.yT-12,'b',GOLD,16,true); label(gg.x0+gg.W/2,gg.yB+14,'b',GOLD,16,true); }); }, E.LH*0.9,
+    // q1 — the climax: Pi claimed one edge is the whole measure (π); both edges are now here, so 2b = τ (π is only half)
+    function q1(){ pickPills(t({en:'<b class="p">Pi</b> made the <b>top</b> edge and crowed it was the whole measure, <b class="p">π</b>. But <b class="y">Tau</b>\'s half just made an <b>equal bottom</b> edge — two bases <b class="y">b</b>! The wedges\' ends were the whole <b class="y">rim</b> <b class="y">τ</b>, now shared across both. So which is true?',
+        zh:'<b class="p">Pi</b> 拼出<b>上</b>边，吹嘘那就是全部的尺度——<b class="p">π</b>。可 <b class="y">Tau</b> 的另一半刚拼出一条<b>一样长的下</b>边——两条底 <b class="y">b</b>！楔块的小端原是整条<b class="y">圆边</b> <b class="y">τ</b>，如今分到了两条边上。那么哪个对？'}),
+        ()=>draw(geom().x0+geom().W+2, g=>{ label(g.x0+g.W/2,g.yT-12,'b',GOLD,16,true); label(g.x0+g.W/2,g.yB+14,'b',GOLD,16,true); }), E.LH*0.9,
         [ {txt:{en:'2b = τ',zh:'2b = τ'}, ok:true},
-          {txt:{en:'b = τ',zh:'b = τ'}, fb:{en:'Both edges (top AND bottom) hold rim-pieces. Together they are the whole rim, so 2b = τ — one base is only half.',zh:'上、下两条边都排着小弧。合起来才是整条圆边，所以 2b = τ——一条底只是一半。'}},
-          {txt:{en:'2b = ½τ',zh:'2b = ½τ'}, fb:{en:'Every rim-piece lands on one of the two edges, so the two bases use up the FULL rim: 2b = τ.',zh:'每段小弧都落到两条边之一上，所以两条底用尽了整条圆边：2b = τ。'}} ], win); }
+          {txt:{en:'b = τ',zh:'b = τ'}, fb:{en:'That is Pi’s trick — calling ONE edge the whole rim. There are two equal edges, so 2b = τ; one base is only half.',zh:'那正是 Pi 的把戏——把一条边当成整条圆边。其实有两条一样的边，所以 2b = τ；一条底只是一半。'}},
+          {txt:{en:'b = π is all',zh:'b = π 就是全部'}, fb:{en:'One edge IS π — but it is only HALF. Both edges together are the whole rim: 2b = τ = 2π.',zh:'一条边确实是 π——但只是一半。两条边合起来才是整条圆边：2b = τ = 2π。'}} ], q2); }
+    // q2 — the height h = a standing radius = 1
+    function q2(){ pickPills(t({en:'Now the <b>height</b>. Each wedge\'s slanted side is a <b class="r">radius</b>, and cut fine they stand straight up — so the bar\'s height <b class="r">h</b> is one radius. On the unit circle that is <b class="r">1</b>. So…',
+        zh:'再看<b>高</b>。每块楔形的斜边是一条<b class="r">半径</b>，切细后立得笔直——所以长条的高 <b class="r">h</b> 就是一条半径。在单位圆上那是 <b class="r">1</b>。所以……'}),
+        ()=>draw(geom().x0+geom().W+2, g=>{ heightMark(g,'h'); label(g.x0+g.W/2,g.yT-12,'b',GOLD,15,true); label(g.x0+g.W/2,g.yB+14,'b',GOLD,15,true); }), E.LH*0.9,
+        [ {txt:{en:'h = 1',zh:'h = 1'}, ok:true},
+          {txt:{en:'h = ½',zh:'h = ½'}, fb:{en:'The whole slant is one radius, and the unit radius is 1 — not half.',zh:'整条斜边是一条半径，单位半径是 1——不是一半。'}},
+          {txt:{en:'h = τ',zh:'h = τ'}, fb:{en:'τ is the rim, a length around. The height is just one radius: h = 1.',zh:'τ 是圆边、绕一圈的长。高只是一条半径：h = 1。'}} ], win); }
     q1();
   }
-  function win(){ E.setDots(2); E.tickQ(2); E.award(45); PIST='recoil'; pmood='hurt'; pSad=1; const g=geom(N); bg(); bar(g,(gg)=>label(gg.x0+gg.W/2,gg.yT-12,'½τ',GOLD,15,true)); radRef(g);
+  function win(){ E.setDots(2); E.tickQ(2); E.award(45); PIST='recoil'; pmood='hurt'; pSad=1;
+    draw(geom().x0+geom().W+2, g=>{ heightMark(g,'1'); label(g.x0+g.W/2,g.yT-12,'b = ½τ',GOLD,14,true); label(g.x0+g.W/2,g.yB+14,'b = ½τ',GOLD,14,true); });
     E.cheer(); E.sfx('win');
-    E.status(keq(t({en:'h = 1 · 2b = τ → b = ½τ',zh:'h = 1 · 2b = τ → b = ½τ'})));
-    E.tell(t({en:'Cut fine enough, the round patch is a clean <b class="g">bar</b>: <b>height</b> <b class="r">h</b> = one standing <b class="r">radius</b> = <b class="r">1</b>; and since the two bases share the whole <b class="y">rim</b>, <b class="y">2b = τ</b>, so each base <b class="y">b</b> = <b class="y">½τ</b>. <b class="p">Pi</b> sours — his lumpy shortcut is beaten. A bar\'s area is just base × height. Read it off.',
-      zh:'切得够细，圆乎乎的一片就成了规整的<b class="g">长条</b>：<b>高</b> <b class="r">h</b> = 一条立起的<b class="r">半径</b> = <b class="r">1</b>；两条底分享整条<b class="y">圆边</b>，<b class="y">2b = τ</b>，所以每条底 <b class="y">b</b> = <b class="y">½τ</b>。<b class="p">Pi</b> 拉下了脸——他那凹凸的「差不多」被打败了。长条的面积就是 底 × 高。读出来吧。'}));
+    E.status(keq(t({en:'2b = τ → b = ½τ · h = 1',zh:'2b = τ → b = ½τ · h = 1'})));
+    E.tell(t({en:'There it is: <b class="y">Tau</b>\'s bottom edge equals <b class="p">Pi</b>\'s top — <b>two</b> bases, and together they are the whole <b class="y">rim</b>, <b class="y">2b = τ</b>. So each base <b class="y">b</b> = <b class="y">½τ</b>, and the height <b class="r">h</b> = a standing <b class="r">radius</b> = <b class="r">1</b>. <b class="p">Pi</b>\'s “the length is π” was only ever <b>half</b> the turn. A bar\'s area is base × height — read it off.',
+      zh:'就是它：<b class="y">Tau</b> 的下边和 <b class="p">Pi</b> 的上边一样长——<b>两</b>条底，合起来正是整条<b class="y">圆边</b>，<b class="y">2b = τ</b>。所以每条底 <b class="y">b</b> = <b class="y">½τ</b>，高 <b class="r">h</b> = 一条立起的<b class="r">半径</b> = <b class="r">1</b>。<b class="p">Pi</b> 那句“这段长就是 π”，从头到尾只是整圈的<b>一半</b>。长条的面积 = 底 × 高——读出来吧。'}));
     E.clearTray(); E.addBtn(t({en:'Read the area ▶',zh:'读出面积 ▶'}),'primary',E.advance); E.addBtn(t({en:'◀ Prev step',zh:'◀ 上一步'}),'ghost',E.prevStep); }
 }
 
