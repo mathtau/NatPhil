@@ -164,22 +164,24 @@ function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.sceneSt
    rectangle of base τ × height 1 (area τ); each triangle is half → ½τ; deform each back to a disk of area ½τ. ===== */
 function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(2); E.sceneStop(); PIST='loom'; pmood='idle';
   E.setPlace(t({en:'Double the Triangle',zh:'把三角翻一倍'}));
-  const N=10, RW=()=>E.LW*0.6, RH=()=>RW()/6.2832, bh=()=>RH()/N;   // rectangle base = τ (RW), height = 1 (RH)
-  const RX0=()=>E.LW*0.5-RW()/2, RYB=()=>E.LH*0.58, RYT=()=>RYB()-RH();
+  const N=8, C2x=()=>E.LW*0.17, C2y=()=>E.LH*0.34, R0=()=>E.LH*0.22;   // SAME geometry as R2: circle on the left, the cut its left edge
+  const RX0=C2x, RH=R0, RW=()=>TAU*R0(), RYT=C2y, RYB=()=>C2y()+R0(), bh=()=>RH()/N;   // triangle/rectangle box: base τ (RW), height 1 (RH)
   const GRN1='rgba(80,216,144,.30)', GRN2='rgba(80,216,144,.18)', VIO1='rgba(199,155,238,.34)', VIO2='rgba(199,155,238,.2)';
-  function bars(gL,gR){ const ctx=E.ctx, x0=RX0(), yT=RYT();   // gL,gR = grow 0..1 of the left (green) / right (violet) triangle
-    for(let i=0;i<N;i++){ const y=yT+(i+0.5)*bh(), Ll=RW()*(i+1)/N*gL, Rl=RW()*(N-i-1)/N*gR;
+  function innerRings(a){ const ctx=E.ctx; for(let i=1;i<N;i++){ const ri=R0()*i/N; ctx.save(); ctx.globalAlpha=a; ctx.fillStyle=(i%2)?'rgba(80,216,144,.16)':'rgba(80,216,144,.08)'; ctx.beginPath(); ctx.arc(C2x(),C2y(),ri,0,7); ctx.fill(); ctx.strokeStyle='rgba(244,200,48,.18)'; ctx.lineWidth=1; ctx.stroke(); ctx.restore(); } }
+  function bars(gL,gR){ const ctx=E.ctx, x0=RX0(), yT=RYT();   // gL,gR = grow 0..1 of the left (green) / right (violet) triangle; the OUTER (bottom) green bar is the one from R2 — always present
+    for(let i=0;i<N;i++){ const y=yT+(i+0.5)*bh(), Ll=RW()*(i+1)/N*((i===N-1)?1:gL), Rl=RW()*(N-i-1)/N*gR;
       if(Ll>0.3){ ctx.fillStyle=(i%2)?GRN1:GRN2; ctx.fillRect(x0,y-bh()/2,Ll,bh()-1.1); }
       if(Rl>0.3){ ctx.fillStyle=(i%2)?VIO1:VIO2; ctx.fillRect(x0+RW()-Rl,y-bh()/2,Rl,bh()-1.1); } } }
-  function box(gL,gR,extra){ bg(); bars(gL,gR); const ctx=E.ctx;
+  function box(gL,gR,extra){ bg(); const a=Math.max(0,1-gL); if(a>0.02) innerRings(a); bars(gL,gR); const ctx=E.ctx;
+    if(a>0.02){ ctx.save(); ctx.fillStyle='#0a0a18'; ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(RX0(),RYT(),4,0,7); ctx.fill(); ctx.stroke(); ctx.restore(); label(RX0()-12,RYT()-3,'O','#cfe0ff',11,true); }   // O stays while the rings are still uncoiling
     ctx.save(); ctx.strokeStyle=RD; ctx.lineWidth=2.2; ctx.beginPath(); ctx.moveTo(RX0(),RYT()); ctx.lineTo(RX0(),RYB()); ctx.stroke();
     if(gR>0.99){ ctx.beginPath(); ctx.moveTo(RX0()+RW(),RYT()); ctx.lineTo(RX0()+RW(),RYB()); ctx.stroke(); }
     ctx.strokeStyle=GOLD; ctx.lineWidth=2.4; ctx.beginPath(); ctx.moveTo(RX0(),RYB()); ctx.lineTo(RX0()+RW(),RYB()); ctx.stroke(); if(gR>0.99){ ctx.beginPath(); ctx.moveTo(RX0(),RYT()); ctx.lineTo(RX0()+RW(),RYT()); ctx.stroke(); } ctx.restore();
     label(RX0()-13,(RYT()+RYB())/2,'1',RD,13,true); label(RX0()+RW()/2,RYB()+14,'τ',GOLD,16,true); if(extra)extra(); }
   function disks(p){ const ctx=E.ctx, rc=Math.sqrt(RW()*RH()/2/P), cy=(RYT()+RYB())/2, x1=E.LW*0.33, x2=E.LW*0.67;
     [[x1,'rgba(80,216,144,.26)'],[x2,'rgba(199,155,238,.28)']].forEach(([cx,fl])=>{ ctx.save(); ctx.globalAlpha=p; ctx.fillStyle=fl; ctx.beginPath(); ctx.arc(cx,cy,rc,0,7); ctx.fill(); ctx.strokeStyle=GOLD; ctx.lineWidth=2.6; ctx.stroke(); ctx.restore(); label(cx,cy,'½τ',GOLD,15,true); }); }
-  E.tell(t({en:'<b>Double the Triangle.</b> Uncoil <b>all</b> the rings — short inner ones, the long outer one (<b class="y">τ</b>) — and stack them left-aligned at the cut. They lean into a <b class="g">triangle</b>: height <b class="r">1</b>, base <b class="y">τ</b>.',
-    zh:'<b>把三角翻一倍。</b>把<b>所有</b>环都摊开——短的内环、长的外环（<b class="y">τ</b>）——靠切口左对齐摞起来。它们斜成一个<b class="g">三角</b>：高 <b class="r">1</b>，底 <b class="y">τ</b>。'}));
+  E.tell(t({en:'<b>Double the Triangle.</b> Your <b>outer</b> ring is already a bar (base <b class="y">τ</b>), and the inner <b class="y">rings</b> are still on the left. <b>Uncoil the rest</b> — each inner ring straightens the same way (shorter), left-aligned at the cut. They lean into a <b class="g">triangle</b>: base <b class="y">τ</b>, height <b class="r">1</b>.',
+    zh:'<b>把三角翻一倍。</b>你的<b>最外</b>环已经是一根长条（底 <b class="y">τ</b>），内圈的<b class="y">环</b>还在左边。<b>把其余的环也摊开</b>——每个内环用同样的方式拉直（更短），靠切口左对齐。它们斜成一个<b class="g">三角</b>：底 <b class="y">τ</b>，高 <b class="r">1</b>。'}));
   E.clearTray(); E.addBtn(t({en:'Uncoil the rings ▶',zh:'摊开所有环 ▶'}),'primary',uncoilAll); E.addBtn(t({en:'◀ Prev step',zh:'◀ 上一步'}),'ghost',E.prevStep);
   box(0,0);
   function uncoilAll(){ E.busy=true; E.clearTray(); E.sfx('bracket'); E.anim(1100,p=>box(p,0),()=>{ E.busy=false; askTri(); }); }
