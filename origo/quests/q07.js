@@ -171,53 +171,50 @@ function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.sceneSt
     E.clearTray(); E.addBtn(t({en:'Uncoil the other rings ▶',zh:'摊开其余的环 ▶'}),'primary',E.advance); E.addBtn(t({en:'◀ Prev step',zh:'◀ 上一步'}),'ghost',E.prevStep); }
 }
 
-/* ===== Round 3 — Stack to a Triangle: strips inner→outer form a triangle (base 1, height τ); area = ½·1·τ = ½τ ===== */
+/* ===== Round 3 — Two triangles make a τ×1 rectangle (area τ), so each disk = ½τ. We can't find a triangle's area
+   directly yet, so we DOUBLE it: rings → a left-aligned triangle; a second disk → the rotated triangle; together a
+   rectangle of base τ × height 1 (area τ); each triangle is half → ½τ; deform each back to a disk of area ½τ. ===== */
 function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(2); E.sceneStop(); PIST='loom'; pmood='idle';
-  E.setPlace(t({en:'Stack to a Triangle',zh:'摞成三角'}));
-  const M=8;   // M strips of growing length stacked into a right triangle: vertical leg = radius 1, horizontal leg = τ
-  const TX0=()=>E.LW*0.2, TXW=()=>E.LW*0.56, TYT=()=>E.LH*0.34, TYB=()=>E.LH*0.74;   // triangle box
-  const rowY=j=>TYB()-(j+0.5)*(TYB()-TYT())/M, rowLen=j=>TXW()*(j+1)/M;   // row 0 = shortest (inner ring) at bottom; row M-1 = longest (τ) at top
-  const filled=new Array(M).fill(false);
-  const home={x:E.LW*0.84, y:E.LH*0.85};
-  const strip={ kind:'drag', home:home, bbox:a=>({x:a.pos.x-22,y:a.pos.y-12,w:44,h:24}) };
-  const rowOf=y=>{ let best=0,bd=1e9; for(let j=0;j<M;j++){ const d=Math.abs(y-rowY(j)); if(d<bd){bd=d;best=j;} } return best; };
-  const rh=()=>(TYB()-TYT())/M*0.82;
-  function drawRow(j,ghost,hot){ const ctx=E.ctx, y=rowY(j), len=rowLen(j), h=rh();
-    ctx.save();
-    if(ghost){ ctx.globalAlpha=hot?0.95:0.4; ctx.setLineDash([5,5]); ctx.strokeStyle=hot?'rgba(80,216,144,.95)':'rgba(170,190,225,.5)'; ctx.lineWidth=hot?2.4:1.3; if(hot){ctx.shadowColor='rgba(80,216,144,.6)';ctx.shadowBlur=8;} ctx.strokeRect(TX0(),y-h/2,len,h); }
-    else { ctx.fillStyle='rgba(80,216,144,.24)'; ctx.fillRect(TX0(),y-h/2,len,h); ctx.strokeStyle=GOLD; ctx.lineWidth=1.8; ctx.beginPath(); ctx.moveTo(TX0(),y); ctx.lineTo(TX0()+len,y); ctx.stroke(); ctx.strokeStyle=RD; ctx.lineWidth=1.6; ctx.beginPath(); ctx.moveTo(TX0(),y-h/2); ctx.lineTo(TX0(),y+h/2); ctx.stroke(); }
-    ctx.restore(); }
-  function stripIcon(x,y,lab){ const ctx=E.ctx,w=40,h=14; ctx.save(); ctx.fillStyle='rgba(80,216,144,.26)'; ctx.fillRect(x-w/2,y-h/2,w,h); ctx.strokeStyle=GOLD; ctx.lineWidth=2; ctx.strokeRect(x-w/2,y-h/2,w,h); ctx.strokeStyle=RD; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(x-w/2,y-h/2); ctx.lineTo(x-w/2,y+h/2); ctx.stroke(); ctx.restore(); if(lab) label(x,y+h+10,t({en:'drag a strip',zh:'拖一条带'}),'#bfe8cf',11,true); }
-  function buildStat(){ const n=filled.filter(Boolean).length; E.status('<span style="color:#f4c830">'+t({en:'strips stacked: ',zh:'已摞带子：'})+n+' / '+M+'</span>'); }
-  function drawBuild(){ bg(); const ctx=E.ctx;
-    let hot=-1; if(strip.grab){ const p=strip.pos; if(p.x>TX0()-30&&p.x<TX0()+TXW()+30&&p.y>TYT()-20&&p.y<TYB()+20){ const j=rowOf(p.y); if(!filled[j]) hot=j; } }
-    for(let j=0;j<M;j++){ if(filled[j]) drawRow(j,false); else drawRow(j,true,j===hot); }
-    if(strip.grab) stripIcon(strip.pos.x,strip.pos.y,false); else stripIcon(home.x,home.y,true); }
-  E.tell(t({en:'<b>Stack to a Triangle.</b> <b class="p">Pi</b> still sneers your strips prove nothing. Line them up by size — inner rings short, outer ones long — and <b class="y">Tau</b> stacks them. <b>Drag a strip into each row</b>, shortest at the bottom; fill all <b>'+M+'</b> and watch the shape they make.',
-    zh:'<b>摞成三角。</b><b class="p">Pi</b> 还在冷笑说你的带子证明不了什么。把它们按长短排好——内环短、外环长——让 <b class="y">Tau</b> 摞起来。<b>把带子拖进每一行</b>，最短的放最下；填满全部 <b>'+M+'</b> 条，看它们拼出什么形状。'}));
-  buildStat();
-  E.scene({ actors:[strip], draw:drawBuild, onDrop(a,z,info){ if(E.busy)return;
-    if(info&&!info.tapped){ const p=info; if(p.x>TX0()-30&&p.x<TX0()+TXW()+30&&p.y>TYT()-20&&p.y<TYB()+20){ const j=rowOf(p.y); if(!filled[j]){ filled[j]=true; E.sfx('place'); E.pop('▬'); E.mood('happy'); pmood='hurt'; } } }
-    if(filled.every(Boolean)){ E.sceneStop(); decide(); } else buildStat(); } });
-  function tri(extra){ bg(); for(let j=0;j<M;j++) drawRow(j,false); const ctx=E.ctx;
-    ctx.save(); ctx.strokeStyle=RD; ctx.lineWidth=2.4; ctx.beginPath(); ctx.moveTo(TX0(),TYT()); ctx.lineTo(TX0(),TYB()); ctx.stroke();   // vertical leg = radius 1
-    ctx.strokeStyle=GOLD; ctx.lineWidth=2.8; ctx.beginPath(); ctx.moveTo(TX0(),TYT()); ctx.lineTo(TX0()+TXW(),TYT()); ctx.stroke(); ctx.restore();   // top = the outer rim τ
-    label(TX0()-14,(TYT()+TYB())/2,'1',RD,14,true); label(TX0()+TXW()/2,TYT()-13,'τ',GOLD,18,true); if(extra)extra(); }
-  function decide(){
-    pickPills(t({en:'The strips stack into a <b class="g">triangle</b>: its upright side is the <b class="r">radius</b> 1, its top is the outer rim <b class="y">τ</b>. A triangle\'s area is ½ × base × height. So the disk\'s area is…',zh:'带子摞成一个<b class="g">三角</b>：竖边是<b class="r">半径</b> 1，顶边是最外圆边 <b class="y">τ</b>。三角形面积 = ½ × 底 × 高。所以圆盘面积是……'}),
-      ()=>tri(), E.LH*0.92,
-      [ {txt:{en:'τ ≈ 6.28',zh:'τ ≈ 6.28'}, fb:{en:'That would be base × height with no half. A triangle is HALF of that: ½·1·τ = ½τ.',zh:'那是底 × 高、没取一半。三角形是它的一半：½·1·τ = ½τ。'}},
-        {txt:{en:'½τ ≈ 3.14',zh:'½τ ≈ 3.14'}, ok:true},
-        {txt:{en:'1',zh:'1'}, fb:{en:'Use ½ × base × height = ½ × 1 × τ = ½τ ≈ 3.14.',zh:'用 ½ × 底 × 高 = ½ × 1 × τ = ½τ ≈ 3.14。'}} ], finish);
-  }
-  function finish(){ E.busy=true; E.sceneStop(); PIST='gone'; E.sfx('bracket'); E.speakAs('tau', t({en:'Same answer — twice!',zh:'同一个答案——两遍！'}));
-    E.anim(900,p=>{ tri(()=>{ const ctx=E.ctx; ctx.save(); ctx.globalAlpha=0.18+0.22*p; ctx.fillStyle=GR; ctx.beginPath(); ctx.moveTo(TX0(),TYB()); ctx.lineTo(TX0(),TYT()); ctx.lineTo(TX0()+TXW(),TYT()); ctx.closePath(); ctx.fill(); ctx.restore(); label(TX0()+TXW()*0.34,(TYT()+TYB())*0.5,'½τ',GOLD,18+8*p,true); }); }, win); }
-  function win(){ tri(()=>{ const ctx=E.ctx; ctx.save(); ctx.globalAlpha=0.4; ctx.fillStyle=GR; ctx.beginPath(); ctx.moveTo(TX0(),TYB()); ctx.lineTo(TX0(),TYT()); ctx.lineTo(TX0()+TXW(),TYT()); ctx.closePath(); ctx.fill(); ctx.restore(); label(TX0()+TXW()*0.34,(TYT()+TYB())*0.5-8,'½τ',GOLD,20,true); label(TX0()+TXW()*0.34,(TYT()+TYB())*0.5+15,'= π ≈ 3.14',VIO,12,true); });
+  E.setPlace(t({en:'Double the Triangle',zh:'把三角翻一倍'}));
+  const N=10, RW=()=>E.LW*0.6, RH=()=>RW()/6.2832, bh=()=>RH()/N;   // rectangle base = τ (RW), height = 1 (RH)
+  const RX0=()=>E.LW*0.5-RW()/2, RYB=()=>E.LH*0.58, RYT=()=>RYB()-RH();
+  const GRN1='rgba(80,216,144,.30)', GRN2='rgba(80,216,144,.18)', VIO1='rgba(199,155,238,.34)', VIO2='rgba(199,155,238,.2)';
+  function bars(gL,gR){ const ctx=E.ctx, x0=RX0(), yT=RYT();   // gL,gR = grow 0..1 of the left (green) / right (violet) triangle
+    for(let i=0;i<N;i++){ const y=yT+(i+0.5)*bh(), Ll=RW()*(i+1)/N*gL, Rl=RW()*(N-i-1)/N*gR;
+      if(Ll>0.3){ ctx.fillStyle=(i%2)?GRN1:GRN2; ctx.fillRect(x0,y-bh()/2,Ll,bh()-1.1); }
+      if(Rl>0.3){ ctx.fillStyle=(i%2)?VIO1:VIO2; ctx.fillRect(x0+RW()-Rl,y-bh()/2,Rl,bh()-1.1); } } }
+  function box(gL,gR,extra){ bg(); bars(gL,gR); const ctx=E.ctx;
+    ctx.save(); ctx.strokeStyle=RD; ctx.lineWidth=2.2; ctx.beginPath(); ctx.moveTo(RX0(),RYT()); ctx.lineTo(RX0(),RYB()); ctx.stroke();
+    if(gR>0.99){ ctx.beginPath(); ctx.moveTo(RX0()+RW(),RYT()); ctx.lineTo(RX0()+RW(),RYB()); ctx.stroke(); }
+    ctx.strokeStyle=GOLD; ctx.lineWidth=2.4; ctx.beginPath(); ctx.moveTo(RX0(),RYB()); ctx.lineTo(RX0()+RW(),RYB()); ctx.stroke(); if(gR>0.99){ ctx.beginPath(); ctx.moveTo(RX0(),RYT()); ctx.lineTo(RX0()+RW(),RYT()); ctx.stroke(); } ctx.restore();
+    label(RX0()-13,(RYT()+RYB())/2,'1',RD,13,true); label(RX0()+RW()/2,RYB()+14,'τ',GOLD,16,true); if(extra)extra(); }
+  function disks(p){ const ctx=E.ctx, rc=Math.sqrt(RW()*RH()/2/P), cy=(RYT()+RYB())/2, x1=E.LW*0.33, x2=E.LW*0.67;
+    [[x1,'rgba(80,216,144,.26)'],[x2,'rgba(199,155,238,.28)']].forEach(([cx,fl])=>{ ctx.save(); ctx.globalAlpha=p; ctx.fillStyle=fl; ctx.beginPath(); ctx.arc(cx,cy,rc,0,7); ctx.fill(); ctx.strokeStyle=GOLD; ctx.lineWidth=2.6; ctx.stroke(); ctx.restore(); label(cx,cy,'½τ',GOLD,15,true); }); }
+  E.tell(t({en:'<b>Double the Triangle.</b> Uncoil <b>all</b> the rings — short inner ones, the long outer one (<b class="y">τ</b>) — and stack them left-aligned at the cut. They lean into a <b class="g">triangle</b>: height <b class="r">1</b>, base <b class="y">τ</b>.',
+    zh:'<b>把三角翻一倍。</b>把<b>所有</b>环都摊开——短的内环、长的外环（<b class="y">τ</b>）——靠切口左对齐摞起来。它们斜成一个<b class="g">三角</b>：高 <b class="r">1</b>，底 <b class="y">τ</b>。'}));
+  E.clearTray(); E.addBtn(t({en:'Uncoil the rings ▶',zh:'摊开所有环 ▶'}),'primary',uncoilAll); E.addBtn(t({en:'◀ Prev step',zh:'◀ 上一步'}),'ghost',E.prevStep);
+  box(0,0);
+  function uncoilAll(){ E.busy=true; E.clearTray(); E.sfx('bracket'); E.anim(1100,p=>box(p,0),()=>{ E.busy=false; askTri(); }); }
+  function askTri(){ pickPills(t({en:'There it is — a <b class="g">triangle</b>, base <b class="y">τ</b>, height <b class="r">1</b>. <b>How big is its area?</b>',zh:'看——一个<b class="g">三角</b>，底 <b class="y">τ</b>、高 <b class="r">1</b>。<b>它的面积有多大？</b>'}),
+      ()=>box(1,0,()=>label(RX0()+RW()*0.3,(RYT()+RYB())/2+1,t({en:'area = ?',zh:'面积 = ?'}),GR,14,true)), E.LH*0.92,
+      [ {txt:{en:'not learned yet',zh:'还不会算'}, ok:true},
+        {txt:{en:'½τ',zh:'½τ'}, fb:{en:'That IS the answer — but we have no triangle-area rule yet to prove it. Let us derive it.',zh:'那确实是答案——但我们还没有三角形面积公式来证明它。我们来推一推。'}},
+        {txt:{en:'τ',zh:'τ'}, fb:{en:'τ is the base, a length. We have not learned a triangle\'s AREA yet — so let us build it.',zh:'τ 是底，是长度。我们还没学过三角形的面积——那就动手拼出来。'}} ], second); }
+  function second(){ E.tell(t({en:'Right — no triangle-area rule <i>yet</i>. So <b>make a second copy</b> from another disk and <b>turn it upside-down</b> to fit on top.',zh:'对——我们<i>还没</i>有三角形面积公式。那就用另一个圆盘<b>再做一个</b>，<b>倒过来</b>扣在上面。'}));
+    E.clearTray(); E.addBtn(t({en:'Add the 2nd triangle ▶',zh:'加上第二个三角 ▶'}),'primary',()=>{ E.busy=true; E.clearTray(); E.sfx('place'); E.anim(1000,p=>box(1,p),()=>{ E.busy=false; askRect(); }); }); }
+  function askRect(){ pickPills(t({en:'Two equal <b class="g">triangles</b> fill a <b>rectangle</b>: base <b class="y">τ</b>, height <b class="r">1</b>. A rectangle\'s area we DO know — base × height. So this area = ?',zh:'两个相等的<b class="g">三角</b>拼满一个<b>矩形</b>：底 <b class="y">τ</b>，高 <b class="r">1</b>。矩形面积我们会算——底 × 高。所以这面积 = ?'}),
+      ()=>box(1,1), E.LH*0.92,
+      [ {txt:{en:'τ',zh:'τ'}, ok:true},
+        {txt:{en:'½τ',zh:'½τ'}, fb:{en:'½τ is ONE triangle. The whole rectangle is τ × 1 = τ.',zh:'½τ 是一个三角。整个矩形是 τ × 1 = τ。'}},
+        {txt:{en:'2τ',zh:'2τ'}, fb:{en:'base × height = τ × 1 = τ.',zh:'底 × 高 = τ × 1 = τ。'}} ], finish); }
+  function finish(){ E.busy=true; E.sceneStop(); PIST='gone'; E.speakAs('tau', t({en:'Halve it — ½τ each!',zh:'对半分——每个 ½τ！'}));
+    E.anim(800,p=>box(1,1,()=>label(RX0()+RW()/2,(RYT()+RYB())/2,'τ',GOLD,16+6*p,true)), ()=>{ E.sfx('bracket'); E.anim(900,p=>{ bg(); const ctx=E.ctx; ctx.save(); ctx.globalAlpha=Math.max(0,1-p*1.4); bars(1,1); ctx.restore(); disks(p); }, win); }); }
+  function win(){ bg(); disks(1);
     E.setDots(3); E.tickQ(3); E.award(70); E.cheer(); E.sfx('win');
-    E.status(keq('½·1·τ = ½τ ≈ 3.14'));
-    E.tell(t({en:'Stacked, the strips make a <b class="g">triangle</b>: base the <b class="r">radius</b> 1, height the rim <b class="y">τ</b>. Its area is ½ · 1 · <b class="y">τ</b> = <b class="y">½τ</b> ≈ <b>3.14</b> — the <b>same</b> as the pizza cut. Two roads, one answer: the disk\'s area is <b class="y">½τ</b> = <b class="p">π</b>. With <b class="p">π</b> caught twice, <b class="p">Pi the Halver</b> is driven from the Glade — and you keep the tool that did it: <b class="r">dx</b>, the tiny step. Soon it will measure the area under <b>any</b> curve.',
-      zh:'摞起来，带子拼成一个<b class="g">三角</b>：底是<b class="r">半径</b> 1，高是圆边 <b class="y">τ</b>。它的面积 = ½ · 1 · <b class="y">τ</b> = <b class="y">½τ</b> ≈ <b>3.14</b>——和披萨切法<b>一模一样</b>。两条路，同一个答案：圆盘的面积是 <b class="y">½τ</b> = <b class="p">π</b>。<b class="p">π</b> 被抓住两回，<b class="p">半圆贩子</b>被赶出圆环林——而你留下了制胜的工具：<b class="r">dx</b>，那一小步。很快，它能量出<b>任何</b>曲线下的面积。'}));
-    E.clearTray(); E.addBtn(t({en:'Claim the Codex page 📖',zh:'领取典籍书页 📖'}),'primary',()=>E.openBook(QUEST.book)); E.addBtn(t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep); }
+    E.status(keq('rectangle = τ → each disk = ½τ = π'));
+    E.tell(t({en:'The <b>rectangle</b> is <b class="y">τ</b> × <b class="r">1</b> = <b class="y">τ</b>, made of <b>two equal triangles</b> — so each <b class="g">triangle</b> is <b class="y">½τ</b>. And each triangle was a disk re-laid, so a disk\'s <b class="g">area</b> = <b class="y">½τ</b> = <b class="p">π</b> — the <b>same</b> answer as the pizza cut. Two roads, one truth: <b class="p">Pi the Halver</b> is driven off, and you keep <b class="r">dx</b>, the tiny step that will soon measure the area under <b>any</b> curve.',
+      zh:'这<b>矩形</b>是 <b class="y">τ</b> × <b class="r">1</b> = <b class="y">τ</b>，由<b>两个相等的三角</b>拼成——所以每个<b class="g">三角</b>是 <b class="y">½τ</b>。而每个三角就是一个圆盘摊开重拼的，所以圆盘的<b class="g">面积</b> = <b class="y">½τ</b> = <b class="p">π</b>——和披萨切法<b>一样</b>。两条路，同一个真相：<b class="p">半圆贩子</b>被赶跑，而你留下了 <b class="r">dx</b>，那一小步，很快它能量出<b>任何</b>曲线下的面积。'}));
+    E.clearTray(); E.addBtn(t({en:'Claim the Codex page 📖',zh:'领取典籍书页 📖'}),'primary',()=>E.openBook(QUEST.book)); E.addBtn(t({en:'↺ Replay (no EXP)',zh:'↺ 重玩（无经验）'}),'ghost',E.replayStep); }
 }
 
 const QUEST = {
