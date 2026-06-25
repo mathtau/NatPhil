@@ -192,17 +192,17 @@ const FIGS={
     s+='<path d="M'+tx+' '+(cy-th/2)+' L'+(tx-tw)+' '+(cy+th/2)+' L'+(tx+tw)+' '+(cy+th/2)+' Z" fill="'+G+'" opacity="0.24"/>';
     s+=sLine(tx,cy-th/2,tx-tw,cy+th/2,R,1.8)+sLine(tx,cy-th/2,tx+tw,cy+th/2,R,1.8)+sLine(tx-tw,cy+th/2,tx+tw,cy+th/2,GOLD,2);
     s+=sText('triangle',tx,cy+th/2+13,G,12); return s; },
-  prect(){ const x0=168, Wb=144, yT=28, yB=72, M=6; let s='';   // wedges packed into a bar: height 1, long edge ½τ
+  prect(){ const x0=168, Wb=144, yT=28, yB=72, M=6; let s='';   // wedges packed into a bar: height h = 1, two bases 2b = τ
     s+='<rect x="'+x0+'" y="'+yT+'" width="'+Wb+'" height="'+(yB-yT)+'" fill="'+G+'" opacity="0.18"/>';
     for(let i=0;i<M;i++){ const x=x0+i*Wb/M, y=(i%2===0)?yB:yT, x2=x0+(i+1)*Wb/M, y2=(i%2===0)?yT:yB; s+=sLine(x,y,x2,y2,R,1.5); }   // zig-zag = the packed wedge sides (radii)
-    s+=sLine(x0,yT,x0+Wb,yT,GOLD,2.4)+sLine(x0,yB,x0+Wb,yB,GOLD,2.4);   // gold long edges = the two rim-halves
+    s+=sLine(x0,yT,x0+Wb,yT,GOLD,2.4)+sLine(x0,yB,x0+Wb,yB,GOLD,2.4);   // gold long edges = the two bases b (together = the rim τ)
     s+=sLine(x0,yT,x0,yB,R,2)+sLine(x0+Wb,yT,x0+Wb,yB,R,2);
-    s+=sText('½τ',x0+Wb/2,yT-9,'#a8780f',14)+sText('1',x0-12,(yT+yB)/2,R,13); return s; },
-  parea(){ const x0=168, Wb=144, yT=24, yB=68, mid=(24+68)/2; let s='';   // area = ½τ × 1 = ½τ = π
+    s+=sText('b',x0+Wb/2,yT-9,'#a8780f',14)+sText('b',x0+Wb/2,yB+11,'#a8780f',14)+sText('h',x0-12,(yT+yB)/2,R,13)+sText('2b = τ',x0+Wb+4,(yT+yB)/2,'#a8780f',12); return s; },
+  parea(){ const x0=168, Wb=144, yT=24, yB=68, mid=(24+68)/2; let s='';   // area = b·h = ½τ·1 = ½τ = π
     s+='<rect x="'+x0+'" y="'+yT+'" width="'+Wb+'" height="'+(yB-yT)+'" fill="'+G+'" opacity="0.26"/>';
     s+=sLine(x0,yT,x0+Wb,yT,GOLD,2.4)+sLine(x0,yB,x0+Wb,yB,GOLD,2.4)+sLine(x0,yT,x0,yB,R,2)+sLine(x0+Wb,yT,x0+Wb,yB,R,2);
-    s+='<text x="'+(x0+Wb/2)+'" y="'+(mid-1)+'" font-family="Caveat,cursive" font-size="22" fill="'+DEP+'" text-anchor="middle" dominant-baseline="middle">π</text>';
-    s+=sText('= ½τ',x0+Wb/2,mid+16,'#a8780f',12)+sText('½τ',x0+Wb/2,yT-8,'#a8780f',13)+sText('1',x0-12,(yT+yB)/2,R,12); return s; },
+    s+='<text x="'+(x0+Wb/2)+'" y="'+(mid-1)+'" font-family="Caveat,cursive" font-size="20" fill="'+DEP+'" text-anchor="middle" dominant-baseline="middle">½τ = π</text>';
+    s+=sText('= area',x0+Wb/2,mid+16,G,12)+sText('b = ½τ',x0+Wb/2,yT-8,'#a8780f',12)+sText('h = 1',x0-15,(yT+yB)/2,R,12); return s; },
   drings(){ const cx=240, cy=48, r=34, n=6; let s='';   // slice the radius into thin rings, each dx wide
     for(let i=1;i<=n;i++){ const ri=+(r*i/n).toFixed(1); s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+ri+'" fill="none" stroke="'+(i===n?GOLD:'#caa84a')+'" stroke-width="'+(i===n?2.4:1.3)+'" opacity="'+(i===n?1:(0.4+0.4*i/n).toFixed(2))+'"/>'; }
     const dx=r/n; s+=sLine(cx+r-dx,cy,cx+r,cy,R,3)+sLine(cx+r-dx,cy-5,cx+r-dx,cy+5,R,1.5)+sLine(cx+r,cy-5,cx+r,cy+5,R,1.5);

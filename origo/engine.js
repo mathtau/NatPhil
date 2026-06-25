@@ -321,7 +321,7 @@ E.boot=function(QUEST){ E.QUEST=QUEST;
   QUEST.intro && QUEST.intro(E);
 };
 E.start=()=>{ E.round=0; E.done={}; lives=3; renderHearts(); E.next(); };   // a fresh 3-heart run each quest
-E.next=()=>{ const r=E.QUEST.rounds[E.round]; if(r){ E.currentRound=()=>E.QUEST.rounds[E.round](E); E.currentRound(); } };
+E.next=()=>{ const r=E.QUEST.rounds[E.round]; if(r){ E.currentRound=()=>{ E.clearTray(); E.QUEST.rounds[E.round](E); }; E.currentRound(); } };   // clear the tray on EVERY round entry/replay, so a previous round's advance button can't linger and skip the next round
 E.advance=()=>{ E.round++; E.next(); };
 E.award=n=>{ if(E.done[E.round]) return; E.done[E.round]=true; E.gainXP(n); };   // XP only the first clear of a step
 E.replayStep=()=>{ if(E.currentRound) E.currentRound(); };                       // re-run the SAME step (no XP second time)
