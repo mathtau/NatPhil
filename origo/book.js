@@ -23,9 +23,9 @@ function sCell(x,y,c,col){ const d=((rnd()-.5)*3).toFixed(1); return '<g transfo
 function sGrid(x,y,c,cols,rows,col){ let s=''; for(let r=0;r<rows;r++)for(let k=0;k<cols;k++) s+=sCell(x+k*c,y+r*c,c,col); return s; }
 function cEq(cx,cy,parts,sz){ sz=sz||18; let w=parts.reduce((a,p)=>a+p[0].length*sz*0.52,0), x=cx-w/2, s=''; parts.forEach(p=>{ const pw=p[0].length*sz*0.52; s+='<text x="'+(x+pw/2).toFixed(1)+'" y="'+cy+'" font-family="Caveat,cursive" font-size="'+sz+'" fill="'+p[1]+'" text-anchor="middle" dominant-baseline="middle">'+p[0]+'</text>'; x+=pw; }); return s; }
 function pbrace(x1,x2,y,label,col){ col=col||INK; return sLine(x1,y+5,x1,y,col,1.6)+sLine(x1,y,x2,y,col,1.6)+sLine(x2,y,x2,y+5,col,1.6)+sText(label,(x1+x2)/2,y-8,col,13); }
-const FIGH={dots:48,bars:44,numline:52,commute:78,assoc:106, mjumps:88,marr:68,mintro:146,mrect:58,mrot:76,mdist:68,mgroups:98, gnname:64,gjux:80,gfill:50,glaw:76,garea:76, acmp:76,aunit:86,aflip:92};   // each ≥ its lowest label so labels aren't clipped
+const FIGH={dots:48,bars:44,numline:52,commute:78,assoc:106, mjumps:88,marr:68,mintro:146,mrect:58,mrot:76,mdist:68,mgroups:98, gnname:64,gjux:80,gfill:50,glaw:76,garea:76, acmp:76,aunit:86,aflip:92, ucirc:86,uhex:114,utau:98};   // each ≥ its lowest label so labels aren't clipped
 // measured content centre (getBBox) per figure; figSVG pans the 480-wide viewBox so EVERY figure is centred in its frame (re-measure if a figure's layout changes)
-const FIGCX={dots:183,bars:163,numline:240,commute:240,assoc:245, mjumps:243,marr:238,mintro:201,mrect:249,mrot:225,mdist:156,mgroups:246, gnname:249,gjux:229,gfill:264,glaw:266,garea:264, acmp:232,aunit:234,aflip:236};
+const FIGCX={dots:183,bars:163,numline:240,commute:240,assoc:245, mjumps:243,marr:238,mintro:201,mrect:249,mrot:225,mdist:156,mgroups:246, gnname:249,gjux:229,gfill:264,glaw:266,garea:264, acmp:232,aunit:234,aflip:236, ucirc:240,uhex:240,utau:240};
 const FIGS={
   dots(){ const s=24,y=30; return sBox(74,y,s,B)+sText('+',106,y,INK,30)
     +sBox(134,y,s,B)+sBox(166,y,s,B)+sText('=',198,y,INK,30)
@@ -162,6 +162,25 @@ const FIGS={
     s+='<line x1="'+mid+'" y1="6" x2="'+mid+'" y2="'+(base+8)+'" stroke="'+AX+'" stroke-width="1" stroke-dasharray="3 4" opacity=".55"/>';   // divider
     s+=sq(278)+yln(326,53,-10)+unit(354,22,10);                                       // RIGHT: x | y | 1 (outer) , y big
     return s+cEq(157,base+20,verd,15)+cEq(316,base+20,verd,15); },
+  // ---- the unit circle & τ (p9 / Quest 5) ---- circle BLUE, radius/unit "1" RED, chords/arcs GREEN, τ GOLD
+  ucirc(){ const cx=240, cy=44, r=34;   // the unit circle: a radius of 1 to the rim
+    return '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+GOLD+'" stroke-width="2.6"/>'
+      + sLine(cx,cy,cx+r,cy,R,2.4) + sDot(cx,cy,3,INK) + sDot(cx+r,cy,3,R)
+      + sText('1',cx+r*0.5,cy-9,R,14) + sText('O',cx-10,cy+12,'#7a6a4a',12); },
+  uhex(){ const cx=240, cy=58, r=42, PI=Math.PI; let s='';   // six unit radii → hexagon: chords green = 1, the ring (arcs) blue
+    s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+GOLD+'" stroke-width="2.2"/>';
+    const tp=k=>({x:+(cx+r*Math.cos(-PI/2+k*PI/3)).toFixed(1), y:+(cy+r*Math.sin(-PI/2+k*PI/3)).toFixed(1)});
+    for(let k=0;k<6;k++){ const p=tp(k); s+=sLine(cx,cy,p.x,p.y,R,1.7)+sDot(p.x,p.y,2.6,R); }
+    for(let k=0;k<6;k++){ const a=tp(k),b=tp((k+1)%6); s+=sLine(a.x,a.y,b.x,b.y,G,2); }
+    s+=sDot(cx,cy,3,INK);
+    s+=sText('1',cx+11,(cy+tp(0).y)/2,R,12);                            // a radius = 1
+    const a0=tp(0),b0=tp(1); s+=sText('1',(a0.x+b0.x)/2+11,(a0.y+b0.y)/2-2,G,12);   // a chord = 1
+    return s; },
+  utau(){ const cx=240, cy=46, r=36;   // the whole way around = τ
+    return '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+GOLD+'" stroke-width="3"/>'
+      + sDot(cx,cy,3,INK)
+      + '<text x="'+cx+'" y="'+(cy+1)+'" font-family="Caveat,cursive" font-size="26" fill="#a8780f" text-anchor="middle" dominant-baseline="middle">τ</text>'
+      + sText('≈ 6.28',cx,cy+r+14,'#a8780f',13); },
 };
 function figSVG(name){ const W=480,H=FIGH[name]||70, cx=FIGCX[name]||240; return '<svg class="bkfig" width="544" height="'+(544*H/W).toFixed(1)+'" viewBox="'+(cx-240).toFixed(0)+' 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">'+FIGS[name]()+'</svg>'; }   // pan viewBox to centre content; explicit width/height so it sizes even if page CSS is missing (PNG/PDF export)
 function colorEq(s){ return s.replace(/\d/g,d=>'<span style="color:'+(COL[+d]||INK)+'">'+d+'</span>'); }
@@ -190,7 +209,7 @@ const PAGE_CSS=`
 .bklaw{font-family:'Caveat','Segoe Print','Bradley Hand','Ma Shan Zheng','KaiTi','STKaiti',cursive;font-weight:700;font-size:22px;}
 .bkeq{font-family:'Caveat','Segoe Print','Bradley Hand','Ma Shan Zheng','KaiTi','STKaiti',cursive;font-size:24px;letter-spacing:.02em;}
 .q{color:#2f74d0;font-weight:bold;}.len{color:#e8402e;font-weight:bold;}
-.r{color:#e8402e}.b{color:#2f74d0}.gr{color:#2faa4e}.p{color:#7c3fd4}
+.r{color:#e8402e}.b{color:#2f74d0}.gr{color:#2faa4e}.g{color:#2faa4e}.y{color:#b5860b}.p{color:#7c3fd4}
 .bknote{margin-top:5px;background:#fbf7e4;border:1px solid #e9dab0;border-left:4px solid #f0c419;border-radius:6px;padding:6px 10px;font-size:14px;color:#4a4436;}
 .bknote b{color:#b5860b;}`;
 function pageCSS(){ return PAGE_CSS; }

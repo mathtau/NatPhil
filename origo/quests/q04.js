@@ -27,11 +27,12 @@ function star(ctx,cx,cy,r,col){ if(r<=0)return; ctx.save(); ctx.fillStyle=col; c
 
 /* the FOGWRAITH: a hovering hooded specter (violet aura, glowing cyan eyes, tattered smoke-hem). WST drives its menace:
    'loom' = present and feeding, 'recoil' = starved + shrunk (rod pinned), 'gone' = driven off (not drawn). */
-let WST='loom', wmood='idle';   // WST: loom|recoil|gone ; wmood: idle | gloat (after a WRONG answer) | hurt (after a RIGHT answer)
-function wraith(cx,cy,s){ if(WST==='gone')return; const ctx=E.ctx, tt=performance.now()/1000, recoil=(WST==='recoil');
+let WST='loom', wmood='idle', WCMP='', wfleeP=0;   // WST: loom|recoil|gone ; wmood: idle|gloat(wrong)|hurt(right) ; WCMP = proven comparison shown under the wraith ; wfleeP 0→1 = it scurries away on a right answer
+function wraith(cx,cy,s){ if(WST==='gone')return; const ctx=E.ctx, tt=performance.now()/1000, recoil=(WST==='recoil'); const bx=cx, by=cy;
   if(recoil)s*=0.72; else if(wmood==='gloat')s*=1.12; else if(wmood==='hurt')s*=0.85;
-  const a=recoil?0.55:(wmood==='hurt'?0.72:1), auraA=recoil?0.16:(wmood==='gloat'?0.52:wmood==='hurt'?0.18:0.36);
+  const a=(recoil?0.55:(wmood==='hurt'?0.72:1))*(1-wfleeP*0.5), auraA=recoil?0.16:(wmood==='gloat'?0.52:wmood==='hurt'?0.18:0.36);
   cy+=Math.sin(tt*1.6)*s*0.06; const sway=recoil?0:Math.sin(tt*0.9)*s*0.05;
+  cx+=wfleeP*s*2.6; cy-=wfleeP*s*0.7;                          // flees up-and-right
   ctx.save(); ctx.translate(sway,0); ctx.globalAlpha=a;
   const aura=ctx.createRadialGradient(cx,cy,2,cx,cy,s*1.8); aura.addColorStop(0,'rgba(152,92,228,'+auraA+')'); aura.addColorStop(1,'rgba(152,92,228,0)');
   ctx.fillStyle=aura; ctx.beginPath(); ctx.arc(cx,cy,s*1.8,0,7); ctx.fill();
@@ -50,7 +51,9 @@ function wraith(cx,cy,s){ if(WST==='gone')return; const ctx=E.ctx, tt=performanc
   if(wmood==='gloat'){ ctx.moveTo(cx-mw,my-s*0.04); ctx.quadraticCurveTo(cx,my+s*0.16,cx+mw,my-s*0.04); }
   else if(wmood==='hurt'){ ctx.moveTo(cx-mw,my+s*0.1); ctx.quadraticCurveTo(cx,my-s*0.07,cx+mw,my+s*0.1); }
   else { ctx.moveTo(cx-mw*0.7,my); ctx.lineTo(cx+mw*0.7,my); }
-  ctx.stroke(); ctx.restore(); }
+  ctx.stroke(); ctx.restore();
+  if(WCMP){ const ly=by+s*1.34, c=ctx; c.save(); c.font='600 16px "IBM Plex Mono",monospace'; c.textAlign='center'; c.textBaseline='middle'; const w=c.measureText(WCMP).width+20; c.fillStyle='rgba(10,8,20,.82)'; rrect(c,bx-w/2,ly-13,w,26,8); c.fill(); c.fillStyle='#ffe9a0'; c.fillText(WCMP,bx,ly); c.restore(); } }   // the proven comparison, stamped under the wraith
+function flee(cmp, draw, next){ WCMP=cmp; wmood='hurt'; E.busy=true; E.anim(820, p=>{ wfleeP=p; draw(); }, ()=>{ wfleeP=0; E.busy=false; next(); }); }   // on a right answer the wraith scurries off and the comparison is shown
 
 function bg(){ const ctx=E.ctx,LW=E.LW,LH=E.LH; E.clear(); FIG.fog(ctx,0,LW,0,LH*0.5,performance.now());
   const gh=54, gg=ctx.createLinearGradient(0,LH-gh,0,LH); gg.addColorStop(0,'#2f7a3f'); gg.addColorStop(1,'#163a21');
@@ -69,7 +72,7 @@ const TAUNT=[ {en:'Hee hee — no answer, no answer!',zh:'嘿嘿，没答案，�
 const QUIP=[ {en:'Yes!',zh:'对了！'}, {en:'Good eye!',zh:'好眼力！'}, {en:'That\'s it!',zh:'就是它！'} ];   // Tau's cheer on a RIGHT answer (visible pop + spoken if narration is on)
 const HG='rgba(80,216,144,.95)', HB='rgba(96,150,255,.95)', HU='rgba(244,200,48,.95)';   // highlight tints: field=green, rope=blue, token=gold
 /* DIRECT-MANIPULATION choice via the shared E.choose; the figures REACT: right → Tau cheers + wraith hurt; wrong → wraith gloats + taunt (scene stays live to retry). */
-function pickScene(prompt, redraw, items, onRight){ E.choose(prompt, redraw, items, onRight, {
+function pickScene(prompt, redraw, items, onRight, cmp){ E.choose(prompt, redraw, items, cmp?()=>flee(cmp,redraw,onRight):onRight, {
   react:(ok)=>{ wmood = ok?'hurt':'gloat'; if(ok) E.speakAs('tau', t(pick(QUIP))); },
   okPop:()=>t(pick(QUIP)),
   fbWrap:(fb)=>'<span class="wsay">“'+t(pick(TAUNT))+'”</span><br>'+fb }); }
@@ -117,7 +120,7 @@ function socket(x,y,len,hot){ const ctx=E.ctx; ctx.save(); ctx.globalAlpha=hot?0
 
 /* ===== Round 1 — The Quarrel: TAP the bigger object. field-vs-rope has no answer, so tap the "Can't tell" token ===== */
 function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(0); E.sceneStop();
-  E.setPlace(t({en:'The Quarrel',zh:'争执之地'})); E.status(''); WST='loom'; wmood='idle';
+  E.setPlace(t({en:'The Quarrel',zh:'争执之地'})); E.status(''); WST='loom'; WCMP=''; wmood='idle';
   // fields are VERTICAL rectangles (foreshadow integration's tall strips); A clearly more grass than B; rope P clearly longer than Q. Re-roll so Replay never repeats the last draw.
   const [D,sig]=reroll(()=>({A:{w:rnd(74,88),h:rnd(120,150)}, B:{w:rnd(54,66),h:rnd(80,104)}, P:rnd(150,185), Q:rnd(82,112)}),
     v=>v.A.w+','+v.A.h+','+v.B.w+','+v.B.h+','+v.P+','+v.Q, L1); L1=sig;
@@ -126,12 +129,12 @@ function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(0); E.sceneSt
     const draw=()=>{ bg(); field(ax,y,A.w,A.h,0,'A'); field(bx,by,B.w,B.h,0,'B'); };
     pickScene(t({en:'Two <b style="color:#7fe0a0">fields</b>. Tap the one with more grass.',zh:'两块<b>草田</b>。点一下草更多的那块。'}), draw,
       [ {bbox:()=>({x:ax,y,w:A.w,h:A.h}), ok:true, hiCol:HG},
-        {bbox:()=>({x:bx,y:by,w:B.w,h:B.h}), hiCol:HG, fb:{en:'A covers more ground.',zh:'A 占地更多。'}} ], q2); }
+        {bbox:()=>({x:bx,y:by,w:B.w,h:B.h}), hiCol:HG, fb:{en:'A covers more ground.',zh:'A 占地更多。'}} ], q2, 'A  >  B'); }
   function q2(){ wmood='idle'; const y=E.LH*0.09, px=E.LW*0.34, qx=E.LW*0.62;
     const draw=()=>{ bg(); rope(px,y,P,0,'P'); rope(qx,y,Q,0,'Q'); };
     pickScene(t({en:'Two <b style="color:#7fb6ff">ropes</b>. Tap the longer one.',zh:'两根<b>绳</b>。点一下更长的那根。'}), draw,
       [ {bbox:()=>({x:px-18,y,w:36,h:P}), ok:true, hiCol:HB},
-        {bbox:()=>({x:qx-18,y,w:36,h:Q}), hiCol:HB, fb:{en:'P hangs further.',zh:'P 更长。'}} ], q3); }
+        {bbox:()=>({x:qx-18,y,w:36,h:Q}), hiCol:HB, fb:{en:'P hangs further.',zh:'P 更长。'}} ], q3, 'P  >  Q'); }
   function q3(){ wmood='idle'; const fx=E.LW*0.16,fy=E.LH*0.22,rx=E.LW*0.62,ry=E.LH*0.09, tx=E.LW*0.5,ty=E.LH*0.86,
       tlab=t({en:"Can't tell yet",zh:'还说不准'});
     const draw=()=>{ bg(); field(fx,fy,72,128,0,'field'); rope(rx,ry,150,0,'rope'); pill(tx,ty,tlab); };
@@ -148,7 +151,7 @@ function round1(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(0); E.sceneSt
 
 /* ===== Round 2 — Pin the Rod: DRAG the rod onto the land to set the unit, then TAP the bigger shape ===== */
 function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.sceneStop();
-  E.setPlace(t({en:'Pin the Rod',zh:'钉下量尺'})); E.status(''); WST='loom'; wmood='idle';
+  E.setPlace(t({en:'Pin the Rod',zh:'钉下量尺'})); E.status(''); WST='loom'; WCMP=''; wmood='idle';
   // field is a VERTICAL rectangle (up>across); its grass still beats the debt-rope. Re-roll so Replay never repeats the last numbers.
   const [D2,sig2]=reroll(()=>{ const a=rnd(2,3), u=a+rnd(1,2); return {across:a, up:u, c:rnd(2,Math.min(5,a*u-1))}; },
     v=>v.across+'x'+v.up+','+v.c, L2); L2=sig2;
@@ -172,7 +175,7 @@ function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.sceneSt
   function decide(){ wmood='idle';
     pickScene(t({en:'<b style="color:#7fe0a0">Field</b> '+across+'×'+up+', <b style="color:#7fb6ff">rope</b> '+c+'. Tap the bigger one.',zh:'<b>田</b> '+across+'×'+up+'，<b>绳</b> '+c+'。点一下更大的那个。'}), paint,
       [ {bbox:()=>({x:FX(),y:FY(),w:across*u,h:up*u}), ok:true, hiCol:HG},
-        {bbox:()=>({x:RX()-18,y:RY(),w:36,h:c*u}), hiCol:HB, fb:{en:'A '+across+'×'+up+' field holds more than a rope '+c+'.',zh:'宽'+across+'高'+up+'的田，比长'+c+'的绳多。'}} ], win); }
+        {bbox:()=>({x:RX()-18,y:RY(),w:36,h:c*u}), hiCol:HB, fb:{en:'A '+across+'×'+up+' field holds more than a rope '+c+'.',zh:'宽'+across+'高'+up+'的田，比长'+c+'的绳多。'}} ], win, (across*up)+'  >  '+c); }
   function win(){ E.sceneStop(); WST='recoil'; pinned=true; paint(); const ctx=E.ctx; for(let r=0;r<up;r++)for(let cc=0;cc<across;cc++) calf(ctx,FX()+cc*u+u/2,FY()+r*u+u/2,10);
     E.setDots(2); E.tickQ(2); E.award(50); E.cheer(); E.sfx('win'); E.status(t({en:keq('field  >  rope'),zh:keq('田  >  绳')}));
     E.tell(t({en:'<b class="g">Field</b> wins — the grass covers the debt, the <b class="p">wraith</b> starves and the <b class="y">herd</b> grazes.',zh:'<b class="g">田</b>更大，草抵了债，<b class="p">幽灵</b>饿瘪，<b class="y">牛群</b>吃上草了。'}));
@@ -181,7 +184,7 @@ function round2(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(1); E.sceneSt
 
 /* ===== Round 3 — The Wraith's Trick: swap the rod and the winner flips; TAP the winner under each rod ===== */
 function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(2); E.sceneStop();
-  E.setPlace(t({en:"The Wraith's Trick",zh:'幽灵的诡计'})); E.status(''); WST='loom';
+  E.setPlace(t({en:"The Wraith's Trick",zh:'幽灵的诡计'})); E.status(''); WST='loom'; WCMP='';
   /* same LAND, two rods. field is a RECTANGLE (p across, q up). At the BIG rod the counts are (p,q,r) and the rope wins (r>p*q);
      at the SMALL rod (k× finer) every count scales by k, so the field's area overtakes (k*p*q>r). The flip is guaranteed by p*q < r < k*p*q. */
   let p,q,r,k,P,Q,R,u2,u1;
@@ -199,11 +202,11 @@ function round3(E){ E.setSpeaker('tau'); E.mood('idle'); E.setDots(2); E.sceneSt
   function q1(){ wmood='idle';
     pickScene(t({en:"<b>The Wraith's Trick — big rod.</b> <b style=\"color:#7fe0a0\">Field</b> "+p+"×"+q+", <b style=\"color:#7fb6ff\">rope</b> "+r+". Tap the winner.",zh:'<b>幽灵的诡计 — 大尺。</b><b>田</b> '+p+'×'+q+'，<b>绳</b> '+r+'。点一下谁赢。'}), drawAt(u1),
       [ {bbox:fieldBB, hiCol:HG, fb:{en:'Big rod: field is only '+p+'×'+q+', rope is '+r+'. Rope wins.',zh:'大尺下，田只有 '+p+'×'+q+'，绳是 '+r+'。绳赢。'}},
-        {bbox:ropeBB, ok:true, hiCol:HB} ], q2); }
+        {bbox:ropeBB, ok:true, hiCol:HB} ], q2, r+'  >  '+(p*q)); }
   function q2(){ wmood='idle';
     pickScene(t({en:'<b>Small rod — same land.</b> Now <b style="color:#7fe0a0">field</b> '+P+'×'+Q+', <b style="color:#7fb6ff">rope</b> '+R+'. Tap the winner.',zh:'<b>小尺 — 同一片地。</b>现在<b>田</b> '+P+'×'+Q+'，<b>绳</b> '+R+'。点一下谁赢。'}), drawAt(u2),
       [ {bbox:fieldBB, ok:true, hiCol:HG},
-        {bbox:ropeBB, hiCol:HB, fb:{en:'Both sides grew: field is '+P+'×'+Q+', rope only '+R+'. Field wins.',zh:'两条边都变长：田 '+P+'×'+Q+'，绳只有 '+R+'。田赢。'}} ], win); }
+        {bbox:ropeBB, hiCol:HB, fb:{en:'Both sides grew: field is '+P+'×'+Q+', rope only '+R+'. Field wins.',zh:'两条边都变长：田 '+P+'×'+Q+'，绳只有 '+R+'。田赢。'}} ], win, (P*Q)+'  >  '+R); }
   function win(){ E.sceneStop(); WST='gone'; drawAt(u2)(); E.setDots(3); E.tickQ(3); E.award(60); E.cheer(); E.sfx('win'); E.status(t({en:keq('change the rod → the winner flips'),zh:keq('换把尺 → 赢家就变了')}));
     E.tell(t({en:'Same land, opposite winner — only the <b class="r">rod</b> changed. The <b class="r">rod</b> you pick decides it, so pin ONE and the <b class="p">wraith</b> is driven off. (This is how we will later measure the area under a curve.)',zh:'同一片地，赢家却相反，只换了尺。你选哪把尺，哪把尺定答案，所以钉死一把，<b class="p">幽灵</b>就被赶走。（以后量曲线下的面积，就靠这一招。）'}));
     E.clearTray(); E.addBtn(t({en:'Claim the Codex page 📖',zh:'领取典籍书页 📖'}),'primary',()=>E.openBook(QUEST.book)); E.addBtn(t({en:'↻ Replay (no EXP)',zh:'↻ 重玩（无经验）'}),'ghost',E.replayStep); }
