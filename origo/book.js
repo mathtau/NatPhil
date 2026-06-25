@@ -206,20 +206,27 @@ const FIGS={
     s+='<rect x="'+x0+'" y="'+yT+'" width="'+Wb+'" height="'+U+'" fill="'+G+'" opacity="0.26"/>'+sLine(x0,yT,x0+Wb,yT,GOLD,2.2)+sLine(x0,yB,x0+Wb,yB,GOLD,2.2)+sLine(x0,yT,x0,yB,R,2)+sLine(x0+Wb,yT,x0+Wb,yB,R,2);
     s+=sText('½τ',x0+Wb/2,yT-7,'#a8780f',12)+sText('1',x0-9,ccy,R,12);
     s+='<text x="240" y="'+(yB+18)+'" font-family="Caveat,cursive" font-size="14" fill="#a8780f" text-anchor="middle">same area = ½τ = <tspan fill="'+DEP+'">π</tspan></text>'; return s; },
-  drings(){ const cx=240, cy=48, r=34, n=6; let s='';   // slice the radius into thin rings, each dx wide
-    for(let i=1;i<=n;i++){ const ri=+(r*i/n).toFixed(1); s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+ri+'" fill="none" stroke="'+(i===n?GOLD:'#caa84a')+'" stroke-width="'+(i===n?2.4:1.3)+'" opacity="'+(i===n?1:(0.4+0.4*i/n).toFixed(2))+'"/>'; }
-    const dx=r/n; s+=sLine(cx+r-dx,cy,cx+r,cy,R,3)+sLine(cx+r-dx,cy-5,cx+r-dx,cy+5,R,1.5)+sLine(cx+r,cy-5,cx+r,cy+5,R,1.5);
-    s+=sDot(cx,cy,2.6,INK)+sText('dx',cx+r-dx/2,cy-11,R,12); return s; },
-  dstrip(){ const x0=152, len=176, y=40, w=18; let s='';   // one ring unrolled → a strip: dx wide, r·τ long
-    s+='<rect x="'+x0+'" y="'+(y-w/2)+'" width="'+len+'" height="'+w+'" fill="'+G+'" opacity="0.22"/>';
-    s+=sLine(x0,y-w/2,x0+len,y-w/2,GOLD,2.2)+sLine(x0,y+w/2,x0+len,y+w/2,GOLD,2.2)+sLine(x0,y-w/2,x0,y+w/2,R,2.2);
-    s+=sText('dx',x0-12,y,R,12)+sText('τ',x0+len/2,y-w/2-10,'#a8780f',13); return s; },
-  dtri(){ const x0=110, W=260, yT=22, yB=64; let s='';   // two triangles fill a τ×1 rectangle → each ½τ = π
-    s+='<path d="M'+x0+' '+yT+' L'+x0+' '+yB+' L'+(x0+W)+' '+yB+' Z" fill="'+G+'" opacity="0.26"/>';     // lower-left triangle (green) = one disk
-    s+='<path d="M'+x0+' '+yT+' L'+(x0+W)+' '+yT+' L'+(x0+W)+' '+yB+' Z" fill="'+DEP+'" opacity="0.2"/>';   // upper-right triangle (violet) = the 2nd disk, rotated
-    s+=sLine(x0,yT,x0+W,yT,GOLD,2.2)+sLine(x0,yB,x0+W,yB,GOLD,2.2)+sLine(x0,yT,x0,yB,R,2)+sLine(x0+W,yT,x0+W,yB,R,2)+sLine(x0,yT,x0+W,yB,INK,1.4);
-    s+=sText('1',x0-10,(yT+yB)/2,R,12)+sText('τ',x0+W/2,yB+13,'#a8780f',14);
-    s+=sText('½τ',x0+W*0.2,yB-9,'#a8780f',12)+'<text x="'+(x0+W*0.8)+'" y="'+(yT+12)+'" font-family="Caveat,cursive" font-size="12" fill="'+DEP+'" text-anchor="middle">½τ</text>'; return s; },
+  /* Q7 codex shares ONE unit U = "1": every circle has radius U, every triangle/rectangle has height U.
+     Colours match the game: τ gold, dx/1 red, areas green & violet, π violet. */
+  drings(){ const U=28, cx=240, cy=40, r=U, n=5, dx=r/n; let s='';   // the unit circle, radius (=1) cut down into N steps of dx
+    s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+GOLD+'" stroke-width="2.4"/>';
+    s+=sLine(cx,cy,cx,cy+r,R,3); for(let i=1;i<n;i++){ const y=cy+i*dx; s+=sLine(cx-4,y,cx+4,y,R,1.3); } s+=sLine(cx-5,cy+r,cx+5,cy+r,R,1.4);
+    s+=sLine(cx,cy+r-dx,cx,cy+r,'#ff8a6a',4)+sDot(cx,cy,2.4,INK)+sText('dx',cx+15,cy+r-dx/2,R,12)+sText('O',cx-11,cy-2,'#7a6a4a',11);
+    s+='<text x="'+cx+'" y="'+(cy+r+15)+'" font-family="Caveat,cursive" font-size="13" fill="'+INK+'" text-anchor="middle">N · <tspan fill="'+R+'">dx</tspan> = <tspan fill="'+R+'">1</tspan></text>'; return s; },
+  dstrip(){ const U=28, n=6, B=160, x0=240-B/2, yT=22, yB=yT+U, bh=U/n; let s='';   // the rings straighten & stack into a triangle (outer ring = bottom = τ, height = 1)
+    for(let k=1;k<=n;k++){ const y=yT+(k-1)*bh, L=B*k/n; s+='<rect x="'+x0+'" y="'+y+'" width="'+L.toFixed(1)+'" height="'+(bh-0.6).toFixed(1)+'" fill="'+((k%2)?G:'#2faa4e')+'" opacity="'+((k%2)?0.3:0.18)+'"/>'; }
+    s+=sLine(x0,yT,x0,yB,R,2)+sLine(x0,yB,x0+B,yB,GOLD,2.4);
+    s+=sText('1',x0-9,(yT+yB)/2,R,12)+sText('τ',x0+B/2,yB+13,GOLD,13)+sText('dx',x0+B+13,yT+bh/2,R,10); return s; },
+  dtri(){ const U=28, n=6, B=120, x0=92, yT=22, yB=yT+U, bh=U/n; let s='';   // two triangles → a τ×1 rectangle (= τ) → each disk ½τ
+    for(let k=1;k<=n;k++){ const y=yT+(k-1)*bh, L=B*k/n; s+='<rect x="'+x0+'" y="'+y+'" width="'+L.toFixed(1)+'" height="'+(bh-0.6).toFixed(1)+'" fill="'+G+'" opacity="'+((k%2)?0.3:0.2)+'"/>'; }   // green triangle (one disk)
+    for(let k=1;k<=n;k++){ const y=yT+(k-1)*bh, L=B*(n-k+1)/n; s+='<rect x="'+(x0+B-L).toFixed(1)+'" y="'+y+'" width="'+L.toFixed(1)+'" height="'+(bh-0.6).toFixed(1)+'" fill="'+DEP+'" opacity="'+((k%2)?0.28:0.18)+'"/>'; }   // violet triangle (2nd disk, rotated)
+    s+=sLine(x0,yT,x0+B,yT,GOLD,2)+sLine(x0,yB,x0+B,yB,GOLD,2)+sLine(x0,yT,x0,yB,R,2)+sLine(x0+B,yT,x0+B,yB,R,2);
+    s+=sText('1',x0-9,(yT+yB)/2,R,11)+sText('τ',x0+B/2,yB+13,GOLD,13);
+    s+='<text x="'+(x0+B+20)+'" y="'+((yT+yB)/2+1)+'" font-family="Caveat,cursive" font-size="18" fill="'+INK+'" text-anchor="middle" dominant-baseline="middle">=</text>';
+    const c1=x0+B+58, c2=c1+2*U+12, ccy=(yT+yB)/2;   // the two disks, same size (radius U), each ½τ
+    s+='<circle cx="'+c1+'" cy="'+ccy+'" r="'+U+'" fill="'+G+'" opacity="0.26"/><circle cx="'+c1+'" cy="'+ccy+'" r="'+U+'" fill="none" stroke="'+GOLD+'" stroke-width="2"/>';
+    s+='<circle cx="'+c2+'" cy="'+ccy+'" r="'+U+'" fill="'+DEP+'" opacity="0.22"/><circle cx="'+c2+'" cy="'+ccy+'" r="'+U+'" fill="none" stroke="'+GOLD+'" stroke-width="2"/>';
+    s+=sText('½τ',c1,ccy,GOLD,12)+sText('½τ',c2,ccy,GOLD,12); return s; },
 };
 function figSVG(name){ const W=480,H=FIGH[name]||70, cx=FIGCX[name]||240; return '<svg class="bkfig" width="544" height="'+(544*H/W).toFixed(1)+'" viewBox="'+(cx-240).toFixed(0)+' 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">'+FIGS[name]()+'</svg>'; }   // pan viewBox to centre content; explicit width/height so it sizes even if page CSS is missing (PNG/PDF export)
 function colorEq(s){ return s.replace(/\d/g,d=>'<span style="color:'+(COL[+d]||INK)+'">'+d+'</span>'); }
